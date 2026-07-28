@@ -14,7 +14,11 @@ export async function onRequestDelete(context) {
     const key = item.image_path.replace('/api/uploads/', '');
     try {
       await context.env.GALLERY_BUCKET.delete(key);
-    } catch {}
+    } catch (err) {
+      // The D1 row is already gone, so the delete still succeeded from the caller's
+      // view. Log it — silently swallowing this is how R2 accumulates orphans.
+      console.error(`R2 delete failed for key "${key}":`, err);
+    }
   }
 
   return json({ success: true });

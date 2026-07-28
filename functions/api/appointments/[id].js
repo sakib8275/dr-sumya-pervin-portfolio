@@ -1,10 +1,13 @@
-import { requireAuth, json } from '../../lib/auth.js';
+import { requireAuth, readJson, json } from '../../lib/auth.js';
 
 export async function onRequestPut(context) {
   const auth = await requireAuth(context.request, context.env);
   if (auth) return auth;
 
-  const { status } = await context.request.json();
+  const body = await readJson(context.request);
+  if (!body) return json({ error: 'Invalid request body' }, 400);
+
+  const { status } = body;
   if (!['Pending', 'Confirmed', 'Completed'].includes(status)) {
     return json({ error: 'Invalid status' }, 400);
   }

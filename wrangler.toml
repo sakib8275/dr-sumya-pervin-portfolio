@@ -1,14 +1,21 @@
-pages_build_output_dir = "."
+# Only public/ is published. This was "." — the repo root — which served the admin
+# PIN hash, SITE_SECRET, and every internal doc as public assets. Anything that is
+# not meant for patients must stay outside public/.
+pages_build_output_dir = "public"
 
 [[d1_databases]]
 binding = "DB"
 database_name = "dr-sumya-pervin-db"
-database_id = "local-dev-db-id"
+database_id = "local-dev-db-id"  # replace with the id printed by `wrangler d1 create`
 
 [[r2_buckets]]
 binding = "GALLERY_BUCKET"
 bucket_name = "dr-sumya-gallery"
 
+# JWT_SECRET and SITE_SECRET are secrets and must NOT be declared here — values in
+# [vars] ship as plaintext and overwrite the dashboard on every deploy. Set them with:
+#   npx wrangler pages secret put JWT_SECRET
+#   npx wrangler pages secret put SITE_SECRET
+# For local dev, put them in .dev.vars (gitignored).
 [vars]
-JWT_SECRET = "change-in-cloudflare-dashboard"
-SITE_SECRET = "portfoliosumyapervin"
+ALLOWED_ORIGIN = "https://drsumyapervin.com"

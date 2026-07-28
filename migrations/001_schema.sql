@@ -1,6 +1,7 @@
 CREATE TABLE IF NOT EXISTS admin_settings (
   id INTEGER PRIMARY KEY CHECK (id = 1),
   pin_hash TEXT NOT NULL,
+  pin_salt TEXT NOT NULL,
   whatsapp TEXT DEFAULT '',
   telegram TEXT DEFAULT '',
   updated_at TEXT DEFAULT (datetime('now'))
@@ -36,4 +37,12 @@ CREATE TABLE IF NOT EXISTS contact_messages (
   created_at TEXT DEFAULT (datetime('now'))
 );
 
-INSERT OR IGNORE INTO admin_settings (id, pin_hash) VALUES (1, '089aba933943b370a8fb98a881aaf8a03e3c4682e651b8fbdc6871f9899f8fd5');
+-- PBKDF2-SHA256, 100k iterations, per-install salt. The previous seed was an
+-- unsalted single-round SHA-256 of a PIN that had leaked publicly; both the hash
+-- and that PIN are revoked. The plaintext for this hash is deliberately recorded
+-- nowhere in this repository — it is handed to the practice out of band.
+INSERT OR IGNORE INTO admin_settings (id, pin_hash, pin_salt) VALUES (
+  1,
+  '5aca72bfe827f0d3dc21adcdae5fcd001d7d593f9b918fda73e29be5acfa940c',
+  'cd83e982568eef34dd1502845d7667d1'
+);
