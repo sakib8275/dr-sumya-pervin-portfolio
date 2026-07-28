@@ -542,12 +542,13 @@ document.addEventListener("DOMContentLoaded", () => {
       bookingStatus.style.display = 'block';
       bookingStatus.innerHTML = `
         <div style="background: #D4EDDA; color: #155724; padding: 18px; border-radius: 14px; margin-bottom: 16px;">
-          <h4 style="margin: 0 0 6px; font-weight: 600;">✅ Appointment Saved Permanently!</h4>
-          <p style="margin: 0 0 12px; font-size: 14px;">Thank you <strong>${escapeHTML(name)}</strong>! Your booking has been stored in Dr. Sumya Pervin's clinical log.</p>
+          <h4 style="margin: 0 0 6px; font-weight: 600;">✅ Appointment Request Received!</h4>
+          <p style="margin: 0 0 12px; font-size: 14px;">Thank you <strong>${escapeHTML(name)}</strong>! Your booking has been saved to your browser's local storage.</p>
+          <p style="margin: 0 0 12px; font-size: 13px; background: #FFF3CD; color: #856404; padding: 10px; border-radius: 8px;"><strong>📌 Demo Notice:</strong> This is a client-side demonstration. Appointment data is stored only in your browser and will be lost if you clear your cache. Please contact the clinic directly to confirm your booking.</p>
           
           <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px;">
             <a href="${waUrl}" target="_blank" class="btn btn-whatsapp btn-sm">
-              💬 Instant Dispatch to Dr. Pervin's WhatsApp
+              💬 Send via WhatsApp to Dr. Pervin
             </a>
             <a href="${tgUrl}" target="_blank" class="btn btn-telegram btn-sm">
               ✈️ Send via Telegram
@@ -588,13 +589,14 @@ document.addEventListener("DOMContentLoaded", () => {
       cmsAuthSection.style.display = 'none';
       cmsMainSection.style.display = 'block';
       if (pinError) pinError.style.display = 'none';
+      console.warn('⚠️ CMS Admin: This is a client-side demo. All data (appointments, gallery images) is stored in localStorage and will be lost if the browser cache is cleared. No server backup exists.');
       renderCMSItemList();
       renderCMSAppointmentsList();
       loadCMSConfigForm();
     } else {
       if (pinError) {
         pinError.style.display = 'block';
-        pinError.textContent = 'Incorrect PIN. (Default PIN: 1234)';
+        pinError.textContent = 'Incorrect PIN. Contact the site administrator.';
       }
     }
   }
