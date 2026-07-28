@@ -32,13 +32,12 @@ html {
 
 body {
   margin: 0;
-  background: var(--canvas);
+  background: var(--surface);
   color: var(--ink);
   font-family: "Outfit", ui-sans-serif, system-ui, sans-serif;
   font-size: 16px;
   line-height: 1.55;
   -webkit-font-smoothing: antialiased;
-  padding: clamp(10px, 2vw, 26px);
 }
 
 a {
@@ -61,11 +60,7 @@ button {
 }
 
 .shell {
-  max-width: 1340px;
-  margin: 0 auto;
   background: var(--surface);
-  border-radius: var(--r-shell);
-  overflow: hidden;
 }
 
 .wrap {
