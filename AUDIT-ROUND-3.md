@@ -10,7 +10,7 @@
 
 The migration was architecturally sound — D1 + R2 + Pages is the right shape for this site, and the endpoint layout is clean. The defects are all in the details of the port, and two of them were live on the public internet.
 
-Ten findings: 4 critical, 3 high, 3 medium. All code-level findings are fixed. One containment item requires the owner.
+Ten findings: 4 critical, 3 high, 3 medium. All ten are fixed. The one containment item that required the owner — the Netlify takedown — was completed and verified on 2026-07-29.
 
 ---
 
@@ -18,7 +18,7 @@ Ten findings: 4 critical, 3 high, 3 medium. All code-level findings are fixed. O
 
 | ID | Severity | Area | Status |
 |---|---|---|---|
-| G01 | Critical | Public repo-root exposure of credentials | Fixed (owner action outstanding) |
+| G01 | Critical | Public repo-root exposure of credentials | Fixed; containment closed 2026-07-29 |
 | G02 | Critical | `JWT_SECRET` fallback constant | Fixed |
 | G03 | Critical | Unauthenticated stored XSS into admin panel | Fixed |
 | G04 | Critical | Unsalted single-round SHA-256 PIN | Fixed |
@@ -39,7 +39,7 @@ Ten findings: 4 critical, 3 high, 3 medium. All code-level findings are fixed. O
 
 **Fix:** site moved to `public/`; `pages_build_output_dir` scoped to it; `netlify.toml` added so an accidental redeploy fails closed; LAN server killed. Verified sensitive paths return 404 with no secret strings in any body.
 
-**Outstanding:** the Netlify site must be unpublished by the owner. Credentials are compromised regardless and were rotated.
+**Closed 2026-07-29:** the owner deleted the Netlify site. Verified from outside — the previously exposed paths return 404 carrying Netlify's platform-level `Not Found` body (a deleted site, not a deployed one with a 404 page), and no response body contains a secret marker. Credentials were rotated regardless and the originals remain in git history permanently, so treat them as compromised for good. Search-engine caches may retain snapshots independently of the takedown.
 
 ### G02 — `JWT_SECRET` fallback constant (Critical)
 
