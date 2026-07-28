@@ -1,6 +1,17 @@
 # UX-AUDIT — Dr. Sumya Pervin Portfolio
 
-**Status: All P0/P1/P2 findings resolved in commit `8afdcf9`. This document is the historical record of findings — no further action needed.**
+> ## ⚠️ PARTLY SUPERSEDED — one finding regressed
+>
+> These findings were resolved in `8afdcf9` against the **pre-migration codebase**. The
+> Cloudflare migration (`7851663`) then **regressed the "Lying success states" finding**: the
+> booking form went back to reporting success when the save had failed, and did so on every
+> booking on the live site, because that host could not run the API at all. Re-fixed in
+> Round 3 as G06.
+>
+> Treat any "resolved" claim here as needing re-verification against the current code.
+> **See [`AUDIT-ROUND-3.md`](AUDIT-ROUND-3.md).**
+
+**Status (historical): All P0/P1/P2 findings resolved in commit `8afdcf9` against the pre-migration codebase.**
 
 ## Verdict
 

@@ -1,6 +1,12 @@
 # UX-FIXPLAN — Dr. Sumya Pervin Portfolio
 
-**Status: ✅ All P0/P1/P2 fixes applied in commit `8afdcf9`. This document is the historical plan record.**
+> ## ⚠️ PARTLY SUPERSEDED
+>
+> Applied against the **pre-migration codebase**. The booking-confirmation fix was undone by
+> the Cloudflare migration and re-fixed in Round 3 (G06).
+> **See [`AUDIT-ROUND-3.md`](AUDIT-ROUND-3.md).**
+
+**Status (historical): ✅ All P0/P1/P2 fixes applied in commit `8afdcf9` against the pre-migration codebase.**
 
 ## Unblock (P0 — do first)
 

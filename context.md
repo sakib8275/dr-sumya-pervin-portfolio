@@ -11,7 +11,9 @@ This document details the background, medical practitioner profile, chamber info
 - **Specialty**: Dermatology, Venereology, Dermatosurgery & Aesthetic Medicine
 - **Current Position**: Assistant Professor, Department of Skin & VD, Sir Salimullah Medical College & Mitford Hospital, Dhaka, Bangladesh.
 - **Experience**: 14+ years of specialized clinical practice and dermatological surgery.
-- **Annual Patient Impact**: 1,500+ procedures performed annually with clinical distinction.
+- **Annual Patient Impact**: “1,500+ procedures annually” is currently **unverified**. This is a
+  medical advertising claim on a physician's site, not a placeholder — it must be sourced from the
+  practice or removed from `public/index.html` before launch.
 
 ### Academic & Professional Qualifications
 - **MBBS**: Sir Salimullah Medical College (SSMC)
@@ -28,7 +30,9 @@ Dr. Sumya Pervin consults at top diagnostic and hospital centers in Shyamoli, Dh
 1. **Alliance Hospital Limited**
    - **Location**: 24/3 Khilji Road (Ring Road), Shyamoli, Dhaka
    - **Visiting Days**: Saturday – Thursday, 5:00 PM – 8:00 PM
-   - **Contact / Appointment Hotline**: +880 1700-000000
+   - **Contact / Appointment Hotline**: *not yet supplied by the practice.* The site no longer
+     ships a placeholder number — the nav entry and floating WhatsApp button populate from
+     `/api/config/public` and stay hidden until a real number is entered in CMS Settings.
 
 2. **Dhaka Central International Medical College (DCIMCH)**
    - **Location**: 2/1, Ring Road, Shyamoli, Dhaka
@@ -58,7 +62,7 @@ The portfolio highlights a comprehensive range of clinical and cosmetic dermatol
 
 ## 4. Key Website Sections & Interactive Components
 
-The single-page web app (`index.html`) is structured into distinct interactive sections:
+The single-page web app (`public/index.html`) is structured into distinct interactive sections:
 
 | Section ID | Section Title | Key Content & Interactivity |
 | :--- | :--- | :--- |
@@ -86,6 +90,9 @@ The single-page web app (`index.html`) is structured into distinct interactive s
 
 ## 6. Maintenance & Future Enhancements
 
-- **Backend Integration**: Currently operates as a static client-side application. Future additions may integrate Firebase / Node API for direct SMS appointment notifications.
-- **Dynamic Content**: Chamber schedules and contact numbers can be dynamically loaded or updated in `index.html` and `js/main.js`.
+- **Backend Integration**: No longer a client-side-only application. Bookings, contact messages, and
+  gallery items persist to Cloudflare D1 via Pages Functions in `functions/`, with images in R2.
+  Still outstanding: nothing notifies the doctor when a booking arrives — she must check the CMS.
+- **Dynamic Content**: Chamber schedules live in `public/index.html`. Contact numbers are **not**
+  hardcoded any more; they come from `/api/config/public` and are edited in CMS Settings.
 - **Localization**: Prepared for future bilingual support (English & Bengali).

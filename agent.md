@@ -15,48 +15,57 @@ Welcome! This document provides operational guidelines, structural context, and 
 
 ## 2. Workspace & File Structure
 
+**Everything patient-facing lives in `public/`. Everything else is never published.**
+This split is a security boundary, not a style preference — see the rule in §3.
+
 ```
 Portfolio Sumya Pervin/
-├── index.html                    # Single-page portfolio (all markup)
-├── css/
-│   └── style.css                 # CSS design system & component styles
-├── js/
-│   └── main.js                   # Frontend logic + API fetch calls
-├── assets/
-│   ├── hero_portrait.jpg
-│   ├── clinic.jpg
-│   └── treatment.jpg
-├── functions/
-│   ├── _middleware.js            # CORS + admin seed on every request
+├── public/                       # ← THE ONLY PUBLISHED DIRECTORY
+│   ├── index.html                # Single-page portfolio (all markup)
+│   ├── 404.html                  # Not-found page
+│   ├── css/
+│   │   └── style.css             # CSS design system & component styles
+│   ├── js/
+│   │   └── main.js               # Frontend logic + API fetch calls
+│   └── assets/
+│       ├── hero_portrait.jpg
+│       ├── clinic.jpg
+│       └── treatment.jpg
+├── functions/                    # Pages Functions — served as routes, not as files
+│   ├── _middleware.js            # CORS, scoped to ALLOWED_ORIGIN
 │   ├── lib/
-│   │   ├── auth.js               # JWT sign/verify, PIN hashing, json helper
-│   │   └── db.js                 # Admin seeder (fallback)
+│   │   └── auth.js               # JWT sign/verify, PBKDF2 PIN hashing, helpers
 │   └── api/
 │       ├── auth/
 │       │   ├── login.js          # POST: verify PIN, return JWT
 │       │   └── check.js          # GET: verify JWT, return auth status
 │       ├── appointments/
-│       │   ├── index.js          # GET (auth): list, POST: create
+│       │   ├── index.js          # GET (auth): list, POST: create + validate
 │       │   └── [id].js           # PUT (auth): status, DELETE (auth)
 │       ├── gallery/
 │       │   ├── index.js          # GET: list, POST (auth): create + upload
 │       │   └── [id].js           # DELETE (auth): remove from D1 + R2
 │       ├── uploads/
-│       │   └── [filename].js     # GET: serve images from R2 bucket
-│       ├── config.js             # GET/PUT (auth): settings + PIN change
+│       │   └── [filename].js     # GET: serve images from R2 with nosniff
+│       ├── config/
+│       │   ├── index.js          # GET/PUT (auth): settings + PIN change
+│       │   └── public.js         # GET: WhatsApp/Telegram only, no auth
 │       └── contact.js            # POST: submit, GET (with secret): list
 ├── migrations/
-│   └── 001_schema.sql            # D1: 4 tables + seed admin PIN
-├── wrangler.toml                 # Cloudflare config (D1, R2, env vars)
+│   └── 001_schema.sql            # D1: 4 tables + seeded admin credential
+├── wrangler.toml                 # Cloudflare config (D1, R2) — NO SECRETS
+├── netlify.toml                  # Fail-closed guard against Netlify redeploy
+├── .dev.vars                     # Local secrets (gitignored, never published)
 ├── package.json                  # Dependencies (jose for JWT)
 ├── node_modules/                 # (gitignored)
 ├── agent.md                      # AI Agent rules & operational guidance
 ├── AGENTS.md                     # Points to agent.md
 ├── context.md                    # Domain context, background & site specs
-├── AUDIT.md                      # Security & code health audit (Round 1)
-├── FIXPLAN.md                    # Round 1 remediation plan — all done
-├── UX-AUDIT.md                   # UI/UX audit findings (Round 2)
-├── UX-FIXPLAN.md                 # Round 2 remediation plan — all done
+├── AUDIT.md                      # Round 1 audit — SUPERSEDED (pre-migration)
+├── FIXPLAN.md                    # Round 1 plan — SUPERSEDED (pre-migration)
+├── UX-AUDIT.md                   # Round 2 audit — partly superseded
+├── UX-FIXPLAN.md                 # Round 2 plan — partly superseded
+├── AUDIT-ROUND-3.md              # Round 3 — CURRENT security audit
 ├── HANDOFF-2026-07-28.md         # Agent handoff doc
 └── vibe-code-audit-prompt.md     # Code audit reference prompt
 ```
@@ -76,7 +85,19 @@ Portfolio Sumya Pervin/
 8. **JWT** (jose library): Stateless admin auth (Bearer token in localStorage).
 
 ### Architectural Rules
-- **Vanilla CSS Priority**: Avoid TailwindCSS or utility frameworks to preserve the custom glassmorphism aesthetic tailored in `css/style.css`.
+- **Only `public/` is published.** `pages_build_output_dir = "public"`. Never widen it, and never
+  put docs, migrations, config, or secrets inside `public/`. This directory was previously the repo
+  root, which served the admin credential and `SITE_SECRET` to the public internet — see the Security
+  History section of the handoff. New patient-facing files go in `public/`; everything else stays out.
+- **Secrets are never committed and never go in `[vars]`.** `wrangler.toml` `[vars]` ship as plaintext
+  and overwrite the dashboard on deploy. Use `wrangler pages secret put` for real deployments and
+  `.dev.vars` (gitignored) locally. No code may carry a fallback default for a secret — fail closed.
+- **Escape every interpolation into `innerHTML`.** Use the existing `escapeHTML` helper in
+  `public/js/main.js`, including inside attributes (`src`, `alt`, `href`). Booking fields reach the
+  admin panel from an unauthenticated endpoint, so admin-only views are not a trusted context.
+- **Validate at the API boundary**, not just in the form. Anything reachable without a token must
+  assume hostile input.
+- **Vanilla CSS Priority**: Avoid TailwindCSS or utility frameworks to preserve the custom glassmorphism aesthetic tailored in `public/css/style.css`.
 - **Aesthetic Excellence**: Maintain premium UI visuals—modern typography (Google Fonts Outfit), curated color palettes, subtle glassmorphism cards, micro-animations.
 - **No Session State**: Auth is stateless JWT. Token stored in `localStorage` as `cms_token`. Sent as `Authorization: Bearer <token>` header.
 
@@ -144,20 +165,36 @@ npm install
 # Run D1 migration locally (first time only)
 npx wrangler d1 execute dr-sumya-pervin-db --local --file=migrations/001_schema.sql
 
-# Start dev server
-npx wrangler pages dev . --local --port 8788
+# Create .dev.vars (gitignored) with JWT_SECRET, SITE_SECRET, ALLOWED_ORIGIN.
+# Without JWT_SECRET, login returns 500 by design — there is no fallback.
+
+# Start dev server — note the "public" argument, not "."
+npx wrangler pages dev public --local --port 8788
 ```
 
 Visit `http://localhost:8788` to see the site with full API functionality.
 
-### Default Admin Credentials
-- **PIN**: `talhatheboss` (SHA-256 hashed, stored in D1, change via CMS Settings)
+Never serve this project with a plain static server (`python3 -m http.server`, `npx serve`).
+Those cannot run Pages Functions, so every `/api/*` route 404s and the site appears broken in
+ways that are not real — and if pointed at the repo root they publish the migration and config
+files. One such server was found running on the LAN and was the second half of the credential
+exposure recorded in the handoff.
 
-### Environment Variables (set in Cloudflare dashboard)
-| Variable | Description |
-|----------|-------------|
-| `JWT_SECRET` | Strong random string for signing JWT tokens |
-| `SITE_SECRET` | Access code for viewing contact messages via API |
+### Admin Credentials
+The PIN is **not recorded in this repository**, by design. It is PBKDF2-SHA256 hashed with a
+per-install salt in `admin_settings`, seeded by `migrations/001_schema.sql`, and held by the
+practice. Change it via CMS Settings (requires the current PIN, minimum 8 characters). If it is
+lost, reseed the row with a freshly generated hash and salt — do not add a default.
+
+### Environment Variables
+Set with `npx wrangler pages secret put <NAME>` (Pages), or `.dev.vars` locally.
+**`wrangler secret put` without `pages` is the Workers command and silently does nothing here.**
+
+| Variable | Kind | Description |
+|----------|------|-------------|
+| `JWT_SECRET` | secret | Strong random string for signing JWT tokens. No fallback — unset means login 500s. |
+| `SITE_SECRET` | secret | Access code for viewing contact messages via API. No fallback. |
+| `ALLOWED_ORIGIN` | var | Site origin allowed through CORS. Safe to keep in `wrangler.toml`. |
 
 ### Deploy to Production
 ```bash
@@ -175,8 +212,18 @@ npx wrangler r2 bucket create dr-sumya-gallery
 # Run migration
 npx wrangler d1 execute dr-sumya-pervin-db --remote --file=migrations/001_schema.sql
 
-# Deploy
-npx wrangler pages deploy .
+# Set secrets — "pages secret", not "secret"
+npx wrangler pages secret put JWT_SECRET
+npx wrangler pages secret put SITE_SECRET
+
+# Deploy — publishes public/ per wrangler.toml
+npx wrangler pages deploy
+
+# Then confirm the repo root is NOT reachable:
+#   curl -s -o /dev/null -w "%{http_code}\n" https://drsumyapervin.com/migrations/001_schema.sql
+#   curl -s -o /dev/null -w "%{http_code}\n" https://drsumyapervin.com/wrangler.toml
+# Both must be 404. Check the response body too, not just the status code —
+# a catch-all can return 200 with the homepage and mask a real leak.
 
 # Or: connect GitHub repo in Cloudflare Pages dashboard (auto-deploys on push)
 ```

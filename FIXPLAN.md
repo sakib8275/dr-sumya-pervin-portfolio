@@ -1,6 +1,14 @@
 # FIXPLAN.md — Dr. Sumya Pervin Portfolio Remediation
 
-## Status: ✅ Round 1 (security/code) and Round 2 (UI/UX) fully applied. P3 hygiene items remain optional.
+> ## ⚠️ SUPERSEDED — historical record only
+>
+> The "fully applied" status below was true of the **Express codebase deleted in `7851663`**,
+> not of the Cloudflare backend that replaced it. Reading this line as a statement about the
+> current system is what allowed four critical post-migration defects to reach production.
+>
+> **For the current system, read [`AUDIT-ROUND-3.md`](AUDIT-ROUND-3.md).**
+
+## Status: ✅ Round 1 (security/code) and Round 2 (UI/UX) fully applied to the pre-migration codebase. P3 hygiene items remain optional.
 
 ```
 8afdcf9 fix: UX audit P0/P1 — hero contrast, booking form reliability, keyboard accessibility

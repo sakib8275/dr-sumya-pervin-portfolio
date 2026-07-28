@@ -5,3 +5,6 @@ node_modules/
 Thumbs.db
 data/
 .wrangler/
+
+# Local secrets for `wrangler pages dev` — never commit.
+.dev.vars

@@ -1,5 +1,16 @@
 # AUDIT.md — Dr. Sumya Pervin Portfolio Website
 
+> ## ⚠️ SUPERSEDED — historical record only
+>
+> This audit covers the **pre-migration Express/SQLite/localStorage codebase**, which was
+> deleted in commit `7851663`. None of the code it describes is still running: there is no
+> localStorage PII store, no `1234` PIN, and no missing backend. Its findings were applied
+> and are no longer actionable.
+>
+> **For the current system, read [`AUDIT-ROUND-3.md`](AUDIT-ROUND-3.md).** Round 3 found four
+> critical issues in the replacement backend, including a live public credential exposure —
+> none of which this document could have caught.
+
 ## Executive Summary
 
 This is a static single-page portfolio site for a dermatologist, built with vanilla HTML/CSS/JS. The visual design is polished and the layout is well-structured. However, the site **cannot be trusted with real patient data in its current state**. The "Doctor CMS Admin Panel" stores patient PII (names, phone numbers, medical notes) unencrypted in the browser's localStorage — this data is accessible to anyone with physical access to the device, any browser extension, or any XSS vulnerability. The CMS is protected by a hardcoded PIN `1234` with a backdoor (`"admin"` also works). The booking form has no server backend; appointments exist only in the browser they were created on and vanish on cache clear. The most urgent fix is removing the patient-data illusion and either adding a real backend or making it clear the data is local-only.
