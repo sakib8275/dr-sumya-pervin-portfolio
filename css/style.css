@@ -129,6 +129,25 @@ button {
 }
 
 /* ---- NAV ---- */
+.nav-sticky-wrapper {
+  position: relative;
+  z-index: 8;
+  height: 0;
+  transition: .3s var(--ease);
+}
+.nav-sticky-wrapper.scrolled {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  height: auto;
+}
+.nav-sticky-wrapper.scrolled .nav {
+  position: relative;
+  background: rgba(15, 10, 8, .88);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 2px 20px rgba(0,0,0,.12);
+}
+
 .nav {
   position: absolute;
   top: 0;
