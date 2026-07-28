@@ -327,7 +327,7 @@ button {
 /* ---- HERO SECTION WITH PORTRAIT IMAGE ---- */
 .hero {
   position: relative;
-  min-height: min(88vh, 760px);
+  min-height: 100dvh;
   display: flex;
   align-items: center;
   background: radial-gradient(120% 90% at 78% 52%, var(--gold) 0%, var(--amber) 42%, var(--orange) 100%);
