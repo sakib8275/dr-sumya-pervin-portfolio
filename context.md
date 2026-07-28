@@ -25,15 +25,14 @@ This document details the background, medical practitioner profile, chamber info
 
 Dr. Sumya Pervin consults at top diagnostic and hospital centers in Shyamoli, Dhaka:
 
-1. **Ibn Sina Diagnostic & Consultation Center**
-   - **Location**: Shyamoli, Dhaka, Bangladesh
-   - **Visiting Hours**: Evening Sessions (5:00 PM – 8:00 PM, Saturday to Thursday)
+1. **Alliance Hospital Limited**
+   - **Location**: 24/3 Khilji Road (Ring Road), Shyamoli, Dhaka
+   - **Visiting Days**: Saturday – Thursday, 5:00 PM – 8:00 PM
    - **Contact / Appointment Hotline**: +880 1700-000000
 
-2. **Alliance Hospital**
-   - **Location**: Shyamoli, Dhaka, Bangladesh
-   - **Visiting Hours**: Morning & Afternoon Sessions
-   - **Services**: Advanced Dermatosurgery & In-Patient Clinical Procedures
+2. **Dhaka Central International Medical College (DCIMCH)**
+   - **Location**: 2/1, Ring Road, Shyamoli, Dhaka
+   - **Visiting Days**: Saturday – Wednesday, 3:00 PM – 5:00 PM
 
 ---
 
