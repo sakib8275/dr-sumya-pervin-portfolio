@@ -329,7 +329,7 @@ button {
   position: relative;
   min-height: 100dvh;
   display: flex;
-  align-items: center;
+  flex-direction: column;
   background: radial-gradient(120% 90% at 78% 52%, var(--gold) 0%, var(--amber) 42%, var(--orange) 100%);
   overflow: hidden;
 }
@@ -359,6 +359,10 @@ button {
   position: relative;
   z-index: 3;
   width: 100%;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   padding: 120px var(--pad) 56px;
 }
 
@@ -1568,7 +1572,7 @@ button {
   .pill { position: static; display: inline-block; margin-bottom: 16px; }
   .sec-head h2 { margin-inline: 0; max-width: none; }
   .sec-sub { text-align: left; margin-inline: 0; }
-  .namecard { position: static; margin-top: 26px; display: inline-block; }
+  .namecard { position: relative; margin-top: auto; left: auto; right: auto; bottom: auto; display: inline-block; }
   .hero-figure { width: 80%; opacity: .8; }
   .form-grid { grid-template-columns: 1fr; }
   .cms-item-row { flex-direction: column; align-items: flex-start; }
