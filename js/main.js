@@ -531,8 +531,7 @@ document.addEventListener("DOMContentLoaded", () => {
         `📞 *Mobile:* ${phone}\n` +
         `🏥 *Chamber:* ${chamber}\n` +
         `📅 *Date:* ${date}\n` +
-        `💉 *Service:* ${service}\n` +
-        `📝 *Notes:* ${notes || 'None'}\n\n` +
+        `💉 *Service:* ${service}\n\n` +
         `Sent via Dr. Sumya Pervin Website`
       );
 
