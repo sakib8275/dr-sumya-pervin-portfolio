@@ -10,7 +10,8 @@ This is a static single-page portfolio site for a dermatologist, built with vani
 - **Request flow**: All static — no server. A user loads `index.html`, navigates sections via anchor links, clicks modals (booking, service details, CMS admin). The booking form stores submissions to `localStorage`. The CMS admin panel reads/writes gallery items and appointments from `localStorage`. WhatsApp/Telegram notification links are generated client-side.
 - **Data model**: Two localStorage keys: `dr_sumya_appointments` (array of patient bookings with name, phone, chamber, date, service, notes, status) and `dr_sumya_cms_gallery` (array of gallery items with title, category, caption, image as base64 string). A config object `dr_sumya_cms_config` stores WhatsApp number, Telegram username, and admin PIN.
 - **Trust boundaries**: No server, no network requests. All data is client-side. The boundary is between the user's browser and localStorage — no authentication, no encryption.
-- **Hot core**: `js/main.js` (875 lines, all logic), `index.html` (647 lines, all markup), `css/style.css` (1551 lines, all styles).
+- **Audit Round 2 (UI/UX)**: Completed after Round 1 — see `UX-AUDIT.md` and `UX-FIXPLAN.md`. All P0/P1/P2 findings from both rounds have been remediated.
+- **Hot core**: `js/main.js` (1021 lines, all logic), `index.html` (652 lines, all markup), `css/style.css` (1581 lines, all styles).
 
 ## Findings Table
 
@@ -23,13 +24,12 @@ This is a static single-page portfolio site for a dermatologist, built with vani
 | F05 | P2 | Security | `js/main.js:662` | Photo upload stores images as base64 in localStorage — size limit will be hit | M |
 | F06 | P2 | AI Pathology | `js/main.js:177` | `.nav-sticky-wrapper` queried but does not exist in HTML — scroll class never applied | S |
 | F07 | P2 | AI Pathology | `html:92-121` | Chamber locations in HTML (Alliance, DCIMCH) differ from `context.md` (Ibn Sina, Alliance) — spec drift | S |
-| F08 | P2 | Data | `html:512` | Legacy file `dermatology-portfolio (1).html` for a different doctor is in the repo | S |
 | F09 | P2 | Data | `html:379` | Placeholder email `clinic@example.com` in booking CTA | S |
 | F10 | P3 | AI Pathology | `html:190-199` | Before/after slider uses two different images — not a real before/after pair | S |
 | F11 | P3 | AI Pathology | `html:300-303` | Testimonial faces use portfolio images as fake patient photos | S |
 | F12 | P3 | AI Pathology | `html:207-218` | 10 certification cards all use the same 3 images rotated — not actual certificate images | S |
 | F13 | P3 | Code Health | — | Phone numbers and WhatsApp config hardcoded as placeholders | S |
-| F14 | P3 | Code Health | — | No `.gitignore`, no git history, no CI config | S |
+| F14 | P3 | Code Health | — | No CI config | S |
 | F15 | P3 | Data | `html:244` | Gallery "managed live via CMS" is misleading — it's client-side localStorage | S |
 
 ## Detailed Findings
@@ -75,13 +75,6 @@ This is a static single-page portfolio site for a dermatologist, built with vani
 - **Impact**: Confusion about which chambers are correct. Potential for out-of-date information being served to patients.
 - **Fix**: Align `context.md` and `index.html` to match the real chamber list.
 - **Blast radius**: Small.
-
-### F08 — Legacy file for different doctor (P2)
-- **File**: `dermatology-portfolio (1).html`
-- **Evidence**: This file is titled "CosmetIQ — Dr. Isabella Cruz, MD" — a completely different practitioner. It's a draft/template that was used as a starting point and left in the repo.
-- **Impact**: Reputational risk if served accidentally. Confuses future maintainers.
-- **Fix**: Remove the file.
-- **Blast radius**: None.
 
 ## What's Actually Good
 

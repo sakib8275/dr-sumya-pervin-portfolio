@@ -1,8 +1,9 @@
 # FIXPLAN.md — Dr. Sumya Pervin Portfolio Remediation
 
-## Status: ✅ All P1/P2 fixes applied (8 commits). P3 hygiene items remain optional.
+## Status: ✅ Round 1 (security/code) and Round 2 (UI/UX) fully applied. P3 hygiene items remain optional.
 
 ```
+8afdcf9 fix: UX audit P0/P1 — hero contrast, booking form reliability, keyboard accessibility
 4a981ba fix: P2 security — remove patient notes from notification URLs
 98ea2a3 fix: P3 code health — add .gitignore
 9158c1e fix: P1 data — add demo disclaimer and remove hardcoded PIN hint from UI

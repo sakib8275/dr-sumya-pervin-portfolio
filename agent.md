@@ -17,20 +17,24 @@ Welcome! This document provides operational guidelines, structural context, and 
 
 ```
 Portfolio Sumya Pervin/
-├── index.html                    # Primary single-page portfolio landing page
-├── dermatology-portfolio (1).html # Legacy/reference draft HTML mockup
+├── index.html                    # Single-page portfolio (652 lines, all markup)
 ├── css/
-│   └── style.css                 # Centralized CSS design system, layout & component styles
+│   └── style.css                 # CSS design system & component styles (1581 lines)
 ├── js/
-│   └── main.js                   # Interactive logic (modals, scroll reveal, navigation, filters)
+│   └── main.js                   # All interactive logic (1021 lines)
 ├── assets/
 │   ├── hero_portrait.jpg         # High-res portrait of Dr. Sumya Pervin
 │   ├── clinic.jpg                # Chamber / clinic facility photo
 │   └── treatment.jpg             # Aesthetic procedure / treatment photo
-├── screenshot.png                # Visual snapshot of the rendered UI
-├── vibe-code-audit-prompt.md     # Code audit and remediation reference prompt
 ├── agent.md                      # AI Agent rules & operational guidance (this file)
-└── context.md                    # Detailed domain context, background & site specifications
+├── AGENTS.md                     # Points to agent.md
+├── context.md                    # Domain context, background & site specifications
+├── AUDIT.md                      # Security & code health audit (Round 1)
+├── FIXPLAN.md                    # Round 1 remediation plan — all done
+├── UX-AUDIT.md                   # UI/UX audit findings (Round 2)
+├── UX-FIXPLAN.md                 # Round 2 remediation plan — all done
+├── HANDOFF-2026-07-28.md         # Agent handoff doc
+└── vibe-code-audit-prompt.md     # Code audit reference prompt
 ```
 
 ---

@@ -1,5 +1,7 @@
 # UX-AUDIT — Dr. Sumya Pervin Portfolio
 
+**Status: All P0/P1/P2 findings resolved in commit `8afdcf9`. This document is the historical record of findings — no further action needed.**
+
 ## Verdict
 
 A first-time user on a phone can complete the booking task, but every step has friction and the final "confirmation" is misleading. The interface looks polished at a glance but has real trust and accessibility problems underneath. The single thing to fix first: the hero heading contrast fails WCAG AA on the gradient background, making the primary value proposition unreadable for users with low vision. The second-most damaging issue: every "success" state (booking, gallery publish) lies — it says done when nothing has left the browser.

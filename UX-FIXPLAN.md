@@ -1,5 +1,7 @@
 # UX-FIXPLAN — Dr. Sumya Pervin Portfolio
 
+**Status: ✅ All P0/P1/P2 fixes applied in commit `8afdcf9`. This document is the historical plan record.**
+
 ## Unblock (P0 — do first)
 
 ### U01 — Hero heading contrast
