@@ -1,0 +1,8 @@
+{
+  "name": "dr-sumya-pervin-portfolio",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "jose": "^5.9.0"
+  }
+}

@@ -1,0 +1,14 @@
+pages_build_output_dir = "."
+
+[[d1_databases]]
+binding = "DB"
+database_name = "dr-sumya-pervin-db"
+database_id = "local-dev-db-id"
+
+[[r2_buckets]]
+binding = "GALLERY_BUCKET"
+bucket_name = "dr-sumya-gallery"
+
+[vars]
+JWT_SECRET = "change-in-cloudflare-dashboard"
+SITE_SECRET = "portfoliosumyapervin"

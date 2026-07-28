@@ -9,7 +9,7 @@ Welcome! This document provides operational guidelines, structural context, and 
 - **Project Name**: Dr. Sumya Pervin Portfolio Website
 - **Domain**: Medical & Aesthetic Dermatology Specialist Portfolio
 - **Target Audience**: Prospective patients in Dhaka, Bangladesh seeking clinical dermatology, cosmetic treatments, and dermatosurgery consultations.
-- **Tech Stack**: Vanilla HTML5, Vanilla CSS3 (Custom Design System), Vanilla JavaScript (ES6+), Node.js + Express backend, SQLite.
+- **Hosting**: Cloudflare Pages + Functions + D1 + R2
 
 ---
 
@@ -21,28 +21,38 @@ Portfolio Sumya Pervin/
 ├── css/
 │   └── style.css                 # CSS design system & component styles
 ├── js/
-│   └── main.js                   # Frontend logic + API fetch calls to backend
+│   └── main.js                   # Frontend logic + API fetch calls
 ├── assets/
 │   ├── hero_portrait.jpg
 │   ├── clinic.jpg
 │   └── treatment.jpg
-├── server/
-│   ├── package.json              # Node.js dependencies
-│   ├── server.js                 # Express entry — serves static files + API
-│   ├── db.js                     # SQLite init & schema (4 tables)
-│   ├── middleware/
-│   │   └── auth.js               # Session auth guard
-│   ├── routes/
-│   │   ├── auth.js               # Login/logout/session check
-│   │   ├── appointments.js       # Booking CRUD
-│   │   ├── gallery.js            # Gallery CRUD + multer image upload
-│   │   ├── config.js             # Admin settings + PIN change
-│   │   └── contact.js            # Contact form
-│   └── uploads/                  # Uploaded gallery images (gitignored)
-├── data/                         # SQLite database file (gitignored)
-├── agent.md                      # AI Agent rules & operational guidance (this file)
+├── functions/
+│   ├── _middleware.js            # CORS + admin seed on every request
+│   ├── lib/
+│   │   ├── auth.js               # JWT sign/verify, PIN hashing, json helper
+│   │   └── db.js                 # Admin seeder (fallback)
+│   └── api/
+│       ├── auth/
+│       │   ├── login.js          # POST: verify PIN, return JWT
+│       │   └── check.js          # GET: verify JWT, return auth status
+│       ├── appointments/
+│       │   ├── index.js          # GET (auth): list, POST: create
+│       │   └── [id].js           # PUT (auth): status, DELETE (auth)
+│       ├── gallery/
+│       │   ├── index.js          # GET: list, POST (auth): create + upload
+│       │   └── [id].js           # DELETE (auth): remove from D1 + R2
+│       ├── uploads/
+│       │   └── [filename].js     # GET: serve images from R2 bucket
+│       ├── config.js             # GET/PUT (auth): settings + PIN change
+│       └── contact.js            # POST: submit, GET (with secret): list
+├── migrations/
+│   └── 001_schema.sql            # D1: 4 tables + seed admin PIN
+├── wrangler.toml                 # Cloudflare config (D1, R2, env vars)
+├── package.json                  # Dependencies (jose for JWT)
+├── node_modules/                 # (gitignored)
+├── agent.md                      # AI Agent rules & operational guidance
 ├── AGENTS.md                     # Points to agent.md
-├── context.md                    # Domain context, background & site specifications
+├── context.md                    # Domain context, background & site specs
 ├── AUDIT.md                      # Security & code health audit (Round 1)
 ├── FIXPLAN.md                    # Round 1 remediation plan — all done
 ├── UX-AUDIT.md                   # UI/UX audit findings (Round 2)
@@ -59,32 +69,36 @@ Portfolio Sumya Pervin/
 1. **HTML5**: Semantic markup (`<header>`, `<nav>`, `<main>`, `<section>`, `<article>`, `<footer>`).
 2. **CSS3**: Native CSS variables (`:root`), flexbox, grid, glassmorphism UI, smooth transitions, responsive media queries.
 3. **JavaScript (ES6+)**: Event delegation, DOM manipulation, modal state management, smooth scrolling, interactive sliders/accordions.
-4. **Node.js + Express**: Serves static frontend and REST API on the same port. Session-based admin auth.
-5. **SQLite** (better-sqlite3): Persistent data storage — no external database server needed.
+4. **Cloudflare Pages**: Static frontend served at edge.
+5. **Cloudflare Pages Functions**: API layer (Hono-style routing via file system).
+6. **Cloudflare D1**: Serverless SQLite database.
+7. **Cloudflare R2**: Object storage for gallery images.
+8. **JWT** (jose library): Stateless admin auth (Bearer token in localStorage).
 
 ### Architectural Rules
 - **Vanilla CSS Priority**: Avoid TailwindCSS or utility frameworks to preserve the custom glassmorphism aesthetic tailored in `css/style.css`.
 - **Aesthetic Excellence**: Maintain premium UI visuals—modern typography (Google Fonts Outfit), curated color palettes, subtle glassmorphism cards, micro-animations.
+- **No Session State**: Auth is stateless JWT. Token stored in `localStorage` as `cms_token`. Sent as `Authorization: Bearer <token>` header.
 
 ### API Overview
-All API routes are prefixed with `/api`. Admin routes require a valid session cookie (set via `/api/auth/login`).
+All routes prefixed with `/api`. Admin routes verify JWT from `Authorization: Bearer` header. Public routes require no auth.
 
 | Endpoint | Method | Auth | Description |
 |----------|--------|------|-------------|
-| `/api/auth/login` | POST | No | Login with PIN |
-| `/api/auth/logout` | POST | Yes | Destroy session |
-| `/api/auth/check` | GET | No | Session check |
+| `/api/auth/login` | POST | No | Login with PIN, returns JWT |
+| `/api/auth/check` | GET | No | Verify JWT, returns auth status |
 | `/api/appointments` | POST | No | Create booking |
-| `/api/appointments` | GET | Yes | List bookings |
-| `/api/appointments/:id/status` | PUT | Yes | Update status |
-| `/api/appointments/:id` | DELETE | Yes | Delete booking |
+| `/api/appointments` | GET | JWT | List bookings |
+| `/api/appointments/:id` | PUT | JWT | Update status |
+| `/api/appointments/:id` | DELETE | JWT | Delete booking |
 | `/api/gallery` | GET | No | List gallery |
-| `/api/gallery` | POST | Yes | Add gallery item |
-| `/api/gallery/upload` | POST | Yes | Upload image (multipart) |
-| `/api/gallery/:id` | DELETE | Yes | Delete gallery item |
-| `/api/config` | GET | Yes | Get settings |
-| `/api/config` | PUT | Yes | Update settings/PIN |
+| `/api/gallery` | POST | JWT | Add gallery item (JSON or multipart) |
+| `/api/gallery/:id` | DELETE | JWT | Delete gallery item (+ R2 cleanup) |
+| `/api/uploads/:filename` | GET | No | Serve gallery image from R2 |
+| `/api/config` | GET | JWT | Get settings |
+| `/api/config` | PUT | JWT | Update settings/PIN |
 | `/api/contact` | POST | No | Contact form |
+| `/api/contact?from=secret` | GET | Secret | List messages |
 
 ---
 
@@ -107,24 +121,65 @@ All API routes are prefixed with `/api`. Admin routes require a valid session co
 - Avoid global variable pollution by wrapping script execution or using `DOMContentLoaded` event listeners.
 - Gracefully check for element presence before adding event listeners to prevent runtime errors.
 - Ensure keyboard accessibility for interactive controls (e.g., closing modals with `Escape` key, focus trapping).
-- Use the `api()` helper function for all server calls — it handles JSON parsing and error handling uniformly.
+- Use the `api()` helper function for all server calls — it auto-attaches `Authorization: Bearer` from `localStorage`.
+
+### Functions Standards (Cloudflare Pages Functions)
+- Each function exports `onRequestGet`, `onRequestPost`, `onRequestPut`, `onRequestDelete` as appropriate.
+- D1 binding accessed via `context.env.DB`.
+- R2 binding accessed via `context.env.GALLERY_BUCKET`.
+- Import `{ json }` from `../../lib/auth.js` for JSON responses.
+- Import `{ requireAuth }` from `../../lib/auth.js` for protected routes.
+- Use `crypto.randomUUID().slice(0, 8)` for short IDs instead of `uuid` package.
+- JWT token payload: `{ authenticated: true }`, expiration: 24h.
 
 ---
 
 ## 5. Development & Verification Workflow
 
 ### Local Development
-To run the full backend locally:
 ```bash
-cd server
-npm install   # first time only
-npm start     # starts on port 3000
+# Install dependencies
+npm install
+
+# Run D1 migration locally (first time only)
+npx wrangler d1 execute dr-sumya-pervin-db --local --file=migrations/001_schema.sql
+
+# Start dev server
+npx wrangler pages dev . --local --port 8788
 ```
 
-The Express server serves both the API and the static frontend files. Visit `http://localhost:3000` to see the site.
+Visit `http://localhost:8788` to see the site with full API functionality.
 
 ### Default Admin Credentials
-- **PIN**: `talhatheboss` (bcrypt hashed in DB, change via CMS Settings)
+- **PIN**: `talhatheboss` (SHA-256 hashed, stored in D1, change via CMS Settings)
+
+### Environment Variables (set in Cloudflare dashboard)
+| Variable | Description |
+|----------|-------------|
+| `JWT_SECRET` | Strong random string for signing JWT tokens |
+| `SITE_SECRET` | Access code for viewing contact messages via API |
+
+### Deploy to Production
+```bash
+# Authenticate
+npx wrangler login
+
+# Create D1 database (first time only)
+npx wrangler d1 create dr-sumya-pervin-db
+
+# Create R2 bucket (first time only)
+npx wrangler r2 bucket create dr-sumya-gallery
+
+# Update wrangler.toml with the D1 database_id from output above
+
+# Run migration
+npx wrangler d1 execute dr-sumya-pervin-db --remote --file=migrations/001_schema.sql
+
+# Deploy
+npx wrangler pages deploy .
+
+# Or: connect GitHub repo in Cloudflare Pages dashboard (auto-deploys on push)
+```
 
 ### Verification Checklist
 When making code changes or updates, verify the following:
@@ -136,7 +191,7 @@ When making code changes or updates, verify the following:
    - Accordions (FAQ section) open/collapse without layout shifts.
 3. **Console Hygiene**: Check browser DevTools console for zero JavaScript errors or missing asset warnings.
 4. **Data Integrity**: Verify Dr. Sumya Pervin's qualifications, degrees, chamber locations, and appointment phone numbers remain accurate.
-5. **API Tests**: After backend changes, verify the API endpoints respond correctly (check auth, CRUD operations).
+5. **API Tests**: Run `wrangler pages dev` and test all endpoints.
 
 ---
 

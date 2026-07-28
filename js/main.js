@@ -1,5 +1,7 @@
 async function api(method, url, body) {
   const opts = { method, headers: {} };
+  const token = localStorage.getItem('cms_token');
+  if (token) opts.headers['Authorization'] = 'Bearer ' + token;
   if (body && !(body instanceof FormData)) {
     opts.headers['Content-Type'] = 'application/json';
     opts.body = JSON.stringify(body);
@@ -11,6 +13,9 @@ async function api(method, url, body) {
   if (!res.ok) throw new Error(data.error || 'Request failed');
   return data;
 }
+
+function getToken() { return localStorage.getItem('cms_token'); }
+function setToken(t) { if (t) localStorage.setItem('cms_token', t); else localStorage.removeItem('cms_token'); }
 
 const DEFAULT_GALLERY = [];
 let cmsConfig = { whatsapp: '', telegram: '' };
@@ -139,6 +144,15 @@ const SERVICES_DATA = {
 document.addEventListener('DOMContentLoaded', async () => {
   await loadGallery();
   renderGallery();
+
+  if (getToken()) {
+    try {
+      const check = await api('GET', '/api/auth/check');
+      if (!check.authenticated) setToken(null);
+    } catch {
+      setToken(null);
+    }
+  }
 
   const navWrapper = document.querySelector('.nav-sticky-wrapper');
   const fabTop = document.getElementById('fabTop');
@@ -669,9 +683,27 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   const openCMSBtns = document.querySelectorAll('.cms-btn-trigger, .open-cms');
   openCMSBtns.forEach(btn => {
-    btn.addEventListener('click', (e) => {
+    btn.addEventListener('click', async (e) => {
       e.preventDefault();
       if (cmsModal) cmsModal.classList.add('active');
+      if (getToken()) {
+        try {
+          const check = await api('GET', '/api/auth/check');
+          if (check.authenticated) {
+            cmsAuthSection.style.display = 'none';
+            cmsMainSection.style.display = 'block';
+            await Promise.all([
+              loadAppointments(),
+              loadGallery(),
+              loadCMSConfig()
+            ]);
+            renderCMSItemList();
+            loadCMSConfigForm();
+          }
+        } catch {
+          setToken(null);
+        }
+      }
     });
   });
 
@@ -683,7 +715,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (!cmsPinInput) return;
     const pin = cmsPinInput.value.trim();
     try {
-      await api('POST', '/api/auth/login', { pin });
+      const data = await api('POST', '/api/auth/login', { pin });
+      setToken(data.token);
       cmsAuthSection.style.display = 'none';
       cmsMainSection.style.display = 'block';
       if (pinError) pinError.style.display = 'none';
@@ -795,7 +828,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  const exportBtn = document.getElementById('exportCMSBackup');
+  function cmsLogout() {
+  setToken(null);
+  const authSection = document.getElementById('cmsAuthSection');
+  const mainSection = document.getElementById('cmsMainSection');
+  const pinInput = document.getElementById('cmsPinInput');
+  if (authSection) authSection.style.display = 'block';
+  if (mainSection) mainSection.style.display = 'none';
+  if (pinInput) pinInput.value = '';
+}
+
+const exportBtn = document.getElementById('exportCMSBackup');
   const importFileInput = document.getElementById('importCMSFileInput');
   const exportAppointmentsBtn = document.getElementById('exportAppointmentsCSV');
 

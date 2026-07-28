@@ -531,11 +531,14 @@
         <p>Manage patient appointments, upload treatment photos, or configure instant phone dispatch settings.</p>
       </div>
 
-      <div class="cms-tabs">
-        <button class="cms-tab-btn active" data-tab="tabAppointments">📋 Patient Appointments Log</button>
-        <button class="cms-tab-btn" data-tab="tabUpload">➕ Upload Photo</button>
-        <button class="cms-tab-btn" data-tab="tabGalleryList">🖼️ Gallery Items</button>
-        <button class="cms-tab-btn" data-tab="tabSettings">⚙️ Phone &amp; Settings</button>
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:16px;">
+        <div class="cms-tabs" style="margin:0;">
+          <button class="cms-tab-btn active" data-tab="tabAppointments">📋 Appointments</button>
+          <button class="cms-tab-btn" data-tab="tabUpload">➕ Upload Photo</button>
+          <button class="cms-tab-btn" data-tab="tabGalleryList">🖼️ Gallery Items</button>
+          <button class="cms-tab-btn" data-tab="tabSettings">⚙️ Settings</button>
+        </div>
+        <button class="btn-danger btn-sm" onclick="cmsLogout()" style="padding:6px 14px;">🚪 Logout</button>
       </div>
 
       <!-- Tab 1: Appointments Log -->
