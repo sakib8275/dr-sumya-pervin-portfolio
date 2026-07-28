@@ -121,7 +121,7 @@ button {
 }
 
 .sec-sub {
-  color: var(--grey);
+  color: var(--ink);
   font-size: 15px;
   max-width: 58ch;
   margin: 18px auto 0;
@@ -362,6 +362,15 @@ button {
   padding: 120px var(--pad) 56px;
 }
 
+.hero-inner::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(15,10,8,0.45) 0%, rgba(15,10,8,0.12) 60%, transparent 100%);
+  pointer-events: none;
+  z-index: -1;
+}
+
 .hero h1 {
   font-size: clamp(38px, 5.9vw, 72px);
   font-weight: 500;
@@ -370,6 +379,7 @@ button {
   color: #FFF6E4;
   margin: 0 0 20px;
   max-width: 13ch;
+  text-shadow: 0 2px 24px rgba(15, 10, 8, 0.35);
 }
 
 .hero p {
@@ -377,6 +387,7 @@ button {
   font-size: 15.5px;
   max-width: 34ch;
   margin: 0 0 30px;
+  text-shadow: 0 1px 12px rgba(15, 10, 8, 0.3);
 }
 
 .hero-cta {

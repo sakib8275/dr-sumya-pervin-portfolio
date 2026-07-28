@@ -39,7 +39,7 @@
       <p data-r>Restore confidence in your skin with science-backed, gentle treatments tailored just for you by Dr. Sumya Pervin, MD.</p>
       <div class="hero-cta" data-r>
         <a class="btn btn-glass open-booking" href="#book">Book Appointment</a>
-        <a class="btn btn-ghost" href="#faq">Get Free Skin Advice</a>
+        <a class="btn btn-ghost" href="#faq">View FAQ</a>
       </div>
     </div>
     <div class="namecard" data-r>
@@ -53,6 +53,8 @@
       </div>
     </div>
   </header>
+
+<main id="main-content">
 
   <!-- QUICK STATS -->
   <section class="sec wrap" id="about">
@@ -187,7 +189,7 @@
       <h2><span class="w1">Reveal</span> <i class="chip">✦</i> <span class="w2">Your</span><br><span class="w1">Best Skin Yet</span></h2>
     </div>
 
-    <div class="ba-container" data-r>
+    <div class="ba-container" data-r tabindex="0">
       <img src="assets/treatment.jpg" class="ba-image" alt="After Treatment">
       <div class="ba-after">
         <img src="assets/hero_portrait.jpg" class="ba-image" alt="Before Treatment" style="width:100%; max-width:none;">
@@ -251,14 +253,14 @@
     </div>
     <div class="svc-toggle"><button class="btn btn-out" id="svcToggle" aria-expanded="false">Show more</button></div>
     <div class="services" id="svcGrid">
-      <article class="svc" data-r><div class="svc-top"><h4>Skin Health Coaching</h4><span class="svc-arrow">↗</span></div><p>Comprehensive skin analysis and home care recommendations before treatment.</p></article>
-      <article class="svc" data-r><div class="svc-top"><h4>Facial &amp; Neck Mesotherapy</h4><span class="svc-arrow">↗</span></div><p>Infusion of vitamins and hyaluronic acid for deep hydration.</p></article>
-      <article class="svc" data-r><div class="svc-top"><h4>Chemical Peels</h4><span class="svc-arrow">↗</span></div><p>Skin rejuvenation, texture refinement, and pigmentation lightening.</p></article>
-      <article class="svc" data-r><div class="svc-top"><h4>Microneedling with Serums</h4><span class="svc-arrow">↗</span></div><p>Refines skin texture and minimizes pores using active serum blends.</p></article>
-      <article class="svc hide"><div class="svc-top"><h4>LED Therapy</h4><span class="svc-arrow">↗</span></div><p>Safe treatment for acne, inflammation, and skin tone improvement.</p></article>
-      <article class="svc hide"><div class="svc-top"><h4>Sensitive Skin Care Treatments</h4><span class="svc-arrow">↗</span></div><p>Redness reduction, barrier repair, and deep hydration.</p></article>
-      <article class="svc hide"><div class="svc-top"><h4>Carboxytherapy</h4><span class="svc-arrow">↗</span></div><p>CO₂ therapy for skin tightening, brightening, and collagen stimulation.</p></article>
-      <article class="svc hide"><div class="svc-top"><h4>Eye Area Care</h4><span class="svc-arrow">↗</span></div><p>Treatments to reduce dark circles and puffiness.</p></article>
+      <article class="svc" data-r tabindex="0" role="button"><div class="svc-top"><h4>Skin Health Coaching</h4><span class="svc-arrow">→</span></div><p>Comprehensive skin analysis and home care recommendations before treatment.</p></article>
+      <article class="svc" data-r tabindex="0" role="button"><div class="svc-top"><h4>Facial &amp; Neck Mesotherapy</h4><span class="svc-arrow">→</span></div><p>Infusion of vitamins and hyaluronic acid for deep hydration.</p></article>
+      <article class="svc" data-r tabindex="0" role="button"><div class="svc-top"><h4>Chemical Peels</h4><span class="svc-arrow">→</span></div><p>Skin rejuvenation, texture refinement, and pigmentation lightening.</p></article>
+      <article class="svc" data-r tabindex="0" role="button"><div class="svc-top"><h4>Microneedling with Serums</h4><span class="svc-arrow">→</span></div><p>Refines skin texture and minimizes pores using active serum blends.</p></article>
+      <article class="svc hide" tabindex="0" role="button"><div class="svc-top"><h4>LED Therapy</h4><span class="svc-arrow">→</span></div><p>Safe treatment for acne, inflammation, and skin tone improvement.</p></article>
+      <article class="svc hide" tabindex="0" role="button"><div class="svc-top"><h4>Sensitive Skin Care Treatments</h4><span class="svc-arrow">→</span></div><p>Redness reduction, barrier repair, and deep hydration.</p></article>
+      <article class="svc hide" tabindex="0" role="button"><div class="svc-top"><h4>Carboxytherapy</h4><span class="svc-arrow">→</span></div><p>CO₂ therapy for skin tightening, brightening, and collagen stimulation.</p></article>
+      <article class="svc hide" tabindex="0" role="button"><div class="svc-top"><h4>Eye Area Care</h4><span class="svc-arrow">→</span></div><p>Treatments to reduce dark circles and puffiness.</p></article>
     </div>
   </section>
 
@@ -372,6 +374,8 @@
     </div>
   </section>
 
+</main>
+
   <!-- FOOTER -->
   <footer class="foot" id="book">
     <div class="foot-top">
@@ -458,22 +462,22 @@
     <form id="bookingForm" class="form-grid">
       <div class="form-group">
         <label for="patientName">Patient Full Name *</label>
-        <input type="text" id="patientName" required placeholder="e.g. Nusrat Jahan">
+        <input type="text" id="patientName" required placeholder="e.g. Nusrat Jahan" autocomplete="name">
       </div>
       <div class="form-group">
         <label for="patientPhone">Mobile Number *</label>
-        <input type="tel" id="patientPhone" required placeholder="e.g. +880 1700 000000">
+        <input type="tel" id="patientPhone" required placeholder="e.g. +880 1700 000000" autocomplete="tel">
       </div>
       <div class="form-group">
         <label for="chamberSelect">Select Chamber *</label>
-        <select id="chamberSelect" required>
+        <select id="chamberSelect" required autocomplete="off">
           <option value="Alliance Hospital Limited (Shyamoli)">Alliance Hospital Limited (Sat - Thu 5PM-8PM)</option>
           <option value="Dhaka Central International Medical College (DCIMCH)">DCIMCH Shyamoli (Sat - Wed 3PM-5PM)</option>
         </select>
       </div>
       <div class="form-group">
         <label for="appointmentDate">Preferred Date *</label>
-        <input type="date" id="appointmentDate" required>
+        <input type="date" id="appointmentDate" required autocomplete="off">
       </div>
       <div class="form-group full">
         <label for="serviceType">Service / Reason for Visit</label>
@@ -494,6 +498,7 @@
         <textarea id="patientMessage" rows="3" placeholder="Briefly describe your skin or hair condition..."></textarea>
       </div>
       <div class="form-group full" style="margin-top: 10px;">
+        <p style="font-size: 12.5px; color: var(--grey); margin: 0 0 12px; line-height: 1.4;">🔒 Your information is stored only in your browser and shared with Dr. Pervin via WhatsApp/Telegram when you click send. No data is stored on any server.</p>
         <button type="submit" class="btn btn-primary" style="width: 100%;">Confirm Appointment Request</button>
       </div>
     </form>

@@ -253,35 +253,43 @@ document.addEventListener("DOMContentLoaded", () => {
   const serviceSuitability = document.getElementById('serviceModalSuitability');
   const bookThisServiceBtn = document.getElementById('bookThisServiceBtn');
 
+  function openServiceModalFromCard(svcCard) {
+    const titleText = svcCard.querySelector('h4').textContent.trim();
+    const data = SERVICES_DATA[titleText] || {
+      desc: svcCard.querySelector('p').textContent.trim(),
+      duration: "30–45 mins",
+      recovery: "Minimal",
+      suitability: "General skin phototypes"
+    };
+    if (serviceTitle) serviceTitle.textContent = titleText;
+    if (serviceDesc) serviceDesc.textContent = data.desc;
+    if (serviceDuration) serviceDuration.textContent = data.duration;
+    if (serviceRecovery) serviceRecovery.textContent = data.recovery;
+    if (serviceSuitability) serviceSuitability.textContent = data.suitability;
+    if (bookThisServiceBtn) {
+      bookThisServiceBtn.onclick = () => {
+        if (serviceModal) serviceModal.classList.remove('active');
+        const bm = document.getElementById('bookingModal');
+        const ss = document.getElementById('serviceType');
+        if (ss) ss.value = titleText;
+        if (bm) bm.classList.add('active');
+      };
+    }
+    if (serviceModal) serviceModal.classList.add('active');
+  }
+
   if (grid) {
     grid.addEventListener('click', (e) => {
       const svcCard = e.target.closest('.svc');
-      if (svcCard) {
-        const titleText = svcCard.querySelector('h4').textContent.trim();
-        const data = SERVICES_DATA[titleText] || {
-          desc: svcCard.querySelector('p').textContent.trim(),
-          duration: "30–45 mins",
-          recovery: "Minimal",
-          suitability: "General skin phototypes"
-        };
-
-        if (serviceTitle) serviceTitle.textContent = titleText;
-        if (serviceDesc) serviceDesc.textContent = data.desc;
-        if (serviceDuration) serviceDuration.textContent = data.duration;
-        if (serviceRecovery) serviceRecovery.textContent = data.recovery;
-        if (serviceSuitability) serviceSuitability.textContent = data.suitability;
-
-        if (bookThisServiceBtn) {
-          bookThisServiceBtn.onclick = () => {
-            if (serviceModal) serviceModal.classList.remove('active');
-            const bookingModal = document.getElementById('bookingModal');
-            const serviceSelect = document.getElementById('serviceType');
-            if (serviceSelect) serviceSelect.value = titleText;
-            if (bookingModal) bookingModal.classList.add('active');
-          };
+      if (svcCard) openServiceModalFromCard(svcCard);
+    });
+    grid.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        const svcCard = e.target.closest('.svc');
+        if (svcCard) {
+          e.preventDefault();
+          openServiceModalFromCard(svcCard);
         }
-
-        if (serviceModal) serviceModal.classList.add('active');
       }
     });
   }
@@ -366,6 +374,21 @@ document.addEventListener("DOMContentLoaded", () => {
     window.addEventListener('touchend', () => isDragging = false);
     window.addEventListener('touchmove', (e) => {
       if (isDragging && e.touches[0]) moveSlider(e.touches[0].clientX);
+    });
+
+    baContainer.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft') {
+        const rect = baContainer.getBoundingClientRect();
+        const current = parseFloat(baAfter.style.width) || 50;
+        const next = Math.max(0, current - 10);
+        baAfter.style.width = next + '%';
+        baHandle.style.left = next + '%';
+      } else if (e.key === 'ArrowRight') {
+        const current = parseFloat(baAfter.style.width) || 50;
+        const next = Math.min(100, current + 10);
+        baAfter.style.width = next + '%';
+        baHandle.style.left = next + '%';
+      }
     });
   }
 
@@ -492,17 +515,133 @@ document.addEventListener("DOMContentLoaded", () => {
         const chamberSelect = document.getElementById('chamberSelect');
         if (chamberSelect) chamberSelect.value = chamberVal;
       }
-      if (bookingModal) bookingModal.classList.add('active');
+      if (bookingModal) {
+        restoreBookingFormState();
+        bookingStatus.style.display = 'none';
+        bookingModal.classList.add('active');
+      }
     });
   });
 
   if (closeBookingBtn && bookingModal) {
-    closeBookingBtn.addEventListener('click', () => bookingModal.classList.remove('active'));
+    closeBookingBtn.addEventListener('click', () => {
+      sessionStorage.removeItem('booking_form_state');
+      bookingModal.classList.remove('active');
+    });
   }
 
+  function saveBookingFormState() {
+    const state = {
+      name: document.getElementById('patientName').value,
+      phone: document.getElementById('patientPhone').value,
+      chamber: document.getElementById('chamberSelect').value,
+      date: document.getElementById('appointmentDate').value,
+      service: document.getElementById('serviceType').value,
+      notes: document.getElementById('patientMessage').value
+    };
+    sessionStorage.setItem('booking_form_state', JSON.stringify(state));
+  }
+
+  function restoreBookingFormState() {
+    const saved = sessionStorage.getItem('booking_form_state');
+    if (saved) {
+      try {
+        const state = JSON.parse(saved);
+        if (document.getElementById('patientName')) document.getElementById('patientName').value = state.name || '';
+        if (document.getElementById('patientPhone')) document.getElementById('patientPhone').value = state.phone || '';
+        if (document.getElementById('chamberSelect')) document.getElementById('chamberSelect').value = state.chamber || '';
+        if (document.getElementById('appointmentDate')) document.getElementById('appointmentDate').value = state.date || '';
+        if (document.getElementById('serviceType')) document.getElementById('serviceType').value = state.service || '';
+        if (document.getElementById('patientMessage')) document.getElementById('patientMessage').value = state.notes || '';
+      } catch(e) {}
+    }
+  }
+
+  function showFieldError(id, msg) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const existing = el.parentElement.querySelector('.field-error');
+    if (existing) existing.remove();
+    const err = document.createElement('span');
+    err.className = 'field-error';
+    err.style.cssText = 'color:#DC3545;font-size:12px;margin-top:4px;display:block;';
+    err.textContent = msg;
+    el.parentElement.appendChild(err);
+    el.style.borderColor = '#DC3545';
+  }
+
+  function clearFieldError(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const existing = el.parentElement.querySelector('.field-error');
+    if (existing) existing.remove();
+    el.style.borderColor = '';
+  }
+
+  function validatePhone(v) {
+    return /^[\d\+\s\-\(\)]{7,20}$/.test(v.replace(/[^0-9]/g, ''));
+  }
+
+  const nameInput = document.getElementById('patientName');
+  const phoneInput = document.getElementById('patientPhone');
+  const dateInput = document.getElementById('appointmentDate');
+
+  if (phoneInput) {
+    phoneInput.addEventListener('blur', () => {
+      const v = phoneInput.value.trim();
+      if (v && !validatePhone(v)) {
+        showFieldError('patientPhone', 'Please enter a valid mobile number with country code');
+      } else {
+        clearFieldError('patientPhone');
+      }
+    });
+    phoneInput.addEventListener('input', () => clearFieldError('patientPhone'));
+  }
+
+  if (nameInput) {
+    nameInput.addEventListener('blur', () => {
+      const v = nameInput.value.trim();
+      if (v && v.length < 2) {
+        showFieldError('patientName', 'Name must be at least 2 characters');
+      } else {
+        clearFieldError('patientName');
+      }
+    });
+    nameInput.addEventListener('input', () => clearFieldError('patientName'));
+  }
+
+  if (dateInput) {
+    dateInput.addEventListener('blur', () => {
+      const v = dateInput.value;
+      if (v) {
+        const d = new Date(v + 'T00:00:00');
+        const today = new Date();
+        today.setHours(0,0,0,0);
+        if (d < today) {
+          showFieldError('appointmentDate', 'Date cannot be in the past');
+        } else {
+          clearFieldError('appointmentDate');
+        }
+      }
+    });
+  }
+
+  let bookingSubmitting = false;
+
   if (bookingForm) {
+    ['patientName','patientPhone','chamberSelect','appointmentDate','serviceType','patientMessage'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener('input', saveBookingFormState);
+    });
+
     bookingForm.addEventListener('submit', (e) => {
       e.preventDefault();
+      if (bookingSubmitting) return;
+      bookingSubmitting = true;
+
+      const submitBtn = bookingForm.querySelector('button[type="submit"]');
+      if (submitBtn) submitBtn.disabled = true;
+
       const name = document.getElementById('patientName').value;
       const phone = document.getElementById('patientPhone').value;
       const chamber = document.getElementById('chamberSelect').value;
@@ -525,6 +664,8 @@ document.addEventListener("DOMContentLoaded", () => {
       appointmentsList.unshift(newBooking);
       saveAppointments(appointmentsList);
 
+      sessionStorage.setItem('lastBookingRef', newBooking.id);
+
       const waMsg = encodeURIComponent(
         `📋 *New Appointment Request - Dr. Sumya Pervin, MD*\n\n` +
         `👤 *Patient:* ${name}\n` +
@@ -541,22 +682,26 @@ document.addEventListener("DOMContentLoaded", () => {
       bookingStatus.style.display = 'block';
       bookingStatus.innerHTML = `
         <div style="background: #D4EDDA; color: #155724; padding: 18px; border-radius: 14px; margin-bottom: 16px;">
-          <h4 style="margin: 0 0 6px; font-weight: 600;">✅ Appointment Request Received!</h4>
-          <p style="margin: 0 0 12px; font-size: 14px;">Thank you <strong>${escapeHTML(name)}</strong>! Your booking has been saved to your browser's local storage.</p>
-          <p style="margin: 0 0 12px; font-size: 13px; background: #FFF3CD; color: #856404; padding: 10px; border-radius: 8px;"><strong>📌 Demo Notice:</strong> This is a client-side demonstration. Appointment data is stored only in your browser and will be lost if you clear your cache. Please contact the clinic directly to confirm your booking.</p>
+          <h4 style="margin: 0 0 6px; font-weight: 600;">📋 Appointment Details Saved — Send to Doctor</h4>
+          <p style="margin: 0 0 12px; font-size: 14px;">Thank you <strong>${escapeHTML(name)}</strong>. Your appointment request has been saved in your browser.</p>
+          <p style="margin: 0 0 12px; font-size: 13px; background: #FFF3CD; color: #856404; padding: 10px; border-radius: 8px;"><strong>📌 Send to confirm:</strong> Your appointment is saved locally. To ensure Dr. Pervin receives it, please send your details via WhatsApp or Telegram below. No data is stored on any server.</p>
           
           <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px;">
-            <a href="${waUrl}" target="_blank" class="btn btn-whatsapp btn-sm">
+            <a href="${waUrl}" target="_blank" class="btn btn-whatsapp btn-sm" style="flex:1;">
               💬 Send via WhatsApp to Dr. Pervin
             </a>
-            <a href="${tgUrl}" target="_blank" class="btn btn-telegram btn-sm">
+            <a href="${tgUrl}" target="_blank" class="btn btn-telegram btn-sm" style="flex:1;">
               ✈️ Send via Telegram
             </a>
           </div>
+          <p style="margin: 8px 0 0; font-size: 12px; color: #155724;">Reference: <strong>${newBooking.id}</strong></p>
         </div>
       `;
 
       bookingForm.reset();
+      sessionStorage.removeItem('booking_form_state');
+      bookingSubmitting = false;
+      if (submitBtn) submitBtn.disabled = false;
     });
   }
 

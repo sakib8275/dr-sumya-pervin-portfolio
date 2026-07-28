@@ -1,28 +1,18 @@
 # FIXPLAN.md — Dr. Sumya Pervin Portfolio Remediation
 
-## Stop the Bleeding (P0/P1 — minimal diffs)
+## Status: ✅ All P1/P2 fixes applied (8 commits). P3 hygiene items remain optional.
 
-| ID | Change | Files | Verification | Risk |
-|---|---|---|---|---|
-| F01 | Remove PIN backdoors: delete `|| pin === "1234" || pin === "admin"`, only check `cmsConfig.pin` | `js/main.js:587` | Test: enter "admin" → rejected, enter "1234" → rejected, enter saved PIN → accepted | Low |
-| F09 | Replace placeholder email `clinic@example.com` with real email or remove mailto link | `index.html:379` | Visual check | Low |
-| F08 | Remove legacy file `dermatology-portfolio (1).html` | Delete file | `ls` confirms gone | None |
-
-## Safety Net (tests/logging/CI before structural changes)
-
-| ID | Change | Files | Verification | Risk |
-|---|---|---|---|---|
-| F14 | Add `.gitignore` (exclude `.env`, `*.log`, `node_modules/`), add README note about static nature | New `.gitignore` | `git status` shows clean ignore | None |
-| — | Add browser console warning when localStorage-based "CMS" is accessed: "⚠️ This is a client-side demo. Data is not persisted to a server." | `js/main.js` | Open CMS → warning visible | Low |
-
-## Structural (P1/P2 — sequenced for safety)
-
-| ID | Change | Files | Verification | Risk |
-|---|---|---|---|---|
-| F02+F03 | Add disclaimer banner to booking form and CMS: "Appointments are stored locally in your browser. For production use, connect a backend." | `index.html` + `js/main.js` | Visual: banner appears | Low |
-| F06 | Either add `.nav-sticky-wrapper` div in HTML or remove dead JS query | `index.html` or `js/main.js` | Scroll → nav class toggles | Low |
-| F07 | Align chamber data between `index.html` and `context.md` — pick the correct set and update the other | `index.html`, `context.md` | Visual: chamber names match | Low |
-| F04 | Sanitize WhatsApp/TG share URLs: remove patient notes from URL, or make the notification a simple "New booking — check the CMS" ping | `js/main.js:528-540` | Generated URL no longer contains note text | Low |
+```
+4a981ba fix: P2 security — remove patient notes from notification URLs
+98ea2a3 fix: P3 code health — add .gitignore
+9158c1e fix: P1 data — add demo disclaimer and remove hardcoded PIN hint from UI
+40187ef fix: P2 spec drift — align context.md chambers with index.html implementation
+70293ad fix: P2 AI pathology — add missing nav-sticky-wrapper and scroll styling
+eeaf9b1 fix: P2 data — replace placeholder email with modal trigger button
+b213e66 fix: P1 security — remove CMS PIN backdoors (1234, admin)
+c531793 fix: P2 data — remove legacy draft for Dr. Isabella Cruz
+e2abfa1 chore: initial commit — Dr. Sumya Pervin portfolio v1
+```
 
 ## Hygiene (P3 — batched, mechanical)
 
