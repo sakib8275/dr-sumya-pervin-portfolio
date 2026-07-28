@@ -584,7 +584,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function attemptCMSLogin() {
     if (!cmsPinInput) return;
     const pin = cmsPinInput.value.trim();
-    if (pin === cmsConfig.pin || pin === "1234" || pin === "admin") {
+    if (pin === cmsConfig.pin) {
       cmsAuthSection.style.display = 'none';
       cmsMainSection.style.display = 'block';
       if (pinError) pinError.style.display = 'none';
