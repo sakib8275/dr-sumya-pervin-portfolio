@@ -1,0 +1,22 @@
+# Netlify is NOT a supported target for this project — it cannot execute Cloudflare
+# Pages Functions, so every /api/* route 404s and booking, gallery, and the CMS all
+# fail. Cloudflare Pages is the only host that runs this site correctly.
+#
+# This file exists because the repo was previously deployed to Netlify with the
+# publish directory defaulting to the repo root, which served the admin PIN hash,
+# SITE_SECRET, and the internal audit docs to the public internet. If the site is
+# still git-linked, a push could redeploy and re-leak. These rules make that fail
+# closed rather than silently republishing.
+
+# publish = "public" is the same scoping Cloudflare uses. It is what stops the repo
+# root — migrations/, wrangler.toml, the audit docs — from being served again.
+[build]
+  publish = "public"
+
+# The API cannot work here; Netlify has no Pages Functions runtime. Fail loudly
+# rather than 404, which the booking form would misread as a transport blip.
+[[redirects]]
+  from = "/api/*"
+  to = "/index.html"
+  status = 501
+  force = true

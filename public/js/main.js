@@ -9,7 +9,14 @@ async function api(method, url, body) {
     opts.body = body;
   }
   const res = await fetch(url, opts);
-  const data = await res.json();
+  let data;
+  try {
+    data = await res.json();
+  } catch {
+    // A non-JSON body means the API isn't there at all — a static host that can't
+    // run Functions, or an outage. Don't let that surface as a JSON parse error.
+    throw new Error(`Server returned ${res.status} and no JSON. Is the API deployed?`);
+  }
   if (!res.ok) throw new Error(data.error || 'Request failed');
   return data;
 }
@@ -23,12 +30,16 @@ let appointmentsList = [];
 let galleryItems = [];
 let activeFilter = 'all';
 
+// The public route, deliberately: the authenticated /api/config 401s for ordinary
+// visitors, which left the booking form building a wa.me link with no number.
 async function loadCMSConfig() {
   try {
-    const data = await api('GET', '/api/config');
-    cmsConfig = data;
+    cmsConfig = await api('GET', '/api/config/public');
+    return true;
   } catch (e) {
+    console.error('Could not load contact configuration:', e);
     cmsConfig = { whatsapp: '', telegram: '' };
+    return false;
   }
 }
 
@@ -65,8 +76,8 @@ function renderGallery() {
   grid.innerHTML = filtered.map(item => `
     <article class="gallery-card" data-r>
       <div class="gallery-img-wrap">
-        <img src="${item.image_path}" alt="${item.title}" loading="lazy">
-        <span class="gallery-badge">${capitalize(item.category)}</span>
+        <img src="${escapeHTML(item.image_path)}" alt="${escapeHTML(item.title)}" loading="lazy">
+        <span class="gallery-badge">${escapeHTML(capitalize(item.category))}</span>
       </div>
       <div class="gallery-body">
         <h4>${escapeHTML(item.title)}</h4>
@@ -141,9 +152,31 @@ const SERVICES_DATA = {
   }
 };
 
+// The nav number and the floating WhatsApp button used to carry a hardcoded
+// placeholder (+880 1700-000000), so both were live links to nobody. They now come
+// from the CMS and stay hidden until a real number is configured.
+function renderContactChannels() {
+  const digits = (cmsConfig.whatsapp || '').replace(/[^0-9]/g, '');
+
+  const fab = document.getElementById('fabWhatsapp');
+  if (fab) {
+    if (digits) fab.href = 'https://wa.me/' + digits;
+    fab.hidden = !digits;
+  }
+
+  const tel = document.getElementById('navTel');
+  if (tel) {
+    tel.textContent = digits ? '+' + digits : '';
+    tel.hidden = !digits;
+  }
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
   await loadGallery();
   renderGallery();
+
+  await loadCMSConfig();
+  renderContactChannels();
 
   if (getToken()) {
     try {
@@ -616,6 +649,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       const notes = document.getElementById('patientMessage').value;
 
       let bookingId = '';
+      let saveError = null;
 
       try {
         const data = await api('POST', '/api/appointments', {
@@ -628,10 +662,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
         bookingId = data.id;
       } catch (err) {
-        bookingId = 'book-' + Date.now();
+        // Previously this invented a reference number and the UI went on to claim
+        // the booking was saved. Telling a patient their appointment exists when it
+        // does not is worse than showing them the failure.
+        saveError = err;
+        console.error('Appointment could not be saved:', err);
       }
 
-      sessionStorage.setItem('lastBookingRef', bookingId);
+      if (bookingId) sessionStorage.setItem('lastBookingRef', bookingId);
 
       const waMsg = encodeURIComponent(
         '\uD83D\uDCCB *New Appointment Request - Dr. Sumya Pervin, MD*\n\n' +
@@ -644,25 +682,44 @@ document.addEventListener('DOMContentLoaded', async () => {
       );
 
       await loadCMSConfig();
-      const waUrl = 'https://wa.me/' + cmsConfig.whatsapp + '?text=' + waMsg;
+      const waNumber = (cmsConfig.whatsapp || '').replace(/[^0-9]/g, '');
+      const waUrl = waNumber ? 'https://wa.me/' + waNumber + '?text=' + waMsg : '';
       const tgUrl = 'https://t.me/share/url?url=' + encodeURIComponent(window.location.href) + '&text=' + waMsg;
 
+      const forwardButtons = `
+          <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px;">
+            ${waUrl ? `<a href="${escapeHTML(waUrl)}" target="_blank" rel="noopener" class="btn btn-whatsapp btn-sm" style="flex:1;">
+              \uD83D\uDCAC Send via WhatsApp to Dr. Pervin
+            </a>` : ''}
+            <a href="${escapeHTML(tgUrl)}" target="_blank" rel="noopener" class="btn btn-telegram btn-sm" style="flex:1;">
+              \u2708\uFE0F Send via Telegram
+            </a>
+          </div>`;
+
       bookingStatus.style.display = 'block';
+
+      if (saveError) {
+        bookingStatus.innerHTML = `
+        <div style="background: #F8D7DA; color: #721C24; padding: 18px; border-radius: 14px; margin-bottom: 16px;">
+          <h4 style="margin: 0 0 6px; font-weight: 600;">\u26A0\uFE0F We could not save your request</h4>
+          <p style="margin: 0 0 12px; font-size: 14px;">Sorry <strong>${escapeHTML(name)}</strong> \u2014 your appointment was <strong>not</strong> recorded, so please do not travel to the chamber on this request alone.</p>
+          <p style="margin: 0 0 12px; font-size: 13px; background: #FFF3CD; color: #856404; padding: 10px; border-radius: 8px;"><strong>\uD83D\uDCCD Please send your details directly instead.</strong> Use the button below, or call the chamber. Your details are still filled in above.</p>
+          ${forwardButtons}
+        </div>
+      `;
+        // Keep the form populated so the patient doesn't retype everything.
+        bookingSubmitting = false;
+        if (submitBtn) submitBtn.disabled = false;
+        return;
+      }
+
       bookingStatus.innerHTML = `
         <div style="background: #D4EDDA; color: #155724; padding: 18px; border-radius: 14px; margin-bottom: 16px;">
           <h4 style="margin: 0 0 6px; font-weight: 600;">\uD83D\uDCCB Appointment Request Submitted</h4>
           <p style="margin: 0 0 12px; font-size: 14px;">Thank you <strong>${escapeHTML(name)}</strong>. Your appointment request has been saved on the server.</p>
           <p style="margin: 0 0 12px; font-size: 13px; background: #FFF3CD; color: #856404; padding: 10px; border-radius: 8px;"><strong>\uD83D\uDCCD Send to confirm:</strong> To ensure Dr. Pervin receives your request promptly, please forward your details via WhatsApp or Telegram below.</p>
-
-          <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px;">
-            <a href="${waUrl}" target="_blank" class="btn btn-whatsapp btn-sm" style="flex:1;">
-              \uD83D\uDCAC Send via WhatsApp to Dr. Pervin
-            </a>
-            <a href="${tgUrl}" target="_blank" class="btn btn-telegram btn-sm" style="flex:1;">
-              \u2708\uFE0F Send via Telegram
-            </a>
-          </div>
-          <p style="margin: 8px 0 0; font-size: 12px; color: #155724;">Reference: <strong>${bookingId}</strong></p>
+          ${forwardButtons}
+          <p style="margin: 8px 0 0; font-size: 12px; color: #155724;">Reference: <strong>${escapeHTML(bookingId)}</strong></p>
         </div>
       `;
 
@@ -979,10 +1036,10 @@ function renderCMSItemList() {
   container.innerHTML = galleryItems.map(item => `
     <div class="cms-item-row">
       <div class="cms-item-info">
-        <img src="${item.image_path}" class="cms-item-thumb" alt="${item.title}">
+        <img src="${escapeHTML(item.image_path)}" class="cms-item-thumb" alt="${escapeHTML(item.title)}">
         <div>
           <strong style="font-size:14px; display:block;">${escapeHTML(item.title)}</strong>
-          <span style="font-size:12px; color:var(--grey);">${capitalize(item.category)} \u2022 ${item.created_at ? item.created_at.slice(0, 10) : ''}</span>
+          <span style="font-size:12px; color:var(--grey);">${escapeHTML(capitalize(item.category))} \u2022 ${escapeHTML(item.created_at ? item.created_at.slice(0, 10) : '')}</span>
         </div>
       </div>
       <button class="btn-danger btn-sm" onclick="deleteCMSItem('${item.id}')">Delete</button>
@@ -1026,18 +1083,18 @@ function renderCMSAppointmentsList() {
             <strong style="font-size:16px; color:var(--sienna);">${escapeHTML(app.patient_name)}</strong>
             <span style="font-size:13px; color:var(--grey); font-weight:500;"> (${escapeHTML(app.patient_phone)})</span>
           </div>
-          <span class="status-badge ${statusClass}">${app.status}</span>
+          <span class="status-badge ${statusClass}">${escapeHTML(app.status)}</span>
         </div>
 
         <div style="font-size:13.5px; color:var(--ink);">
-          \uD83D\uDCC5 <strong>Date:</strong> ${app.appointment_date} &nbsp;|&nbsp; \uD83C\uDFE5 <strong>Chamber:</strong> ${escapeHTML(app.chamber)}<br>
+          \uD83D\uDCC5 <strong>Date:</strong> ${escapeHTML(app.appointment_date)} &nbsp;|&nbsp; \uD83C\uDFE5 <strong>Chamber:</strong> ${escapeHTML(app.chamber)}<br>
           \uD83D\uDC89 <strong>Service:</strong> ${escapeHTML(app.service)} ${app.notes ? '<br>\uD83D\uDCDD <strong>Notes:</strong> <em>' + escapeHTML(app.notes) + '</em>' : ''}
         </div>
 
         <div style="display:flex; justify-content:space-between; align-items:center; margin-top:6px; flex-wrap:wrap; gap:8px;">
-          <span style="font-size:11.5px; color:var(--grey);">Logged: ${app.created_at}</span>
+          <span style="font-size:11.5px; color:var(--grey);">Logged: ${escapeHTML(app.created_at)}</span>
           <div style="display:flex; gap:6px;">
-            <a href="${waLink}" target="_blank" class="btn btn-whatsapp btn-sm">\uD83D\uDCAC WhatsApp Patient</a>
+            <a href="${escapeHTML(waLink)}" target="_blank" rel="noopener" class="btn btn-whatsapp btn-sm">\uD83D\uDCAC WhatsApp Patient</a>
             <button class="btn btn-out btn-sm" onclick="toggleAppointmentStatus('${app.id}')">Update Status</button>
             <button class="btn-danger btn-sm" onclick="deleteAppointment('${app.id}')">Delete</button>
           </div>

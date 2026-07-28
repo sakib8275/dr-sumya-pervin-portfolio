@@ -29,7 +29,8 @@
       </div>
       <span class="wordmark">Dr. Sumya Pervin, MD</span>
       <div class="nav-right">
-        <span class="nav-tel">+880 1700-000000</span>
+        <!-- Populated from /api/config/public; hidden until a real number is set in the CMS. -->
+        <span class="nav-tel" id="navTel" hidden></span>
         <a class="btn btn-glass open-booking" href="#book">Book Appointment</a>
         <button class="burger" id="burger">Menu</button>
       </div>
@@ -396,7 +397,7 @@
 
 <!-- FLOATING ACTION BUTTONS BAR -->
 <div class="floating-actions">
-  <a href="https://wa.me/8801700000000" target="_blank" class="fab-btn fab-wa" aria-label="WhatsApp Dr. Pervin">💬</a>
+  <a href="#" target="_blank" rel="noopener" class="fab-btn fab-wa" id="fabWhatsapp" aria-label="WhatsApp Dr. Pervin" hidden>💬</a>
   <button class="fab-btn fab-book open-booking" aria-label="Book Appointment">📅</button>
   <button class="fab-btn fab-top" id="fabTop" aria-label="Scroll to top">⬆</button>
 </div>
