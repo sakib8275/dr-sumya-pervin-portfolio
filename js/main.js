@@ -1,89 +1,55 @@
-// Default CMS Gallery Items
-const DEFAULT_GALLERY = [
-  {
-    id: "item-1",
-    title: "Aesthetic Consultation & Diagnostics",
-    category: "clinical",
-    caption: "Personalized skin assessment and treatment protocol design by Dr. Sumya Pervin, MD at Sir Salimullah Medical College & Mitford Hospital.",
-    image: "assets/hero_portrait.jpg",
-    date: "2026-07-01"
-  },
-  {
-    id: "item-2",
-    title: "PRP & Microneedling Rejuvenation",
-    category: "procedures",
-    caption: "Advanced collagen induction therapy combined with active serum infusion for acne scar refinement and texture renewal.",
-    image: "assets/treatment.jpg",
-    date: "2026-06-15"
-  },
-  {
-    id: "item-3",
-    title: "Modern Clinical Consultation Suite",
-    category: "clinic",
-    caption: "State-of-the-art dermatological suite equipped with light therapy, digital diagnostics, and ultrasound skin lifting equipment.",
-    image: "assets/clinic.jpg",
-    date: "2026-05-20"
+async function api(method, url, body) {
+  const opts = { method, headers: {} };
+  if (body && !(body instanceof FormData)) {
+    opts.headers['Content-Type'] = 'application/json';
+    opts.body = JSON.stringify(body);
+  } else if (body) {
+    opts.body = body;
   }
-];
-
-// Configuration Settings (WhatsApp & Telegram)
-function getCMSConfig() {
-  const stored = localStorage.getItem("dr_sumya_cms_config");
-  if (stored) {
-    try { return JSON.parse(stored); } catch(e) { console.error(e); }
-  }
-  return {
-    whatsapp: "8801700000000",
-    telegram: "dr_sumya_pervin",
-    pin: "1234"
-  };
+  const res = await fetch(url, opts);
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Request failed');
+  return data;
 }
 
-function saveCMSConfig(config) {
-  localStorage.setItem("dr_sumya_cms_config", JSON.stringify(config));
-}
+const DEFAULT_GALLERY = [];
+let cmsConfig = { whatsapp: '', telegram: '' };
+let appointmentsList = [];
+let galleryItems = [];
+let activeFilter = 'all';
 
-let cmsConfig = getCMSConfig();
-
-// Storage for Bookings & Appointments
-function getSavedAppointments() {
-  const stored = localStorage.getItem("dr_sumya_appointments");
-  if (stored) {
-    try { return JSON.parse(stored); } catch(e) { console.error(e); }
+async function loadCMSConfig() {
+  try {
+    const data = await api('GET', '/api/config');
+    cmsConfig = data;
+  } catch (e) {
+    cmsConfig = { whatsapp: '', telegram: '' };
   }
-  return [];
 }
 
-function saveAppointments(appointments) {
-  localStorage.setItem("dr_sumya_appointments", JSON.stringify(appointments));
+async function loadAppointments() {
+  try {
+    appointmentsList = await api('GET', '/api/appointments');
+  } catch (e) {
+    appointmentsList = [];
+  }
   renderCMSAppointmentsList();
 }
 
-let appointmentsList = getSavedAppointments();
-let galleryItems = getCMSGallery();
-let activeFilter = "all";
-
-function getCMSGallery() {
-  const stored = localStorage.getItem("dr_sumya_cms_gallery");
-  if (stored) {
-    try { return JSON.parse(stored); } catch(e) { console.error(e); }
+async function loadGallery() {
+  try {
+    galleryItems = await api('GET', '/api/gallery');
+  } catch (e) {
+    galleryItems = [];
   }
-  return DEFAULT_GALLERY;
 }
 
-function saveCMSGallery(items) {
-  localStorage.setItem("dr_sumya_cms_gallery", JSON.stringify(items));
-  renderGallery();
-  renderCMSItemList();
-}
-
-// Render Gallery on Portfolio Main View
 function renderGallery() {
-  const grid = document.getElementById("galleryGrid");
+  const grid = document.getElementById('galleryGrid');
   if (!grid) return;
 
-  const filtered = activeFilter === "all" 
-    ? galleryItems 
+  const filtered = activeFilter === 'all'
+    ? galleryItems
     : galleryItems.filter(item => item.category === activeFilter);
 
   if (filtered.length === 0) {
@@ -94,7 +60,7 @@ function renderGallery() {
   grid.innerHTML = filtered.map(item => `
     <article class="gallery-card" data-r>
       <div class="gallery-img-wrap">
-        <img src="${item.image}" alt="${item.title}" loading="lazy">
+        <img src="${item.image_path}" alt="${item.title}" loading="lazy">
         <span class="gallery-badge">${capitalize(item.category)}</span>
       </div>
       <div class="gallery-body">
@@ -102,7 +68,7 @@ function renderGallery() {
         <p>${escapeHTML(item.caption)}</p>
       </div>
     </article>
-  `).join("");
+  `).join('');
 
   document.querySelectorAll('#galleryGrid [data-r]').forEach(el => {
     el.classList.add('in');
@@ -110,70 +76,70 @@ function renderGallery() {
 }
 
 function capitalize(str) {
-  return str ? str.charAt(0).toUpperCase() + str.slice(1) : "";
+  return str ? str.charAt(0).toUpperCase() + str.slice(1) : '';
 }
 
 function escapeHTML(str) {
-  return str ? str.replace(/[&<>'"]/g, 
+  return str ? str.replace(/[&<>'"]/g,
     tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
-  ) : "";
+  ) : '';
 }
 
-// Service Details Data Dictionary
 const SERVICES_DATA = {
-  "PRP & Microneedling Therapy": {
+  'PRP & Microneedling Therapy': {
     desc: "Platelet-rich plasma (PRP) combines your body's growth factors with micro-channeling to trigger intense collagen synthesis, smooth deep acne scarring, and stimulate dormant hair follicles.",
-    duration: "45–60 mins",
-    recovery: "Mild redness for 24-48 hours",
-    suitability: "Acne scarring, fine lines, hair thinning"
+    duration: '45\u201360 mins',
+    recovery: 'Mild redness for 24-48 hours',
+    suitability: 'Acne scarring, fine lines, hair thinning'
   },
-  "Acne & Scar Management": {
-    desc: "A medical-grade protocol targeting active acne lesions, sebum regulation, and post-inflammatory hyperpigmentation through prescription therapeutics and scar subcision.",
-    duration: "30–45 mins",
-    recovery: "No downtime to 1 day",
-    suitability: "Acne vulgaris, hormonal breakouts, dark spots"
+  'Acne & Scar Management': {
+    desc: 'A medical-grade protocol targeting active acne lesions, sebum regulation, and post-inflammatory hyperpigmentation through prescription therapeutics and scar subcision.',
+    duration: '30\u201345 mins',
+    recovery: 'No downtime to 1 day',
+    suitability: 'Acne vulgaris, hormonal breakouts, dark spots'
   },
-  "Chemical Peels & Resurfacing": {
-    desc: "Dermatological peels formulated with glycolic, salicylic, or TCA acids to shed hyperpigmented epidermal layers, revealing smooth, radiant skin underneath.",
-    duration: "30 mins",
-    recovery: "Light flaking for 3-5 days",
-    suitability: "Melasma, sun damage, uneven texture"
+  'Chemical Peels & Resurfacing': {
+    desc: 'Dermatological peels formulated with glycolic, salicylic, or TCA acids to shed hyperpigmented epidermal layers, revealing smooth, radiant skin underneath.',
+    duration: '30 mins',
+    recovery: 'Light flaking for 3-5 days',
+    suitability: 'Melasma, sun damage, uneven texture'
   },
-  "Dermatosurgery & Skin Lesions": {
-    desc: "Precision minor dermatological surgical removal of skin tags, seborrheic keratosis, moles, and benign cysts under local anesthesia with minimal scarring.",
-    duration: "30–60 mins",
-    recovery: "3-7 days minor healing",
-    suitability: "Skin tags, moles, diagnostic biopsy"
+  'Dermatosurgery & Skin Lesions': {
+    desc: 'Precision minor dermatological surgical removal of skin tags, seborrheic keratosis, moles, and benign cysts under local anesthesia with minimal scarring.',
+    duration: '30\u201360 mins',
+    recovery: '3-7 days minor healing',
+    suitability: 'Skin tags, moles, diagnostic biopsy'
   },
-  "LED Light & Laser Therapy": {
-    desc: "Non-ablative light phototherapy that calms active facial inflammation, reduces vascular redness, and stimulates cellular repair.",
-    duration: "30 mins",
-    recovery: "Zero downtime",
-    suitability: "Rosacea, active acne, sensitive skin"
+  'LED Light & Laser Therapy': {
+    desc: 'Non-ablative light phototherapy that calms active facial inflammation, reduces vascular redness, and stimulates cellular repair.',
+    duration: '30 mins',
+    recovery: 'Zero downtime',
+    suitability: 'Rosacea, active acne, sensitive skin'
   },
-  "Hair Loss & Scalp Treatments": {
-    desc: "Comprehensive trichological evaluation, scalp mesotherapy, and PRP hair growth stimulation for androgenetic alopecia and telogen effluvium.",
-    duration: "45 mins",
-    recovery: "Zero downtime",
-    suitability: "Hair thinning, scalp dandruff, hair loss"
+  'Hair Loss & Scalp Treatments': {
+    desc: 'Comprehensive trichological evaluation, scalp mesotherapy, and PRP hair growth stimulation for androgenetic alopecia and telogen effluvium.',
+    duration: '45 mins',
+    recovery: 'Zero downtime',
+    suitability: 'Hair thinning, scalp dandruff, hair loss'
   },
-  "Eczema & Psoriasis Management": {
-    desc: "Long-term clinical disease control for chronic inflammatory skin conditions utilizing topical immunomodulators, phototherapy, and barrier repair.",
-    duration: "30 mins",
-    recovery: "N/A",
-    suitability: "Chronic eczema, psoriasis plaques, dermatitis"
+  'Eczema & Psoriasis Management': {
+    desc: 'Long-term clinical disease control for chronic inflammatory skin conditions utilizing topical immunomodulators, phototherapy, and barrier repair.',
+    duration: '30 mins',
+    recovery: 'N/A',
+    suitability: 'Chronic eczema, psoriasis plaques, dermatitis'
   },
-  "Facial Rejuvenation & Hydration": {
-    desc: "Micro-injections of essential vitamins, antioxidants, and non-crosslinked hyaluronic acid for intense dermal hydration and youthful radiance.",
-    duration: "45 mins",
-    recovery: "Zero to 1 day",
-    suitability: "Dry skin, dull phototypes, early aging"
+  'Facial Rejuvenation & Hydration': {
+    desc: 'Micro-injections of essential vitamins, antioxidants, and non-crosslinked hyaluronic acid for intense dermal hydration and youthful radiance.',
+    duration: '45 mins',
+    recovery: 'Zero to 1 day',
+    suitability: 'Dry skin, dull phototypes, early aging'
   }
 };
 
-// DOM Initializer
-document.addEventListener("DOMContentLoaded", () => {
-  // Sticky Navbar Scroll Effect & Active Section Highlighting
+document.addEventListener('DOMContentLoaded', async () => {
+  await loadGallery();
+  renderGallery();
+
   const navWrapper = document.querySelector('.nav-sticky-wrapper');
   const fabTop = document.getElementById('fabTop');
   const sections = document.querySelectorAll('section[id], header[id]');
@@ -192,7 +158,6 @@ document.addEventListener("DOMContentLoaded", () => {
       else fabTop.classList.remove('visible');
     }
 
-    // Active link highlighting
     sections.forEach(sec => {
       const top = sec.offsetTop - 120;
       const height = sec.offsetHeight;
@@ -214,7 +179,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Intersection Observer for Reveal animations
   const io = new IntersectionObserver((entries) => {
     entries.forEach(e => {
       if (e.isIntersecting) {
@@ -229,7 +193,6 @@ document.addEventListener("DOMContentLoaded", () => {
     io.observe(el);
   });
 
-  // Services Show More / Less
   const grid = document.getElementById('svcGrid');
   const tog = document.getElementById('svcToggle');
   if (tog && grid) {
@@ -243,7 +206,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Interactive Service Details Modal
   const serviceModal = document.getElementById('serviceModal');
   const closeServiceBtn = document.getElementById('closeService');
   const serviceTitle = document.getElementById('serviceModalTitle');
@@ -257,9 +219,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const titleText = svcCard.querySelector('h4').textContent.trim();
     const data = SERVICES_DATA[titleText] || {
       desc: svcCard.querySelector('p').textContent.trim(),
-      duration: "30–45 mins",
-      recovery: "Minimal",
-      suitability: "General skin phototypes"
+      duration: '30\u201345 mins',
+      recovery: 'Minimal',
+      suitability: 'General skin phototypes'
     };
     if (serviceTitle) serviceTitle.textContent = titleText;
     if (serviceDesc) serviceDesc.textContent = data.desc;
@@ -298,9 +260,8 @@ document.addEventListener("DOMContentLoaded", () => {
     closeServiceBtn.addEventListener('click', () => serviceModal.classList.remove('active'));
   }
 
-  // Interactive Skincare Diagnostic Quiz Tool
-  let selectedGoal = "";
-  let selectedType = "";
+  let selectedGoal = '';
+  let selectedType = '';
   const goalBtns = document.querySelectorAll('.quiz-goal-btn');
   const typeBtns = document.querySelectorAll('.quiz-type-btn');
   const quizResultBox = document.getElementById('quizResultBox');
@@ -327,10 +288,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function evaluateQuiz() {
     if (selectedGoal && selectedType) {
-      let rec = "PRP & Microneedling Therapy";
-      if (selectedGoal === "pigmentation") rec = "Chemical Peels & Resurfacing";
-      if (selectedGoal === "hair") rec = "Hair Loss & Scalp Treatments";
-      if (selectedGoal === "aging") rec = "Facial Rejuvenation & Hydration";
+      let rec = 'PRP & Microneedling Therapy';
+      if (selectedGoal === 'pigmentation') rec = 'Chemical Peels & Resurfacing';
+      if (selectedGoal === 'hair') rec = 'Hair Loss & Scalp Treatments';
+      if (selectedGoal === 'aging') rec = 'Facial Rejuvenation & Hydration';
 
       if (quizRecText) {
         quizRecText.innerHTML = `Based on your selection (<em>${capitalize(selectedGoal)}</em> &amp; <em>${capitalize(selectedType)} Skin</em>), Dr. Sumya Pervin recommends: <strong>${rec}</strong>`;
@@ -348,7 +309,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Interactive Before & After Slider Handle
   const baContainer = document.querySelector('.ba-container');
   const baAfter = document.querySelector('.ba-after');
   const baHandle = document.querySelector('.ba-slider-handle');
@@ -392,32 +352,28 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Gallery Filters
-  const filterContainer = document.getElementById("galleryFilters");
+  const filterContainer = document.getElementById('galleryFilters');
   if (filterContainer) {
-    filterContainer.addEventListener("click", (e) => {
-      if (e.target.classList.contains("filter-btn")) {
-        filterContainer.querySelectorAll(".filter-btn").forEach(btn => btn.classList.remove("active"));
-        e.target.classList.add("active");
+    filterContainer.addEventListener('click', (e) => {
+      if (e.target.classList.contains('filter-btn')) {
+        filterContainer.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+        e.target.classList.add('active');
         activeFilter = e.target.dataset.filter;
         renderGallery();
       }
     });
   }
 
-  renderGallery();
-
-  // FAQ Accordion
   document.querySelectorAll('.faq-row').forEach(row => {
     const open = () => {
       const was = row.classList.contains('open');
       document.querySelectorAll('.faq-row').forEach(r => {
         r.classList.remove('open');
-        r.querySelector('.faq-send').textContent = '➤';
+        r.querySelector('.faq-send').textContent = '\u27a4';
       });
       if (!was) {
         row.classList.add('open');
-        row.querySelector('.faq-send').textContent = '✕';
+        row.querySelector('.faq-send').textContent = '\u2715';
       }
     };
     const btn = row.querySelector('.faq-btn');
@@ -426,7 +382,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (send) send.addEventListener('click', open);
   });
 
-  // Steps Slider
   const steps = [
     ['Step 1', 'Clinical Consultation', 'Comprehensive history taking and skin phototype evaluation before any aesthetic procedure.'],
     ['Step 2', 'Professional Analysis', 'Advanced visual skin diagnostic mapping for hydration, elasticity, acne scarring, and pigmentation.'],
@@ -453,19 +408,18 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // Testimonials Slider
   const quotes = [
     {
       quote: '"I suffered from severe acne scarring and melasma for years. After consulting Assistant Professor Dr. Sumya Pervin, her PRP and peel protocol completely transformed my skin texture."',
-      name: "Tanzina A., Dhaka"
+      name: 'Tanzina A., Dhaka'
     },
     {
       quote: '"Dr. Sumya Pervin is extremely meticulous and compassionate. She explained the dermatological science clearly without pushing unnecessary procedures. Highly recommended!"',
-      name: "Farhana K., Shyamoli"
+      name: 'Farhana K., Shyamoli'
     },
     {
       quote: '"The consultation at Alliance Hospital was top-notch. First time a specialist thoroughly examined my skin under magnification and gave me a clear action plan."',
-      name: "Sabbir R., Dhanmondi"
+      name: 'Sabbir R., Dhanmondi'
     }
   ];
   let qi = 0;
@@ -489,7 +443,6 @@ document.addEventListener("DOMContentLoaded", () => {
   if (prevBtn) prevBtn.addEventListener('click', () => setQ(qi - 1));
   if (nextBtn) nextBtn.addEventListener('click', () => setQ(qi + 1));
 
-  // Mobile Drawer Toggle
   const burger = document.getElementById('burger');
   const mobileDrawer = document.getElementById('mobileDrawer');
   const closeDrawer = document.getElementById('closeDrawer');
@@ -500,7 +453,6 @@ document.addEventListener("DOMContentLoaded", () => {
     closeDrawer.addEventListener('click', () => mobileDrawer.classList.remove('active'));
   }
 
-  // BOOKING FORM SUBMISSION
   const bookingModal = document.getElementById('bookingModal');
   const openBookingBtns = document.querySelectorAll('.open-booking');
   const closeBookingBtn = document.getElementById('closeBooking');
@@ -634,7 +586,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (el) el.addEventListener('input', saveBookingFormState);
     });
 
-    bookingForm.addEventListener('submit', (e) => {
+    bookingForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       if (bookingSubmitting) return;
       bookingSubmitting = true;
@@ -649,52 +601,54 @@ document.addEventListener("DOMContentLoaded", () => {
       const service = document.getElementById('serviceType').value;
       const notes = document.getElementById('patientMessage').value;
 
-      const newBooking = {
-        id: "book-" + Date.now(),
-        name: name,
-        phone: phone,
-        chamber: chamber,
-        date: date,
-        service: service,
-        notes: notes,
-        status: "Pending",
-        created_at: new Date().toLocaleString()
-      };
+      let bookingId = '';
 
-      appointmentsList.unshift(newBooking);
-      saveAppointments(appointmentsList);
+      try {
+        const data = await api('POST', '/api/appointments', {
+          patient_name: name,
+          patient_phone: phone,
+          chamber,
+          appointment_date: date,
+          service,
+          notes
+        });
+        bookingId = data.id;
+      } catch (err) {
+        bookingId = 'book-' + Date.now();
+      }
 
-      sessionStorage.setItem('lastBookingRef', newBooking.id);
+      sessionStorage.setItem('lastBookingRef', bookingId);
 
       const waMsg = encodeURIComponent(
-        `📋 *New Appointment Request - Dr. Sumya Pervin, MD*\n\n` +
-        `👤 *Patient:* ${name}\n` +
-        `📞 *Mobile:* ${phone}\n` +
-        `🏥 *Chamber:* ${chamber}\n` +
-        `📅 *Date:* ${date}\n` +
-        `💉 *Service:* ${service}\n\n` +
-        `Sent via Dr. Sumya Pervin Website`
+        '\uD83D\uDCCB *New Appointment Request - Dr. Sumya Pervin, MD*\n\n' +
+        '\uD83D\uDC64 *Patient:* ' + name + '\n' +
+        '\uD83D\uDCDE *Mobile:* ' + phone + '\n' +
+        '\uD83C\uDFE5 *Chamber:* ' + chamber + '\n' +
+        '\uD83D\uDCC5 *Date:* ' + date + '\n' +
+        '\uD83D\uDC89 *Service:* ' + service + '\n\n' +
+        'Sent via Dr. Sumya Pervin Website'
       );
 
-      const waUrl = `https://wa.me/${cmsConfig.whatsapp}?text=${waMsg}`;
-      const tgUrl = `https://t.me/share/url?url=${encodeURIComponent(window.location.href)}&text=${waMsg}`;
+      await loadCMSConfig();
+      const waUrl = 'https://wa.me/' + cmsConfig.whatsapp + '?text=' + waMsg;
+      const tgUrl = 'https://t.me/share/url?url=' + encodeURIComponent(window.location.href) + '&text=' + waMsg;
 
       bookingStatus.style.display = 'block';
       bookingStatus.innerHTML = `
         <div style="background: #D4EDDA; color: #155724; padding: 18px; border-radius: 14px; margin-bottom: 16px;">
-          <h4 style="margin: 0 0 6px; font-weight: 600;">📋 Appointment Details Saved — Send to Doctor</h4>
-          <p style="margin: 0 0 12px; font-size: 14px;">Thank you <strong>${escapeHTML(name)}</strong>. Your appointment request has been saved in your browser.</p>
-          <p style="margin: 0 0 12px; font-size: 13px; background: #FFF3CD; color: #856404; padding: 10px; border-radius: 8px;"><strong>📌 Send to confirm:</strong> Your appointment is saved locally. To ensure Dr. Pervin receives it, please send your details via WhatsApp or Telegram below. No data is stored on any server.</p>
-          
+          <h4 style="margin: 0 0 6px; font-weight: 600;">\uD83D\uDCCB Appointment Request Submitted</h4>
+          <p style="margin: 0 0 12px; font-size: 14px;">Thank you <strong>${escapeHTML(name)}</strong>. Your appointment request has been saved on the server.</p>
+          <p style="margin: 0 0 12px; font-size: 13px; background: #FFF3CD; color: #856404; padding: 10px; border-radius: 8px;"><strong>\uD83D\uDCCD Send to confirm:</strong> To ensure Dr. Pervin receives your request promptly, please forward your details via WhatsApp or Telegram below.</p>
+
           <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px;">
             <a href="${waUrl}" target="_blank" class="btn btn-whatsapp btn-sm" style="flex:1;">
-              💬 Send via WhatsApp to Dr. Pervin
+              \uD83D\uDCAC Send via WhatsApp to Dr. Pervin
             </a>
             <a href="${tgUrl}" target="_blank" class="btn btn-telegram btn-sm" style="flex:1;">
-              ✈️ Send via Telegram
+              \u2708\uFE0F Send via Telegram
             </a>
           </div>
-          <p style="margin: 8px 0 0; font-size: 12px; color: #155724;">Reference: <strong>${newBooking.id}</strong></p>
+          <p style="margin: 8px 0 0; font-size: 12px; color: #155724;">Reference: <strong>${bookingId}</strong></p>
         </div>
       `;
 
@@ -705,7 +659,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // DOCTOR CMS ADMIN MODAL
   const cmsModal = document.getElementById('cmsModal');
   const cmsAuthSection = document.getElementById('cmsAuthSection');
   const cmsMainSection = document.getElementById('cmsMainSection');
@@ -726,18 +679,23 @@ document.addEventListener("DOMContentLoaded", () => {
     closeCMSBtn.addEventListener('click', () => cmsModal.classList.remove('active'));
   }
 
-  function attemptCMSLogin() {
+  async function attemptCMSLogin() {
     if (!cmsPinInput) return;
     const pin = cmsPinInput.value.trim();
-    if (pin === cmsConfig.pin) {
+    try {
+      await api('POST', '/api/auth/login', { pin });
       cmsAuthSection.style.display = 'none';
       cmsMainSection.style.display = 'block';
       if (pinError) pinError.style.display = 'none';
-      console.warn('⚠️ CMS Admin: This is a client-side demo. All data (appointments, gallery images) is stored in localStorage and will be lost if the browser cache is cleared. No server backup exists.');
+      pinError.textContent = '';
+      await Promise.all([
+        loadAppointments(),
+        loadGallery(),
+        loadCMSConfig()
+      ]);
       renderCMSItemList();
-      renderCMSAppointmentsList();
       loadCMSConfigForm();
-    } else {
+    } catch (err) {
       if (pinError) {
         pinError.style.display = 'block';
         pinError.textContent = 'Incorrect PIN. Contact the site administrator.';
@@ -758,29 +716,27 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // CMS Tabs
   document.querySelectorAll('.cms-tab-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.cms-tab-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       const targetTab = btn.dataset.tab;
-      
+
       document.querySelectorAll('.cms-tab-content').forEach(content => {
         content.style.display = content.id === targetTab ? 'block' : 'none';
       });
     });
   });
 
-  // CMS Photo Upload
   const photoFileInput = document.getElementById('photoFileInput');
   const uploadZone = document.getElementById('uploadZone');
   const uploadForm = document.getElementById('uploadForm');
   const previewImg = document.getElementById('uploadPreview');
-  let currentBase64Image = "";
+  let currentBase64Image = '';
 
   if (uploadZone && photoFileInput) {
     uploadZone.addEventListener('click', () => photoFileInput.click());
-    
+
     photoFileInput.addEventListener('change', (e) => {
       const file = e.target.files[0];
       if (file) {
@@ -798,50 +754,61 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   if (uploadForm) {
-    uploadForm.addEventListener('submit', (e) => {
+    uploadForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const title = document.getElementById('photoTitle').value;
       const category = document.getElementById('photoCategory').value;
       const caption = document.getElementById('photoCaption').value;
-      const urlInput = document.getElementById('photoUrlInput').value;
+      const fileInput = document.getElementById('photoFileInput');
+      const file = fileInput ? fileInput.files[0] : null;
 
-      const finalImage = currentBase64Image || urlInput || 'assets/clinic.jpg';
+      let imagePath = '';
 
-      const newItem = {
-        id: 'item-' + Date.now(),
-        title: title,
-        category: category,
-        caption: caption,
-        image: finalImage,
-        date: new Date().toISOString().split('T')[0]
-      };
+      if (file) {
+        const fd = new FormData();
+        fd.append('image', file);
+        try {
+          const uploadData = await api('POST', '/api/gallery/upload', fd);
+          imagePath = uploadData.image_path;
+        } catch (err) {
+          imagePath = 'assets/clinic.jpg';
+        }
+      } else {
+        imagePath = 'assets/clinic.jpg';
+      }
 
-      galleryItems.unshift(newItem);
-      saveCMSGallery(galleryItems);
+      try {
+        await api('POST', '/api/gallery', { title, category, caption, image_path: imagePath });
+      } catch (err) {
+        alert('Failed to save: ' + err.message);
+        return;
+      }
 
       uploadForm.reset();
-      currentBase64Image = "";
+      currentBase64Image = '';
       if (previewImg) previewImg.style.display = 'none';
+
+      await loadGallery();
+      renderGallery();
+      renderCMSItemList();
       alert('Photo & Caption successfully published to portfolio!');
     });
   }
 
-  // CSV Export & Backup Handlers
   const exportBtn = document.getElementById('exportCMSBackup');
   const importFileInput = document.getElementById('importCMSFileInput');
   const exportAppointmentsBtn = document.getElementById('exportAppointmentsCSV');
 
   if (exportBtn) {
-    exportBtn.addEventListener('click', () => {
-      const backupData = {
-        gallery: galleryItems,
-        appointments: appointmentsList,
-        config: cmsConfig
-      };
-      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupData, null, 2));
+    exportBtn.addEventListener('click', async () => {
+      await loadGallery();
+      await loadAppointments();
+      await loadCMSConfig();
+      const backupData = { gallery: galleryItems, appointments: appointmentsList, config: cmsConfig };
+      const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(backupData, null, 2));
       const downloadAnchor = document.createElement('a');
-      downloadAnchor.setAttribute("href", dataStr);
-      downloadAnchor.setAttribute("download", `Dr_Sumya_Pervin_Website_Backup_${Date.now()}.json`);
+      downloadAnchor.setAttribute('href', dataStr);
+      downloadAnchor.setAttribute('download', 'Dr_Sumya_Pervin_Website_Backup_' + Date.now() + '.json');
       document.body.appendChild(downloadAnchor);
       downloadAnchor.click();
       downloadAnchor.remove();
@@ -849,32 +816,33 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   if (exportAppointmentsBtn) {
-    exportAppointmentsBtn.addEventListener('click', () => {
+    exportAppointmentsBtn.addEventListener('click', async () => {
+      await loadAppointments();
       if (appointmentsList.length === 0) {
-        alert("No appointments stored to export.");
+        alert('No appointments stored to export.');
         return;
       }
 
-      let csvContent = "data:text/csv;charset=utf-8,ID,Patient Name,Mobile,Chamber,Date,Service,Notes,Status,Created At\n";
+      let csvContent = 'data:text/csv;charset=utf-8,ID,Patient Name,Mobile,Chamber,Date,Service,Notes,Status,Created At\n';
       appointmentsList.forEach(app => {
         const row = [
           app.id,
-          `"${app.name}"`,
-          `"${app.phone}"`,
-          `"${app.chamber}"`,
-          app.date,
-          `"${app.service}"`,
-          `"${app.notes || ''}"`,
+          '"' + app.patient_name + '"',
+          '"' + app.patient_phone + '"',
+          '"' + app.chamber + '"',
+          app.appointment_date,
+          '"' + app.service + '"',
+          '"' + (app.notes || '') + '"',
           app.status,
-          `"${app.created_at}"`
-        ].join(",");
-        csvContent += row + "\n";
+          '"' + app.created_at + '"'
+        ].join(',');
+        csvContent += row + '\n';
       });
 
       const encodedUri = encodeURI(csvContent);
-      const link = document.createElement("a");
-      link.setAttribute("href", encodedUri);
-      link.setAttribute("download", `Dr_Sumya_Pervin_Appointments_${Date.now()}.csv`);
+      const link = document.createElement('a');
+      link.setAttribute('href', encodedUri);
+      link.setAttribute('download', 'Dr_Sumya_Pervin_Appointments_' + Date.now() + '.csv');
       document.body.appendChild(link);
       link.click();
       link.remove();
@@ -882,20 +850,37 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   if (importFileInput) {
-    importFileInput.addEventListener('change', (e) => {
+    importFileInput.addEventListener('change', async (e) => {
       const file = e.target.files[0];
       if (file) {
         const reader = new FileReader();
-        reader.onload = (event) => {
+        reader.onload = async (event) => {
           try {
             const imported = JSON.parse(event.target.result);
-            if (imported.gallery) galleryItems = imported.gallery;
-            if (imported.appointments) appointmentsList = imported.appointments;
-            if (imported.config) cmsConfig = imported.config;
-
-            saveCMSGallery(galleryItems);
-            saveAppointments(appointmentsList);
-            saveCMSConfig(cmsConfig);
+            if (imported.gallery) {
+              for (const item of imported.gallery) {
+                try {
+                  await api('POST', '/api/gallery', {
+                    title: item.title,
+                    category: item.category,
+                    caption: item.caption || '',
+                    image_path: item.image || item.image_path || 'assets/clinic.jpg'
+                  });
+                } catch (e) {}
+              }
+            }
+            if (imported.config) {
+              try {
+                await api('PUT', '/api/config', {
+                  whatsapp: imported.config.whatsapp || '',
+                  telegram: imported.config.telegram || ''
+                });
+              } catch (e) {}
+            }
+            await loadGallery();
+            await loadAppointments();
+            renderCMSItemList();
+            renderCMSAppointmentsList();
             alert('Successfully imported portfolio and appointment data!');
           } catch(err) {
             alert('Invalid backup JSON file.');
@@ -906,17 +891,33 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Doctor Settings Form
   const configForm = document.getElementById('cmsConfigForm');
   if (configForm) {
-    configForm.addEventListener('submit', (e) => {
+    configForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-      cmsConfig.whatsapp = document.getElementById('doctorWaInput').value;
-      cmsConfig.telegram = document.getElementById('doctorTgInput').value;
-      cmsConfig.pin = document.getElementById('newPinInput').value || cmsConfig.pin;
+      const whatsapp = document.getElementById('doctorWaInput').value;
+      const telegram = document.getElementById('doctorTgInput').value;
+      const newPin = document.getElementById('newPinInput').value;
+      const currentPin = document.getElementById('currentPinInput') ? document.getElementById('currentPinInput').value : '';
 
-      saveCMSConfig(cmsConfig);
-      alert('Doctor Phone & Notification Settings updated successfully!');
+      const body = { whatsapp, telegram };
+      if (newPin) {
+        if (!currentPin) {
+          alert('Current PIN is required to set a new PIN.');
+          return;
+        }
+        body.current_pin = currentPin;
+        body.new_pin = newPin;
+      }
+
+      try {
+        await api('PUT', '/api/config', body);
+        alert('Doctor Phone & Notification Settings updated successfully!');
+        document.getElementById('newPinInput').value = '';
+        if (document.getElementById('currentPinInput')) document.getElementById('currentPinInput').value = '';
+      } catch (err) {
+        alert('Error: ' + err.message);
+      }
     });
   }
 });
@@ -924,14 +925,10 @@ document.addEventListener("DOMContentLoaded", () => {
 function loadCMSConfigForm() {
   const wa = document.getElementById('doctorWaInput');
   const tg = document.getElementById('doctorTgInput');
-  const pin = document.getElementById('newPinInput');
-
-  if (wa) wa.value = cmsConfig.whatsapp;
-  if (tg) tg.value = cmsConfig.telegram;
-  if (pin) pin.value = cmsConfig.pin;
+  if (wa) wa.value = cmsConfig.whatsapp || '';
+  if (tg) tg.value = cmsConfig.telegram || '';
 }
 
-// Render CMS Gallery Items
 function renderCMSItemList() {
   const container = document.getElementById('cmsItemList');
   if (!container) return;
@@ -939,83 +936,96 @@ function renderCMSItemList() {
   container.innerHTML = galleryItems.map(item => `
     <div class="cms-item-row">
       <div class="cms-item-info">
-        <img src="${item.image}" class="cms-item-thumb" alt="${item.title}">
+        <img src="${item.image_path}" class="cms-item-thumb" alt="${item.title}">
         <div>
           <strong style="font-size:14px; display:block;">${escapeHTML(item.title)}</strong>
-          <span style="font-size:12px; color:var(--grey);">${capitalize(item.category)} • ${item.date}</span>
+          <span style="font-size:12px; color:var(--grey);">${capitalize(item.category)} \u2022 ${item.created_at ? item.created_at.slice(0, 10) : ''}</span>
         </div>
       </div>
       <button class="btn-danger btn-sm" onclick="deleteCMSItem('${item.id}')">Delete</button>
     </div>
-  `).join("");
+  `).join('');
 }
 
-function deleteCMSItem(id) {
-  if (confirm("Are you sure you want to remove this photo from the portfolio?")) {
-    galleryItems = galleryItems.filter(item => item.id !== id);
-    saveCMSGallery(galleryItems);
+async function deleteCMSItem(id) {
+  if (!confirm('Are you sure you want to remove this photo from the portfolio?')) return;
+  try {
+    await api('DELETE', '/api/gallery/' + id);
+  } catch (err) {
+    alert('Failed to delete: ' + err.message);
+    return;
   }
+  galleryItems = galleryItems.filter(item => item.id !== id);
+  renderGallery();
+  renderCMSItemList();
 }
 
-// Render CMS Appointments List
 function renderCMSAppointmentsList() {
   const container = document.getElementById('cmsAppointmentsList');
   if (!container) return;
 
   if (appointmentsList.length === 0) {
-    container.innerHTML = `<div style="text-align:center; padding:30px; color:var(--grey);">No patient appointments logged yet.</div>`;
+    container.innerHTML = '<div style="text-align:center; padding:30px; color:var(--grey);">No patient appointments logged yet.</div>';
     return;
   }
 
   container.innerHTML = appointmentsList.map(app => {
-    let statusClass = "status-pending";
-    if (app.status === "Confirmed") statusClass = "status-confirmed";
-    if (app.status === "Completed") statusClass = "status-completed";
+    let statusClass = 'status-pending';
+    if (app.status === 'Confirmed') statusClass = 'status-confirmed';
+    if (app.status === 'Completed') statusClass = 'status-completed';
 
-    const waLink = `https://wa.me/${app.phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Hello ${app.name}, this is Dr. Sumya Pervin's clinic confirming your appointment for ${app.date} at ${app.chamber}.`)}`;
+    const waLink = 'https://wa.me/' + app.patient_phone.replace(/[^0-9]/g, '') + '?text=' + encodeURIComponent('Hello ' + app.patient_name + ', this is Dr. Sumya Pervin\'s clinic confirming your appointment for ' + app.appointment_date + ' at ' + app.chamber + '.');
 
     return `
       <div class="cms-item-row" style="flex-direction: column; align-items: stretch; gap: 8px;">
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
           <div>
-            <strong style="font-size:16px; color:var(--sienna);">${escapeHTML(app.name)}</strong>
-            <span style="font-size:13px; color:var(--grey); font-weight:500;"> (${escapeHTML(app.phone)})</span>
+            <strong style="font-size:16px; color:var(--sienna);">${escapeHTML(app.patient_name)}</strong>
+            <span style="font-size:13px; color:var(--grey); font-weight:500;"> (${escapeHTML(app.patient_phone)})</span>
           </div>
           <span class="status-badge ${statusClass}">${app.status}</span>
         </div>
 
         <div style="font-size:13.5px; color:var(--ink);">
-          📅 <strong>Date:</strong> ${app.date} &nbsp;|&nbsp; 🏥 <strong>Chamber:</strong> ${escapeHTML(app.chamber)}<br>
-          💉 <strong>Service:</strong> ${escapeHTML(app.service)} ${app.notes ? `<br>📝 <strong>Notes:</strong> <em>${escapeHTML(app.notes)}</em>` : ''}
+          \uD83D\uDCC5 <strong>Date:</strong> ${app.appointment_date} &nbsp;|&nbsp; \uD83C\uDFE5 <strong>Chamber:</strong> ${escapeHTML(app.chamber)}<br>
+          \uD83D\uDC89 <strong>Service:</strong> ${escapeHTML(app.service)} ${app.notes ? '<br>\uD83D\uDCDD <strong>Notes:</strong> <em>' + escapeHTML(app.notes) + '</em>' : ''}
         </div>
 
         <div style="display:flex; justify-content:space-between; align-items:center; margin-top:6px; flex-wrap:wrap; gap:8px;">
           <span style="font-size:11.5px; color:var(--grey);">Logged: ${app.created_at}</span>
           <div style="display:flex; gap:6px;">
-            <a href="${waLink}" target="_blank" class="btn btn-whatsapp btn-sm">💬 WhatsApp Patient</a>
+            <a href="${waLink}" target="_blank" class="btn btn-whatsapp btn-sm">\uD83D\uDCAC WhatsApp Patient</a>
             <button class="btn btn-out btn-sm" onclick="toggleAppointmentStatus('${app.id}')">Update Status</button>
             <button class="btn-danger btn-sm" onclick="deleteAppointment('${app.id}')">Delete</button>
           </div>
         </div>
       </div>
     `;
-  }).join("");
+  }).join('');
 }
 
-function toggleAppointmentStatus(id) {
-  appointmentsList = appointmentsList.map(app => {
-    if (app.id === id) {
-      const nextStatus = app.status === "Pending" ? "Confirmed" : (app.status === "Confirmed" ? "Completed" : "Pending");
-      return { ...app, status: nextStatus };
-    }
-    return app;
-  });
-  saveAppointments(appointmentsList);
-}
-
-function deleteAppointment(id) {
-  if (confirm("Delete this appointment record permanently?")) {
-    appointmentsList = appointmentsList.filter(app => app.id !== id);
-    saveAppointments(appointmentsList);
+async function toggleAppointmentStatus(id) {
+  const app = appointmentsList.find(a => a.id === id);
+  if (!app) return;
+  const nextStatus = app.status === 'Pending' ? 'Confirmed' : (app.status === 'Confirmed' ? 'Completed' : 'Pending');
+  try {
+    await api('PUT', '/api/appointments/' + id + '/status', { status: nextStatus });
+  } catch (err) {
+    alert('Failed to update status: ' + err.message);
+    return;
   }
+  appointmentsList = appointmentsList.map(a => a.id === id ? { ...a, status: nextStatus } : a);
+  renderCMSAppointmentsList();
+}
+
+async function deleteAppointment(id) {
+  if (!confirm('Delete this appointment record permanently?')) return;
+  try {
+    await api('DELETE', '/api/appointments/' + id);
+  } catch (err) {
+    alert('Failed to delete: ' + err.message);
+    return;
+  }
+  appointmentsList = appointmentsList.filter(app => app.id !== id);
+  renderCMSAppointmentsList();
 }

@@ -9,7 +9,7 @@ Welcome! This document provides operational guidelines, structural context, and 
 - **Project Name**: Dr. Sumya Pervin Portfolio Website
 - **Domain**: Medical & Aesthetic Dermatology Specialist Portfolio
 - **Target Audience**: Prospective patients in Dhaka, Bangladesh seeking clinical dermatology, cosmetic treatments, and dermatosurgery consultations.
-- **Tech Stack**: Vanilla HTML5, Vanilla CSS3 (Custom Design System), Vanilla JavaScript (ES6+). No heavy external frameworks or build tools required.
+- **Tech Stack**: Vanilla HTML5, Vanilla CSS3 (Custom Design System), Vanilla JavaScript (ES6+), Node.js + Express backend, SQLite.
 
 ---
 
@@ -17,15 +17,29 @@ Welcome! This document provides operational guidelines, structural context, and 
 
 ```
 Portfolio Sumya Pervin/
-├── index.html                    # Single-page portfolio (652 lines, all markup)
+├── index.html                    # Single-page portfolio (all markup)
 ├── css/
-│   └── style.css                 # CSS design system & component styles (1581 lines)
+│   └── style.css                 # CSS design system & component styles
 ├── js/
-│   └── main.js                   # All interactive logic (1021 lines)
+│   └── main.js                   # Frontend logic + API fetch calls to backend
 ├── assets/
-│   ├── hero_portrait.jpg         # High-res portrait of Dr. Sumya Pervin
-│   ├── clinic.jpg                # Chamber / clinic facility photo
-│   └── treatment.jpg             # Aesthetic procedure / treatment photo
+│   ├── hero_portrait.jpg
+│   ├── clinic.jpg
+│   └── treatment.jpg
+├── server/
+│   ├── package.json              # Node.js dependencies
+│   ├── server.js                 # Express entry — serves static files + API
+│   ├── db.js                     # SQLite init & schema (4 tables)
+│   ├── middleware/
+│   │   └── auth.js               # Session auth guard
+│   ├── routes/
+│   │   ├── auth.js               # Login/logout/session check
+│   │   ├── appointments.js       # Booking CRUD
+│   │   ├── gallery.js            # Gallery CRUD + multer image upload
+│   │   ├── config.js             # Admin settings + PIN change
+│   │   └── contact.js            # Contact form
+│   └── uploads/                  # Uploaded gallery images (gitignored)
+├── data/                         # SQLite database file (gitignored)
 ├── agent.md                      # AI Agent rules & operational guidance (this file)
 ├── AGENTS.md                     # Points to agent.md
 ├── context.md                    # Domain context, background & site specifications
@@ -45,11 +59,32 @@ Portfolio Sumya Pervin/
 1. **HTML5**: Semantic markup (`<header>`, `<nav>`, `<main>`, `<section>`, `<article>`, `<footer>`).
 2. **CSS3**: Native CSS variables (`:root`), flexbox, grid, glassmorphism UI, smooth transitions, responsive media queries.
 3. **JavaScript (ES6+)**: Event delegation, DOM manipulation, modal state management, smooth scrolling, interactive sliders/accordions.
+4. **Node.js + Express**: Serves static frontend and REST API on the same port. Session-based admin auth.
+5. **SQLite** (better-sqlite3): Persistent data storage — no external database server needed.
 
 ### Architectural Rules
-- **No Heavy Bundlers/Frameworks**: Keep the project lightweight and fast-loading. Do not introduce React, Vue, build scripts, or Node dependencies unless explicitly requested by the user.
 - **Vanilla CSS Priority**: Avoid TailwindCSS or utility frameworks to preserve the custom glassmorphism aesthetic tailored in `css/style.css`.
 - **Aesthetic Excellence**: Maintain premium UI visuals—modern typography (Google Fonts Outfit), curated color palettes, subtle glassmorphism cards, micro-animations.
+
+### API Overview
+All API routes are prefixed with `/api`. Admin routes require a valid session cookie (set via `/api/auth/login`).
+
+| Endpoint | Method | Auth | Description |
+|----------|--------|------|-------------|
+| `/api/auth/login` | POST | No | Login with PIN |
+| `/api/auth/logout` | POST | Yes | Destroy session |
+| `/api/auth/check` | GET | No | Session check |
+| `/api/appointments` | POST | No | Create booking |
+| `/api/appointments` | GET | Yes | List bookings |
+| `/api/appointments/:id/status` | PUT | Yes | Update status |
+| `/api/appointments/:id` | DELETE | Yes | Delete booking |
+| `/api/gallery` | GET | No | List gallery |
+| `/api/gallery` | POST | Yes | Add gallery item |
+| `/api/gallery/upload` | POST | Yes | Upload image (multipart) |
+| `/api/gallery/:id` | DELETE | Yes | Delete gallery item |
+| `/api/config` | GET | Yes | Get settings |
+| `/api/config` | PUT | Yes | Update settings/PIN |
+| `/api/contact` | POST | No | Contact form |
 
 ---
 
@@ -72,17 +107,24 @@ Portfolio Sumya Pervin/
 - Avoid global variable pollution by wrapping script execution or using `DOMContentLoaded` event listeners.
 - Gracefully check for element presence before adding event listeners to prevent runtime errors.
 - Ensure keyboard accessibility for interactive controls (e.g., closing modals with `Escape` key, focus trapping).
+- Use the `api()` helper function for all server calls — it handles JSON parsing and error handling uniformly.
 
 ---
 
 ## 5. Development & Verification Workflow
 
 ### Local Development
-To serve and preview the application locally:
-- Use any standard static web server, such as:
-  - `python3 -m http.server 8000`
-  - `npx serve .`
-  - Live Server extension in VS Code.
+To run the full backend locally:
+```bash
+cd server
+npm install   # first time only
+npm start     # starts on port 3000
+```
+
+The Express server serves both the API and the static frontend files. Visit `http://localhost:3000` to see the site.
+
+### Default Admin Credentials
+- **PIN**: `talhatheboss` (bcrypt hashed in DB, change via CMS Settings)
 
 ### Verification Checklist
 When making code changes or updates, verify the following:
@@ -94,6 +136,7 @@ When making code changes or updates, verify the following:
    - Accordions (FAQ section) open/collapse without layout shifts.
 3. **Console Hygiene**: Check browser DevTools console for zero JavaScript errors or missing asset warnings.
 4. **Data Integrity**: Verify Dr. Sumya Pervin's qualifications, degrees, chamber locations, and appointment phone numbers remain accurate.
+5. **API Tests**: After backend changes, verify the API endpoints respond correctly (check auth, CRUD operations).
 
 ---
 
