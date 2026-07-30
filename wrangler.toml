@@ -1,3 +1,9 @@
+# The Pages project to deploy to. Set explicitly so `wrangler pages deploy` never
+# infers a target from the directory name — this directory is "Portfolio Sumya
+# Pervin", which is not a valid project name and would prompt or misfire.
+# Created 2026-07-30 with --production-branch master (this repo uses master, not main).
+name = "dr-sumya-pervin-portfolio"
+
 # Only public/ is published. This was "." — the repo root — which served the admin
 # PIN hash, SITE_SECRET, and every internal doc as public assets. Anything that is
 # not meant for patients must stay outside public/.
@@ -13,7 +19,7 @@ compatibility_date = "2026-07-29"
 [[d1_databases]]
 binding = "DB"
 database_name = "dr-sumya-pervin-db"
-database_id = "local-dev-db-id"  # replace with the id printed by `wrangler d1 create`
+database_id = "d2ce7968-38ce-4329-86a9-b60d3b48f414"  # created 2026-07-30, region APAC
 
 [[r2_buckets]]
 binding = "GALLERY_BUCKET"
