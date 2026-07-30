@@ -3,6 +3,13 @@
 # not meant for patients must stay outside public/.
 pages_build_output_dir = "public"
 
+# Pins the Workers runtime semantics. Without this, wrangler defaults the date to
+# *today*, which fails outright whenever the local wrangler is newer than the
+# installed workerd ("requires compatibility date X, newest supported is Y") and,
+# worse, silently shifts runtime behaviour as the date rolls forward. Bump this
+# deliberately and re-test; never leave it unset.
+compatibility_date = "2026-07-29"
+
 [[d1_databases]]
 binding = "DB"
 database_name = "dr-sumya-pervin-db"

@@ -460,7 +460,13 @@
       <p>Select your preferred chamber location and schedule a consultation with Dr. Sumya Pervin, MD.</p>
     </div>
     <div id="bookingStatus" style="display:none; margin-bottom: 16px;"></div>
-    <form id="bookingForm" class="form-grid">
+    <!-- onsubmit="return false" is load-bearing, not defensive clutter. The form has
+         no action/method, so before main.js attaches its submit listener a submit
+         performed a native GET to "/?": the page reloaded, the fields cleared, and
+         the patient's booking was lost with no message. This attribute is parsed
+         with the markup, so it cancels the default action from first paint. It only
+         prevents the default -- the real handler in main.js still fires. -->
+    <form id="bookingForm" class="form-grid" onsubmit="return false">
       <div class="form-group">
         <label for="patientName">Patient Full Name *</label>
         <input type="text" id="patientName" required placeholder="e.g. Nusrat Jahan" autocomplete="name">
@@ -500,7 +506,11 @@
       </div>
       <div class="form-group full" style="margin-top: 10px;">
         <p style="font-size: 12.5px; color: var(--grey); margin: 0 0 12px; line-height: 1.4;">🔒 Your information is securely stored on the server. Share with Dr. Pervin via WhatsApp/Telegram to confirm.</p>
-        <button type="submit" class="btn btn-primary" style="width: 100%;">Confirm Appointment Request</button>
+        <!-- Starts disabled and is enabled by main.js only once the submit handler is
+             actually attached, so "enabled" means "a click will really be handled."
+             Pair this with the form's onsubmit guard: the guard stops the silent
+             native GET, this gives the patient a visible reason nothing happened. -->
+        <button type="submit" class="btn btn-primary" style="width: 100%;" disabled aria-busy="true">Confirm Appointment Request</button>
       </div>
     </form>
   </div>

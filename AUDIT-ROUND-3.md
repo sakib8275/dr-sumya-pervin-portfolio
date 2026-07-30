@@ -137,4 +137,18 @@ Run against `wrangler pages dev public --local` with a real `JWT_SECRET`:
 - PIN change: too short → 400; wrong current PIN → 401.
 - Sensitive paths (`/migrations/*`, `/wrangler.toml`, `/.dev.vars`, `/agent.md`, `/functions/**`) → 404 with zero secret strings in any response body. Site and API paths → 200.
 
-**Not verified end-to-end:** the browser-side rendering of the escaped fields and the booking failure UI were checked by code inspection and syntax validation, not by driving a real browser. Worth confirming visually before deploy.
+### Browser verification — completed 2026-07-30
+
+The gap noted above is closed. Driven with Playwright against `wrangler pages dev public --local`:
+
+- **G03 / G08** — `<img onerror>`, `<svg onload>`, `<script>`, `<b>` and `<i>` payloads written straight into D1 (bypassing API validation, so the *render* path is what is under test). In the CMS: zero live injected elements, no raw markup in `innerHTML`, no handler fired, payload present as literal visible text.
+- **G06** — `POST /api/appointments` aborted at the network layer. UI states the appointment was *not recorded* and warns against travelling to the chamber, shows no reference number, keeps the form populated, offers the direct-contact fallback. Nothing written to `sessionStorage`.
+- **G09** — nav phone and floating WhatsApp hidden with `whatsapp = ''`; correct `wa.me` href once set; no dead `wa.me/?` link.
+- **Positive control** — with the API reachable, the booking returns 201 and the reference shown is the server's real id, not a fabricated one. Necessary: the failure-state checks alone cannot distinguish a working honest flow from a flow that always fails.
+
+Two defects were found during this pass and fixed — neither was a Round 3 finding:
+
+- **No `compatibility_date` in `wrangler.toml`.** It defaulted to the current date and outran the installed `workerd`, so the dev server would not start; unpinned, it also lets runtime semantics drift as the date rolls forward. Now pinned.
+- **No submit guard on the booking form.** With no `action`/`method`, a submit before `main.js` attached performed a native GET to `/?` — page reload, fields cleared, booking lost silently. Fixed with a form-level `onsubmit` guard plus a submit button that ships disabled and is enabled once the handler attaches. The form-level guard is the necessary half: Enter in a text field submits too.
+
+**Still not verified:** a real pointer click on the booking submit button. Scroll-reveal elements were observed intercepting pointer events over it, and both successful bookings used `requestSubmit()`, which bypasses hit-testing. Probably animation-timing noise in the harness, but consistent with a real overlay blocking the primary conversion path. Worth one click test with default actionability waits before deploy.

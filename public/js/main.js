@@ -633,6 +633,16 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (el) el.addEventListener('input', saveBookingFormState);
     });
 
+    // The markup ships this button disabled. Enable it here, immediately before the
+    // submit listener is attached -- both statements are synchronous, so no click can
+    // interleave. "Enabled" therefore means "a submit will really be handled," which
+    // is what stops a pre-hydration submit from silently doing a native GET.
+    const bookingSubmitBtn = bookingForm.querySelector('button[type="submit"]');
+    if (bookingSubmitBtn) {
+      bookingSubmitBtn.disabled = false;
+      bookingSubmitBtn.removeAttribute('aria-busy');
+    }
+
     bookingForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       if (bookingSubmitting) return;
