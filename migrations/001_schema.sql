@@ -37,12 +37,33 @@ CREATE TABLE IF NOT EXISTS contact_messages (
   created_at TEXT DEFAULT (datetime('now'))
 );
 
--- PBKDF2-SHA256, 100k iterations, per-install salt. The previous seed was an
--- unsalted single-round SHA-256 of a PIN that had leaked publicly; both the hash
--- and that PIN are revoked. The plaintext for this hash is deliberately recorded
--- nowhere in this repository — it is handed to the practice out of band.
+-- PBKDF2-SHA256, 100k iterations, per-install salt.
+--
+-- These are live seed values, generated 2026-07-30 with `npm run seed-pin` and
+-- held by the operator who ran it. The hash and salt are not secret — they are
+-- meant to live here — but the plaintext PIN exists only outside this repo, by
+-- design. It is not recoverable from these values.
+--
+-- To rotate: prefer the CMS Settings panel, which requires the current PIN and
+-- generates a fresh salt. To reseed from scratch, run `npm run seed-pin` again
+-- and replace both literals below. That script reads the PIN with terminal echo
+-- off and prints only the salt and hash, so the plaintext never reaches a
+-- transcript, a log, or a tracked file; it derives the hash by importing
+-- hashPin from functions/lib/auth.js, so the seed cannot drift from what the
+-- login endpoint verifies.
+--
+-- History, because it constrains how this slot should be handled: it previously
+-- held a valid hash whose plaintext was generated inside an agent session and
+-- recorded nowhere, on the assumption it would be relayed to the practice. It
+-- was not, and it was lost — leaving a seed that looked correct and unlocked
+-- nothing. Never write a hash here unless a human has the PIN in durable
+-- storage first.
+--
+-- Note the INSERT OR IGNORE: this seeds only a fresh database. If the migration
+-- has already run, editing and re-running does nothing — rotate via the CMS, or
+-- with an explicit UPDATE against admin_settings.
 INSERT OR IGNORE INTO admin_settings (id, pin_hash, pin_salt) VALUES (
   1,
-  '5aca72bfe827f0d3dc21adcdae5fcd001d7d593f9b918fda73e29be5acfa940c',
-  'cd83e982568eef34dd1502845d7667d1'
+  'd7de1bebbdb2170b0d242f6dd3c12e21e4d8334159ef808ac8290302b4c0a7b9',
+  'dc3bc6a6f8b33a40ff6c78702a46b720'
 );

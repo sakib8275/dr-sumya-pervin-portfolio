@@ -2,6 +2,11 @@
   "name": "dr-sumya-pervin-portfolio",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler pages dev public --local",
+    "seed-pin": "node scripts/generate-pin-seed.mjs"
+  },
   "dependencies": {
     "jose": "^5.9.0"
   }
