@@ -23,15 +23,39 @@ export async function onRequestPost(context) {
 
   let title, category, caption, imagePath;
   const ct = context.request.headers.get('Content-Type') || '';
+  const isMultipart = ct.includes('multipart/form-data');
 
-  if (ct.includes('multipart/form-data')) {
+  let body, file, urlInput;
+  if (isMultipart) {
     const formData = await context.request.formData();
     title = formData.get('title');
     category = formData.get('category');
     caption = formData.get('caption');
-    const file = formData.get('image');
-    const urlInput = formData.get('image_url');
+    file = formData.get('image');
+    urlInput = formData.get('image_url');
+  } else {
+    body = await readJson(context.request);
+    if (!body) return json({ error: 'Invalid request body' }, 400);
+    title = body.title;
+    category = body.category;
+    caption = body.caption;
+  }
 
+  // Metadata is validated before anything reaches R2. Writing first and validating
+  // second orphans the object whenever validation rejects: the file is stored, the
+  // request 400s, and no gallery row ever references it — so the CMS, which deletes
+  // by row, can never clean it up.
+  title = String(title || '').trim();
+  category = String(category || '').trim().toLowerCase();
+  caption = String(caption || '').trim();
+
+  if (!title || !category) return json({ error: 'Title and category are required' }, 400);
+  if (title.length > 120 || caption.length > 500) return json({ error: 'Title or caption is too long' }, 400);
+  if (!CATEGORIES.includes(category)) {
+    return json({ error: `Category must be one of: ${CATEGORIES.join(', ')}` }, 400);
+  }
+
+  if (isMultipart) {
     if (file && file.size > 0) {
       // Uploads are served back from this site's own origin, so an attacker-chosen
       // content type here is same-origin script execution against the admin token.
@@ -56,23 +80,8 @@ export async function onRequestPost(context) {
       imagePath = '/api/uploads/placeholder';
     }
   } else {
-    const body = await readJson(context.request);
-    if (!body) return json({ error: 'Invalid request body' }, 400);
-    title = body.title;
-    category = body.category;
-    caption = body.caption;
     imagePath = body.image_path ? safeImageUrl(body.image_path) : '/api/uploads/placeholder';
     if (!imagePath) return json({ error: 'image_path must be an http(s) or /api/uploads/ path' }, 400);
-  }
-
-  title = String(title || '').trim();
-  category = String(category || '').trim().toLowerCase();
-  caption = String(caption || '').trim();
-
-  if (!title || !category) return json({ error: 'Title and category are required' }, 400);
-  if (title.length > 120 || caption.length > 500) return json({ error: 'Title or caption is too long' }, 400);
-  if (!CATEGORIES.includes(category)) {
-    return json({ error: `Category must be one of: ${CATEGORIES.join(', ')}` }, 400);
   }
 
   const id = 'item-' + crypto.randomUUID().slice(0, 8);
