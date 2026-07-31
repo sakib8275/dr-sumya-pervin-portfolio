@@ -29,9 +29,12 @@ Put them in the prompt of every agent you dispatch — subagents start cold and 
 5. **Verify before declaring done.** Invoke `superpowers:verification-before-completion` before
    any completion claim. This discipline caught two false conclusions in the 2026-07-30 session
    (an empty container read as "safely escaped"; a stale Playwright route read as a regression).
-6. **Prefix every wrangler call with `CLOUDFLARE_API_TOKEN=`.** A narrow token is exported in the
-   shell and shadows the working OAuth login. Without the prefix you get
-   *"Failed to automatically retrieve account IDs"* and will waste time believing you are logged out.
+6. **~~Prefix every wrangler call with `CLOUDFLARE_API_TOKEN=`.~~ RETIRED 2026-07-31 — no longer
+   needed.** The shadowing export was commented out of `~/.bashrc`, and unprefixed
+   `npx wrangler whoami` now resolves account `344944edcc6fbef4ea774a50d044aebc` directly via
+   OAuth. Prefixing still works (it unsets an already-unset variable) but is pointless. If you
+   ever *do* see *"Failed to automatically retrieve account IDs"* again, something re-exported
+   that variable — check `~/.bashrc` before concluding you are logged out.
 7. **Remote D1 writes are blocked by the permission classifier.** An agent cannot run
    `wrangler d1 execute --remote` with `--file` or any mutation. Produce the exact command and
    have the operator run it with the `!` prefix. Reads (`SELECT`) work fine.
@@ -79,8 +82,8 @@ published, so a missing bucket **fails the entire deploy** — not just gallery 
 Once the owner has enabled R2:
 
 ```bash
-CLOUDFLARE_API_TOKEN= npx wrangler r2 bucket create dr-sumya-gallery
-CLOUDFLARE_API_TOKEN= npx wrangler pages deploy
+npx wrangler r2 bucket create dr-sumya-gallery
+npx wrangler pages deploy
 ```
 
 **Done when:** `wrangler pages deployment list --project-name dr-sumya-pervin-portfolio` shows
