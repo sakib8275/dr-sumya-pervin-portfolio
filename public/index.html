@@ -9,6 +9,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
+  <!-- Explicit render mode: main.js calls turnstile.render() so it can keep each
+       widget id and reset it between attempts. -->
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
 </head>
 <body>
 <div class="shell">
@@ -510,6 +513,10 @@
              actually attached, so "enabled" means "a click will really be handled."
              Pair this with the form's onsubmit guard: the guard stops the silent
              native GET, this gives the patient a visible reason nothing happened. -->
+        <!-- Rendered explicitly by main.js so the widget id can be retained and reset
+             after each attempt. Turnstile tokens are single-use, and this page stays
+             alive after a failed submit, so a retry without reset would be rejected. -->
+        <div id="turnstileBooking" style="margin-bottom: 12px;"></div>
         <button type="submit" class="btn btn-primary" style="width: 100%;" disabled aria-busy="true">Confirm Appointment Request</button>
       </div>
     </form>
@@ -532,6 +539,7 @@
         <input type="password" id="cmsPinInput" placeholder="Enter admin PIN">
       </div>
       <div id="pinError" style="color: #DC3545; display: none; margin-bottom: 14px; font-weight: 500;"></div>
+      <div id="turnstileLogin" style="margin-bottom: 14px;"></div>
       <button class="btn btn-primary" id="submitPin">Login to Admin Panel</button>
     </div>
 

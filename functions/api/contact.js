@@ -1,4 +1,5 @@
 import { readJson, safeEqual, json } from '../lib/auth.js';
+import { verifyTurnstile } from '../lib/turnstile.js';
 
 const MAX_NAME = 120;
 const MAX_MESSAGE = 4000;
@@ -6,6 +7,12 @@ const MAX_MESSAGE = 4000;
 export async function onRequestPost(context) {
   const body = await readJson(context.request);
   if (!body) return json({ error: 'Invalid request body' }, 400);
+
+  // No page currently POSTs here -- this endpoint is an unauthenticated D1 write
+  // with no caller, which makes it a pure spam surface. Gated on action 'contact';
+  // any future contact form must render a widget with that action and send the token.
+  const ts = await verifyTurnstile(context, 'contact', body['cf-turnstile-response']);
+  if (ts) return ts;
 
   const name = String(body.name || '').trim();
   const message = String(body.message || '').trim();

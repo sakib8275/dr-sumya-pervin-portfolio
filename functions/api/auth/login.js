@@ -1,8 +1,15 @@
 import { hashPin, safeEqual, signToken, readJson, json } from '../../lib/auth.js';
+import { verifyTurnstile } from '../../lib/turnstile.js';
 
 export async function onRequestPost(context) {
   const body = await readJson(context.request);
   if (!body) return json({ error: 'Invalid request body' }, 400);
+
+  // Runs before the PIN is touched. There is deliberately no application-level
+  // throttle here, and a WAF rate-limit rule cannot cover the pages.dev hostname,
+  // so this is the only brute-force defence on the live login.
+  const ts = await verifyTurnstile(context, 'login', body['cf-turnstile-response']);
+  if (ts) return ts;
 
   const { pin } = body;
   if (!pin || typeof pin !== 'string') return json({ error: 'PIN is required' }, 400);

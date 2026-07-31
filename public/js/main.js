@@ -661,6 +661,14 @@ document.addEventListener('DOMContentLoaded', async () => {
       let bookingId = '';
       let saveError = null;
 
+      const tsToken = turnstileToken('booking');
+      if (!tsToken) {
+        if (submitBtn) submitBtn.disabled = false;
+        bookingSubmitting = false;
+        alert('Please complete the verification check before confirming.');
+        return;
+      }
+
       try {
         const data = await api('POST', '/api/appointments', {
           patient_name: name,
@@ -668,7 +676,8 @@ document.addEventListener('DOMContentLoaded', async () => {
           chamber,
           appointment_date: date,
           service,
-          notes
+          notes,
+          'cf-turnstile-response': tsToken
         });
         bookingId = data.id;
       } catch (err) {
@@ -677,6 +686,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         // does not is worse than showing them the failure.
         saveError = err;
         console.error('Appointment could not be saved:', err);
+      } finally {
+        turnstileReset('booking');
       }
 
       if (bookingId) sessionStorage.setItem('lastBookingRef', bookingId);
@@ -778,11 +789,51 @@ document.addEventListener('DOMContentLoaded', async () => {
     closeCMSBtn.addEventListener('click', () => cmsModal.classList.remove('active'));
   }
 
+  // Turnstile bootstrap. api.js is loaded async in <head>, so it may become ready
+  // before or after this file runs; polling for it avoids depending on that order,
+  // which an onload= callback would. Widget ids are retained because tokens are
+  // single-use: this page survives a failed attempt, so every retry needs a reset.
+  const turnstileIds = { login: null, booking: null };
+
+  (function renderTurnstile() {
+    if (!window.turnstile || typeof window.turnstile.render !== 'function') {
+      setTimeout(renderTurnstile, 50);
+      return;
+    }
+    const mount = (elId, key, action) => {
+      const el = document.getElementById(elId);
+      if (!el || turnstileIds[key] !== null) return;
+      turnstileIds[key] = window.turnstile.render(el, {
+        sitekey: '0x4AAAAAAEClxf8-TRYoLcZl',
+        action
+      });
+    };
+    mount('turnstileLogin', 'login', 'login');
+    mount('turnstileBooking', 'booking', 'booking');
+  })();
+
+  function turnstileToken(key) {
+    if (!window.turnstile || turnstileIds[key] === null) return '';
+    return window.turnstile.getResponse(turnstileIds[key]) || '';
+  }
+
+  function turnstileReset(key) {
+    if (window.turnstile && turnstileIds[key] !== null) window.turnstile.reset(turnstileIds[key]);
+  }
+
   async function attemptCMSLogin() {
     if (!cmsPinInput) return;
     const pin = cmsPinInput.value.trim();
+    const tsToken = turnstileToken('login');
+    if (!tsToken) {
+      if (pinError) {
+        pinError.style.display = 'block';
+        pinError.textContent = 'Please complete the verification check below.';
+      }
+      return;
+    }
     try {
-      const data = await api('POST', '/api/auth/login', { pin });
+      const data = await api('POST', '/api/auth/login', { pin, 'cf-turnstile-response': tsToken });
       setToken(data.token);
       cmsAuthSection.style.display = 'none';
       cmsMainSection.style.display = 'block';
@@ -800,6 +851,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         pinError.style.display = 'block';
         pinError.textContent = 'Incorrect PIN. Contact the site administrator.';
       }
+    } finally {
+      // Reset on success too: the token is spent either way, and logging out and
+      // back in within the same page load would otherwise reuse a dead token.
+      turnstileReset('login');
     }
   }
 

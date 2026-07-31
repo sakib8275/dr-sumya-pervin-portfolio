@@ -1,4 +1,5 @@
 import { requireAuth, readJson, json } from '../../lib/auth.js';
+import { verifyTurnstile } from '../../lib/turnstile.js';
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 const LIMITS = { patient_name: 120, patient_phone: 40, chamber: 120, service: 120, notes: 2000 };
@@ -19,6 +20,11 @@ export async function onRequestGet(context) {
 export async function onRequestPost(context) {
   const body = await readJson(context.request);
   if (!body) return json({ error: 'Invalid request body' }, 400);
+
+  // Anonymous by design, so nothing else stops an automated flood of bookings
+  // landing in the doctor's appointment log.
+  const ts = await verifyTurnstile(context, 'booking', body['cf-turnstile-response']);
+  if (ts) return ts;
 
   const f = {};
   for (const key of Object.keys(LIMITS)) f[key] = String(body[key] || '').trim();
