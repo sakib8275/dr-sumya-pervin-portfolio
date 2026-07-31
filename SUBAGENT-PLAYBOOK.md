@@ -116,6 +116,17 @@ and escalate to the owner immediately.
 
 ## T5 — WAF rate limit on login
 
+> **CORRECTION (2026-07-31): this task rested on a false premise and is BLOCKED.**
+> A WAF rate-limit rule **cannot protect `dr-sumya-pervin-portfolio.pages.dev`.** WAF rules are
+> *zone*-scoped, and that hostname belongs to Cloudflare, not to us — zone rules never see the
+> traffic. T5 only becomes actionable once `drsumyapervin.com` is connected, **and even then
+> only for that hostname**; the pages.dev URL stays reachable and unprotected.
+>
+> This is why **Turnstile** was implemented instead (deployed and verified — see
+> `HANDOFF-2026-07-31-v3.md`). Turnstile is hostname-independent, so it closes the gap now and
+> already gates `POST /api/auth/login`. The WAF rule remains worth adding as a **second layer**
+> after the domain is connected — not as the primary control this task assumed it was.
+
 **Owner action, dashboard-only.** There is deliberately no application-level throttle on
 `POST /api/auth/login`, so brute-force protection is entirely the WAF's job. A subagent cannot
 do this. Document the requirement, hand it to the owner: a rate-limiting rule on
