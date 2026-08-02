@@ -27,7 +27,15 @@ const mustNotBePublished = [
   '/agent.md',
   '/AGENTS.md',
   '/context.md',
-  '/AUDIT.md',
+  '/STATUS.md',
+  '/FIXPLAN-2026-08-02.md',
+  // The docs archive (moved 2026-08-02) and the root paths it moved FROM -- a
+  // regression that republishes repo internals could resurrect either.
+  '/docs/README.md',
+  '/docs/SUBAGENT-PLAYBOOK.md',
+  '/docs/audits/AUDIT-ROUND-3.md',
+  '/docs/handoffs/HANDOFF-2026-07-31-v5.md',
+  '/docs/prompts/STATUS-AUDIT-PROMPT.md',
   '/AUDIT-ROUND-3.md',
   '/SUBAGENT-PLAYBOOK.md',
   '/HANDOFF-2026-07-31-v5.md',
