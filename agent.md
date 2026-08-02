@@ -23,6 +23,9 @@ Portfolio Sumya Pervin/
 ├── public/                       # ← THE ONLY PUBLISHED DIRECTORY
 │   ├── index.html                # Single-page portfolio (all markup)
 │   ├── 404.html                  # Not-found page
+│   ├── favicon.svg               # SVG monogram favicon
+│   ├── robots.txt                # Allow all + sitemap reference
+│   ├── sitemap.xml               # Single-URL sitemap
 │   ├── css/
 │   │   └── style.css             # CSS design system & component styles
 │   ├── js/
@@ -34,7 +37,9 @@ Portfolio Sumya Pervin/
 ├── functions/                    # Pages Functions — served as routes, not as files
 │   ├── _middleware.js            # CORS, scoped to ALLOWED_ORIGIN
 │   ├── lib/
-│   │   └── auth.js               # JWT sign/verify, PBKDF2 PIN hashing, helpers
+│   │   ├── auth.js               # JWT sign/verify, PBKDF2 PIN hashing, helpers
+│   │   ├── turnstile.js          # Turnstile siteverify, fail-closed
+│   │   └── schedule.js           # Chamber schedules, same-day cutoff, slot validation
 │   └── api/
 │       ├── auth/
 │       │   ├── login.js          # POST: verify PIN, return JWT
@@ -108,7 +113,7 @@ All routes prefixed with `/api`. Admin routes verify JWT from `Authorization: Be
 |----------|--------|------|-------------|
 | `/api/auth/login` | POST | No | Login with PIN, returns JWT |
 | `/api/auth/check` | GET | No | Verify JWT, returns auth status |
-| `/api/appointments` | POST | No | Create booking |
+| `/api/appointments` | POST | No | Create booking (Turnstile + schedule rules: listed chambers only, consultation days only, same-day closes 30 min before start; duplicate phone+chamber+date → 409) |
 | `/api/appointments` | GET | JWT | List bookings |
 | `/api/appointments/:id` | PUT | JWT | Update status |
 | `/api/appointments/:id` | DELETE | JWT | Delete booking |
