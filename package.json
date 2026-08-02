@@ -5,12 +5,15 @@
   "type": "module",
   "scripts": {
     "dev": "wrangler pages dev public --local",
-    "seed-pin": "node scripts/generate-pin-seed.mjs"
+    "seed-pin": "node scripts/generate-pin-seed.mjs",
+    "pretest": "node scripts/build-test-worker.mjs",
+    "test": "node --test tests/*.test.mjs"
   },
   "dependencies": {
     "jose": "^5.9.0"
   },
   "devDependencies": {
+    "miniflare": "^4.20260722.1",
     "wrangler": "^4.115.0"
   }
 }

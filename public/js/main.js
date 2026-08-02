@@ -916,26 +916,33 @@ document.addEventListener('DOMContentLoaded', async () => {
       const caption = document.getElementById('photoCaption').value;
       const fileInput = document.getElementById('photoFileInput');
       const file = fileInput ? fileInput.files[0] : null;
+      const urlInput = document.getElementById('photoUrlInput');
+      const imageUrl = urlInput ? urlInput.value.trim() : '';
 
-      let imagePath = '';
+      // One multipart POST to /api/gallery, which stores the file in R2 and
+      // writes the row in the same request. This used to be two calls, the first
+      // to /api/gallery/upload — a route that never existed, so it 404'd, and the
+      // fallback path it took ('assets/clinic.jpg') is not an accepted image_path
+      // either, so publishing a photo failed outright.
+      if (!file && !imageUrl) {
+        alert('Choose a photo file, or paste an image URL.');
+        return;
+      }
 
+      const fd = new FormData();
+      fd.append('title', title);
+      fd.append('category', category);
+      fd.append('caption', caption);
       if (file) {
-        const fd = new FormData();
         fd.append('image', file);
-        try {
-          const uploadData = await api('POST', '/api/gallery/upload', fd);
-          imagePath = uploadData.image_path;
-        } catch (err) {
-          imagePath = 'assets/clinic.jpg';
-        }
       } else {
-        imagePath = 'assets/clinic.jpg';
+        fd.append('image_url', imageUrl);
       }
 
       try {
-        await api('POST', '/api/gallery', { title, category, caption, image_path: imagePath });
+        await api('POST', '/api/gallery', fd);
       } catch (err) {
-        alert('Failed to save: ' + err.message);
+        alert('Failed to publish: ' + err.message);
         return;
       }
 
@@ -1174,7 +1181,9 @@ async function toggleAppointmentStatus(id) {
   if (!app) return;
   const nextStatus = app.status === 'Pending' ? 'Confirmed' : (app.status === 'Confirmed' ? 'Completed' : 'Pending');
   try {
-    await api('PUT', '/api/appointments/' + id + '/status', { status: nextStatus });
+    // /api/appointments/:id — Pages routes [id].js to a single segment, so the
+    // '/status' suffix this used to carry matched no Function and 404'd.
+    await api('PUT', '/api/appointments/' + id, { status: nextStatus });
   } catch (err) {
     alert('Failed to update status: ' + err.message);
     return;

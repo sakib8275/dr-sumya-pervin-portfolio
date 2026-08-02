@@ -6,5 +6,8 @@ Thumbs.db
 data/
 .wrangler/
 
+# Compiled Functions bundle the test harness runs. Rebuilt by `npm test`.
+.test-build/
+
 # Local secrets for `wrangler pages dev` — never commit.
 .dev.vars
