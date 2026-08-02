@@ -17,6 +17,9 @@ threads that span files:
 - **WhatsApp/Telegram "already inputtable" section** — `HANDOFF-2026-07-31-v3.md`.
 - **T7 integration suite + the two dead CMS routes** — `HANDOFF-2026-08-02.md`
   (supersedes v5 for those items and for the wrangler-token-prefix gotcha).
+- **Phase 1 implementation + docs consolidation** — `HANDOFF-2026-08-02-v2.md`
+  (the latest log; covers the audit, fixplan, F1–F7, deploy `f64b9221`, and the
+  fixture/editing traps found along the way).
 
 Known staleness in these files (caught by the 2026-08-02 audit): production
 deployment names age quickly; `HANDOFF-2026-08-02.md` claims it is untracked

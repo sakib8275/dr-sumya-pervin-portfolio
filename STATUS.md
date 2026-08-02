@@ -31,10 +31,11 @@ snapshot; if this file and a snapshot disagree, this file wins.
 
 ## Active documents
 
+- **`HUMAN-TASKS.md`** — step-by-step guide for everything that needs a person (browser clicks, dashboard launch, owner content, Phase 2 prereqs). **Start here.**
 - **`FIXPLAN-2026-08-02.md`** — the execution plan. Phase 1 ✅, Phase 0 (dashboard launch) and Phase 2 (hardening) pending.
 - `agent.md` — architecture, security rules, deploy/verify checklist.
 - `context.md` — domain and medical-content facts; source of truth for credentials and schedules.
-- `docs/` — dated archive; see `docs/README.md` for the map.
+- `docs/` — dated archive; see `docs/README.md` for the map. Latest session log: `docs/handoffs/HANDOFF-2026-08-02-v2.md`.
 
 ## Standing owner actions (unchanged)
 

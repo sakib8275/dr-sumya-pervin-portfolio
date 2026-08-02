@@ -71,6 +71,7 @@ Portfolio Sumya Pervin/
 ├── package.json                  # Dependencies (jose for JWT)
 ├── node_modules/                 # (gitignored)
 ├── STATUS.md                     # LIVING state doc — update on every state change
+├── HUMAN-TASKS.md                # Step-by-step guide for dashboard/owner tasks
 ├── FIXPLAN-2026-08-02.md         # Active execution plan (Phase 1 shipped)
 ├── agent.md                      # AI Agent rules & operational guidance
 ├── AGENTS.md                     # Points to agent.md
