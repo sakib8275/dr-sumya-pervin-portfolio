@@ -143,3 +143,20 @@ test('an object stored with an unsafe content type is served defused', async () 
   assert.equal(res.headers.get('Content-Type'), 'application/octet-stream');
   assert.equal(res.headers.get('X-Content-Type-Options'), 'nosniff');
 });
+
+// Destructive to this harness's D1, so it runs last: the migration is per-file.
+test('a database failure after the R2 put removes the object rather than orphaning it', async () => {
+  // The upload path stores bytes first and writes the row second. A failure in
+  // between must not strand an object no CMS row will ever reference.
+  await h.db.prepare('DROP TABLE gallery').run();
+
+  // Earlier tests legitimately leave objects in the bucket, so the invariant is
+  // "the failed insert added nothing", not "the bucket is empty".
+  const before = (await h.bucket.list()).objects.length;
+  const res = await upload({ title: 'Orphan test' });
+  assert.equal(res.status, 500);
+  assert.match((await res.json()).error, /Could not save the gallery item/);
+
+  const after = (await h.bucket.list()).objects.length;
+  assert.equal(after, before, 'the R2 object must be cleaned up when the D1 insert fails');
+});

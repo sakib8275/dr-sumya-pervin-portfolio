@@ -21,7 +21,7 @@ export async function onRequestPost(context) {
   const auth = await requireAuth(context.request, context.env);
   if (auth) return auth;
 
-  let title, category, caption, imagePath;
+  let title, category, caption, imagePath, storedKey = null;
   const ct = context.request.headers.get('Content-Type') || '';
   const isMultipart = ct.includes('multipart/form-data');
 
@@ -71,6 +71,7 @@ export async function onRequestPost(context) {
       await context.env.GALLERY_BUCKET.put(filename, await file.arrayBuffer(), {
         httpMetadata: { contentType: file.type }
       });
+      storedKey = filename;
       imagePath = '/api/uploads/' + filename;
     } else if (urlInput) {
       const safe = safeImageUrl(urlInput);
@@ -85,9 +86,23 @@ export async function onRequestPost(context) {
   }
 
   const id = 'item-' + crypto.randomUUID().slice(0, 8);
-  await context.env.DB.prepare(
-    'INSERT INTO gallery (id, title, category, caption, image_path) VALUES (?, ?, ?, ?, ?)'
-  ).bind(id, title, category, caption, imagePath).run();
+  try {
+    await context.env.DB.prepare(
+      'INSERT INTO gallery (id, title, category, caption, image_path) VALUES (?, ?, ?, ?, ?)'
+    ).bind(id, title, category, caption, imagePath).run();
+  } catch (err) {
+    // The R2 put already happened. Without this compensating delete the object
+    // is stranded: the CMS deletes by row, and no row will ever reference it.
+    if (storedKey) {
+      try {
+        await context.env.GALLERY_BUCKET.delete(storedKey);
+      } catch (delErr) {
+        console.error('R2 cleanup failed after gallery insert failure; object orphaned:', storedKey, delErr);
+      }
+    }
+    console.error('Gallery insert failed:', err);
+    return json({ error: 'Could not save the gallery item. Please try again.' }, 500);
+  }
 
   return json({ id, message: 'Gallery item created' }, 201);
 }
