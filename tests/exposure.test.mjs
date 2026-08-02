@@ -28,6 +28,7 @@ const mustNotBePublished = [
   '/AGENTS.md',
   '/context.md',
   '/STATUS.md',
+  '/HUMAN-TASKS.md',
   '/FIXPLAN-2026-08-02.md',
   // The docs archive (moved 2026-08-02) and the root paths it moved FROM -- a
   // regression that republishes repo internals could resurrect either.
