@@ -7,16 +7,27 @@
 import { test, before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { createHarness, tokens } from './helpers/harness.mjs';
+import { nextOpenDate, addDays, dhakaParts, weekdayOf } from '../functions/lib/schedule.js';
 
 let h;
 before(async () => { h = await createHarness(); });
 after(async () => { await h.dispose(); });
 
+// A chamber value the schedule accepts, and a date that is always in the future
+// and always an open day -- fixed fixtures here were stale twice over (invented
+// chamber names, calendar dates that eventually pass).
+const CHAMBER = 'Alliance Hospital Limited (Shyamoli)';
+const DCIMCH = 'Dhaka Central International Medical College (DCIMCH)';
+const OPEN_DATE = nextOpenDate(CHAMBER, addDays(dhakaParts().dateStr, 1));
+
+let phoneSeq = 0;
+// Unique phone per payload: the duplicate-booking guard (same phone + chamber +
+// date -> 409) must never fire between independent tests.
 const valid = (overrides = {}) => ({
   patient_name: 'Test Patient',
-  patient_phone: '01700000000',
-  chamber: 'Alliance Hospital Shyamoli',
-  appointment_date: '2026-09-15',
+  patient_phone: '017000' + String(phoneSeq++).padStart(4, '0'),
+  chamber: CHAMBER,
+  appointment_date: OPEN_DATE,
   service: 'Consultation',
   notes: 'no notes',
   'cf-turnstile-response': tokens.good('booking'),
@@ -37,8 +48,8 @@ test('a solved token books, and the id returned is the id stored', async () => {
   const { id } = await res.json();
   const row = await h.db.prepare('SELECT * FROM appointments WHERE id = ?').bind(id).first();
   assert.equal(row.patient_name, 'Happy Path');
-  assert.equal(row.chamber, 'Alliance Hospital Shyamoli');
-  assert.equal(row.appointment_date, '2026-09-15');
+  assert.equal(row.chamber, CHAMBER);
+  assert.equal(row.appointment_date, OPEN_DATE);
 });
 
 test('siteverify is sent the configured secret and the caller IP field', async () => {
@@ -165,4 +176,59 @@ test('markup in accepted fields is stored verbatim, for the render layer to esca
   const { id } = await res.json();
   const row = await h.db.prepare('SELECT patient_name FROM appointments WHERE id = ?').bind(id).first();
   assert.equal(row.patient_name, payload);
+});
+
+// Schedule rules run after the shape checks, so every case carries a good token
+// and an otherwise well-formed payload.
+test('a past date is refused even though the form would not offer it', async () => {
+  const before = await countRows();
+  const res = await post(valid({ appointment_date: '2020-01-01' }));
+  assert.equal(res.status, 400);
+  assert.match((await res.json()).error, /already passed/);
+  assert.equal(await countRows(), before);
+});
+
+test('a chamber the form does not list is refused', async () => {
+  const before = await countRows();
+  const res = await post(valid({ chamber: 'Some Other Clinic' }));
+  assert.equal(res.status, 400);
+  assert.match((await res.json()).error, /listed chambers/);
+  assert.equal(await countRows(), before);
+});
+
+test('a Friday booking is refused -- no chamber consults on Friday', async () => {
+  let friday = addDays(dhakaParts().dateStr, 1);
+  while (weekdayOf(friday) !== 5) friday = addDays(friday, 1);
+
+  const before = await countRows();
+  const res = await post(valid({ appointment_date: friday }));
+  assert.equal(res.status, 400);
+  assert.match((await res.json()).error, /does not consult/);
+  assert.equal(await countRows(), before);
+});
+
+test('DCIMCH does not take Thursday bookings', async () => {
+  let thursday = addDays(dhakaParts().dateStr, 1);
+  while (weekdayOf(thursday) !== 4) thursday = addDays(thursday, 1);
+
+  const before = await countRows();
+  const res = await post(valid({ chamber: DCIMCH, appointment_date: thursday }));
+  assert.equal(res.status, 400);
+  assert.match((await res.json()).error, /does not consult/);
+  assert.equal(await countRows(), before);
+});
+
+test('a second booking for the same phone, chamber and date is a 409, not a twin', async () => {
+  const body = valid();
+  const before = await countRows();
+
+  const first = await post(body);
+  assert.equal(first.status, 201);
+
+  // tokens.good is not single-use in the siteverify stub, so the retry really
+  // reaches validation -- the 409 is the duplicate guard, not a replay refusal.
+  const retry = await post(valid({ patient_phone: body.patient_phone }));
+  assert.equal(retry.status, 409);
+  assert.match((await retry.json()).error, /already exists/);
+  assert.equal(await countRows(), before + 1, 'the retry must not insert');
 });

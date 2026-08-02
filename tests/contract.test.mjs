@@ -14,6 +14,11 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { createHarness, repoRoot, ONE_PIXEL_PNG } from './helpers/harness.mjs';
+import { nextOpenDate, addDays, dhakaParts } from '../functions/lib/schedule.js';
+
+// Schedule-valid fixture, so the booking below passes validateSlot at any date.
+const CHAMBER = 'Alliance Hospital Limited (Shyamoli)';
+const OPEN_DATE = nextOpenDate(CHAMBER, addDays(dhakaParts().dateStr, 1));
 
 let h;
 let callSites;
@@ -77,7 +82,7 @@ test('the CMS status toggle reaches the appointment update route', async () => {
   const { id } = await (await h.asAdmin('POST', '/api/appointments', {
     body: {
       patient_name: 'Status Test', patient_phone: '01700000000',
-      chamber: 'Alliance', appointment_date: '2026-10-01', service: 'Consultation',
+      chamber: CHAMBER, appointment_date: OPEN_DATE, service: 'Consultation',
       'cf-turnstile-response': 'good:booking'
     }
   })).json();

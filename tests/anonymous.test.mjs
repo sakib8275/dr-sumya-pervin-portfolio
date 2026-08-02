@@ -7,6 +7,12 @@
 import { test, before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { createHarness, tokens } from './helpers/harness.mjs';
+import { nextOpenDate, addDays, dhakaParts } from '../functions/lib/schedule.js';
+
+// Schedule-valid fixture: a real chamber value, and a date that is always in
+// the future on an open day, so the booking passes validateSlot at any time.
+const CHAMBER = 'Alliance Hospital Limited (Shyamoli)';
+const OPEN_DATE = nextOpenDate(CHAMBER, addDays(dhakaParts().dateStr, 1));
 
 let h;
 before(async () => { h = await createHarness(); });
@@ -102,8 +108,8 @@ test('anonymous: a patient can complete a booking end to end', async () => {
     body: {
       patient_name: 'Anonymous Patient',
       patient_phone: '01700000000',
-      chamber: 'Alliance Hospital Shyamoli',
-      appointment_date: '2026-09-15',
+      chamber: CHAMBER,
+      appointment_date: OPEN_DATE,
       service: 'Consultation',
       notes: '',
       'cf-turnstile-response': tokens.good('booking')

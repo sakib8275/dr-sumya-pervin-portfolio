@@ -1,5 +1,6 @@
 import { requireAuth, readJson, json } from '../../lib/auth.js';
 import { verifyTurnstile } from '../../lib/turnstile.js';
+import { validateSlot } from '../../lib/schedule.js';
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 const LIMITS = { patient_name: 120, patient_phone: 40, chamber: 120, service: 120, notes: 2000 };
@@ -40,6 +41,24 @@ export async function onRequestPost(context) {
 
   if (!DATE_RE.test(appointment_date) || Number.isNaN(Date.parse(appointment_date))) {
     return json({ error: 'appointment_date must be a valid YYYY-MM-DD date' }, 400);
+  }
+
+  // Chamber schedule: only the listed chambers, only on consultation days, and
+  // same-day bookings close 30 minutes before consultation starts.
+  const slotError = validateSlot(f.chamber, appointment_date);
+  if (slotError) return json({ error: slotError }, 400);
+
+  // One booking per patient per chamber per day. A retry after a transport
+  // blip (or a double tap before the client guard attached) must not twin the
+  // appointment. The reference in the message is the patient's own existing row.
+  const duplicate = await context.env.DB
+    .prepare('SELECT id FROM appointments WHERE patient_phone = ? AND appointment_date = ? AND chamber = ? LIMIT 1')
+    .bind(f.patient_phone, appointment_date, f.chamber)
+    .first();
+  if (duplicate) {
+    return json({
+      error: `A booking already exists for this number at this chamber on ${appointment_date} (reference ${duplicate.id}).`
+    }, 409);
   }
 
   const id = 'book-' + crypto.randomUUID().slice(0, 8);
