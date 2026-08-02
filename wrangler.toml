@@ -38,4 +38,4 @@ ALLOWED_ORIGIN = "https://drsumyapervin.com"
 # is the only thing preventing a token solved against localhost from being replayed
 # at the live site. .dev.vars overrides this with the local values for `npm run dev`.
 # TURNSTILE_SECRET is a secret and must NOT be added here — see the note above.
-TURNSTILE_HOSTNAMES = "dr-sumya-pervin-portfolio.pages.dev,drsumyapervin.com"
+TURNSTILE_HOSTNAMES = "dr-sumya-pervin-portfolio.pages.dev,drsumyapervin.com,www.drsumyapervin.com"
