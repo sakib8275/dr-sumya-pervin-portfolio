@@ -610,6 +610,14 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   if (dateInput) {
+    // Stop the picker offering past dates. Patients are in Dhaka, so local time
+    // is the right frame; the real gate is server-side validateSlot (schedule,
+    // weekday, and the 30-minute same-day cutoff), which also covers non-Dhaka
+    // clocks and requests that never touch this form.
+    const localNow = new Date();
+    dateInput.min = localNow.getFullYear() + '-' +
+      String(localNow.getMonth() + 1).padStart(2, '0') + '-' +
+      String(localNow.getDate()).padStart(2, '0');
     dateInput.addEventListener('blur', () => {
       const v = dateInput.value;
       if (v) {
@@ -724,6 +732,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         <div style="background: #F8D7DA; color: #721C24; padding: 18px; border-radius: 14px; margin-bottom: 16px;">
           <h4 style="margin: 0 0 6px; font-weight: 600;">\u26A0\uFE0F We could not save your request</h4>
           <p style="margin: 0 0 12px; font-size: 14px;">Sorry <strong>${escapeHTML(name)}</strong> \u2014 your appointment was <strong>not</strong> recorded, so please do not travel to the chamber on this request alone.</p>
+          ${saveError && saveError.message ? `<p style="margin: 0 0 12px; font-size: 13px;"><strong>Reason:</strong> ${escapeHTML(saveError.message)}</p>` : ''}
           <p style="margin: 0 0 12px; font-size: 13px; background: #FFF3CD; color: #856404; padding: 10px; border-radius: 8px;"><strong>\uD83D\uDCCD Please send your details directly instead.</strong> Use the button below, or call the chamber. Your details are still filled in above.</p>
           ${forwardButtons}
         </div>
@@ -1029,17 +1038,31 @@ const exportBtn = document.getElementById('exportCMSBackup');
         reader.onload = async (event) => {
           try {
             const imported = JSON.parse(event.target.result);
+            const summary = [];
             if (imported.gallery) {
+              let okCount = 0, skipped = 0, failed = 0;
               for (const item of imported.gallery) {
+                const path = item.image || item.image_path || '';
+                // The API accepts only /api/uploads/… or absolute http(s). The old
+                // 'assets/clinic.jpg' fallback 400'd and the silent catch dropped
+                // the item with no trace -- the same defect class as the upload
+                // route bug fixed on 2026-08-02.
+                if (!/^(?:\/api\/uploads\/|https?:\/\/)/.test(path)) { skipped++; continue; }
                 try {
                   await api('POST', '/api/gallery', {
                     title: item.title,
                     category: item.category,
                     caption: item.caption || '',
-                    image_path: item.image || item.image_path || 'assets/clinic.jpg'
+                    image_path: path
                   });
-                } catch (e) {}
+                  okCount++;
+                } catch (e) {
+                  failed++;
+                }
               }
+              summary.push('Gallery: ' + okCount + ' imported' +
+                (skipped ? ', ' + skipped + ' skipped (unsupported image path)' : '') +
+                (failed ? ', ' + failed + ' failed' : ''));
             }
             if (imported.config) {
               try {
@@ -1047,13 +1070,16 @@ const exportBtn = document.getElementById('exportCMSBackup');
                   whatsapp: imported.config.whatsapp || '',
                   telegram: imported.config.telegram || ''
                 });
-              } catch (e) {}
+                summary.push('Settings: imported');
+              } catch (e) {
+                summary.push('Settings: FAILED (' + e.message + ')');
+              }
             }
             await loadGallery();
             await loadAppointments();
             renderCMSItemList();
             renderCMSAppointmentsList();
-            alert('Successfully imported portfolio and appointment data!');
+            alert(summary.length ? summary.join('\n') : 'Nothing importable found in that file.');
           } catch(err) {
             alert('Invalid backup JSON file.');
           }
@@ -1203,3 +1229,34 @@ async function deleteAppointment(id) {
   appointmentsList = appointmentsList.filter(app => app.id !== id);
   renderCMSAppointmentsList();
 }
+
+// Modal keyboard accessibility: Escape closes the open modal (via its close
+// button, so any registered cleanup runs), and Tab cycles inside it. One
+// document-level listener covers every .modal-overlay, present and future.
+document.addEventListener('keydown', (e) => {
+  const open = document.querySelector('.modal-overlay.active');
+  if (!open) return;
+
+  if (e.key === 'Escape') {
+    const closeBtn = open.querySelector('.modal-close');
+    if (closeBtn) closeBtn.click();
+    else open.classList.remove('active');
+    return;
+  }
+
+  if (e.key !== 'Tab') return;
+  const focusables = [...open.querySelectorAll(
+    'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+  )].filter((el) => el.offsetParent !== null);
+  if (focusables.length === 0) return;
+
+  const first = focusables[0];
+  const last = focusables[focusables.length - 1];
+  if (e.shiftKey && (document.activeElement === first || !open.contains(document.activeElement))) {
+    e.preventDefault();
+    last.focus();
+  } else if (!e.shiftKey && (document.activeElement === last || !open.contains(document.activeElement))) {
+    e.preventDefault();
+    first.focus();
+  }
+});
