@@ -5,7 +5,7 @@ project changes. Current state lives in [`../STATUS.md`](../STATUS.md); current
 rules and architecture in [`../agent.md`](../agent.md); the active execution
 plan in [`../FIXPLAN-2026-08-02.md`](../FIXPLAN-2026-08-02.md).
 
-## handoffs/ — session logs, 2026-07-28 → 2026-08-03
+## handoffs/ — session logs, 2026-07-28 → 2026-08-04
 
 Read only when you need the *why* behind a decision. Reading order for the
 threads that span files:
@@ -29,8 +29,16 @@ threads that span files:
   Supersedes both files above for F8, Cloudflare and D1 state: the worker
   deployed, the Cloudflare cron day-of-week trap, how far the live run got, the
   L7 correction, and the open list as it stood.
-- **F9 security headers** — **`HANDOFF-2026-08-03-v4.md`, the latest log and the
-  one to read.** Supersedes `-v3` for headers, deployment id and test count
+- **L6 closed + digest observability** — **`HANDOFF-2026-08-04.md`, the latest log
+  and the one to read.** No code changed; it supersedes `-v4` for L6, the digest
+  worker's version (`0f6d80cd`) and the git baseline (`3a2e864`). Contains the
+  finding that matters most from that session: **the CMS's Telegram field drives
+  nothing** — `main.js:726` builds a generic `t.me/share/url` share sheet that
+  never routes to the doctor, so "the value is stored" and "the value is used"
+  are separate claims. Also: why a cron-only Worker needs logs turned on *before*
+  its first run, and why neither cloud routines nor local cron jobs can be
+  trusted to check on production here.
+- **F9 security headers** — `HANDOFF-2026-08-03-v4.md`. Supersedes `-v3` for headers, deployment id and test count
   (`74c3bd4b`, 191/191); `-v3` remains correct for F8. Contains the corrected
   inline-handler count (12, not 11), the Logout button that had never worked, and
   the trap that matters most: **the zone injects scripts into the apex HTML that
@@ -58,8 +66,11 @@ the evidence appendix in `../FIXPLAN-2026-08-02.md`),
 **executed**, see `handoffs/HANDOFF-2026-08-03-v3.md`. ⚠️ It states the numeric
 crons `30 8 * * 0-3,6` / `30 10 * * 0-4,6` are correct. They are not — Cloudflare
 rejects numeric day-of-week. Do not copy them from this file),
-`F9-HEADERS-PROMPT.md` (**the current one — paste this into the next session**:
-security headers, starting with the inline-handler refactor).
+`F9-HEADERS-PROMPT.md` (2026-08-03; security headers, starting with the
+inline-handler refactor — **executed**, see `handoffs/HANDOFF-2026-08-03-v4.md`),
+`F8-SIGNOFF-F10-PROMPT.md` (**the current one — paste this into the next
+session**: read the digest's first-run logs to close F8, then build the
+Playwright DOM layer).
 
 ## SUBAGENT-PLAYBOOK.md
 

@@ -4,10 +4,12 @@
 verification, or owner-action state changes. Everything under `docs/` is a dated
 snapshot; if this file and a snapshot disagree, this file wins.
 
-**Updated:** 2026-08-03 22:07 UTC — re-probe of a live-but-idle site (no code
-changed since F9). Two rows were stale and are corrected: the digest recipient is
-**verified**, and `master` is **pushed**. Earlier that day: F9 security headers,
-the F8 digest deploy, the Cloudflare email setup and the L8 smoke-row deletion.
+**Updated:** 2026-08-04 — L6 closed (the owner's WhatsApp number is live in
+production D1) and **Workers Logs enabled on the digest** before its first real
+cron run, so that run leaves a trace either way. Two rows that were stale on the
+22:07 re-probe are corrected: the digest recipient is **verified**, and `master`
+is **pushed**. Earlier on 2026-08-03: F9 security headers, the F8 digest deploy,
+the Cloudflare email setup and the L8 smoke-row deletion.
 
 ---
 
@@ -17,9 +19,9 @@ the F8 digest deploy, the Cloudflare email setup and the L8 smoke-row deletion.
 green; L1–L2, L4–L5 done, L7 not what it claimed — see below), **F9 security
 headers are live** (CSP with no `'unsafe-inline'` in `script-src`, HSTS, zero
 inline handlers left in `public/`), and **the F8 digest worker is DEPLOYED,
-crons registered, recipient verified** — nothing blocks it; its first live run is
-**2026-08-04 08:30 UTC (14:30 Dhaka)** and has not happened yet, so it is wired
-but unproven end-to-end in production. The smoke row is gone (L8 done) —
+crons registered, recipient verified, Workers Logs on** — nothing blocks it; its
+first live run is **2026-08-04 08:30 UTC (14:30 Dhaka)** and has not happened
+yet, so it is wired but unproven end-to-end in production. The smoke row is gone (L8 done) —
 production D1 is clean. **L6 is now done too** — the owner's `+8801725196101` is
 live in production D1, so booking confirmations reach WhatsApp. The remaining
 owner action is the PIN rotation; **Telegram wiring is deferred by the owner.**
@@ -36,7 +38,9 @@ owner action is the PIN rotation; **Telegram wiring is deferred by the owner.**
 | **F9 security headers** | **LIVE on apex.** CSP (`script-src 'self' 'nonce-…' challenges.cloudflare.com static.cloudflareinsights.com`, no `'unsafe-inline'`; `frame-ancestors 'none'`, `object-src 'none'`, `base-uri`/`form-action 'self'`), `Permissions-Policy`, `HSTS max-age=31536000; includeSubDomains` (no preload), `X-Frame-Options: DENY`, `nosniff`, `Referrer-Policy` | `curl -I` + browser console, 2026-08-03 |
 | Inline event handlers | **zero in `public/`** — 12 removed (8 `onclick` + 1 `onsubmit` in index.html, 3 generated `onclick` in main.js). `tests/headers.test.mjs` fails if one returns | `npm test` + DOM probe, 2026-08-03 |
 | CSP violations in browser | **0** across a full local click-through and a full production pass | Playwright console capture, 2026-08-03 |
-| F8 digest worker | **DEPLOYED** — `dr-sumya-digest`, version `e89ceefb`, crons `30 8 * * SUN-WED,SAT` + `30 10 * * SUN-THU,SAT` registered; no public URL (`workers_dev = false`, probe 404) | `wrangler deploy` + curl, 2026-08-03 |
+| F8 digest worker | **DEPLOYED** — `dr-sumya-digest`, live version **`0f6d80cd`** (2026-08-03 22:16 UTC; supersedes `e89ceefb`), crons `30 8 * * SUN-WED,SAT` + `30 10 * * SUN-THU,SAT` registered; no public URL (`workers_dev = false`, probe 404) | `wrangler deployments list`, 2026-08-03 22:2x UTC |
+| Digest observability | **ON** — `[observability] enabled = true, head_sampling_rate = 1` in `workers/digest/wrangler.toml`, confirmed on the deployed script (`logs.enabled true`, `persist true`, `invocation_logs true`). Enabled *before* the first scheduled run for one reason: this Worker's only trigger is cron and its only output is an email nobody in this repo can read, so **"no mail arrived" and "nothing to report" are the same observation** without logs | Cloudflare API, 2026-08-03 22:16 UTC |
+| Digest first run | **NOT YET OBSERVED.** No cron has fired since the 15:10 UTC deploy. First real run **2026-08-04 08:30 UTC / 14:30 Dhaka**. ⚠️ Production D1 has 0 appointments, so **a quiet run that sends nothing is the expected outcome** — do not read a missing email as a failure until the logs are read | reasoning + D1 count, 2026-08-03 |
 | Digest end-to-end | **proven up to the send**: forced scheduled run on remote bindings routed Alliance → Dhaka date 2026-08-03 → production D1 query OK → both send paths rejected only with "destination address is not a verified address" | `wrangler dev --remote --test-scheduled`, 2026-08-03 |
 | Email Routing (zone) | **enabled, status `ready`** — MX ×3 + SPF + DKIM (`cf2024-1._domainkey`) created automatically | Cloudflare API, 2026-08-03 |
 | Digest recipient | `dr.enamtalha@gmail.com` — **`verified` 2026-08-03 16:13 UTC** (owner opened the link). The send path is now unblocked; **no cron has fired since the 15:10 UTC deploy**, so the first live digest is 2026-08-04 08:30 UTC / 14:30 Dhaka | Cloudflare API, 2026-08-03 22:07 UTC |
@@ -49,7 +53,7 @@ owner action is the PIN rotation; **Telegram wiring is deferred by the owner.**
 | WhatsApp/Telegram | **SET — L6 done.** `whatsapp = 8801725196101`, `telegram = +8801725196101` (owner-supplied `+8801725196101`, stored WhatsApp-style without `+` because `main.js` strips non-digits and the CMS field asks for it that way). Written straight to production D1, not through the CMS — the row now reads back on `/api/config/public` | D1 UPDATE (`changes: 1`) + curl, 2026-08-03 22:1x UTC |
 | Telegram button caveat | **the stored `telegram` value drives nothing.** `main.js:726` builds `https://t.me/share/url?...`, a generic share sheet that opens the *patient's* Telegram to pick any recipient — it never routes to the doctor. The value is only echoed back into the CMS Settings input (`main.js:1144`). WhatsApp is wired properly (`wa.me/<digits>`, FAB at `main.js:163` + booking button at `:725`) | code read, 2026-08-03 |
 | Launch steps L1–L8 | L1 ✅ L2 ✅ L4 ✅ L5 ✅ **L6 ✅** L8 ✅ L7 ⚠️ (see row above) · L3 contingency unused | FIXPLAN marks + probes |
-| git | **in sync and clean** — `origin/master` and local `master` both at `972cf1c` (`git ls-remote` confirmed), working tree clean. The earlier "1 ahead, unpushed" note is superseded. Note the deployed code is live regardless of git: `wrangler pages deploy` uploads the working tree, not a git ref | `git ls-remote`, 2026-08-03 22:07 UTC |
+| git | **in sync and clean** — `origin/master` and local `master` both at `3a2e864` (`git ls-remote` confirmed), working tree clean. Note the deployed code is live regardless of git: `wrangler pages deploy` uploads the working tree, not a git ref | `git ls-remote`, 2026-08-03 22:21 UTC |
 | Browser clicks | **Whole CMS exercised locally** on the F9 build against local D1/R2 — login, Update Status, **Upload Photo** (R2 + D1 + image served back), Settings save, Gallery delete, Logout. **On production, only the public surface was exercised**; the production CMS was NOT logged into (its PIN and its D1/R2 writes are operator-only) | Playwright, 2026-08-03 |
 | Zone-injected scripts | The apex HTML gets **two scripts this repo does not contain**: Cloudflare JavaScript Detections (inline, per-request ray id — a CSP hash can never match it) and the Web Analytics beacon. Both were blocked by F9's first deploy; fixed with a per-request CSP nonce + `static.cloudflareinsights.com`. **Neither appears on `pages.dev`**, so preview testing cannot catch this class of break | curl + browser, 2026-08-03 |
 
@@ -59,7 +63,8 @@ owner action is the PIN rotation; **Telegram wiring is deferred by the owner.**
 - **`FIXPLAN-2026-08-02.md`** — the execution plan. Phase 1 ✅, Phase 0 (dashboard launch) and Phase 2 (hardening) pending.
 - `agent.md` — architecture, security rules, deploy/verify checklist.
 - `context.md` — domain and medical-content facts; source of truth for credentials and schedules.
-- `docs/` — dated archive; see `docs/README.md` for the map. **Latest session log: `docs/handoffs/HANDOFF-2026-08-03-v4.md`** (F9 security headers) — it supersedes `-v3`, which remains correct for F8 and the Cloudflare email setup.
+- `docs/` — dated archive; see `docs/README.md` for the map. **Latest session log: `docs/handoffs/HANDOFF-2026-08-04.md`** (L6 closed, digest observability, the Telegram finding) — read `-v4` before it for F9 and `-v3` for F8.
+- **`docs/prompts/F8-SIGNOFF-F10-PROMPT.md` — the current kickoff prompt. Paste it into the next session.**
 - `docs/prompts/F9-HEADERS-PROMPT.md` — the kickoff prompt for F9. **Done**; kept for the record.
 
 ## Standing owner actions
@@ -79,8 +84,11 @@ owner action is the PIN rotation; **Telegram wiring is deferred by the owner.**
    also needs a code change at `main.js:726`.
 2. ~~Open Cloudflare's verification email in `dr.enamtalha@gmail.com`~~ **DONE
    2026-08-03 16:13 UTC.** The digest is fully wired; the first live run is
-   2026-08-04 08:30 UTC (14:30 Dhaka). Watch that it actually lands, and have an
-   agent create the `digest@` inbound rule (now that `2054` no longer applies).
+   2026-08-04 08:30 UTC (14:30 Dhaka). **Next agent's first job: read the Workers
+   Logs for that run** (see the F8 sign-off prompt) — with 0 appointments in
+   production D1 the expected result is a run that reports nothing and sends no
+   mail, which is success, not failure. Also still open: create the `digest@`
+   inbound rule (now that `2054` no longer applies); nothing depends on it.
 3. **Confirm chamber schedules** (Alliance Sat–Thu 5–8 PM; DCIMCH Sat–Wed 3–5 PM)
    — F4's enforcement and F8's digest both depend on these.
 4. **Leaked token**: delete id `b17d8b1322d3a80ddeebb36d76ae8ba5` — match by the

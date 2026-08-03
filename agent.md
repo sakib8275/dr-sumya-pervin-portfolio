@@ -315,8 +315,22 @@ and copy the crons it demands.
 
 Email is gated on human dashboard work (HUMAN-TASKS Task 13): Email Routing
 enabled on the zone, a **verified** destination inbox, and the `digest@` sender.
-Until `DIGEST_TO` is set in its `wrangler.toml`, the Worker logs
-"not configured" at each cutoff and sends nothing.
+All three were completed on 2026-08-03. Until `DIGEST_TO` is set in its
+`wrangler.toml`, the Worker logs "not configured" at each cutoff and sends
+nothing; if it points at an *unverified* address, every send fails with
+`2054: destination address is not verified`, which `runDigest` logs as
+`send-failed`.
+
+> [!IMPORTANT]
+> **Keep `[observability]` enabled on this Worker.** It has no fetch handler and
+> its only output is an email that leaves the system, so with logs off it has no
+> observable surface at all: "the cron never fired", "it ran and correctly had
+> nothing to report", and "it ran and the send failed" are **the same
+> observation** — no email. Because production D1 is frequently empty, the quiet
+> case is also the common one, so silence proves nothing either way.
+> `head_sampling_rate = 1` is right here; two invocations a day is nothing to
+> sample. Judge a run from the logs, never from the inbox — and note that the
+> recipient mailbox belongs to the owner and is not readable by an agent.
 
 ### Verification Checklist
 When making code changes or updates, verify the following:

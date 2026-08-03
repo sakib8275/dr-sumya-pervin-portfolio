@@ -12,6 +12,24 @@ Do them in order — later tasks assume earlier ones are done.
 
 ---
 
+## Task 0 — ⚠️ Rotate the admin PIN (5 min · 👩‍⚕️ · do this soon)
+
+**Why:** during the 2026-08-03 browser testing, the machine's saved-password
+autofill re-populated the CMS PIN field on `localhost`, so **the production PIN
+appeared in an agent session transcript**. It was never written to a file, never
+used against production, and is recorded nowhere in this repo — but transcripts
+persist, so treat it as disclosed.
+
+1. Open the CMS → **Settings** tab.
+2. Enter the **current** PIN, then the new one (**minimum 8 characters**).
+3. Save, log out, and log back in with the new PIN to confirm it took.
+
+**Related, smaller:** the PIN field has no `autocomplete="new-password"`, which is
+why browsers offer to save and re-fill it. That is a code fix for an agent, not
+something you can click.
+
+---
+
 ## Task 1 — Click the two CMS flows (10 min · 🖥️ or 👩‍⚕️ · browser)
 
 **Why:** the automated tests *read* the CMS code but no human has ever clicked these
@@ -98,35 +116,44 @@ the redirect's DNS record if the dashboard asks.)
 
 ---
 
-## Task 6 — Enter the real contact numbers (5 min · 👩‍⚕️)
+## Task 6 — Enter the real contact numbers ✅ **DONE 2026-08-03**
 
-**Why:** today every booking confirmation links to nothing — the database fields are
-verified empty.
+The owner supplied `+8801725196101`. It was written **straight to production D1**
+(the CMS route needs the PIN, which is operator-only) and reads back on
+`/api/config/public`: `whatsapp = 8801725196101` — stored without the `+`,
+because the site builds `wa.me/<digits>` and strips non-digits anyway. The
+floating WhatsApp button and the booking-confirmation forward button are live.
 
-1. Open the CMS → **Settings** tab.
-2. **Doctor's WhatsApp Number:** digits only, with country code — e.g. `8801XXXXXXXXX`
-   (no `+`, spaces, or dashes; the site builds `wa.me/<digits>` from it).
-3. **Telegram Username / Channel:** the `@username` — **not** a numeric user ID
-   (`t.me/<numbers>` does not resolve).
-4. Save.
+**Telegram is deferred by the owner, and nothing is broken by that.** The stored
+`telegram` value **drives nothing today**: the site's Telegram button builds
+`https://t.me/share/url?...`, a generic share sheet that opens the *patient's*
+Telegram so they can pick any recipient — it never routes to the doctor. Giving
+it a real `@username` would not change that on its own; it needs a code change at
+`public/js/main.js:726`. Do not file this as a bug.
 
-**Verify:** `curl -sS https://drsumyapervin.com/api/config/public` → both fields
-non-empty. The floating WhatsApp button appears on the site; a booking confirmation
-now shows a WhatsApp button with a real `wa.me` link.
+**If the number ever changes:** the CMS → **Settings** tab is the normal route
+(digits only, country code, no `+`/spaces/dashes). Verify with
+`curl -sS https://drsumyapervin.com/api/config/public`.
 
 ---
 
-## Task 7 — Rate-limit the login endpoint (10 min · 🖥️)
+## Task 7 — Protect the login endpoint ⚠️ **do not follow the old steps**
 
-1. Zone → **Security** → **WAF** → **Rate limiting rules** → create.
-2. Match: **URI Path** equals `/api/auth/login` **and Method** equals `POST`.
-3. **5 requests per 1 minute**, keyed by **IP**, action **Managed Challenge**
-   (not Block — protects the doctor from locking herself out on a mistyped PIN).
-4. Deploy.
+**This task's original instructions were wrong about what exists.** A 2026-08-03
+read of the zone's rulesets found:
 
-**Verify:** from one machine, POST the login 6+ times quickly with a wrong PIN —
-the 6th should get a challenge/429-style page; then one real login through the CMS
-must still succeed.
+- The rule on `POST /api/auth/login` is a **`managed_challenge`, not a rate
+  limit.** It challenges attempts; it does not count or cap them.
+- The zone's *one* rate-limiting rule is **`Leaked credential check`** (block,
+  5 per 10 s). **The Free plan allows exactly one such rule**, and it is
+  deliberately spent on that — so you cannot simply add the login one.
+
+So there is **nothing to click here**, and the login is *not* rate-limited today.
+The real fix is application-level throttling inside
+`functions/api/auth/login.js` (D1- or KV-backed, keyed on the attempt). That is
+agent work, is not yet in the FIXPLAN, and should be proposed before it is built.
+
+**Do not mark this task done and do not treat the challenge as a rate limit.**
 
 ---
 
@@ -161,8 +188,8 @@ must still succeed.
 
 ## Task 10 — Owner content decisions (when convenient · 👩‍⚕️)
 
-1. **Digest email address** — which email should receive the daily booking lists?
-   Needed before the digest worker (F8) can be built. Tell the agent.
+1. ~~**Digest email address**~~ — **answered**: `dr.enamtalha@gmail.com`, live and
+   verified (Task 13).
 2. **Confirm the printed schedules** — Alliance Sat–Thu 5–8 PM, DCIMCH Sat–Wed
    3–5 PM. The booking form now *enforces* these; if a day or time is wrong, say so
    before patients hit it.
@@ -194,39 +221,46 @@ must still succeed.
 
 ---
 
-## Task 13 — Email prerequisites for the daily digest (15 min · 🖥️ · Phase 2)
+## Task 13 — Email prerequisites for the daily digest ✅ **DONE 2026-08-03**
 
-**Down to one click.** Done for you on 2026-08-03: Email Routing enabled on the
-zone (status `ready`; MX + SPF + DKIM records created automatically),
-`dr.enamtalha@gmail.com` added as the destination, `DIGEST_TO` set, and the
-worker deployed with both crons registered.
+All of it is done: Email Routing enabled on the zone (status `ready`; MX + SPF +
+DKIM created automatically), `dr.enamtalha@gmail.com` added as the destination
+and **`verified` at 16:13 UTC** (the owner clicked the link), `DIGEST_TO` set,
+the worker deployed with both crons registered, and Workers Logs turned on.
 
-### What you have to do
+**Nothing blocks the digest.** Its first scheduled run is **2026-08-04 08:30 UTC
+(14:30 Dhaka)** — no cron had fired before then, because the deploy landed at
+15:10 UTC, after both of that day's cron times.
 
-**Open the inbox `dr.enamtalha@gmail.com` and click the link in the Cloudflare
-verification email** ("Verify your email address" from Cloudflare). Check spam.
+### ⚠️ What "it worked" will look like — read this before you conclude it failed
 
-That is the whole task. Cloudflare refuses delivery to an unverified address —
-a forced run on 2026-08-03 got all the way to the send and failed with exactly
-`destination address is not a verified address`, so nothing else is in the way.
+Production D1 currently holds **zero appointments**. A correct run with nothing
+to report **sends no email at all**. So an empty inbox tomorrow afternoon is the
+*expected* result and is not evidence of a problem.
 
-### After the click
+That ambiguity is exactly why Workers Logs were enabled first. **Judge the run
+from the logs, not the inbox** — an agent can read them
+(`dr-sumya-digest` → Observability, or the Cloudflare observability MCP) and tell
+you which of four things happened: never fired / sent successfully / fired and
+correctly had nothing to send / fired and the send failed.
 
-Tell an agent (or do it yourself). Two follow-ups:
+### Still open (small, optional)
 
-1. Prove one real email: Workers dashboard → **dr-sumya-digest** → **Settings** →
-   **Trigger Events** → *Test scheduled event*, then check the inbox. Or locally:
+Create the inbound `digest@drsumyapervin.com` routing rule, which Cloudflare
+rejected while the destination was unverified (`2054`). **Nothing depends on
+it** — the worker sends mail, it does not receive any. It is only so bounces and
+replies to the digest land somewhere.
 
-   ```bash
-   cd workers/digest && npx wrangler dev --remote --test-scheduled --port 8799
-   curl "http://localhost:8799/__scheduled?cron=30+10+*+*+SUN-THU,SAT"
-   ```
+If you ever want to force a run rather than wait: Workers dashboard →
+**dr-sumya-digest** → **Settings** → **Trigger Events** → *Test scheduled event*.
+Or locally:
 
-   ⚠️ This sends a **real** email listing the day's real bookings.
+```bash
+cd workers/digest && npx wrangler dev --remote --test-scheduled --port 8799
+curl "http://localhost:8799/__scheduled?cron=30+10+*+*+SUN-THU,SAT"
+```
 
-2. Create the inbound `digest@drsumyapervin.com` routing rule, which Cloudflare
-   rejected while the destination was unverified (`2054`). It is only needed so
-   bounces and replies to the digest go somewhere.
+⚠️ That sends a **real** email listing the day's real bookings.
 
 If the recipient should be someone other than `dr.enamtalha@gmail.com`, change
 `DIGEST_TO` in `workers/digest/wrangler.toml` and redeploy — the new address must
@@ -237,9 +271,10 @@ phone numbers and notes, so that address is a deliberate choice.
 
 ## Done = launch complete
 
-When Tasks 1–8 are verified, the site is **live and trustworthy**:
-`https://drsumyapervin.com` serves the final build, bookings reach the doctor's
-system with working contact links, and the login is rate-limited. Tasks 10–13
-finish the practice-content and Phase-2 work at whatever pace suits the owner.
+Tasks 1–6, 8 and 13 are verified: `https://drsumyapervin.com` serves the final
+build, bookings reach the doctor's system with a working WhatsApp link, and the
+daily digest is wired end to end. **Task 7 is the exception** — the login carries
+a managed challenge but is *not* rate-limited, and that fix is code, not clicks.
+Task 0 (PIN rotation) and Task 10 (content) are the owner's remaining work.
 
 *Update `STATUS.md` as tasks complete — it's the living record; this guide is the how.*
