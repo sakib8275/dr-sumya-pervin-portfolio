@@ -18,8 +18,10 @@ threads that span files:
 - **T7 integration suite + the two dead CMS routes** — `HANDOFF-2026-08-02.md`
   (supersedes v5 for those items and for the wrangler-token-prefix gotcha).
 - **Phase 1 implementation + docs consolidation** — `HANDOFF-2026-08-02-v2.md`
-  (the latest log; covers the audit, fixplan, F1–F7, deploy `f64b9221`, and the
-  fixture/editing traps found along the way).
+  (the audit, fixplan, F1–F7, deploy `f64b9221`, and the fixture/editing traps).
+- **Domain launch + F8 scaffold** — `HANDOFF-2026-08-03.md` (the latest log;
+  L1–L8 verified state, smoke booking `book-09fce136`, digest-worker bug list,
+  rollback-id lesson).
 
 Known staleness in these files (caught by the 2026-08-02 audit): production
 deployment names age quickly; `HANDOFF-2026-08-02.md` claims it is untracked

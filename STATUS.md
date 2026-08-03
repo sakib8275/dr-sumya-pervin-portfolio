@@ -4,30 +4,33 @@
 verification, or owner-action state changes. Everything under `docs/` is a dated
 snapshot; if this file and a snapshot disagree, this file wins.
 
-**Updated:** 2026-08-02, after the Phase 1 deploy.
+**Updated:** 2026-08-03, after the domain launch.
 
 ---
 
 ## The one-line state
 
-**Phase 1 is shipped and verified on pages.dev (deployment `f64b9221`, source
-`d0c4896`, 148/148 tests green) — the remaining launch work is dashboard steps
-(L1–L8) and owner data entry, not code.**
+**The site is LIVE on `drsumyapervin.com`** (deployment `f64b9221`, 155/155 tests
+green; L1–L2, L4–L5, L7 done and verified, smoke booking proven) — remaining work:
+operator deletes the smoke row (L8), owner enters WhatsApp/Telegram (L6), one
+Upload-Photo browser click; then Phase 2 (F8 digest — scaffold exists, has bugs).
 
 ## Verified right now
 
 | Fact | State | Verified |
 |---|---|---|
-| Serving deployment | `f64b9221` (was `5423d45e` pre-Phase-1) | `pages deployment list`, 2026-08-02 |
+| Serving deployment | `f64b9221` on apex + pages.dev | `pages deployment list`, 2026-08-03 |
 | Rollback target | **`5423d45e`** (last pre-Phase-1 known-good) | same |
-| Tests | **148/148 green** (`npm test`, Miniflare, real compiled worker) | 2026-08-02 |
-| Booking guard live | tokenless POST → 403; Turnstile intact | curl, 2026-08-02 |
+| Apex / www / HTTPS | apex 200; www → 301 apex; http → 301 https | curl, 2026-08-03 |
+| Tests | **155/155 green** (`npm test`, Miniflare, real compiled worker) | 2026-08-03 |
+| Booking guard live | tokenless POST on apex → 403; real widget booking succeeded | curl + D1, 2026-08-03 |
 | Repo-root exposure | closed — internals all 404 @ 1,512 B | curl, 2026-08-02 |
 | SEO/OG | canonical, OG/Twitter, JSON-LD, robots.txt, sitemap.xml, favicon.svg live | curl, 2026-08-02 |
-| Production D1 | `appointments=0, gallery=0, contact_messages=0`; **whatsapp/telegram still EMPTY** | D1 SELECT, 2026-08-02 |
-| Custom domain | **NOT attached** — apex has 0 DNS answers, www NXDOMAIN | DNS, 2026-08-02 |
-| git | `master` pushed, == `origin/master` (`70a53ff`) | 2026-08-02 |
-| Browser clicks | CMS Update-Status cycle + Upload Photo still never clicked by a human | OPEN |
+| Production D1 | **1 row = smoke booking `book-09fce136` (notes "test", Confirmed) — DELETE PENDING (L8)**; gallery=0 | D1 SELECT, 2026-08-03 |
+| WhatsApp/Telegram | **still EMPTY** — L6 open | `/api/config/public`, 2026-08-03 |
+| Launch steps L1–L8 | L1 ✅ L2 ✅ L4 ✅ L5 ✅ L7 ✅ · **L6 ⬜ L8 ⬜** · L3 contingency unused | FIXPLAN marks + probes |
+| git | `master` ahead of origin (unpushed docs commits); see latest handoff | 2026-08-03 |
+| Browser clicks | Update Status **exercised** (smoke row → Confirmed); **Upload Photo still never clicked** | D1 row state, 2026-08-03 |
 
 ## Active documents
 
@@ -35,7 +38,7 @@ snapshot; if this file and a snapshot disagree, this file wins.
 - **`FIXPLAN-2026-08-02.md`** — the execution plan. Phase 1 ✅, Phase 0 (dashboard launch) and Phase 2 (hardening) pending.
 - `agent.md` — architecture, security rules, deploy/verify checklist.
 - `context.md` — domain and medical-content facts; source of truth for credentials and schedules.
-- `docs/` — dated archive; see `docs/README.md` for the map. Latest session log: `docs/handoffs/HANDOFF-2026-08-02-v2.md`.
+- `docs/` — dated archive; see `docs/README.md` for the map. Latest session log: `docs/handoffs/HANDOFF-2026-08-03.md` (domain launch + digest-scaffold state).
 
 ## Standing owner actions (unchanged)
 
