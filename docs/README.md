@@ -39,7 +39,9 @@ deployment names age quickly; `HANDOFF-2026-08-02.md` claims it is untracked
 
 `vibe-code-audit-prompt.md` (round 1), `ui-ux-audit-prompt.md` (round 2/UX),
 `STATUS-AUDIT-PROMPT.md` (the 2026-08-02 launch-readiness audit; its output is
-the evidence appendix in `../FIXPLAN-2026-08-02.md`).
+the evidence appendix in `../FIXPLAN-2026-08-02.md`),
+`F8-DIGEST-PROMPT.md` (2026-08-03; kickoff prompt for the next agent session —
+finish and ship the digest worker).
 
 ## SUBAGENT-PLAYBOOK.md
 
