@@ -14,8 +14,8 @@ snapshot; if this file and a snapshot disagree, this file wins.
 green; L1–L2, L4–L5, L7 done, smoke booking proven) and **the F8 digest worker is
 DEPLOYED with both crons registered** — it is one click from working: someone with
 access to **`dr.enamtalha@gmail.com`** must open Cloudflare's verification email.
-Remaining otherwise: operator deletes the smoke row (L8), owner enters
-WhatsApp/Telegram (L6), one Upload-Photo browser click.
+Remaining otherwise: owner enters WhatsApp/Telegram (L6) and one Upload-Photo
+browser click. The smoke row is gone (L8 done) — production D1 is clean.
 
 ## Verified right now
 
@@ -33,9 +33,9 @@ WhatsApp/Telegram (L6), one Upload-Photo browser click.
 | Booking guard live | tokenless POST on apex → 403; real widget booking succeeded | curl + D1, 2026-08-03 |
 | Repo-root exposure | closed — internals all 404 @ 1,512 B | curl, 2026-08-02 |
 | SEO/OG | canonical, OG/Twitter, JSON-LD, robots.txt, sitemap.xml, favicon.svg live | curl, 2026-08-02 |
-| Production D1 | **1 row = smoke booking `book-09fce136` (notes "test", Confirmed) — DELETE PENDING (L8)**; gallery=0 | D1 SELECT, 2026-08-03 |
+| Production D1 | **0 appointments** — smoke row `book-09fce136` deleted 2026-08-03 (L8 done, `changes: 1`, count re-checked); gallery=0 | D1 DELETE + SELECT, 2026-08-03 |
 | WhatsApp/Telegram | **still EMPTY** — L6 open | `/api/config/public`, 2026-08-03 |
-| Launch steps L1–L8 | L1 ✅ L2 ✅ L4 ✅ L5 ✅ L7 ⚠️ (see row above) · **L6 ⬜ L8 ⬜** · L3 contingency unused | FIXPLAN marks + probes |
+| Launch steps L1–L8 | L1 ✅ L2 ✅ L4 ✅ L5 ✅ L8 ✅ L7 ⚠️ (see row above) · **L6 ⬜** · L3 contingency unused | FIXPLAN marks + probes |
 | git | `master` ahead of origin (unpushed docs commits); see latest handoff | 2026-08-03 |
 | Browser clicks | Update Status **exercised** (smoke row → Confirmed); **Upload Photo still never clicked** | D1 row state, 2026-08-03 |
 
