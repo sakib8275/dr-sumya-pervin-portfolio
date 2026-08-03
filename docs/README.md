@@ -22,9 +22,13 @@ threads that span files:
 - **Domain launch + F8 scaffold** — `HANDOFF-2026-08-03.md` (L1–L8 verified
   state, smoke booking `book-09fce136`, digest-worker bug list, rollback-id
   lesson).
-- **F8 built and tested** — `HANDOFF-2026-08-03-v2.md` (the latest log;
-  supersedes the file above for digest state: six bugs fixed, crons now derived
-  from `schedule.js`, why it was not deployed, and the Email-Routing findings).
+- **F8 built and tested** — `HANDOFF-2026-08-03-v2.md` (six bugs fixed, crons
+  derived from `schedule.js`, the Email-Routing findings). Its "not deployed"
+  conclusion was overtaken later the same day; read `-v3` for the outcome.
+- **F8 shipped + Cloudflare email setup + L8** — **`HANDOFF-2026-08-03-v3.md`,
+  the latest log and the one to read.** Supersedes both files above for F8,
+  Cloudflare and D1 state: the worker deployed, the Cloudflare cron day-of-week
+  trap, how far the live run got, the L7 correction, and the full open list.
 
 Known staleness in these files (caught by the 2026-08-02 audit): production
 deployment names age quickly; `HANDOFF-2026-08-02.md` claims it is untracked
@@ -44,8 +48,11 @@ deployment names age quickly; `HANDOFF-2026-08-02.md` claims it is untracked
 `STATUS-AUDIT-PROMPT.md` (the 2026-08-02 launch-readiness audit; its output is
 the evidence appendix in `../FIXPLAN-2026-08-02.md`),
 `F8-DIGEST-PROMPT.md` (2026-08-03; kickoff prompt for the digest worker —
-**executed**, see `handoffs/HANDOFF-2026-08-03-v2.md`; its "deploy anyway" step
-was deliberately not taken, with reasons).
+**executed**, see `handoffs/HANDOFF-2026-08-03-v3.md`. ⚠️ It states the numeric
+crons `30 8 * * 0-3,6` / `30 10 * * 0-4,6` are correct. They are not — Cloudflare
+rejects numeric day-of-week. Do not copy them from this file),
+`F9-HEADERS-PROMPT.md` (**the current one — paste this into the next session**:
+security headers, starting with the inline-handler refactor).
 
 ## SUBAGENT-PLAYBOOK.md
 

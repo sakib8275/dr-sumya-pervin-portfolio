@@ -1,5 +1,14 @@
 # PROMPT — F8: finish and ship the daily digest worker
 
+> **EXECUTED 2026-08-03 — archived, do not re-run.** Outcome:
+> `../handoffs/HANDOFF-2026-08-03-v3.md`.
+>
+> ⚠️ **One instruction below is wrong.** It states the crons `30 8 * * 0-3,6`
+> and `30 10 * * 0-4,6` are correct and must not be changed. Cloudflare's
+> schedules API **rejects numeric day-of-week** (`10100: invalid cron string`);
+> the deployed crons are `30 8 * * SUN-WED,SAT` and `30 10 * * SUN-THU,SAT`.
+> Never copy the numeric form from this file.
+
 Paste this into a fresh agent session. Everything it needs is in the repo; the
 pointers below tell it what to read first and what "done" means.
 
