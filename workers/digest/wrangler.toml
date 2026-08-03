@@ -46,11 +46,21 @@ name = "EMAIL"
 #
 #   DIGEST_FROM — an address on the zone. Email Routing is enabled here, which is
 #                 what authorises the send_email binding to use it.
-#   DIGEST_TO   — must be a VERIFIED destination. Added 2026-08-03; as of that
-#                 date it is still `unverified` — Cloudflare emailed a
-#                 confirmation link to it and someone with access to that inbox
-#                 must click it. Until then every send fails with a
-#                 "not verified" error, which runDigest logs as `send-failed`.
+#   DIGEST_TO   — must be a VERIFIED destination. Added 2026-08-03 and VERIFIED
+#                 the same day at 16:13 UTC, so the send path is open. If this
+#                 ever changes to a fresh address, the new one starts
+#                 unverified and every send fails with a "not verified" error,
+#                 which runDigest logs as `send-failed`.
 [vars]
 DIGEST_FROM = "digest@drsumyapervin.com"
 DIGEST_TO = "dr.enamtalha@gmail.com"
+
+# Workers Logs. This Worker's only trigger is cron and its only output is an
+# email nobody in this repo can read, so without logs a failed run is invisible:
+# "no mail arrived" looks exactly like "no appointments to report". Enabled
+# 2026-08-03, before the first real scheduled run, so that run leaves a trace
+# either way. head_sampling_rate is 1 deliberately — two invocations a day is
+# nothing to sample.
+[observability]
+enabled = true
+head_sampling_rate = 1
