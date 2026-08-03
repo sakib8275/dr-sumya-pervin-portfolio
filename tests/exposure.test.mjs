@@ -42,6 +42,10 @@ const mustNotBePublished = [
   '/HANDOFF-2026-07-31-v5.md',
   '/scripts/generate-pin-seed.mjs',
   '/tests/helpers/harness.mjs',
+  // The digest Worker (F8) lives beside the Pages project but is deployed
+  // separately; its config carries the D1 database id and the sender address.
+  '/workers/digest/index.js',
+  '/workers/digest/wrangler.toml',
   '/netlify.toml',
   '/.git/config'
 ];

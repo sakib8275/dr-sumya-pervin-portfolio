@@ -56,9 +56,14 @@ Portfolio Sumya Pervin/
 │       │   ├── index.js          # GET/PUT (auth): settings + PIN change
 │       │   └── public.js         # GET: WhatsApp/Telegram only, no auth
 │       └── contact.js            # POST: submit, GET (with secret): list
+├── workers/                      # Standalone Workers — deployed separately, NOT part of Pages
+│   └── digest/                   # F8: daily per-chamber digest email (cron-only, no fetch handler)
+│       ├── index.js              # scheduled() + the send_email transport
+│       ├── digest.js             # All logic; pure, imports functions/lib/schedule.js
+│       └── wrangler.toml         # Own config: D1 (read-only in practice) + send_email
 ├── migrations/
 │   └── 001_schema.sql            # D1: 4 tables + seeded admin credential
-├── tests/                        # Miniflare integration suite — `npm test` (148 tests)
+├── tests/                        # Miniflare integration suite — `npm test` (173 tests)
 ├── scripts/                      # build-test-worker.mjs, generate-pin-seed.mjs
 ├── docs/                         # DATED ARCHIVE — see docs/README.md; snapshots, never current
 │   ├── handoffs/                 # Session logs 2026-07-28 → 2026-08-02
@@ -236,6 +241,27 @@ npx wrangler pages deploy
 # Or: connect GitHub repo in Cloudflare Pages dashboard (auto-deploys on push)
 ```
 
+### The digest Worker (F8) — deployed separately
+
+`workers/digest/` is a standalone Worker, not part of the Pages project. It is
+cron-only (no fetch handler, no routes) and reads D1; it must never be able to
+touch the booking path. Deploy it from its own directory so the root
+`wrangler.toml` is not picked up:
+
+```bash
+cd workers/digest && npx wrangler deploy
+```
+
+Its crons are derived from `functions/lib/schedule.js`, not hand-written:
+`tests/digest.test.mjs` fails if `workers/digest/wrangler.toml` and that
+derivation disagree. Change a chamber's hours in `schedule.js`, run `npm test`,
+and copy the crons it demands.
+
+Email is gated on human dashboard work (HUMAN-TASKS Task 13): Email Routing
+enabled on the zone, a **verified** destination inbox, and the `digest@` sender.
+Until `DIGEST_TO` is set in its `wrangler.toml`, the Worker logs
+"not configured" at each cutoff and sends nothing.
+
 ### Verification Checklist
 When making code changes or updates, verify the following:
 1. **Responsive Layout**: Test on mobile screen sizes (<375px), tablets (768px), and desktops (1280px+).
@@ -246,8 +272,9 @@ When making code changes or updates, verify the following:
    - Accordions (FAQ section) open/collapse without layout shifts.
 3. **Console Hygiene**: Check browser DevTools console for zero JavaScript errors or missing asset warnings.
 4. **Data Integrity**: Verify Dr. Sumya Pervin's qualifications, degrees, chamber locations, and appointment phone numbers remain accurate.
-5. **API Tests**: `npm test` — the 148-test Miniflare suite (real compiled worker, real D1/R2,
-   stubbed siteverify) must be green before any deploy; then spot-check against
+5. **API Tests**: `npm test` — the 173-test suite (Miniflare integration against the real
+   compiled worker, real D1/R2, stubbed siteverify; plus the pure schedule and digest units)
+   must be green before any deploy; then spot-check against
    `wrangler pages dev public --local`.
 
 ---

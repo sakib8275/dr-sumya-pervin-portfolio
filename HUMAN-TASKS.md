@@ -196,13 +196,32 @@ must still succeed.
 
 ## Task 13 — Email prerequisites for the daily digest (15 min · 🖥️ · Phase 2)
 
-Only when the digest worker (F8) is being built, and only after Task 10.1:
+**This is now the only thing between the digest and working.** The worker is
+written, tested (16 tests) and bundles clean — it just has nowhere to send.
+
+Checked live on 2026-08-03: Email Routing on `drsumyapervin.com` is **not
+enabled** (status `unconfigured`), and the only verified destination on the whole
+account is **`nazmus8275@gmail.com`** — the operator's address, not the doctor's.
 
 1. Zone → **Email** → **Email Routing** → **Get started** (creates MX records).
-2. Add the **destination address** (the doctor's real inbox) and verify it via the
-   confirmation email.
+2. Add the **destination address** (the doctor's real inbox) and verify it via
+   the confirmation email Cloudflare sends there. Cloudflare will not deliver to
+   an unverified address, so this step cannot be skipped or faked.
+   *Interim option:* `nazmus8275@gmail.com` is already verified, so the operator
+   can receive the digest from day one and switch it to the doctor later. Note
+   the mail contains patient names, phone numbers and notes — decide deliberately.
 3. Create the sender address **`digest@drsumyapervin.com`**.
-4. Tell the agent it's done — the worker code, schedule, and tests are agent work.
+4. Put the destination in `workers/digest/wrangler.toml` → `DIGEST_TO`, then
+   deploy and force one cron run to prove an email arrives:
+
+   ```bash
+   cd workers/digest && npx wrangler deploy
+   # then: Workers dashboard → dr-sumya-digest → Settings → Trigger Events →
+   # "Test scheduled event" (pick either cron), and check the inbox.
+   ```
+
+   With `DIGEST_TO` blank the worker is safe but inert: at each cutoff it logs
+   `digest: DIGEST_FROM/DIGEST_TO not configured` and sends nothing.
 
 ---
 

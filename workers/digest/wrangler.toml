@@ -1,0 +1,49 @@
+# F8 — the daily digest Worker. Deployed with `npx wrangler deploy` from THIS
+# directory, not from the repo root: the root wrangler.toml is the Pages project
+# and the two must never be merged. This Worker has no routes and no fetch
+# handler; crons are its only trigger.
+name = "dr-sumya-digest"
+main = "index.js"
+
+# Matches the Pages project's date. The digest imports functions/lib/schedule.js,
+# so a runtime-semantics split between the two would be a real divergence.
+compatibility_date = "2026-07-29"
+
+# Each chamber's booking cutoff, in UTC: DCIMCH closes 14:30 Dhaka (Sat–Wed) and
+# Alliance 16:30 Dhaka (Sat–Thu), and the digest goes out the moment the list is
+# final. Do NOT hand-edit these — they are derived from functions/lib/schedule.js
+# by cronForChamber() in digest.js, and tests/digest.test.mjs fails if this file
+# and that derivation disagree. Change the schedule there, then copy the values
+# the test prints.
+[triggers]
+crons = ["30 8 * * 0-3,6", "30 10 * * 0-4,6"]
+
+# Read-only in practice: digest.js issues exactly one SELECT. The digest must
+# never be able to write to the booking table.
+[[d1_databases]]
+binding = "DB"
+database_name = "dr-sumya-pervin-db"
+database_id = "d2ce7968-38ce-4329-86a9-b60d3b48f414"  # created 2026-07-30, region APAC
+
+# Outbound email. Requires the human prereqs in HUMAN-TASKS.md Task 13:
+# Email Routing enabled on the zone, the destination inbox verified, and the
+# digest@ sender created. As of 2026-08-03 the zone reports Email Routing
+# status "unconfigured", so this binding has nothing to send through yet.
+[[send_email]]
+name = "EMAIL"
+
+# Sender and recipient. Both must be set before a single mail can go out; with
+# either blank the Worker logs "not configured" and returns without sending
+# (see runDigest in digest.js) rather than emailing into the void.
+#
+#   DIGEST_FROM — an address on the zone, created in Email Routing (Task 13.3).
+#   DIGEST_TO   — a VERIFIED destination address. Cloudflare will not deliver to
+#                 an unverified one. The only verified address on this account
+#                 today is the operator's own (nazmus8275@gmail.com); the
+#                 doctor's inbox has to be added and confirmed by a human first.
+#
+# Left blank on purpose: filling in a guess here would deploy a Worker that
+# looks configured and silently fails twice a day.
+[vars]
+DIGEST_FROM = "digest@drsumyapervin.com"
+DIGEST_TO = ""

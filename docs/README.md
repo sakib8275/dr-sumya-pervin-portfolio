@@ -5,7 +5,7 @@ project changes. Current state lives in [`../STATUS.md`](../STATUS.md); current
 rules and architecture in [`../agent.md`](../agent.md); the active execution
 plan in [`../FIXPLAN-2026-08-02.md`](../FIXPLAN-2026-08-02.md).
 
-## handoffs/ — session logs, 2026-07-28 → 2026-08-02
+## handoffs/ — session logs, 2026-07-28 → 2026-08-03
 
 Read only when you need the *why* behind a decision. Reading order for the
 threads that span files:
@@ -19,9 +19,12 @@ threads that span files:
   (supersedes v5 for those items and for the wrangler-token-prefix gotcha).
 - **Phase 1 implementation + docs consolidation** — `HANDOFF-2026-08-02-v2.md`
   (the audit, fixplan, F1–F7, deploy `f64b9221`, and the fixture/editing traps).
-- **Domain launch + F8 scaffold** — `HANDOFF-2026-08-03.md` (the latest log;
-  L1–L8 verified state, smoke booking `book-09fce136`, digest-worker bug list,
-  rollback-id lesson).
+- **Domain launch + F8 scaffold** — `HANDOFF-2026-08-03.md` (L1–L8 verified
+  state, smoke booking `book-09fce136`, digest-worker bug list, rollback-id
+  lesson).
+- **F8 built and tested** — `HANDOFF-2026-08-03-v2.md` (the latest log;
+  supersedes the file above for digest state: six bugs fixed, crons now derived
+  from `schedule.js`, why it was not deployed, and the Email-Routing findings).
 
 Known staleness in these files (caught by the 2026-08-02 audit): production
 deployment names age quickly; `HANDOFF-2026-08-02.md` claims it is untracked
@@ -40,8 +43,9 @@ deployment names age quickly; `HANDOFF-2026-08-02.md` claims it is untracked
 `vibe-code-audit-prompt.md` (round 1), `ui-ux-audit-prompt.md` (round 2/UX),
 `STATUS-AUDIT-PROMPT.md` (the 2026-08-02 launch-readiness audit; its output is
 the evidence appendix in `../FIXPLAN-2026-08-02.md`),
-`F8-DIGEST-PROMPT.md` (2026-08-03; kickoff prompt for the next agent session —
-finish and ship the digest worker).
+`F8-DIGEST-PROMPT.md` (2026-08-03; kickoff prompt for the digest worker —
+**executed**, see `handoffs/HANDOFF-2026-08-03-v2.md`; its "deploy anyway" step
+was deliberately not taken, with reasons).
 
 ## SUBAGENT-PLAYBOOK.md
 
