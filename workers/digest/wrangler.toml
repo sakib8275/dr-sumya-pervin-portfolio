@@ -5,6 +5,11 @@
 name = "dr-sumya-digest"
 main = "index.js"
 
+# No public URL. This Worker exports only scheduled(); a workers.dev route would
+# publish a hostname that answers nothing useful and widens the surface for no
+# reason. The same instinct as pages_build_output_dir in the root config.
+workers_dev = false
+
 # Matches the Pages project's date. The digest imports functions/lib/schedule.js,
 # so a runtime-semantics split between the two would be a real divergence.
 compatibility_date = "2026-07-29"
@@ -15,8 +20,12 @@ compatibility_date = "2026-07-29"
 # by cronForChamber() in digest.js, and tests/digest.test.mjs fails if this file
 # and that derivation disagree. Change the schedule there, then copy the values
 # the test prints.
+#
+# Day-of-week is spelled, not numbered: Cloudflare's schedules API rejects
+# "30 8 * * 0-3,6" with `10100: invalid cron string`. The numeric form this file
+# originally shipped with would have failed at deploy every time.
 [triggers]
-crons = ["30 8 * * 0-3,6", "30 10 * * 0-4,6"]
+crons = ["30 8 * * SUN-WED,SAT", "30 10 * * SUN-THU,SAT"]
 
 # Read-only in practice: digest.js issues exactly one SELECT. The digest must
 # never be able to write to the booking table.
@@ -25,10 +34,9 @@ binding = "DB"
 database_name = "dr-sumya-pervin-db"
 database_id = "d2ce7968-38ce-4329-86a9-b60d3b48f414"  # created 2026-07-30, region APAC
 
-# Outbound email. Requires the human prereqs in HUMAN-TASKS.md Task 13:
-# Email Routing enabled on the zone, the destination inbox verified, and the
-# digest@ sender created. As of 2026-08-03 the zone reports Email Routing
-# status "unconfigured", so this binding has nothing to send through yet.
+# Outbound email. Email Routing was enabled on the zone 2026-08-03 (status
+# "ready"; MX + SPF + DKIM records created automatically), so this binding has a
+# path out. Delivery still depends on the destination below being verified.
 [[send_email]]
 name = "EMAIL"
 
@@ -36,14 +44,13 @@ name = "EMAIL"
 # either blank the Worker logs "not configured" and returns without sending
 # (see runDigest in digest.js) rather than emailing into the void.
 #
-#   DIGEST_FROM — an address on the zone, created in Email Routing (Task 13.3).
-#   DIGEST_TO   — a VERIFIED destination address. Cloudflare will not deliver to
-#                 an unverified one. The only verified address on this account
-#                 today is the operator's own (nazmus8275@gmail.com); the
-#                 doctor's inbox has to be added and confirmed by a human first.
-#
-# Left blank on purpose: filling in a guess here would deploy a Worker that
-# looks configured and silently fails twice a day.
+#   DIGEST_FROM — an address on the zone. Email Routing is enabled here, which is
+#                 what authorises the send_email binding to use it.
+#   DIGEST_TO   — must be a VERIFIED destination. Added 2026-08-03; as of that
+#                 date it is still `unverified` — Cloudflare emailed a
+#                 confirmation link to it and someone with access to that inbox
+#                 must click it. Until then every send fails with a
+#                 "not verified" error, which runDigest logs as `send-failed`.
 [vars]
 DIGEST_FROM = "digest@drsumyapervin.com"
-DIGEST_TO = ""
+DIGEST_TO = "dr.enamtalha@gmail.com"

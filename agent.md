@@ -257,6 +257,14 @@ Its crons are derived from `functions/lib/schedule.js`, not hand-written:
 derivation disagree. Change a chamber's hours in `schedule.js`, run `npm test`,
 and copy the crons it demands.
 
+> [!WARNING]
+> **Cloudflare cron day-of-week must be NAMES, not numbers.** `30 8 * * 0-3,6`
+> and `30 8 * * 0,1,2,3,6` are both rejected with `10100: invalid cron string`;
+> `30 8 * * SUN-WED,SAT` is accepted. Verified against the schedules API on
+> 2026-08-03. Standard-cron intuition does not apply, and `wrangler deploy`
+> uploads the Worker successfully and *then* fails the trigger step — so a
+> half-deployed Worker with no schedule is the failure mode to watch for.
+
 Email is gated on human dashboard work (HUMAN-TASKS Task 13): Email Routing
 enabled on the zone, a **verified** destination inbox, and the `digest@` sender.
 Until `DIGEST_TO` is set in its `wrangler.toml`, the Worker logs

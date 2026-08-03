@@ -4,17 +4,18 @@
 verification, or owner-action state changes. Everything under `docs/` is a dated
 snapshot; if this file and a snapshot disagree, this file wins.
 
-**Updated:** 2026-08-03, after the F8 digest build.
+**Updated:** 2026-08-03, after the F8 digest deploy.
 
 ---
 
 ## The one-line state
 
 **The site is LIVE on `drsumyapervin.com`** (deployment `f64b9221`, 173/173 tests
-green; L1–L2, L4–L5, L7 done and verified, smoke booking proven) — remaining work:
-operator deletes the smoke row (L8), owner enters WhatsApp/Telegram (L6), one
-Upload-Photo browser click; **F8 digest is written and tested but not deployed —
-it is blocked on Email Routing (HUMAN-TASKS Task 13), nothing else.**
+green; L1–L2, L4–L5, L7 done, smoke booking proven) and **the F8 digest worker is
+DEPLOYED with both crons registered** — it is one click from working: someone with
+access to **`dr.enamtalha@gmail.com`** must open Cloudflare's verification email.
+Remaining otherwise: operator deletes the smoke row (L8), owner enters
+WhatsApp/Telegram (L6), one Upload-Photo browser click.
 
 ## Verified right now
 
@@ -24,15 +25,17 @@ it is blocked on Email Routing (HUMAN-TASKS Task 13), nothing else.**
 | Rollback target | **`5423d45e`** (last pre-Phase-1 known-good) | same |
 | Apex / www / HTTPS | apex 200; www → 301 apex; http → 301 https | curl, 2026-08-03 |
 | Tests | **173/173 green** (`npm test`; Miniflare + real compiled worker, plus 16 digest units) | 2026-08-03 |
-| F8 digest worker | **code done, `--dry-run` bundles clean, NOT deployed** — `workers/digest/` | `npm test` + `wrangler deploy --dry-run`, 2026-08-03 |
-| Email Routing (zone) | **`enabled: false`, status `unconfigured`** — F8's only blocker | Cloudflare API, 2026-08-03 |
-| Verified email destinations | **only `nazmus8275@gmail.com`** (operator, verified 2026-04-17); the doctor's inbox is not added | Cloudflare API, 2026-08-03 |
+| F8 digest worker | **DEPLOYED** — `dr-sumya-digest`, version `e89ceefb`, crons `30 8 * * SUN-WED,SAT` + `30 10 * * SUN-THU,SAT` registered; no public URL (`workers_dev = false`, probe 404) | `wrangler deploy` + curl, 2026-08-03 |
+| Digest end-to-end | **proven up to the send**: forced scheduled run on remote bindings routed Alliance → Dhaka date 2026-08-03 → production D1 query OK → both send paths rejected only with "destination address is not a verified address" | `wrangler dev --remote --test-scheduled`, 2026-08-03 |
+| Email Routing (zone) | **enabled, status `ready`** — MX ×3 + SPF + DKIM (`cf2024-1._domainkey`) created automatically | Cloudflare API, 2026-08-03 |
+| Digest recipient | `dr.enamtalha@gmail.com` added as destination, **still `unverified`** — Cloudflare's confirmation email must be opened. **This is the only thing between the digest and working.** | Cloudflare API, 2026-08-03 |
+| L7 login rule | **corrected**: it is a `managed_challenge` on every `POST /api/auth/login` — **not** a rate limit. The zone's one rate-limiting rule is `Leaked credential check` (block, 5/10s). Free plan allows one such rule; kept as-is | zone rulesets, 2026-08-03 |
 | Booking guard live | tokenless POST on apex → 403; real widget booking succeeded | curl + D1, 2026-08-03 |
 | Repo-root exposure | closed — internals all 404 @ 1,512 B | curl, 2026-08-02 |
 | SEO/OG | canonical, OG/Twitter, JSON-LD, robots.txt, sitemap.xml, favicon.svg live | curl, 2026-08-02 |
 | Production D1 | **1 row = smoke booking `book-09fce136` (notes "test", Confirmed) — DELETE PENDING (L8)**; gallery=0 | D1 SELECT, 2026-08-03 |
 | WhatsApp/Telegram | **still EMPTY** — L6 open | `/api/config/public`, 2026-08-03 |
-| Launch steps L1–L8 | L1 ✅ L2 ✅ L4 ✅ L5 ✅ L7 ✅ · **L6 ⬜ L8 ⬜** · L3 contingency unused | FIXPLAN marks + probes |
+| Launch steps L1–L8 | L1 ✅ L2 ✅ L4 ✅ L5 ✅ L7 ⚠️ (see row above) · **L6 ⬜ L8 ⬜** · L3 contingency unused | FIXPLAN marks + probes |
 | git | `master` ahead of origin (unpushed docs commits); see latest handoff | 2026-08-03 |
 | Browser clicks | Update Status **exercised** (smoke row → Confirmed); **Upload Photo still never clicked** | D1 row state, 2026-08-03 |
 
@@ -48,9 +51,10 @@ it is blocked on Email Routing (HUMAN-TASKS Task 13), nothing else.**
 
 1. **CMS Settings → real WhatsApp number + Telegram @username** — every booking
    confirmation points nowhere until then.
-2. **Digest email address** for Dr. Sumya + **Email Routing setup** (HUMAN-TASKS
-   Task 13) — the *only* thing left for F8. The worker is written and tested;
-   set `DIGEST_TO` in `workers/digest/wrangler.toml`, deploy, force one cron.
+2. **Open Cloudflare's verification email in `dr.enamtalha@gmail.com`** and click
+   the link — the digest worker is deployed and wired; this is all that is left.
+   Then tell an agent, so the `digest@` inbound rule can be created too (it was
+   rejected with `2054: Destination address is not verified`).
 3. **Confirm chamber schedules** (Alliance Sat–Thu 5–8 PM; DCIMCH Sat–Wed 3–5 PM)
    — F4's enforcement and F8's digest both depend on these.
 4. **Leaked token**: delete id `b17d8b1322d3a80ddeebb36d76ae8ba5` — match by the

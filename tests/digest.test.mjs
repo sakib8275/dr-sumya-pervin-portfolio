@@ -20,8 +20,10 @@ import {
 
 const ALLIANCE = 'Alliance Hospital Limited (Shyamoli)';
 const DCIMCH = 'Dhaka Central International Medical College (DCIMCH)';
-const ALLIANCE_CRON = '30 10 * * 0-4,6';
-const DCIMCH_CRON = '30 8 * * 0-3,6';
+// Day-of-week must be names, not numbers: Cloudflare's schedules API rejects
+// "30 8 * * 0-3,6" with `10100: invalid cron string` (checked live 2026-08-03).
+const ALLIANCE_CRON = '30 10 * * SUN-THU,SAT';
+const DCIMCH_CRON = '30 8 * * SUN-WED,SAT';
 
 // Two bookings, deliberately out of insertion order in the fixture so an
 // assertion on ordering is meaningful only if the SQL asks for created_at ASC.

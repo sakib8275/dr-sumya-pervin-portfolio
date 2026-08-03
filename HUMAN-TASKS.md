@@ -196,32 +196,42 @@ must still succeed.
 
 ## Task 13 — Email prerequisites for the daily digest (15 min · 🖥️ · Phase 2)
 
-**This is now the only thing between the digest and working.** The worker is
-written, tested (16 tests) and bundles clean — it just has nowhere to send.
+**Down to one click.** Done for you on 2026-08-03: Email Routing enabled on the
+zone (status `ready`; MX + SPF + DKIM records created automatically),
+`dr.enamtalha@gmail.com` added as the destination, `DIGEST_TO` set, and the
+worker deployed with both crons registered.
 
-Checked live on 2026-08-03: Email Routing on `drsumyapervin.com` is **not
-enabled** (status `unconfigured`), and the only verified destination on the whole
-account is **`nazmus8275@gmail.com`** — the operator's address, not the doctor's.
+### What you have to do
 
-1. Zone → **Email** → **Email Routing** → **Get started** (creates MX records).
-2. Add the **destination address** (the doctor's real inbox) and verify it via
-   the confirmation email Cloudflare sends there. Cloudflare will not deliver to
-   an unverified address, so this step cannot be skipped or faked.
-   *Interim option:* `nazmus8275@gmail.com` is already verified, so the operator
-   can receive the digest from day one and switch it to the doctor later. Note
-   the mail contains patient names, phone numbers and notes — decide deliberately.
-3. Create the sender address **`digest@drsumyapervin.com`**.
-4. Put the destination in `workers/digest/wrangler.toml` → `DIGEST_TO`, then
-   deploy and force one cron run to prove an email arrives:
+**Open the inbox `dr.enamtalha@gmail.com` and click the link in the Cloudflare
+verification email** ("Verify your email address" from Cloudflare). Check spam.
+
+That is the whole task. Cloudflare refuses delivery to an unverified address —
+a forced run on 2026-08-03 got all the way to the send and failed with exactly
+`destination address is not a verified address`, so nothing else is in the way.
+
+### After the click
+
+Tell an agent (or do it yourself). Two follow-ups:
+
+1. Prove one real email: Workers dashboard → **dr-sumya-digest** → **Settings** →
+   **Trigger Events** → *Test scheduled event*, then check the inbox. Or locally:
 
    ```bash
-   cd workers/digest && npx wrangler deploy
-   # then: Workers dashboard → dr-sumya-digest → Settings → Trigger Events →
-   # "Test scheduled event" (pick either cron), and check the inbox.
+   cd workers/digest && npx wrangler dev --remote --test-scheduled --port 8799
+   curl "http://localhost:8799/__scheduled?cron=30+10+*+*+SUN-THU,SAT"
    ```
 
-   With `DIGEST_TO` blank the worker is safe but inert: at each cutoff it logs
-   `digest: DIGEST_FROM/DIGEST_TO not configured` and sends nothing.
+   ⚠️ This sends a **real** email listing the day's real bookings.
+
+2. Create the inbound `digest@drsumyapervin.com` routing rule, which Cloudflare
+   rejected while the destination was unverified (`2054`). It is only needed so
+   bounces and replies to the digest go somewhere.
+
+If the recipient should be someone other than `dr.enamtalha@gmail.com`, change
+`DIGEST_TO` in `workers/digest/wrangler.toml` and redeploy — the new address must
+be added and verified in Email Routing too. The digest contains patient names,
+phone numbers and notes, so that address is a deliberate choice.
 
 ---
 

@@ -16,7 +16,14 @@ import { CHAMBERS, CUTOFF_MIN, dhakaParts } from '../../functions/lib/schedule.j
 
 const DHAKA_OFFSET_MIN = 6 * 60;
 
-// Compresses [0,1,2,3,6] to "0-3,6" -- cron's day-of-week field convention.
+// Cloudflare's cron parser rejects NUMERIC day-of-week outright: "30 8 * * 0-3,6"
+// and "30 8 * * 0,1,2,3,6" both fail with `10100: invalid cron string`, while
+// "30 8 * * SUN-WED,SAT" is accepted. Verified against the schedules API on
+// 2026-08-03 -- the numeric form the original scaffold shipped with could never
+// have deployed. Standard-cron intuition does not apply here; use the names.
+const CRON_DAY_NAMES = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+
+// Compresses [6,0,1,2,3] to "SUN-WED,SAT".
 function cronDays(days) {
   const sorted = [...days].sort((a, b) => a - b);
   const parts = [];
@@ -25,7 +32,11 @@ function cronDays(days) {
 
   for (const day of sorted.slice(1).concat(Infinity)) {
     if (day !== prev + 1) {
-      parts.push(start === prev ? `${start}` : `${start}-${prev}`);
+      parts.push(
+        start === prev
+          ? CRON_DAY_NAMES[start]
+          : `${CRON_DAY_NAMES[start]}-${CRON_DAY_NAMES[prev]}`
+      );
       start = day;
     }
     prev = day;
