@@ -44,7 +44,7 @@ Remaining otherwise: owner enters WhatsApp/Telegram (L6). The smoke row is gone
 | Production D1 | **0 appointments** — smoke row `book-09fce136` deleted 2026-08-03 (L8 done, `changes: 1`, count re-checked); gallery=0 | D1 DELETE + SELECT, 2026-08-03 |
 | WhatsApp/Telegram | **still EMPTY** — L6 open | `/api/config/public`, 2026-08-03 |
 | Launch steps L1–L8 | L1 ✅ L2 ✅ L4 ✅ L5 ✅ L8 ✅ L7 ⚠️ (see row above) · **L6 ⬜** · L3 contingency unused | FIXPLAN marks + probes |
-| git | `master` has **one unpushed F9 commit** on top of `672261d` — operator has not been asked yet | `git log`, 2026-08-03 |
+| git | `master` is **1 ahead of `origin/master`** — the F9 commit `69b02ff` on top of `d71f4f0`. **Unpushed on purpose; the operator has not been asked yet.** Note the deployed code is already live regardless: `wrangler pages deploy` uploads the working tree, not a git ref | `git rev-list`, 2026-08-03 |
 | Browser clicks | **Whole CMS exercised locally** on the F9 build against local D1/R2 — login, Update Status, **Upload Photo** (R2 + D1 + image served back), Settings save, Gallery delete, Logout. **On production, only the public surface was exercised**; the production CMS was NOT logged into (its PIN and its D1/R2 writes are operator-only) | Playwright, 2026-08-03 |
 | Zone-injected scripts | The apex HTML gets **two scripts this repo does not contain**: Cloudflare JavaScript Detections (inline, per-request ray id — a CSP hash can never match it) and the Web Analytics beacon. Both were blocked by F9's first deploy; fixed with a per-request CSP nonce + `static.cloudflareinsights.com`. **Neither appears on `pages.dev`**, so preview testing cannot catch this class of break | curl + browser, 2026-08-03 |
 
