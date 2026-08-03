@@ -42,6 +42,11 @@ const mustNotBePublished = [
   '/HANDOFF-2026-07-31-v5.md',
   '/scripts/generate-pin-seed.mjs',
   '/tests/helpers/harness.mjs',
+  '/tests/headers.test.mjs',
+  // A full DNS export of the zone, regenerated during F9. No secrets in it, but
+  // it maps the whole infrastructure and has no business being served.
+  '/drsumyapervin.com.txt',
+  '/docs/handoffs/HANDOFF-2026-08-03-v4.md',
   // The digest Worker (F8) lives beside the Pages project but is deployed
   // separately; its config carries the D1 database id and the sender address.
   '/workers/digest/index.js',

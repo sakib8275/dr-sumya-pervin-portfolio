@@ -11,3 +11,8 @@ data/
 
 # Local secrets for `wrangler pages dev` — never commit.
 .dev.vars
+
+# Playwright MCP scratch output (console logs, snapshots, screenshots) from
+# browser verification runs. Transient, and the console logs can contain values
+# typed into the page.
+.playwright-mcp/

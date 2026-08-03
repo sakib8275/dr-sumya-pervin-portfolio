@@ -29,13 +29,14 @@ Portfolio Sumya Pervin/
 │   ├── css/
 │   │   └── style.css             # CSS design system & component styles
 │   ├── js/
-│   │   └── main.js               # Frontend logic + API fetch calls
+│   │   ├── main.js               # Frontend logic + API fetch calls
+│   │   └── formguard.js          # Blocking, from <head>: cancels native form submits pre-hydration
 │   └── assets/
 │       ├── hero_portrait.jpg
 │       ├── clinic.jpg
 │       └── treatment.jpg
 ├── functions/                    # Pages Functions — served as routes, not as files
-│   ├── _middleware.js            # CORS, scoped to ALLOWED_ORIGIN
+│   ├── _middleware.js            # CORS (scoped to ALLOWED_ORIGIN) + F9 security headers
 │   ├── lib/
 │   │   ├── auth.js               # JWT sign/verify, PBKDF2 PIN hashing, helpers
 │   │   ├── turnstile.js          # Turnstile siteverify, fail-closed
@@ -108,6 +109,12 @@ Portfolio Sumya Pervin/
 - **Escape every interpolation into `innerHTML`.** Use the existing `escapeHTML` helper in
   `public/js/main.js`, including inside attributes (`src`, `alt`, `href`). Booking fields reach the
   admin panel from an unauthenticated endpoint, so admin-only views are not a trusted context.
+- **No inline event handlers. Ever.** Since F9 the CSP has no `'unsafe-inline'` in `script-src`, so
+  an `onclick=` (or any `on*=`) attribute — in markup *or* in an HTML string built by JS — is
+  dropped **silently**: no console error a patient sees, no failed request, no failing test. The
+  control simply stops working. Use a listener, or a `data-` attribute plus a delegated listener
+  (`[data-cms-action]` in `main.js` is the pattern). `javascript:` URLs are blocked the same way.
+  `tests/headers.test.mjs` scans `public/` and fails if one reappears — do not weaken that test.
 - **Validate at the API boundary**, not just in the form. Anything reachable without a token must
   assume hostile input.
 - **Vanilla CSS Priority**: Avoid TailwindCSS or utility frameworks to preserve the custom glassmorphism aesthetic tailored in `public/css/style.css`.
@@ -241,6 +248,47 @@ npx wrangler pages deploy
 # Or: connect GitHub repo in Cloudflare Pages dashboard (auto-deploys on push)
 ```
 
+### Security headers (F9) — `functions/_middleware.js`
+
+The root `functions/_middleware.js` runs for **static assets as well as API routes**,
+which is how these headers reach the HTML. It sets, on every response:
+
+| Header | Value / note |
+|---|---|
+| `Content-Security-Policy` | `script-src 'self' 'nonce-<per-request>' challenges.cloudflare.com static.cloudflareinsights.com`; `frame-src` Turnstile; `style-src` keeps `'unsafe-inline'`; `img-src 'self' https: data:`; `object-src 'none'`; `base-uri`/`form-action 'self'`; `frame-ancestors 'none'` |
+| `Strict-Transport-Security` | `max-age=31536000; includeSubDomains`, **no `preload`** |
+| `Permissions-Policy` | denies accelerometer, camera, geolocation, gyroscope, magnetometer, microphone, payment, usb |
+| `X-Frame-Options` / `X-Content-Type-Options` / `Referrer-Policy` | `DENY` / `nosniff` / `strict-origin-when-cross-origin` |
+
+Three things to know before touching it:
+
+> [!CAUTION]
+> **`script-src` has no `'unsafe-inline'`, and that breaks inline handlers silently.**
+> See the rule in §3. This is why F9 removed all 12 `on*=` attributes *before* the
+> header shipped, and why the order matters if you ever re-do this work.
+
+> [!WARNING]
+> **The nonce is not for anything in this repo.** Every script we ship is external
+> and matches `'self'`. Cloudflare's zone injects two scripts into the **apex** HTML
+> that this repo does not contain: **JavaScript Detections** (inline; its body carries
+> a per-request ray id, so no CSP hash can ever match it, and Bot Fight Mode makes it
+> non-disableable) and the **Web Analytics beacon** from `static.cloudflareinsights.com`.
+> Cloudflare's CDN parses our CSP response header and stamps our nonce onto the script
+> it injects — that is the documented fix and it is verified working. Keep the nonce
+> fresh per request; a fixed one is `'unsafe-inline'` wearing a hat.
+
+> [!IMPORTANT]
+> **Neither injected script appears on `*.pages.dev`.** The apex is HTML-rewritten by
+> the zone and the preview host is not, so a CSP that passes every local and preview
+> check can still break on the apex. **Always re-check the browser console on
+> `https://drsumyapervin.com/` itself after a header change** — F9's first deploy was
+> clean everywhere except the one place that counts.
+
+`connect-src`, `font-src` and `default-src` are deliberately **unset**. Turnstile makes
+its own network requests, including to `*.challenges.cloudflare.com` subdomains that
+Cloudflare documents as normal, and a `connect-src` that misses one fails every booking
+with a 403 indistinguishable from the system working.
+
 ### The digest Worker (F8) — deployed separately
 
 `workers/digest/` is a standalone Worker, not part of the Pages project. It is
@@ -278,12 +326,21 @@ When making code changes or updates, verify the following:
    - Modal booking popup triggers correctly from all "Book Appointment" CTA buttons.
    - Smooth scroll anchor links navigate to exact section target offsets.
    - Accordions (FAQ section) open/collapse without layout shifts.
-3. **Console Hygiene**: Check browser DevTools console for zero JavaScript errors or missing asset warnings.
+3. **Console Hygiene**: Check browser DevTools console for zero JavaScript errors or missing asset
+   warnings — **on the apex, not only locally or on `pages.dev`** — and specifically for
+   `Refused to …` / `violates the following Content Security Policy directive` lines. Turnstile's
+   own iframe emits harmless WebGL and font warnings from `challenges.cloudflare.com`; filter those
+   out rather than chasing them.
 4. **Data Integrity**: Verify Dr. Sumya Pervin's qualifications, degrees, chamber locations, and appointment phone numbers remain accurate.
-5. **API Tests**: `npm test` — the 173-test suite (Miniflare integration against the real
-   compiled worker, real D1/R2, stubbed siteverify; plus the pure schedule and digest units)
-   must be green before any deploy; then spot-check against
+5. **API Tests**: `npm test` — the 191-test suite (Miniflare integration against the real
+   compiled worker, real D1/R2, stubbed siteverify; plus the pure schedule, digest and
+   security-header units) must be green before any deploy; then spot-check against
    `wrangler pages dev public --local`.
+
+   `wrangler pages dev` starts with an **unmigrated** local D1, so `/api/gallery` and
+   `/api/config/public` 500 until you run
+   `npx wrangler d1 execute dr-sumya-pervin-db --local --file=migrations/001_schema.sql`.
+   That looks like a broken API and is not one.
 
 ---
 

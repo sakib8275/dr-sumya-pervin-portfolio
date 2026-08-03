@@ -25,10 +25,17 @@ threads that span files:
 - **F8 built and tested** — `HANDOFF-2026-08-03-v2.md` (six bugs fixed, crons
   derived from `schedule.js`, the Email-Routing findings). Its "not deployed"
   conclusion was overtaken later the same day; read `-v3` for the outcome.
-- **F8 shipped + Cloudflare email setup + L8** — **`HANDOFF-2026-08-03-v3.md`,
-  the latest log and the one to read.** Supersedes both files above for F8,
-  Cloudflare and D1 state: the worker deployed, the Cloudflare cron day-of-week
-  trap, how far the live run got, the L7 correction, and the full open list.
+- **F8 shipped + Cloudflare email setup + L8** — `HANDOFF-2026-08-03-v3.md`.
+  Supersedes both files above for F8, Cloudflare and D1 state: the worker
+  deployed, the Cloudflare cron day-of-week trap, how far the live run got, the
+  L7 correction, and the open list as it stood.
+- **F9 security headers** — **`HANDOFF-2026-08-03-v4.md`, the latest log and the
+  one to read.** Supersedes `-v3` for headers, deployment id and test count
+  (`74c3bd4b`, 191/191); `-v3` remains correct for F8. Contains the corrected
+  inline-handler count (12, not 11), the Logout button that had never worked, and
+  the trap that matters most: **the zone injects scripts into the apex HTML that
+  never appear on `pages.dev`, so a CSP can pass every local test and still break
+  production.**
 
 Known staleness in these files (caught by the 2026-08-02 audit): production
 deployment names age quickly; `HANDOFF-2026-08-02.md` claims it is untracked

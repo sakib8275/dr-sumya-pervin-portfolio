@@ -54,6 +54,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
+  <!-- Blocking and in <head> on purpose: it must be in place before the booking
+       form is parsed. See the comment in the file and above #bookingForm. -->
+  <script src="js/formguard.js"></script>
   <!-- Explicit render mode: main.js calls turnstile.render() so it can keep each
        widget id and reset it between attempts. -->
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
@@ -453,14 +456,17 @@
     <span style="font-size: 20px; font-weight: 700;">Dr. Sumya Pervin, MD</span>
     <button id="closeDrawer" style="background:none; border:none; color:#fff; font-size:24px;">✕</button>
   </div>
+  <!-- These carried onclick="…classList.remove('active')". The CSP added in F9 has
+       no 'unsafe-inline' in script-src, which drops inline handlers silently, so
+       the drawer is closed by a delegated listener in main.js instead. -->
   <div class="mobile-drawer-links">
-    <a href="#top" onclick="document.getElementById('mobileDrawer').classList.remove('active')">Home</a>
-    <a href="#about" onclick="document.getElementById('mobileDrawer').classList.remove('active')">About Dr. Pervin</a>
-    <a href="#chambers" onclick="document.getElementById('mobileDrawer').classList.remove('active')">Chambers &amp; Hours</a>
-    <a href="#quiz" onclick="document.getElementById('mobileDrawer').classList.remove('active')">Diagnostic Quiz</a>
-    <a href="#services" onclick="document.getElementById('mobileDrawer').classList.remove('active')">Services</a>
-    <a href="#gallery" onclick="document.getElementById('mobileDrawer').classList.remove('active')">Photo Gallery</a>
-    <a href="#faq" onclick="document.getElementById('mobileDrawer').classList.remove('active')">FAQ</a>
+    <a href="#top">Home</a>
+    <a href="#about">About Dr. Pervin</a>
+    <a href="#chambers">Chambers &amp; Hours</a>
+    <a href="#quiz">Diagnostic Quiz</a>
+    <a href="#services">Services</a>
+    <a href="#gallery">Photo Gallery</a>
+    <a href="#faq">FAQ</a>
     <button class="btn btn-glass open-booking" style="margin-top: 20px;">Book Appointment</button>
     <button class="btn btn-out open-cms" style="margin-top: 10px;">⚙️ Doctor CMS Login</button>
   </div>
@@ -505,13 +511,15 @@
       <p>Select your preferred chamber location and schedule a consultation with Dr. Sumya Pervin, MD.</p>
     </div>
     <div id="bookingStatus" style="display:none; margin-bottom: 16px;"></div>
-    <!-- onsubmit="return false" is load-bearing, not defensive clutter. The form has
-         no action/method, so before main.js attaches its submit listener a submit
-         performed a native GET to "/?": the page reloaded, the fields cleared, and
-         the patient's booking was lost with no message. This attribute is parsed
-         with the markup, so it cancels the default action from first paint. It only
-         prevents the default -- the real handler in main.js still fires. -->
-    <form id="bookingForm" class="form-grid" onsubmit="return false">
+    <!-- This form used to carry onsubmit="return false", which was load-bearing, not
+         defensive clutter: the form has no action/method, so before main.js attaches
+         its submit listener a submit performed a native GET to "/?" -- the page
+         reloaded, the fields cleared, and the patient's booking was lost with no
+         message. F9's CSP has no 'unsafe-inline' in script-src, which would have
+         dropped that attribute silently. The guard now lives in js/formguard.js,
+         loaded blocking from <head> so it is in place before this markup is parsed
+         -- the same "cancels from first paint" property, without an inline handler. -->
+    <form id="bookingForm" class="form-grid">
       <div class="form-group">
         <label for="patientName">Patient Full Name *</label>
         <input type="text" id="patientName" required placeholder="e.g. Nusrat Jahan" autocomplete="name">
@@ -599,7 +607,10 @@
           <button class="cms-tab-btn" data-tab="tabGalleryList">🖼️ Gallery Items</button>
           <button class="cms-tab-btn" data-tab="tabSettings">⚙️ Settings</button>
         </div>
-        <button class="btn-danger btn-sm" onclick="cmsLogout()" style="padding:6px 14px;">🚪 Logout</button>
+        <!-- Was onclick="cmsLogout()", which never worked: cmsLogout is declared
+             inside main.js's DOMContentLoaded callback, so it is not a global and
+             the inline handler threw ReferenceError. Now wired by id in main.js. -->
+        <button class="btn-danger btn-sm" id="cmsLogoutBtn" style="padding:6px 14px;">🚪 Logout</button>
       </div>
 
       <!-- Tab 1: Appointments Log -->

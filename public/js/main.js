@@ -500,6 +500,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     closeDrawer.addEventListener('click', () => mobileDrawer.classList.remove('active'));
   }
 
+  // Each anchor in the drawer carried an inline onclick that closed it. Delegated
+  // here instead, for the CSP. Anchors only: the drawer's two buttons open a modal
+  // over the drawer and deliberately leave it open, as they always did.
+  const drawerLinks = mobileDrawer && mobileDrawer.querySelector('.mobile-drawer-links');
+  if (drawerLinks) {
+    drawerLinks.addEventListener('click', (e) => {
+      if (e.target.closest('a')) mobileDrawer.classList.remove('active');
+    });
+  }
+
   const bookingModal = document.getElementById('bookingModal');
   const openBookingBtns = document.querySelectorAll('.open-booking');
   const closeBookingBtn = document.getElementById('closeBooking');
@@ -976,6 +986,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (pinInput) pinInput.value = '';
 }
 
+  // cmsLogout is declared here, inside this DOMContentLoaded callback, so it was
+  // never a global -- the markup's onclick="cmsLogout()" threw ReferenceError and
+  // the Logout button had never worked. Removing the inline handler for the CSP
+  // fixed it as a side effect.
+  const cmsLogoutBtn = document.getElementById('cmsLogoutBtn');
+  if (cmsLogoutBtn) cmsLogoutBtn.addEventListener('click', cmsLogout);
+
 const exportBtn = document.getElementById('exportCMSBackup');
   const importFileInput = document.getElementById('importCMSFileInput');
   const exportAppointmentsBtn = document.getElementById('exportAppointmentsCSV');
@@ -1140,7 +1157,7 @@ function renderCMSItemList() {
           <span style="font-size:12px; color:var(--grey);">${escapeHTML(capitalize(item.category))} \u2022 ${escapeHTML(item.created_at ? item.created_at.slice(0, 10) : '')}</span>
         </div>
       </div>
-      <button class="btn-danger btn-sm" onclick="deleteCMSItem('${item.id}')">Delete</button>
+      <button class="btn-danger btn-sm" data-cms-action="gallery-delete" data-cms-id="${escapeHTML(item.id)}">Delete</button>
     </div>
   `).join('');
 }
@@ -1193,8 +1210,8 @@ function renderCMSAppointmentsList() {
           <span style="font-size:11.5px; color:var(--grey);">Logged: ${escapeHTML(app.created_at)}</span>
           <div style="display:flex; gap:6px;">
             <a href="${escapeHTML(waLink)}" target="_blank" rel="noopener" class="btn btn-whatsapp btn-sm">\uD83D\uDCAC WhatsApp Patient</a>
-            <button class="btn btn-out btn-sm" onclick="toggleAppointmentStatus('${app.id}')">Update Status</button>
-            <button class="btn-danger btn-sm" onclick="deleteAppointment('${app.id}')">Delete</button>
+            <button class="btn btn-out btn-sm" data-cms-action="appointment-status" data-cms-id="${escapeHTML(app.id)}">Update Status</button>
+            <button class="btn-danger btn-sm" data-cms-action="appointment-delete" data-cms-id="${escapeHTML(app.id)}">Delete</button>
           </div>
         </div>
       </div>
@@ -1229,6 +1246,23 @@ async function deleteAppointment(id) {
   appointmentsList = appointmentsList.filter(app => app.id !== id);
   renderCMSAppointmentsList();
 }
+
+// CMS row actions. These buttons are built as HTML strings by the two render
+// functions above, so they used to carry onclick="deleteCMSItem('${item.id}')"
+// and friends -- inline handlers, which the CSP added in F9 drops with no
+// console error the admin would ever see, and an id interpolated raw into an
+// attribute on top of that. Delegating on document instead of on the containers
+// means no re-binding after each innerHTML re-render.
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-cms-action]');
+  if (!btn) return;
+  const id = btn.dataset.cmsId;
+  if (!id) return;
+
+  if (btn.dataset.cmsAction === 'gallery-delete') deleteCMSItem(id);
+  else if (btn.dataset.cmsAction === 'appointment-status') toggleAppointmentStatus(id);
+  else if (btn.dataset.cmsAction === 'appointment-delete') deleteAppointment(id);
+});
 
 // Modal keyboard accessibility: Escape closes the open modal (via its close
 // button, so any registered cleanup runs), and Tab cycles inside it. One
