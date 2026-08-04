@@ -172,6 +172,13 @@ function renderContactChannels() {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
+  // Gate the CSS hidden-start state for [data-r] reveals (see html.reveal in
+  // style.css): content is only hidden once JS is demonstrably running. Added
+  // before the awaits below so there is no visible-then-hidden flicker on slow
+  // connections; every awaited call below has its own try/catch, so reaching
+  // the IntersectionObserver setup is guaranteed once this handler runs.
+  document.documentElement.classList.add('reveal');
+
   await loadGallery();
   renderGallery();
 
@@ -249,7 +256,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (i > 3) c.classList.toggle('hide', open);
       });
       tog.setAttribute('aria-expanded', String(!open));
-      tog.textContent = open ? 'Show more services' : 'Show less';
+      // Matches the label the button ships with in the markup ('Show more'),
+      // which the previous 'Show more services' silently renamed on first use.
+      tog.textContent = open ? 'Show more' : 'Show less';
     });
   }
 
@@ -335,10 +344,17 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   function evaluateQuiz() {
     if (selectedGoal && selectedType) {
-      let rec = 'PRP & Microneedling Therapy';
-      if (selectedGoal === 'pigmentation') rec = 'Chemical Peels & Resurfacing';
+      // These strings MUST be exact <option> values of #serviceType: "Book
+      // Recommended Procedure" assigns rec straight into the select. The old
+      // values ('PRP & Microneedling Therapy' etc.) matched SERVICES_DATA, not
+      // the select, so the select silently went blank and the server rejected
+      // every quiz-driven booking (service is a required field). Map to the
+      // closest bookable service instead -- 'Hair Loss & Scalp Treatments' had
+      // no equivalent at all, so it was added to the select on 2026-08-04.
+      let rec = 'Microneedling with Serums';
+      if (selectedGoal === 'pigmentation') rec = 'Chemical Peels';
       if (selectedGoal === 'hair') rec = 'Hair Loss & Scalp Treatments';
-      if (selectedGoal === 'aging') rec = 'Facial Rejuvenation & Hydration';
+      if (selectedGoal === 'aging') rec = 'Facial & Neck Mesotherapy';
 
       if (quizRecText) {
         quizRecText.innerHTML = `Based on your selection (<em>${capitalize(selectedGoal)}</em> &amp; <em>${capitalize(selectedType)} Skin</em>), Dr. Sumya Pervin recommends: <strong>${rec}</strong>`;
@@ -515,6 +531,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const closeBookingBtn = document.getElementById('closeBooking');
   const bookingForm = document.getElementById('bookingForm');
   const bookingStatus = document.getElementById('bookingStatus');
+  const bookingHeader = bookingModal ? bookingModal.querySelector('.modal-header') : null;
 
   openBookingBtns.forEach(btn => {
     btn.addEventListener('click', (e) => {
@@ -525,8 +542,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (chamberSelect) chamberSelect.value = chamberVal;
       }
       if (bookingModal) {
+        // Every open starts from the fresh state: form and header visible, any
+        // previous status message gone. After a successful booking the success
+        // path hides the form and header (see the submit handler below), so this
+        // restore is what makes a second booking possible at all.
         restoreBookingFormState();
         bookingStatus.style.display = 'none';
+        bookingStatus.innerHTML = '';
+        bookingForm.style.display = '';
+        if (bookingHeader) bookingHeader.style.display = '';
         bookingModal.classList.add('active');
       }
     });
@@ -763,10 +787,21 @@ document.addEventListener('DOMContentLoaded', async () => {
         </div>
       `;
 
+      // Success replaces the modal's contents with the confirmation. Previously
+      // the (now-reset) form stayed visible below the message, so the patient
+      // saw a full blank form under "Appointment Request Submitted" -- and on a
+      // small screen the message itself could sit above the scroll position of
+      // someone who had just reached the submit button. The failure branch above
+      // deliberately keeps the form visible and populated; the open handler
+      // restores both for the next booking.
+      bookingForm.style.display = 'none';
+      if (bookingHeader) bookingHeader.style.display = 'none';
+
       bookingForm.reset();
       sessionStorage.removeItem('booking_form_state');
       bookingSubmitting = false;
       if (submitBtn) submitBtn.disabled = false;
+      bookingStatus.scrollIntoView({ block: 'nearest' });
     });
   }
 

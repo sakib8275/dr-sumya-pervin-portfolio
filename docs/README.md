@@ -5,7 +5,7 @@ project changes. Current state lives in [`../STATUS.md`](../STATUS.md); current
 rules and architecture in [`../agent.md`](../agent.md); the active execution
 plan in [`../FIXPLAN-2026-08-02.md`](../FIXPLAN-2026-08-02.md).
 
-## handoffs/ — session logs, 2026-07-28 → 2026-08-04
+## handoffs/ — session logs, 2026-07-28 → 2026-08-04 (v2)
 
 Read only when you need the *why* behind a decision. Reading order for the
 threads that span files:
@@ -29,8 +29,17 @@ threads that span files:
   Supersedes both files above for F8, Cloudflare and D1 state: the worker
   deployed, the Cloudflare cron day-of-week trap, how far the live run got, the
   L7 correction, and the open list as it stood.
-- **L6 closed + digest observability** — **`HANDOFF-2026-08-04.md`, the latest log
-  and the one to read.** No code changed; it supersedes `-v4` for L6, the digest
+- **Doc-validity audit + UX audit + 8 local fixes** — **`HANDOFF-2026-08-04-v2.md`,
+  the latest log and the one to read.** Every STATUS.md claim re-probed against
+  live state (all accurate, two stale cells fixed); the booking modal now shows
+  only the confirmation on success; the audit's critical find: **every
+  quiz-driven booking was server-rejected** because the quiz recommended names
+  that were never `#serviceType` options. All fixes local and verified;
+  **undeployed**. Also records the rulesets-OAuth-scope limit, the behavioral
+  L7 proof, and the reveal-gate specificity trap. Companion findings doc:
+  `audits/UX-AUDIT-2026-08-04.md`.
+- **L6 closed + digest observability** — `HANDOFF-2026-08-04.md`. No code changed;
+  it supersedes `-v4` for L6, the digest
   worker's version (`0f6d80cd`) and the git baseline (`3a2e864`). Contains the
   finding that matters most from that session: **the CMS's Telegram field drives
   nothing** — `main.js:726` builds a generic `t.me/share/url` share sheet that
@@ -49,13 +58,14 @@ Known staleness in these files (caught by the 2026-08-02 audit): production
 deployment names age quickly; `HANDOFF-2026-08-02.md` claims it is untracked
 (it is committed); its "www in neither var" note predates `462a0f2`.
 
-## audits/ — the three audit rounds
+## audits/ — the audit rounds
 
 | File | Round | Status |
 |---|---|---|
 | `AUDIT.md` + `FIXPLAN.md` | 1 | SUPERSEDED — pre-migration Express backend, deleted |
 | `UX-AUDIT.md` + `UX-FIXPLAN.md` | 2 | Partly superseded — pre-migration; one finding regressed and was re-fixed as G06 |
 | `AUDIT-ROUND-3.md` | 3 | Post-migration security audit; **all 10 findings fixed and browser-verified** |
+| `UX-AUDIT-2026-08-04.md` | 4 | Post-launch UI/UX + navigation audit; **8 findings fixed and verified locally (undeployed)**, 11 recommendations open (2 need owner decisions) |
 
 ## prompts/ — the audit specifications that produced the above
 

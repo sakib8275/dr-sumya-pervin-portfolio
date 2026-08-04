@@ -1043,17 +1043,24 @@ button {
 }
 
 .step-dots button {
-  width: 8px;
-  height: 8px;
+  /* The dot must stay visually tiny, but an 8x8 control is untappable on a
+     phone. box-sizing is border-box here, so width/height are the OUTER size:
+     24px minus the 2x8px transparent border leaves the original 8px dot,
+     and background-clip keeps the visible fill inside it. Hit area: 24x24. */
+  width: 24px;
+  height: 24px;
   padding: 0;
-  border: 0;
+  border: 8px solid transparent;
   border-radius: 50%;
   background: rgba(255, 255, 255, .45);
+  background-clip: padding-box;
 }
 
 .step-dots button.on {
   background: #fff;
-  width: 22px;
+  background-clip: padding-box;
+  /* 22px of visible pill + the 2x8px transparent border from the base rule. */
+  width: 38px;
   border-radius: 100px;
 }
 
@@ -1108,8 +1115,8 @@ button {
 }
 
 .tst-nav button {
-  width: 34px;
-  height: 34px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   border: 0;
   background: #F1EDE6;
@@ -1168,8 +1175,8 @@ button {
 }
 
 .faq-send {
-  width: 38px;
-  height: 38px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   border: 0;
   flex: none;
@@ -1345,8 +1352,8 @@ button {
   position: absolute;
   top: 20px;
   right: 20px;
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   border: 1px solid var(--hair);
   background: var(--ivory);
@@ -1537,10 +1544,21 @@ button {
 }
 
 /* ANIMATIONS */
+/* The hidden start state is gated on html.reveal, which main.js adds only when
+   it is actually running and about to attach the IntersectionObserver. Before
+   this gate, any JS failure (a 404 on main.js, an early throw, a blocked
+   script) left every [data-r] element -- nearly all page content -- invisible
+   forever: a blank page for exactly the patients on the flakiest connections.
+   The :not(.in) is load-bearing: without it this rule outranks [data-r].in on
+   specificity and revealed elements stay invisible. The transition lives on
+   the ungated base rule so it applies in both states. */
 [data-r] {
+  transition: opacity .8s var(--ease), transform .8s var(--ease);
+}
+
+html.reveal [data-r]:not(.in) {
   opacity: 0;
   transform: translateY(22px);
-  transition: opacity .8s var(--ease), transform .8s var(--ease);
 }
 
 [data-r].in {
@@ -1575,6 +1593,8 @@ button {
 
 @media(prefers-reduced-motion: reduce) {
   * { animation: none!important; transition-duration: .01ms!important; }
-  [data-r] { opacity: 1; transform: none; }
+  /* Second selector outranks the html.reveal gate so reduced-motion users see
+     all content immediately, without depending on the IntersectionObserver. */
+  [data-r], html.reveal [data-r]:not(.in) { opacity: 1; transform: none; }
   html { scroll-behavior: auto; }
 }
