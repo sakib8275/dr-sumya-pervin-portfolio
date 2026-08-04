@@ -4,7 +4,12 @@
 verification, or owner-action state changes. Everything under `docs/` is a dated
 snapshot; if this file and a snapshot disagree, this file wins.
 
-**Updated:** 2026-08-04 (~02:40 UTC / 08:40 Dhaka) — **FIXPLAN Phase 2 is
+**Updated:** 2026-08-04 (~21:15 UTC / 2026-08-05 03:15 Dhaka) — **FIXPLAN Phase 2
+is now fully closed, including F8.** Production D1 is **clean again** (operator
+deleted the three smoke rows; re-probed 0/0), and **F8's first scheduled digest
+run has been READ FROM LOGS**: both crons fired, both chambers emailed the
+verified recipient, 0 bookings each, zero errors. Nothing in Phase 2 is
+outstanding. Earlier the same day, **the Phase 2 build work was
 closed.** Two deploys shipped: `fb1b3aa8` (the pending UX batch, including the
 critical quiz-booking fix) and `42aa5567` (F11 + one new bug fix). **F10** landed
 as 14 Playwright tests, **F11** as a CI gate, an uptime monitor, a proven D1
@@ -12,10 +17,11 @@ backup/restore runbook and structured write logs, **F12** as this update. F10
 immediately earned its keep by catching a **latent bug**: `.fab-btn { display:
 grid }` outranked the `[hidden]` attribute, so `main.js`'s
 `fab.hidden = !digits` never hid anything and an unconfigured WhatsApp number
-would have shown a dead `href="#"` button. Fixed and deployed. **Still open: F8's
-first scheduled digest run, which is at 08:30 UTC and has not happened yet** (it
-was ~02:40 UTC at this update). Earlier the same day: the doc-validity audit, the
-UX audit, L6, and Workers Logs on the digest.
+would have shown a dead `href="#"` button. Fixed and deployed. **Still open:
+reading the logs for F8's first digest run** — the run itself is no longer
+pending, it fired at 2026-08-04 08:30 UTC; nobody has looked at it. Earlier the
+same day: the doc-validity audit, the UX audit, L6, and Workers Logs on the
+digest.
 
 ---
 
@@ -26,16 +32,16 @@ node tests + 14/14 Playwright e2e green**; L1–L2, L4–L5 done, L7 not what it
 claimed — see below), **F9 security headers are live** (CSP with no
 `'unsafe-inline'` in `script-src`, HSTS, zero inline handlers left in `public/`),
 and **the F8 digest worker is DEPLOYED, crons registered, recipient verified,
-Workers Logs on** — nothing blocks it; its first live run is **2026-08-04 08:30
-UTC (14:30 Dhaka)** and **had not happened yet at this update**, so it is wired
-but still unproven end-to-end in production. **L6 is done** — the owner's
+Workers Logs on** — nothing blocks it; its first live run was **2026-08-04 08:30
+UTC (14:30 Dhaka)** and is now **proven end-to-end in production from its own
+logs** — see the "Digest first run" row. **L6 is done** — the owner's
 `+8801725196101` is live in production D1, so booking confirmations reach
-WhatsApp. **FIXPLAN Phase 2 (F8 code, F9, F10, F11, F12) is complete**; the only
-Phase 2 item left is *observing* F8's first run.
+WhatsApp. **FIXPLAN Phase 2 (F8, F9, F10, F11, F12) is complete with nothing
+outstanding** — the last item, observing F8's first run, was closed 2026-08-04.
 
-⚠️ **Production D1 is NOT clean right now.** Three deploy-verification bookings
-were made against the live site and **an agent cannot delete them** — see
-"Standing owner actions" #0.
+✅ **Production D1 is clean** — the operator deleted the three deploy-verification
+bookings on 2026-08-04; re-probed as 0 appointments, 0 gallery. The digest can no
+longer email the doctor a list of fake patients.
 
 ## Verified right now
 
@@ -57,7 +63,8 @@ were made against the live site and **an agent cannot delete them** — see
 | CSP violations in browser | **0** across a full local click-through and a full production pass | Playwright console capture, 2026-08-03 |
 | F8 digest worker | **DEPLOYED** — `dr-sumya-digest`, live version **`0f6d80cd`** (2026-08-03 22:16 UTC; supersedes `e89ceefb`), crons `30 8 * * SUN-WED,SAT` + `30 10 * * SUN-THU,SAT` registered; no public URL (`workers_dev = false`, probe 404) | `wrangler deployments list`, 2026-08-03 22:2x UTC |
 | Digest observability | **ON** — `[observability] enabled = true, head_sampling_rate = 1` in `workers/digest/wrangler.toml`, confirmed on the deployed script (`logs.enabled true`, `persist true`, `invocation_logs true`). Enabled *before* the first scheduled run for one reason: this Worker's only trigger is cron and its only output is an email nobody in this repo can read, so **"no mail arrived" and "nothing to report" are the same observation** without logs | Cloudflare API, 2026-08-03 22:16 UTC |
-| Digest first run | **STILL NOT OBSERVED — and it could not have been.** `date -u` read **02:40 UTC on 2026-08-04** when this was written; the first cron is **08:30 UTC**, ~6 hours later. Nothing was inferred. **This is the single remaining open item in Phase 2.** ⚠️ Two things changed the prediction: production D1 now holds **3 smoke rows** (see the D1 row), two of them dated 2026-08-05/06 and one **2026-08-08** — the digest reports *today's* rows, so if the operator deletes them before 08:30 the expected outcome stays "ran, correctly sent nothing"; if they are still there on one of those dates, that day's digest will email the doctor a list of fake patients. **Delete them.** Procedure for reading the run: `docs/prompts/NEXT-PROMPT.md` Task A | `date -u` + D1 SELECT, 2026-08-04 |
+| **Digest first run** | ✅ **OBSERVED AND GREEN — Phase 2's last open item, now closed.** Both crons fired on 2026-08-04 and both sent: `digest: sent Alliance Hospital Limited (Shyamoli) 2026-08-04 (0 bookings) to dr.enamtalha@gmail.com` and the same for `Dhaka Central International Medical College (DCIMCH)`. Cron strings in the logs match the registered pair (`30 8 * * SUN-WED,SAT`, `30 10 * * SUN-THU,SAT`). **Zero errors or warnings** — all logs for the whole of 2026-08-04 are `level: info`, count 2. The Dhaka date resolved to `2026-08-04`, so the date logic is right in production, not just under `--test-scheduled`. **Note it emails on empty days by design** (`digest.js:134` — "No appointments were booked for today."), so silence from now on means *breakage*, not "no bookings" — the inverse of the pre-observability situation | Workers Logs via observability API, 2026-08-04 21:15 UTC |
+| Reading digest logs (method) | `wrangler tail` is **live-stream only** and cannot reach a past run; use the observability API. The Cloudflare MCP `query_worker_observability` **`events` view fails schema validation** on this worker (`outcome` undefined → zod `invalid_union`) — that error means the tool cannot *parse* the logs, **not** that no logs exist. The `calculations` view works: `count` grouped by `$metadata.message`, filter `$metadata.service eq dr-sumya-digest`. Group by `$metadata.level` to check for errors | 2026-08-04 |
 | Digest end-to-end | **proven up to the send**: forced scheduled run on remote bindings routed Alliance → Dhaka date 2026-08-03 → production D1 query OK → both send paths rejected only with "destination address is not a verified address" | `wrangler dev --remote --test-scheduled`, 2026-08-03 |
 | Email Routing (zone) | **enabled, status `ready`** — MX ×3 + SPF + DKIM (`cf2024-1._domainkey`) created automatically | Cloudflare API, 2026-08-03 |
 | Digest recipient | `dr.enamtalha@gmail.com` — **`verified` 2026-08-03 16:13 UTC** (owner opened the link). The send path is now unblocked; **no cron has fired since the 15:10 UTC deploy**, so the first live digest is 2026-08-04 08:30 UTC / 14:30 Dhaka | Cloudflare API, 2026-08-03 22:07 UTC |
@@ -66,10 +73,10 @@ were made against the live site and **an agent cannot delete them** — see
 | Booking guard live | tokenless POST on apex → 403; real widget booking succeeded | curl + D1, 2026-08-03 |
 | Repo-root exposure | closed — internals all 404 @ 2,589 B (the 404 page grew when F9's markup changed; still 404, still nothing internal served) | curl, 2026-08-04 |
 | SEO/OG | canonical, OG/Twitter, JSON-LD, robots.txt, sitemap.xml, favicon.svg live | curl, 2026-08-02 |
-| Production D1 | ⚠️ **3 appointments, all deploy-verification smoke rows** — `book-af0a8c84`, `book-e879acc5`, `book-5f67ef11` (all named `ZZ TEST — …`). Agents are SELECT-only on remote D1, so **the operator must delete them**; the command is in "Standing owner actions" #0. gallery=0 | D1 SELECT, 2026-08-04 |
+| Production D1 | ✅ **clean — 0 appointments, 0 gallery.** The three deploy-verification smoke rows (`book-af0a8c84` 08-05, `book-e879acc5` 08-06, `book-5f67ef11` 08-08, all named `ZZ TEST — …`) were deleted by the operator on 2026-08-04, hours before the 08-05 row would have surfaced in that day's digest. Agents remain SELECT-only on remote D1 | D1 `SELECT COUNT(*)` ×2 (`served_by: v3-prod`), 2026-08-04 21:05 UTC |
 | WhatsApp/Telegram | **SET — L6 done.** `whatsapp = 8801725196101`, `telegram = +8801725196101` (owner-supplied `+8801725196101`, stored WhatsApp-style without `+` because `main.js` strips non-digits and the CMS field asks for it that way). Written straight to production D1, not through the CMS — the row now reads back on `/api/config/public` | D1 UPDATE (`changes: 1`) + curl, 2026-08-03 22:1x UTC |
 | Telegram button caveat | **the stored `telegram` value drives nothing.** `main.js:726` builds `https://t.me/share/url?...`, a generic share sheet that opens the *patient's* Telegram to pick any recipient — it never routes to the doctor. The value is only echoed back into the CMS Settings input (`main.js:1144`). WhatsApp is wired properly (`wa.me/<digits>`, FAB at `main.js:163` + booking button at `:725`) | code read, 2026-08-03 |
-| Launch steps L1–L8 | L1 ✅ L2 ✅ L4 ✅ L5 ✅ **L6 ✅** L8 ⚠️ (re-opened — three new smoke rows, see the D1 row) L7 ⚠️ (see row above) · L3 contingency unused | FIXPLAN marks + probes |
+| Launch steps L1–L8 | L1 ✅ L2 ✅ L4 ✅ L5 ✅ **L6 ✅ L8 ✅** (re-closed 2026-08-04 — smoke rows deleted, D1 back to 0/0) L7 ⚠️ (see row above) · L3 contingency unused | FIXPLAN marks + probes |
 | git | **in sync and clean** — `origin/master` and local `master` both at the latest `git log --oneline -1`; verify with `git ls-remote origin master`, and do not paste a bare hash here, this row is deliberately hash-stable. The Phase-2 work was pushed 2026-08-04 with operator confirmation, which is what first activated the CI gate and the uptime cron. Note the deployed code is live regardless of git: `wrangler pages deploy` uploads the working tree, not a git ref | `git ls-remote` + `git push`, 2026-08-04 |
 | Browser clicks | **Whole CMS exercised locally** on the F9 build against local D1/R2 — login, Update Status, **Upload Photo** (R2 + D1 + image served back), Settings save, Gallery delete, Logout. **On production, only the public surface was exercised**; the production CMS was NOT logged into (its PIN and its D1/R2 writes are operator-only) | Playwright, 2026-08-03 |
 | Zone-injected scripts | The apex HTML gets **two scripts this repo does not contain**: Cloudflare JavaScript Detections (inline, per-request ray id — a CSP hash can never match it) and the Web Analytics beacon. Both were blocked by F9's first deploy; fixed with a per-request CSP nonce + `static.cloudflareinsights.com`. **Neither appears on `pages.dev`**, so preview testing cannot catch this class of break. (2026-08-04 re-probe: only the JSD inline script appeared in curl fetches — the beacon is request-dependent; CSP allows it either way) | curl + browser, 2026-08-03 |
@@ -79,36 +86,27 @@ were made against the live site and **an agent cannot delete them** — see
 ## Active documents
 
 - **`HUMAN-TASKS.md`** — step-by-step guide for everything that needs a person (browser clicks, dashboard launch, owner content, Phase 2 prereqs). **Start here.**
-- **`FIXPLAN-2026-08-02.md`** — the execution plan. Phase 1 ✅, **Phase 2 ✅ (F8 code, F9, F10, F11, F12)** — only *observing* F8's first run remains.
+- **`FIXPLAN-2026-08-02.md`** — the execution plan. Phase 1 ✅, **Phase 2 ✅ (F8, F9, F10, F11, F12) — fully closed, nothing outstanding.**
 - **`docs/RUNBOOK-BACKUP.md`** — F11. D1 export, verification, and the restore drill. Operator-run.
 - `agent.md` — architecture, security rules, deploy/verify checklist.
 - `context.md` — domain and medical-content facts; source of truth for credentials and schedules.
 - `docs/` — dated archive; see `docs/README.md` for the map. **Latest session log: `docs/handoffs/HANDOFF-2026-08-04-v3.md`** (the two deploys, F10, F11, F12, and the `[hidden]` bug) — read `-v2` before it for the UX audit, `-2026-08-04.md` for L6 and the digest, `-v4` for F9 and `-v3` for F8.
-- **`docs/prompts/NEXT-PROMPT.md` — the current kickoff prompt.** Its Tasks B and
-  C are **done** (both deployed, F10 shipped); what remains of it is **Task A —
-  read the digest's first-run logs**, which is still the one open item. Treat the
-  rest of that file as history, and this file as the truth.
+- `docs/prompts/NEXT-PROMPT.md` — **fully spent, history now.** Tasks B and C were
+  deployed, F10 shipped, and **Task A (read the digest's first-run logs) was
+  closed 2026-08-04**. There is no current kickoff prompt; this file is the truth.
 - `docs/prompts/F9-HEADERS-PROMPT.md` — the kickoff prompt for F9. **Done**; kept for the record.
 
 ## Standing owner actions
 
-0. 🔴 **Delete the three deploy-verification bookings from production D1 — do this
-   first, and before 2026-08-05.** They were created by real bookings against the
-   live apex to prove the two 2026-08-04 deploys end to end (the only way to
-   exercise a genuine Turnstile token). Agents are SELECT-only on remote D1, so
-   this needs you:
-
-   ```bash
-   npx wrangler d1 execute dr-sumya-pervin-db --remote --command \
-     "DELETE FROM appointments WHERE id IN ('book-af0a8c84','book-e879acc5','book-5f67ef11')"
-   ```
-
-   Expect `changes: 3`. Then confirm with
-   `--command "SELECT COUNT(*) FROM appointments"` → 0.
-
-   **Why the deadline:** they are dated 2026-08-05, 08-06 and **08-08**, and the
-   F8 digest emails the doctor *that day's* bookings. Left in place, one of those
-   mornings Dr. Sumya receives a digest listing three fake patients.
+0. ~~Delete the three deploy-verification bookings from production D1~~ **DONE
+   2026-08-04**, with hours to spare before the 08-05 digest that would have
+   reported the first of them. Re-probed: `SELECT COUNT(*)` → **0 appointments,
+   0 gallery**. Standing rule, unchanged: **deploy-verification bookings against
+   the live apex are the only way to exercise a genuine Turnstile token, and
+   agents are SELECT-only on remote D1** — so any future deploy smoke test leaves
+   rows that only the operator can remove. Delete them the same day, and check
+   their `appointment_date` against the digest crons before assuming there is
+   time.
 
 1. ⚠️ **Rotate the admin PIN.** During F9's browser pass the machine's saved-password
    autofill re-populated the CMS PIN field on `localhost`, so the production PIN
@@ -124,12 +122,11 @@ were made against the live site and **an agent cannot delete them** — see
    it as a bug; revisit only when the owner supplies a real @username, which
    also needs a code change at `main.js:726`.
 3. ~~Open Cloudflare's verification email in `dr.enamtalha@gmail.com`~~ **DONE
-   2026-08-03 16:13 UTC.** The digest is fully wired; the first live run is
-   2026-08-04 08:30 UTC (14:30 Dhaka). **Next agent's first job: read the Workers
-   Logs for that run** (see the F8 sign-off prompt) — with 0 appointments in
-   production D1 the expected result is a run that reports nothing and sends no
-   mail, which is success, not failure. Also still open: create the `digest@`
-   inbound rule (now that `2054` no longer applies); nothing depends on it.
+   2026-08-03 16:13 UTC.** The digest is fully wired, and its first live run
+   (2026-08-04 08:30 UTC / 14:30 Dhaka) **has been read from the logs and was
+   green** — see the "Digest first run" row. Dr. Sumya now receives two emails
+   per chamber-day, **including on days with no bookings**. Still open, and
+   optional: create the `digest@` inbound rule; nothing depends on it.
 4. **Confirm chamber schedules** (Alliance Sat–Thu 5–8 PM; DCIMCH Sat–Wed 3–5 PM)
    — F4's enforcement and F8's digest both depend on these.
 5. **Leaked token**: delete id `b17d8b1322d3a80ddeebb36d76ae8ba5` — match by the

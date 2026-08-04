@@ -12,31 +12,30 @@ Do them in order — later tasks assume earlier ones are done.
 
 ---
 
-## Task −1 — 🔴 Delete three test bookings from the live database (2 min · 🖥️ · **before 2026-08-05**)
+## Task −1 — ✅ DONE 2026-08-04 · Delete three test bookings from the live database
 
-**Why:** proving the two 2026-08-04 deploys actually worked meant booking three
-real appointments on the live site — that is the only way to exercise a genuine
-Turnstile token. They are named `ZZ TEST — …`. Agents cannot write to the remote
-database, so only you can remove them.
+Completed by the operator on 2026-08-04, before the 08-05 digest that would have
+reported the first row. Verified: `SELECT COUNT(*)` → **0 appointments, 0
+gallery**. Nothing to do.
 
-Run this from the project directory (in Claude Code, prefix it with `!`):
+**Keep this pattern in mind for the next deploy.** Proving a deploy works means
+booking a real appointment on the live site — that is the only way to exercise a
+genuine Turnstile token — and **agents cannot write to the remote database**, so
+every smoke test leaves a `ZZ TEST — …` row only you can remove:
 
 ```
-npx wrangler d1 execute dr-sumya-pervin-db --remote --command "DELETE FROM appointments WHERE id IN ('book-af0a8c84','book-e879acc5','book-5f67ef11')"
+npx wrangler d1 execute dr-sumya-pervin-db --remote --command "DELETE FROM appointments WHERE id IN ('book-xxxxxxxx')"
 ```
 
-**Verify:** the output says `"changes": 3`. Then confirm the table is empty:
+Then confirm with:
 
 ```
 npx wrangler d1 execute dr-sumya-pervin-db --remote --command "SELECT COUNT(*) AS n FROM appointments"
 ```
 
-Expect `n: 0`.
-
-**⚠️ Why the deadline.** The rows are dated **2026-08-05, 08-06 and 08-08**, and
-the daily digest emails Dr. Sumya *that day's* bookings. If they are still there
-on one of those mornings, she receives a digest listing three patients who do not
-exist.
+**Do it the same day, and check the row's `appointment_date` first.** The daily
+digest emails Dr. Sumya *that day's* bookings — a smoke row dated a few days out
+sits quietly until that morning, then arrives as a patient who does not exist.
 
 ---
 
