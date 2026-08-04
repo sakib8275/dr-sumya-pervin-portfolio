@@ -74,7 +74,13 @@ deploy it deliberately, it changes the patient-facing site.
 - `agent.md` — architecture, security rules, deploy/verify checklist.
 - `context.md` — domain and medical-content facts; source of truth for credentials and schedules.
 - `docs/` — dated archive; see `docs/README.md` for the map. **Latest session log: `docs/handoffs/HANDOFF-2026-08-04-v2.md`** (doc-validity audit, UX audit + 8 verified local fixes awaiting deploy) — read `-2026-08-04.md` before it for L6 and the digest, `-v4` for F9 and `-v3` for F8.
-- **`docs/prompts/F8-SIGNOFF-F10-PROMPT.md` — the current kickoff prompt. Paste it into the next session.** Its Task A (read the digest's first-run logs) is still open as of this update; its Task B (F10) should now also absorb the UX audit's local fixes and the assertions listed in `docs/audits/UX-AUDIT-2026-08-04.md` §Artifacts — and the session must deploy the pending UX batch first or rebase onto it.
+- **`docs/prompts/NEXT-PROMPT.md` — the current kickoff prompt. Paste it into the
+  next session.** It replaces `F8-SIGNOFF-F10-PROMPT.md`: same Task A (read the
+  digest's first-run logs — still unobserved as of this update), plus a Task B
+  to **deploy the verified-but-undeployed 2026-08-04 UX batch** with live apex
+  proof, and Task C (F10) which now also encodes the UX audit's assertions. Its
+  "read first" list points at `HANDOFF-2026-08-04-v2.md` and
+  `docs/audits/UX-AUDIT-2026-08-04.md`.
 - `docs/prompts/F9-HEADERS-PROMPT.md` — the kickoff prompt for F9. **Done**; kept for the record.
 
 ## Standing owner actions

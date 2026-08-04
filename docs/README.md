@@ -58,6 +58,12 @@ Known staleness in these files (caught by the 2026-08-02 audit): production
 deployment names age quickly; `HANDOFF-2026-08-02.md` claims it is untracked
 (it is committed); its "www in neither var" note predates `462a0f2`.
 
+## prompts/ — kickoff prompts for agent sessions
+
+- **`NEXT-PROMPT.md` — the current one. Paste it into a fresh session.** It
+  replaces `F8-SIGNOFF-F10-PROMPT.md` (F8 sign-off, plus shipping the pending
+  UX batch, plus F10 which now also encodes the UX audit's assertions).
+
 ## audits/ — the audit rounds
 
 | File | Round | Status |
@@ -78,9 +84,9 @@ crons `30 8 * * 0-3,6` / `30 10 * * 0-4,6` are correct. They are not — Cloudfl
 rejects numeric day-of-week. Do not copy them from this file),
 `F9-HEADERS-PROMPT.md` (2026-08-03; security headers, starting with the
 inline-handler refactor — **executed**, see `handoffs/HANDOFF-2026-08-03-v4.md`),
-`F8-SIGNOFF-F10-PROMPT.md` (**the current one — paste this into the next
-session**: read the digest's first-run logs to close F8, then build the
-Playwright DOM layer).
+`F8-SIGNOFF-F10-PROMPT.md` (2026-08-04; replaced as kickoff by
+`NEXT-PROMPT.md` — the launch-readiness checklist, digest sign-off and F10 it
+started are all still live; the UX audit now runs under `NEXT-PROMPT.md`).
 
 ## SUBAGENT-PLAYBOOK.md
 
