@@ -29,15 +29,27 @@ threads that span files:
   Supersedes both files above for F8, Cloudflare and D1 state: the worker
   deployed, the Cloudflare cron day-of-week trap, how far the live run got, the
   L7 correction, and the open list as it stood.
-- **Doc-validity audit + UX audit + 8 local fixes** — **`HANDOFF-2026-08-04-v2.md`,
-  the latest log and the one to read.** Every STATUS.md claim re-probed against
+- **Doc-validity audit + UX audit + 8 local fixes** — `HANDOFF-2026-08-04-v2.md`.
+  Every STATUS.md claim re-probed against
   live state (all accurate, two stale cells fixed); the booking modal now shows
   only the confirmation on success; the audit's critical find: **every
   quiz-driven booking was server-rejected** because the quiz recommended names
-  that were never `#serviceType` options. All fixes local and verified;
-  **undeployed**. Also records the rulesets-OAuth-scope limit, the behavioral
+  that were never `#serviceType` options. Its fixes were **undeployed at the time
+  of writing** — they shipped the next session as `fb1b3aa8`; read `-v3` for the
+  outcome. Also records the rulesets-OAuth-scope limit, the behavioral
   L7 proof, and the reveal-gate specificity trap. Companion findings doc:
   `audits/UX-AUDIT-2026-08-04.md`.
+- **Phase 2 closed: two deploys, F10, F11, F12** — **`HANDOFF-2026-08-04-v3.md`,
+  the latest log and the one to read.** The UX batch shipped as `fb1b3aa8` and
+  was verified on the live apex with a real Turnstile token (all four quiz
+  outcomes, 375px, no-JS, zero CSP violations); `42aa5567` added F11's structured
+  write logs plus a **latent bug F10 caught on its first run** — `.fab-btn
+  { display: grid }` outranked the `[hidden]` attribute, so the WhatsApp FAB's
+  gating never hid anything. Records why F10 runs on the Miniflare harness rather
+  than `wrangler pages dev`, the `.open-booking` `:visible` trap, why a past date
+  cannot test server rejection, the post-deploy CDN cache trap, and how to read
+  Pages Functions logs (`pages deployment tail` with a **full uuid**).
+  ⚠️ It also carries the three production smoke rows the operator must delete.
 - **L6 closed + digest observability** — `HANDOFF-2026-08-04.md`. No code changed;
   it supersedes `-v4` for L6, the digest
   worker's version (`0f6d80cd`) and the git baseline (`3a2e864`). Contains the

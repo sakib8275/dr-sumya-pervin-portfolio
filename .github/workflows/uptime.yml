@@ -1,0 +1,63 @@
+# F11 — the uptime monitor.
+#
+# Why /api/config/public and not the homepage: the homepage is a static asset and
+# will keep returning 200 from Cloudflare's edge long after the parts that matter
+# have broken. /api/config/public is the cheapest endpoint that proves the whole
+# chain is alive — a Pages Function executed, the D1 binding resolved, and a row
+# came back. It is also unauthenticated and holds nothing sensitive (a WhatsApp
+# number the site already prints), so it can be polled from a public runner.
+#
+# Why GitHub Actions and not a hosted monitor: it needs no new account, no
+# credential in this repo, and it fails where this project's other failures
+# already surface. A failed scheduled run emails the repo owner by default.
+#
+# ⚠️ GitHub's scheduler is best-effort and skews under load — runs can be late by
+# many minutes and can be dropped entirely. This is a "the site has been down for
+# a while" alarm, not a seconds-resolution SLA monitor. Do not read a missing run
+# as an outage.
+name: Uptime
+
+on:
+  schedule:
+    # Every 30 minutes. Cheap, and well inside the free-tier minutes budget.
+    - cron: '*/30 * * * *'
+  workflow_dispatch:
+
+jobs:
+  probe:
+    name: Probe the live apex
+    runs-on: ubuntu-latest
+    steps:
+      - name: /api/config/public answers 200 with JSON
+        run: |
+          set -euo pipefail
+
+          # --fail-with-body so a 5xx is an error AND the body is still printed:
+          # a bare --fail hides exactly the message needed to triage it.
+          # Retries absorb a single edge blip; three failures 10s apart is real.
+          body=$(curl -sS --fail-with-body \
+                      --retry 3 --retry-delay 10 --retry-all-errors \
+                      --max-time 20 \
+                      https://drsumyapervin.com/api/config/public)
+
+          echo "response: $body"
+
+          # A 200 is not a result on this project: a catch-all can return the
+          # homepage with a 200 and mask a dead Function. Assert on the shape.
+          echo "$body" | jq -e 'has("whatsapp") and has("telegram")' > /dev/null
+
+      - name: the homepage is served and is not the 404 page
+        run: |
+          set -euo pipefail
+          code=$(curl -sS -o /tmp/home.html -w '%{http_code}' --max-time 20 https://drsumyapervin.com/)
+          test "$code" = "200"
+          grep -q 'id="bookingForm"' /tmp/home.html
+
+      - name: HTTPS redirects and security headers are still in place
+        run: |
+          set -euo pipefail
+          # A silent loss of HSTS or the CSP is not an outage but is a regression
+          # nobody would otherwise notice until the next manual audit.
+          headers=$(curl -sSI --max-time 20 https://drsumyapervin.com/)
+          echo "$headers" | grep -qi 'strict-transport-security'
+          echo "$headers" | grep -qi 'content-security-policy'

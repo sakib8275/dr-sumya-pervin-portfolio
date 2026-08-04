@@ -1,4 +1,5 @@
 import { requireAuth, readJson, json } from '../../lib/auth.js';
+import { loggedWrite, logWrite } from '../../lib/log.js';
 
 // Must stay in step with the data-filter buttons in index.html.
 const CATEGORIES = ['clinical', 'procedures', 'clinic'];
@@ -87,9 +88,11 @@ export async function onRequestPost(context) {
 
   const id = 'item-' + crypto.randomUUID().slice(0, 8);
   try {
-    await context.env.DB.prepare(
-      'INSERT INTO gallery (id, title, category, caption, image_path) VALUES (?, ?, ?, ?, ?)'
-    ).bind(id, title, category, caption, imagePath).run();
+    await loggedWrite('gallery.create', { id, category, stored_key: storedKey }, () =>
+      context.env.DB.prepare(
+        'INSERT INTO gallery (id, title, category, caption, image_path) VALUES (?, ?, ?, ?, ?)'
+      ).bind(id, title, category, caption, imagePath).run()
+    );
   } catch (err) {
     // The R2 put already happened. Without this compensating delete the object
     // is stranded: the CMS deletes by row, and no row will ever reference it.
@@ -97,10 +100,11 @@ export async function onRequestPost(context) {
       try {
         await context.env.GALLERY_BUCKET.delete(storedKey);
       } catch (delErr) {
-        console.error('R2 cleanup failed after gallery insert failure; object orphaned:', storedKey, delErr);
+        // Structured, because this is the one failure that leaves state behind
+        // for a human to clean up: the key is the only way to find the orphan.
+        logWrite('gallery.orphan', { id, stored_key: storedKey, error: delErr && delErr.message });
       }
     }
-    console.error('Gallery insert failed:', err);
     return json({ error: 'Could not save the gallery item. Please try again.' }, 500);
   }
 

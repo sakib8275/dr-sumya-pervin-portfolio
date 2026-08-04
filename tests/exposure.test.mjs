@@ -52,6 +52,22 @@ const mustNotBePublished = [
   '/workers/digest/index.js',
   '/workers/digest/wrangler.toml',
   '/netlify.toml',
+  // F10's DOM layer (2026-08-04). The config names the test directory and the
+  // helper carries the siteverify token protocol, which tells an attacker
+  // exactly what shape of stubbing this deployment's harness accepts.
+  '/playwright.config.mjs',
+  '/tests/e2e/helpers/site.mjs',
+  '/tests/e2e/booking-submit.spec.mjs',
+  // F11 (2026-08-04). The workflows name the probed endpoints and the runner
+  // setup; the runbook and its script describe exactly where a plaintext export
+  // of every patient row is written.
+  '/.github/workflows/ci.yml',
+  '/.github/workflows/uptime.yml',
+  '/scripts/backup-d1.mjs',
+  '/docs/RUNBOOK-BACKUP.md',
+  // Backups themselves never reach the working tree of a deploy (backups/ is
+  // gitignored), but a regression that published the repo root would serve one.
+  '/backups/',
   '/.git/config'
 ];
 

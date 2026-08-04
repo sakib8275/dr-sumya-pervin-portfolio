@@ -12,6 +12,34 @@ Do them in order — later tasks assume earlier ones are done.
 
 ---
 
+## Task −1 — 🔴 Delete three test bookings from the live database (2 min · 🖥️ · **before 2026-08-05**)
+
+**Why:** proving the two 2026-08-04 deploys actually worked meant booking three
+real appointments on the live site — that is the only way to exercise a genuine
+Turnstile token. They are named `ZZ TEST — …`. Agents cannot write to the remote
+database, so only you can remove them.
+
+Run this from the project directory (in Claude Code, prefix it with `!`):
+
+```
+npx wrangler d1 execute dr-sumya-pervin-db --remote --command "DELETE FROM appointments WHERE id IN ('book-af0a8c84','book-e879acc5','book-5f67ef11')"
+```
+
+**Verify:** the output says `"changes": 3`. Then confirm the table is empty:
+
+```
+npx wrangler d1 execute dr-sumya-pervin-db --remote --command "SELECT COUNT(*) AS n FROM appointments"
+```
+
+Expect `n: 0`.
+
+**⚠️ Why the deadline.** The rows are dated **2026-08-05, 08-06 and 08-08**, and
+the daily digest emails Dr. Sumya *that day's* bookings. If they are still there
+on one of those mornings, she receives a digest listing three patients who do not
+exist.
+
+---
+
 ## Task 0 — ⚠️ Rotate the admin PIN (5 min · 👩‍⚕️ · do this soon)
 
 **Why:** during the 2026-08-03 browser testing, the machine's saved-password

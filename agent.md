@@ -346,15 +346,82 @@ When making code changes or updates, verify the following:
    own iframe emits harmless WebGL and font warnings from `challenges.cloudflare.com`; filter those
    out rather than chasing them.
 4. **Data Integrity**: Verify Dr. Sumya Pervin's qualifications, degrees, chamber locations, and appointment phone numbers remain accurate.
-5. **API Tests**: `npm test` — the 191-test suite (Miniflare integration against the real
-   compiled worker, real D1/R2, stubbed siteverify; plus the pure schedule, digest and
-   security-header units) must be green before any deploy; then spot-check against
-   `wrangler pages dev public --local`.
+5. **API Tests**: `npm test` — the 204-test suite (Miniflare integration against the real
+   compiled worker, real D1/R2, stubbed siteverify; plus the pure schedule, digest,
+   security-header and structured-log units) must be green before any deploy; then spot-check
+   against `wrangler pages dev public --local`.
 
    `wrangler pages dev` starts with an **unmigrated** local D1, so `/api/gallery` and
    `/api/config/public` 500 until you run
    `npx wrangler d1 execute dr-sumya-pervin-db --local --file=migrations/001_schema.sql`.
    That looks like a broken API and is not one.
+6. **DOM Tests**: `npm run test:e2e` — F10's 14 Playwright tests. See below.
+
+---
+
+## 5b. The F10 DOM layer — `tests/e2e/`
+
+`npm run test:e2e`. Deliberately **not** part of `npm test`: that suite is hermetic and runs
+in ~3 s, and folding a browser launch into the deploy gate makes the gate slow enough to get
+skipped.
+
+**It does not use `wrangler pages dev`.** The positive booking path needs siteverify to return
+both the expected action and an allowlisted hostname, and `pages dev` cannot intercept that
+outbound call — so under it every DOM booking test would 403 for a reason unrelated to the DOM.
+Instead each test starts the **same Miniflare harness the API suite uses**
+(`tests/helpers/harness.mjs`), which also listens on a real HTTP port. One siteverify stub,
+one migration path, one route table, and a real Chromium driving the real compiled Worker.
+
+Turnstile is stubbed page-side (`tests/e2e/helpers/site.mjs`) because headless Chromium is
+never issued a real token. The stub derives its token **from the widget's action** — a single
+fixed token would let booking pass and silently 403 login.
+
+Five areas, 14 tests: real pointer-click booking · XSS inert in the CMS · the booking-failure
+state · WhatsApp CTA gating · the pre-hydration submit guard. Plus the 2026-08-04 UX batch's
+assertions (booking-success shows only `#bookingStatus`; all four quiz outcomes reach a valid
+`selectedIndex`; the no-JS reveal gate; 24px tap targets at 375px).
+
+> [!IMPORTANT]
+> **What F10 cannot see.** No zone-injected scripts (they exist only on the apex) and no real
+> Turnstile widget. Both stay live-apex-only checks at deploy time. F10 complements
+> `tests/headers.test.mjs` rather than duplicating it: that one fails if an `on*=` attribute
+> reappears in `public/`, this one proves the resulting behaviour still works.
+
+> [!WARNING]
+> A `.open-booking` selector must go through `:visible`. There are seven of them and which are
+> visible depends on the viewport — the nav one is hidden below the desktop breakpoint, the
+> drawer one above it — so `.first()` silently picks a hidden element at 375px and times out.
+> Use `openBookingModal(page)`.
+
+## 5c. Ops (F11)
+
+| Surface | Where | Notes |
+|---|---|---|
+| Test gate | `.github/workflows/ci.yml` | `npm test` + `npm run test:e2e` on push/PR. **Never deploys** — deploys stay manual and operator-confirmed, because the two failure modes that have actually bitten here are invisible until the live apex. |
+| Uptime | `.github/workflows/uptime.yml` | Every 30 min: `/api/config/public` (asserts the JSON **shape**, not just a 200 — a catch-all can return the homepage with a 200), the homepage, and that HSTS + CSP are still present. GitHub's scheduler skews and drops runs; this is a "down for a while" alarm, not an SLA monitor. |
+| D1 backup | `npm run backup:d1`, `docs/RUNBOOK-BACKUP.md` | Operator-run. Writes patient data + the PIN hash to `backups/` (gitignored). The script fails on a missing table but treats **0 rows as fine** — production D1 is often empty and a schema-only export is a correct backup. Restore drill proven 2026-08-04. |
+| Write logs | `functions/lib/log.js` | One JSON line per D1 write, on the appointment/gallery/config paths. |
+
+### Reading the structured logs
+
+Pages Functions logs are **not** in the Workers Logs UI the digest uses. Tail them:
+
+```bash
+npx wrangler pages deployment tail <full-deployment-id> \
+  --project-name=dr-sumya-pervin-portfolio --format json
+```
+
+`--environment production` alone is rejected in a non-interactive shell ("Missing deployment") —
+pass the full uuid from `pages deployment list`. Verified 2026-08-04: a live booking produced
+`{"evt":"appointment.create","id":"book-…","chamber":"…","ok":true,"ms":88}`.
+
+> [!CAUTION]
+> **Never log patient_name, patient_phone, notes, any PIN or hash, any secret, or a Turnstile
+> token.** Logs are the widest-access surface here: dashboard-read is enough to see them, they
+> persist independently of D1, and no CMS deletion touches them. `logWrite` strips those keys
+> defensively and `tests/log.test.mjs` fails if that stops working — but the real rule is not
+> to pass them. Errors are logged by `message` only, never the stack: a D1 stack can carry
+> bound values, which on the booking path are patient data.
 
 ---
 

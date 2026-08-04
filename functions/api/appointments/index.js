@@ -1,6 +1,7 @@
 import { requireAuth, readJson, json } from '../../lib/auth.js';
 import { verifyTurnstile } from '../../lib/turnstile.js';
 import { validateSlot } from '../../lib/schedule.js';
+import { loggedWrite } from '../../lib/log.js';
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 const LIMITS = { patient_name: 120, patient_phone: 40, chamber: 120, service: 120, notes: 2000 };
@@ -62,9 +63,16 @@ export async function onRequestPost(context) {
   }
 
   const id = 'book-' + crypto.randomUUID().slice(0, 8);
-  await context.env.DB.prepare(
-    'INSERT INTO appointments (id, patient_name, patient_phone, chamber, appointment_date, service, notes) VALUES (?, ?, ?, ?, ?, ?, ?)'
-  ).bind(id, f.patient_name, f.patient_phone, f.chamber, appointment_date, f.service, f.notes).run();
+  // Logged with the id, chamber and date only. The patient's name, phone and
+  // notes stay out of the log stream on purpose -- see functions/lib/log.js.
+  await loggedWrite(
+    'appointment.create',
+    { id, chamber: f.chamber, appointment_date, service: f.service },
+    () =>
+      context.env.DB.prepare(
+        'INSERT INTO appointments (id, patient_name, patient_phone, chamber, appointment_date, service, notes) VALUES (?, ?, ?, ?, ?, ?, ?)'
+      ).bind(id, f.patient_name, f.patient_phone, f.chamber, appointment_date, f.service, f.notes).run()
+  );
 
   return json({ id, message: 'Appointment created successfully' }, 201);
 }

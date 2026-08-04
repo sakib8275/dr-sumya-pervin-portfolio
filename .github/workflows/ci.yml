@@ -1,0 +1,68 @@
+# F11 — the test gate.
+#
+# This workflow deliberately does NOT deploy. Deploys to this project are manual
+# and operator-confirmed, because the site serves patients and the two failure
+# modes that have actually bitten here (a Turnstile hostname list that rejects
+# every booking, a CSP that blocks the widget) are both invisible to every check
+# that runs before a deploy and only observable on the live apex. An auto-deploy
+# on green would ship those with nobody watching.
+#
+# What this gate is for: making it impossible to merge a change that breaks the
+# 199-test suite, so `npm test` being green stops depending on whoever last
+# remembered to run it.
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: npm test (Workers integration + units)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      # `npm ci` and not `npm install`: the lockfile is the point of a gate.
+      - run: npm ci
+
+      # pretest compiles the real Functions bundle that the Miniflare harness
+      # runs, so this covers the actual route table, not a hand-written one.
+      - run: npm test
+
+  e2e:
+    name: Playwright DOM layer (F10)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - run: npm ci
+
+      # --with-deps installs the system libraries the headless browser needs;
+      # without it Chromium launches and immediately dies on a bare runner.
+      - run: npx playwright install --with-deps chromium
+
+      - run: npm run test:e2e
+
+      - uses: actions/upload-artifact@v4
+        # Traces and failure screenshots are only worth keeping when something
+        # broke, and they embed full page content, so they are not kept otherwise.
+        if: failure()
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7

@@ -16,3 +16,16 @@ data/
 # browser verification runs. Transient, and the console logs can contain values
 # typed into the page.
 .playwright-mcp/
+
+# F10 run artifacts (traces, failure screenshots, the HTML report). Regenerated
+# by `npm run test:e2e`; traces embed full page content.
+test-results/
+playwright-report/
+
+# Agent tooling scratch directories. Not part of this project.
+.agents/
+graphify-out/
+
+# D1 exports (F11). Plaintext patient names, phone numbers, medical notes and the
+# admin PIN hash. Never commit one — see docs/RUNBOOK-BACKUP.md.
+backups/

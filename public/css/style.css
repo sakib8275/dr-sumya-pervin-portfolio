@@ -1244,6 +1244,17 @@ button {
   transform: scale(1.1);
 }
 
+/* The [hidden] attribute is only a UA rule (display:none), so ANY class that
+   sets display outranks it. .fab-btn sets display:grid, which meant
+   renderContactChannels()'s `fab.hidden = !digits` (main.js:164) did not hide
+   anything: with no WhatsApp number configured the floating button still
+   rendered, as a live link to href="#". That is the same "live link to nobody"
+   the hardcoded +880 1700-000000 placeholder created and that gating was written
+   to remove. #navTel escaped it only because .nav-tel happens to set no display.
+   Found by tests/e2e/whatsapp-gating.spec.mjs, 2026-08-04. !important is
+   deliberate: [hidden] must beat every display rule, present and future. */
+[hidden] { display: none !important; }
+
 .fab-wa { background: #25D366; }
 .fab-book { background: var(--orange); }
 .fab-top { background: var(--sienna); display: none; }
