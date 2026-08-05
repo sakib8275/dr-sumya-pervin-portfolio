@@ -35,6 +35,18 @@ Do them in order — later tasks assume earlier ones are done.
    - Edit a section (e.g. Hero Tagline or Chamber details) and click **Save Changes**.
    - Refresh `https://drsumyapervin.com` and verify the new text renders live on the website.
 
+4. **Verify Settings save (F13 smoke)**:
+   - CMS → **Settings** tab.
+   - The **Admin Reset Destination Email** field must already show the stored
+     `dr.enamtalha@gmail.com` — do **not** clear it.
+   - Change nothing about the email, just change e.g. the WhatsApp number, and
+     click **Save Settings**. It must save **without** forcing you to retype the
+     email (previously the required-but-empty field blocked every save).
+   - Reload Settings → the email still shows `dr.enamtalha@gmail.com`.
+   - Tip: leave the email as-is. Changing it to anything other than a Cloudflare
+     Email Routing **verified** recipient makes password-reset mail silently not
+     send (the mailer only delivers to `dr.enamtalha@gmail.com` today).
+
 ---
 
 ## Task −1 — ✅ DONE 2026-08-04 · Delete three test bookings from the live database
@@ -76,9 +88,11 @@ persist, so treat it as disclosed.
 2. Enter the **current** PIN, then the new one (**minimum 8 characters**).
 3. Save, log out, and log back in with the new PIN to confirm it took.
 
-**Related, smaller:** the PIN field has no `autocomplete="new-password"`, which is
-why browsers offer to save and re-fill it. That is a code fix for an agent, not
-something you can click.
+**Related, smaller:** the PIN field had no `autocomplete="new-password"`, which is
+why browsers offered to save and re-fill it. ✅ **FIXED 2026-08-05 (F14)** — all
+three CMS PIN fields now carry `autocomplete="new-password"` and the forgot-email
+field carries `autocomplete="email"`, deployed as `a5077cb3`. Only the rotation
+above remains.
 
 ---
 

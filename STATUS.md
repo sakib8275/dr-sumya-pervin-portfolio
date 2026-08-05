@@ -4,7 +4,15 @@
 verification, or owner-action state changes. Everything under `docs/` is a dated
 snapshot; if this file and a snapshot disagree, this file wins.
 
-**Updated:** 2026-08-05 (~15:35 UTC / 21:35 Dhaka) — **F11 is now FIXED: the
+**Updated:** 2026-08-05 (~17:40 UTC / 23:40 Dhaka) — **F13 + F14 shipped** (see
+the F13/F14 row below): the Settings form's required-but-dead `admin_email` field
+is wired end-to-end (GET/PUT on `/api/config`, populated on load, saved on
+submit, validated server-side; `/api/config/public` still returns exactly
+`{whatsapp, telegram}`), and the CMS PIN fields now carry
+`autocomplete="new-password"` so browsers stop offering to save the PIN (the
+Task-0 transcript-leak vector). Deployed `a5077cb3`, committed + pushed
+`3a00d4f`; **247/247 node tests + 14/14 e2e green.** F15 recorded only (no login
+throttle is a deliberate decision). Earlier: **F11 is now FIXED: the
 uptime monitor works and the crying-wolf is gone.** Production D1 is **clean**
 (0 appointments, 0 gallery), **F8's digest** runs green from its own logs, and
 the one open engineering item — the uptime monitor, which had failed **9/9**
@@ -34,7 +42,7 @@ Logs on the digest.
 
 ---
 
-## The one-**The site is LIVE on `drsumyapervin.com`** (deployment **`42aa5567`**, **241/241
+## The one-**The site is LIVE on `drsumyapervin.com`** (deployment **`a5077cb3`** — F13/F14, commit `3a00d4f`; **247/247
 node tests + 14/14 Playwright e2e green**; Self-Service CMS with PIN Reset, TOTP 2FA, and Site-Content Editing built & fully tested), **F9 security headers are live** (CSP with no
 'unsafe-inline' in `script-src`, HSTS, zero inline handlers left in `public/`),
 and **the F8 digest worker is DEPLOYED, crons registered, recipient verified,
@@ -52,12 +60,13 @@ longer email the doctor a list of fake patients.
 
 | Fact | State | Verified |
 |---|---|---|
-| Serving deployment | **`42aa5567`** (full id `42aa5567-1a01-4dc3-98c0-13eb81d7f0ff`) — F11 logging + the `[hidden]` fix | `pages deploy` + apex curl, 2026-08-04 |
-| Previous deploy | `fb1b3aa8` — the UX batch alone. Back out to this if F11's logging or the `[hidden]` rule misbehaves | `pages deploy`, 2026-08-04 |
+| Serving deployment | **`a5077cb3`** (commit `3a00d4f`, pushed to origin) — F13/F14: `admin_email` wired through Settings + PIN autocomplete hardening | `pages deploy` + apex curl, 2026-08-05 |
+| Previous deploy | `42aa5567` — F11 logging + the `[hidden]` fix. Back out to this if F13/F14 misbehaves | `pages deploy`, 2026-08-05 |
 | Rollback target | **`5423d45e`** (last pre-Phase-1 known-good) — full id `5423d45e-78fd-48ea-abe8-1ce5d5bd0917`, re-confirmed against `pages deployment list` | 2026-08-03 |
 | Previous good deploy | `f64b9221` (pre-F9), if F9 alone needs backing out | same |
 | Apex / www / HTTPS | apex 200; www → 301 apex; http → 301 https | curl, 2026-08-03 |
-| Tests | **241/241 green** (`npm test`; Miniflare + real compiled worker, plus 24 TOTP/Reset/Content units, 16 digest units, 18 F9 header/inline-handler/exposure units, and 5 structured-log units). Plus **14/14 `npm run test:e2e`** (F10). All pass green under Node 24 | 2026-08-05 |r each of the two deploys | 2026-08-04 |
+| Tests | **247/247 green** (`npm test`; Miniflare + real compiled worker, plus 24 TOTP/Reset/Content units, 16 digest units, 18 F9 header/inline-handler/exposure units, 5 structured-log units, 13 probe units, and 6 F13 config/admin_email units). Plus **14/14 `npm run test:e2e`** (F10). All pass green under Node 24 | 2026-08-05 |r each of the two deploys | 2026-08-04 |
+| **F13 + F14** | ✅ **DONE 2026-08-05, deployed `a5077cb3`, commit `3a00d4f` pushed.** F13: the Settings form was unsaveable — `adminEmailInput` is `required` but `loadCMSConfigForm()` never populated it, so native validation blocked every save, and whatever was typed was discarded (the only writer was operator SQL). Now wired end-to-end: `/api/config` GET returns `admin_email`, PUT accepts/validates it (same regex as the forgot-password path, ≤254, `''` clears) and persists it in the same single UPDATE as the PIN rotation / channel writes; `loadCMSConfigForm()` fills the field, the submit handler sends `admin_email`. Logged as `admin_email_set: <bool>` — never the address (redaction contract in `functions/lib/log.js`). `/api/config/public` is untouched — still exactly `{whatsapp, telegram}` (leak-guard test added). F14: `autocomplete="new-password"` on `cmsPinInput`/`resetNewPin`/`resetConfirmPin`, `autocomplete="email"` on `forgotEmailInput` — closes the 2026-08-03 PIN-autofill/transcript vector (HUMAN-TASKS Task 0's "related, smaller" item). F15 recorded only (no app-level login throttle is a deliberate decision; Turnstile-first ordering is the fast-path defense). Specs + owner note (mailer `ALLOWED_RECIPIENT` must change before `admin_email` may differ from `dr.enamtalha@gmail.com`): `FIXPLAN-2026-08-05.md`. Smoke verified on pages.dev: public route exactly two keys, admin route 401, 4 autocomplete attrs served. **Remaining manual (operator, PIN+TOTP):** Settings loads the stored `admin_email` and Save works without typing it | `npm test` + e2e + curl, 2026-08-05 |
 | **F10 DOM layer** | **DONE.** `tests/e2e/` — 14 Playwright tests over the five required areas: real pointer-click booking, XSS inert in the CMS, booking-failure state, WhatsApp CTA gating, pre-hydration submit guard; plus the UX batch's assertions. Runs on the **Miniflare harness, not `wrangler pages dev`** — `pages dev` cannot intercept siteverify, so every DOM booking test would 403 under it for a non-DOM reason. `npm run test:e2e`, kept out of `npm test` so the deploy gate stays ~3 s | `npm run test:e2e`, 2026-08-04 |
 | **F11 ops** | **DONE — see the Uptime monitor row.** `.github/workflows/ci.yml` (`npm test` + e2e on push/PR; **never deploys**) ✅, `npm run backup:d1` + `docs/RUNBOOK-BACKUP.md` (**restore drill proven**: exported 4/4 tables, replayed into a wiped local D1, counts matched) ✅, JSON write logs ✅, uptime monitor ✅ (**now `workers/probe`, deployed**) | see rows below, 2026-08-05 |
 | ✅ **Uptime monitor** | **FIXED 2026-08-05.** The GH-Actions monitor failed **9/9** scheduled runs: the zone's Bot Fight Mode (auto-enabled, non-disableable on this plan) challenges Azure datacenter IPs with a `cf-mitigated` 403 while real clients get 200. It was **worse than no monitor** — a probe that always cried wolf gets ignored. **The authoritative monitor is now `workers/probe`** (`dr-sumya-probe`, version **`c7d0aced`**, deployed 2026-08-05 15:30 UTC): a Worker on its own `*/30 * * * *` cron that probes `/api/config/public` **from Cloudflare's own network** — a vantage Bot Fight Mode cannot challenge (verified live from a throwaway Worker: 200 + the JSON contract, 4/4 runs; GH runners got 403 on every attempt). It asserts the **JSON shape**, not a bare 200, and **emails the doctor once on the DOWN transition and once on RECOVERY** (consecutive-failure state in the `uptime_state` single-row table, `migrations/002_uptime_state.sql`). `.github/workflows/uptime.yml` is **demoted to a third-party canary**: it treats a cf-mitigated edge block on any of its three steps as the expected state of its own vantage and passes, so scheduled runs go green and stop spamming the owner, while a dead Function (5xx/timeout/wrong shape), a broken homepage, or lost HSTS/CSP still fail it. 13 new probe tests (217 total). Note: `HEAD` on the endpoint still 404s while `GET` 200s — do not write a HEAD probe | `wrangler deploy` + D1 SELECT + live probe, 2026-08-05 15:30 UTC |
@@ -119,8 +128,10 @@ longer email the doctor a list of fake patients.
    autofill re-populated the CMS PIN field on `localhost`, so the production PIN
    appeared in an agent session transcript. Nothing was written down and no
    production login was attempted, but transcripts persist — change it in
-   CMS Settings (needs the current PIN, min 8 chars). Unrelated: the field also
-   invites autofill because it has no `autocomplete="new-password"`.
+   CMS Settings (needs the current PIN, min 8 chars). The autofill half of this is
+   **fixed 2026-08-05 (F14)**: the PIN fields now carry `autocomplete="new-password"`,
+   so browsers no longer offer to save/re-fill them — only the rotation itself
+   remains.
 2. ~~CMS Settings → real WhatsApp number + Telegram @username~~ **DONE
    2026-08-03** — `+8801725196101` supplied by the owner and written to
    production D1. Booking confirmations and the floating button now reach
