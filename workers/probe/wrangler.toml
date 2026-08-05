@@ -1,0 +1,50 @@
+# F11 — the Cloudflare-native uptime probe Worker. Deployed with
+# `npx wrangler deploy` from THIS directory, not from the repo root: the root
+# wrangler.toml is the Pages project and the two must never be merged. This
+# Worker has no routes and no fetch handler; crons are its only trigger.
+name = "dr-sumya-probe"
+main = "index.js"
+
+# No public URL. This Worker exports only scheduled(); a workers.dev route
+# would publish a hostname that answers nothing useful and widens the surface
+# for no reason. Same instinct as pages_build_output_dir in the root config.
+workers_dev = false
+
+# Matches the Pages project and the digest Worker. The probe is deliberately on
+# the same runtime date as both so a semantics split never appears between the
+# thing being probed and the thing probing it.
+compatibility_date = "2026-07-29"
+
+# Every 30 minutes — the same cadence the GitHub Actions monitor was meant to
+# have, but from Cloudflare's own network so the zone's Bot Fight Mode cannot
+# challenge it (GH's Azure IPs were 403'd on 9 consecutive runs). Do not read a
+# missing run as an outage: Cloudflare's scheduler is best-effort, exactly like
+# GitHub's.
+[triggers]
+crons = ["*/30 * * * *"]
+
+# Read/write in practice, but only ever the one uptime_state row
+# (migrations/002_uptime_state.sql, id = 1). No booking or patient data.
+[[d1_databases]]
+binding = "DB"
+database_name = "dr-sumya-pervin-db"
+database_id = "d2ce7968-38ce-4329-86a9-b60d3b48f414"  # created 2026-07-30, region APAC
+
+# Outbound email. The zone's Email Routing (enabled 2026-08-03) authorises this
+# binding; delivery depends on PROBE_TO being a verified destination — it is the
+# same verified recipient the digest uses (dr.enamtalha@gmail.com, verified
+# 2026-08-03 16:13 UTC).
+[[send_email]]
+name = "EMAIL"
+
+[vars]
+PROBE_FROM = "digest@drsumyapervin.com"
+PROBE_TO = "dr.enamtalha@gmail.com"
+PROBE_URL = "https://drsumyapervin.com/api/config/public"
+
+# Workers Logs. The only output of a healthy run is a log line and the only
+# interesting output is an email, so without logs a quiet failure is invisible.
+# head_sampling_rate is 1 deliberately — 48 invocations a day is nothing.
+[observability]
+enabled = true
+head_sampling_rate = 1

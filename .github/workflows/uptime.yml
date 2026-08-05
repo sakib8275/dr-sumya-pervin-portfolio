@@ -1,5 +1,22 @@
 # F11 — the uptime monitor.
 #
+# Two vantage points, because GitHub Actions alone cannot see this site.
+#
+# The AUTHORITATIVE monitor is workers/probe: a Cloudflare-native Worker on its
+# own 30-minute cron that runs from Cloudflare's own network, asserts the JSON
+# contract of /api/config/public, and emails the doctor once on the DOWN
+# transition and once on RECOVERY. That is the alert that reaches a human.
+#
+# THIS workflow is the THIRD-PARTY canary. It costs nothing and fails where the
+# project's other failures surface, but it cannot probe the apex on its own
+# merit: the zone's Bot Fight Mode (auto-enabled, not disableable on this plan)
+# challenges GitHub Actions' Azure IPs with a 403 — 9 consecutive scheduled runs
+# failed exactly that way while real browsers got 200. So this workflow treats
+# a cf-mitigated edge block as the expected state of its own vantage point and
+# passes, keeping the owner's inbox quiet, while still failing on genuine
+# problems: a dead Function (5xx / timeout / wrong shape from the app), a broken
+# homepage, or lost security headers.
+#
 # Why /api/config/public and not the homepage: the homepage is a static asset and
 # will keep returning 200 from Cloudflare's edge long after the parts that matter
 # have broken. /api/config/public is the cheapest endpoint that proves the whole
@@ -30,34 +47,87 @@ jobs:
     steps:
       - name: /api/config/public answers 200 with JSON
         run: |
-          set -euo pipefail
+          set -uo pipefail
+          # The runner invokes this as `bash -e {0}`, so a non-zero curl kills the
+          # script at the assignment, before anything is echoed. The previous
+          # version of this step used `body=$(curl --fail-with-body …)` and so
+          # discarded the body at the exact moment it was needed: eight straight
+          # 403s produced no evidence at all. Turn -e off across the probe and
+          # back on for the assertions.
+          set +e
 
-          # --fail-with-body so a 5xx is an error AND the body is still printed:
-          # a bare --fail hides exactly the message needed to triage it.
-          # Retries absorb a single edge blip; three failures 10s apart is real.
-          body=$(curl -sS --fail-with-body \
+          # Body and headers to files, status via -w. Retries still absorb a
+          # genuine transport blip, but an HTTP 403 is not an error to curl
+          # without --fail, so a real block is now reported once rather than
+          # retried for 30s against a decision that will not change.
+          code=$(curl -sS -o /tmp/body.txt -D /tmp/head.txt -w '%{http_code}' \
                       --retry 3 --retry-delay 10 --retry-all-errors \
                       --max-time 20 \
                       https://drsumyapervin.com/api/config/public)
 
-          echo "response: $body"
+          echo "status: ${code:-<no response>}"
+          echo "--- response headers ---"; cat /tmp/head.txt
+          echo "--- body (first 2 KB) ---"; head -c 2048 /tmp/body.txt; echo
 
+          # cf-mitigated means an edge product stopped this request before it
+          # reached the Function. On this project that is the EXPECTED state for
+          # a GitHub Actions runner: Bot Fight Mode challenges Azure datacenter
+          # IPs (9/9 scheduled runs failed this way while browsers got 200). The
+          # authoritative monitor is workers/probe, which runs from Cloudflare's
+          # own network and emails the doctor on real down/recovery — this
+          # workflow is only the third-party canary and must not cry wolf about
+          # its own vantage point. A non-edge 403, a 5xx, a timeout or a wrong
+          # shape still fails below.
+          if grep -qi '^cf-mitigated:' /tmp/head.txt; then
+            echo "::notice::Blocked at the Cloudflare edge (expected for GH Actions IPs); the Cloudflare-native probe is authoritative."
+            exit 0
+          fi
+
+          set -e
           # A 200 is not a result on this project: a catch-all can return the
           # homepage with a 200 and mask a dead Function. Assert on the shape.
-          echo "$body" | jq -e 'has("whatsapp") and has("telegram")' > /dev/null
+          test "$code" = "200"
+          jq -e 'has("whatsapp") and has("telegram")' < /tmp/body.txt > /dev/null
 
+      # Run even when the probe above failed. A first failing step used to abort
+      # the job, so a run that 403s told you nothing about whether the rest of
+      # the site was reachable — which is the difference between "the API is
+      # blocked" and "the whole zone is". Both remaining steps are read-only and
+      # treat a cf-mitigated edge block exactly like the probe does: Bot Fight
+      # Mode can challenge a bare curl from a GH runner on any path, so an edge
+      # block is the expected state of this vantage point, not a finding.
       - name: the homepage is served and is not the 404 page
+        if: ${{ !cancelled() }}
         run: |
-          set -euo pipefail
-          code=$(curl -sS -o /tmp/home.html -w '%{http_code}' --max-time 20 https://drsumyapervin.com/)
+          set -uo pipefail
+          set +e
+          code=$(curl -sS -o /tmp/home.html -D /tmp/home_head.txt -w '%{http_code}' \
+                      --max-time 20 https://drsumyapervin.com/)
+          set -e
+
+          echo "status: ${code:-<no response>}"
+          if grep -qi '^cf-mitigated:' /tmp/home_head.txt; then
+            echo "::notice::Homepage blocked at the Cloudflare edge (expected for GH Actions IPs); the Cloudflare-native probe is authoritative."
+            exit 0
+          fi
           test "$code" = "200"
           grep -q 'id="bookingForm"' /tmp/home.html
 
       - name: HTTPS redirects and security headers are still in place
+        if: ${{ !cancelled() }}
         run: |
-          set -euo pipefail
+          set -uo pipefail
+          set +e
+          # -I follows no redirects, so a 301 would show as 301 here. On this
+          # zone http→https is a Cloudflare rule, not a host redirect.
+          curl -sSI --max-time 20 -D /tmp/head.txt -o /dev/null https://drsumyapervin.com/
+          set -e
+
           # A silent loss of HSTS or the CSP is not an outage but is a regression
           # nobody would otherwise notice until the next manual audit.
-          headers=$(curl -sSI --max-time 20 https://drsumyapervin.com/)
-          echo "$headers" | grep -qi 'strict-transport-security'
-          echo "$headers" | grep -qi 'content-security-policy'
+          if grep -qi '^cf-mitigated:' /tmp/head.txt; then
+            echo "::notice::Headers blocked at the Cloudflare edge (expected for GH Actions IPs); the Cloudflare-native probe is authoritative."
+            exit 0
+          fi
+          grep -qi 'strict-transport-security' /tmp/head.txt
+          grep -qi 'content-security-policy' /tmp/head.txt

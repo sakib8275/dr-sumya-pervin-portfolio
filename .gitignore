@@ -29,3 +29,6 @@ graphify-out/
 # D1 exports (F11). Plaintext patient names, phone numbers, medical notes and the
 # admin PIN hash. Never commit one — see docs/RUNBOOK-BACKUP.md.
 backups/
+
+# `gh run download` drops Actions logs in the repo root as logs_<run-id>/.
+logs_*/
