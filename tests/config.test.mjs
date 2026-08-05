@@ -52,6 +52,83 @@ test('an admin can set the contact channels, and the public route sees them', as
   assert.deepEqual(pub, { whatsapp: '8801711111111', telegram: '@sumya' });
 });
 
+test('the admin route returns admin_email alongside the channels', async () => {
+  await h.db
+    .prepare("UPDATE admin_settings SET admin_email = 'dr.enamtalha@gmail.com' WHERE id = 1")
+    .run();
+
+  const body = await (await h.asAdmin('GET', '/api/config')).json();
+  assert.equal(body.admin_email, 'dr.enamtalha@gmail.com');
+});
+
+test('an admin can set admin_email, and the admin route reflects it', async () => {
+  const res = await h.asAdmin('PUT', '/api/config', {
+    body: { admin_email: 'reset@drsumyapervin.com' }
+  });
+  assert.equal(res.status, 200);
+
+  const body = await (await h.asAdmin('GET', '/api/config')).json();
+  assert.equal(body.admin_email, 'reset@drsumyapervin.com');
+});
+
+test('an admin can clear admin_email back to unset', async () => {
+  const res = await h.asAdmin('PUT', '/api/config', { body: { admin_email: '' } });
+  assert.equal(res.status, 200);
+
+  const body = await (await h.asAdmin('GET', '/api/config')).json();
+  assert.equal(body.admin_email, '');
+});
+
+test('an invalid admin_email is refused and the row is unchanged', async () => {
+  const before = await h.db.prepare('SELECT admin_email FROM admin_settings WHERE id = 1').first();
+
+  const res = await h.asAdmin('PUT', '/api/config', { body: { admin_email: 'not-an-email' } });
+  assert.equal(res.status, 400);
+  assert.match((await res.json()).error, /valid email/);
+
+  const after = await h.db.prepare('SELECT admin_email FROM admin_settings WHERE id = 1').first();
+  assert.equal(after.admin_email, before.admin_email);
+});
+
+test('the public route never leaks admin_email even when it is set', async () => {
+  await h.db
+    .prepare("UPDATE admin_settings SET admin_email = 'reset@drsumyapervin.com' WHERE id = 1")
+    .run();
+
+  const res = await h.anon('GET', '/api/config/public');
+  assert.equal(res.status, 200);
+
+  const body = await res.json();
+  assert.deepEqual(Object.keys(body).sort(), ['telegram', 'whatsapp']);
+  assert.ok(!JSON.stringify(body).includes('reset@drsumyapervin.com'));
+});
+
+test('admin_email is settable together with a PIN rotation in one write', async () => {
+  const fresh = await createHarness();
+  try {
+    const res = await fresh.asAdmin('PUT', '/api/config', {
+      body: {
+        current_pin: TEST_PIN,
+        new_pin: 'rotated-with-email-77',
+        whatsapp: '',
+        telegram: '',
+        admin_email: 'rotated@example.com'
+      }
+    });
+    assert.equal(res.status, 200);
+
+    const body = await (await fresh.asAdmin('GET', '/api/config')).json();
+    assert.equal(body.admin_email, 'rotated@example.com');
+
+    const next = await fresh.anon('POST', '/api/auth/login', {
+      body: { pin: 'rotated-with-email-77', 'cf-turnstile-response': tokens.good('login') }
+    });
+    assert.equal(next.status, 200);
+  } finally {
+    await fresh.dispose();
+  }
+});
+
 test('a config write without new_pin leaves the PIN untouched', async () => {
   const before = await h.db.prepare('SELECT pin_hash FROM admin_settings WHERE id = 1').first();
   await h.asAdmin('PUT', '/api/config', { body: { whatsapp: '8801722222222', telegram: '' } });

@@ -1239,10 +1239,11 @@ const exportBtn = document.getElementById('exportCMSBackup');
       e.preventDefault();
       const whatsapp = document.getElementById('doctorWaInput').value;
       const telegram = document.getElementById('doctorTgInput').value;
+      const adminEmail = document.getElementById('adminEmailInput') ? document.getElementById('adminEmailInput').value : '';
       const newPin = document.getElementById('newPinInput').value;
       const currentPin = document.getElementById('currentPinInput') ? document.getElementById('currentPinInput').value : '';
 
-      const body = { whatsapp, telegram };
+      const body = { whatsapp, telegram, admin_email: adminEmail };
       if (newPin) {
         if (!currentPin) {
           alert('Current PIN is required to set a new PIN.');
@@ -1494,8 +1495,10 @@ const exportBtn = document.getElementById('exportCMSBackup');
 function loadCMSConfigForm() {
   const wa = document.getElementById('doctorWaInput');
   const tg = document.getElementById('doctorTgInput');
+  const adminEmail = document.getElementById('adminEmailInput');
   if (wa) wa.value = cmsConfig.whatsapp || '';
   if (tg) tg.value = cmsConfig.telegram || '';
+  if (adminEmail) adminEmail.value = cmsConfig.admin_email || '';
 }
 
 function renderCMSItemList() {

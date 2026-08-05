@@ -597,7 +597,7 @@
       </div>
       <div class="form-group" style="max-width: 320px; margin-bottom: 16px;">
         <label for="cmsPinInput">Admin Access PIN</label>
-        <input type="password" id="cmsPinInput" placeholder="Enter admin PIN">
+        <input type="password" id="cmsPinInput" placeholder="Enter admin PIN" autocomplete="new-password">
       </div>
       <div id="pinError" style="color: #DC3545; display: none; margin-bottom: 14px; font-weight: 500;"></div>
       <div id="turnstileLogin" style="margin-bottom: 14px;"></div>
@@ -841,7 +841,7 @@
     <form id="forgotForm">
       <div class="form-group" style="margin-bottom: 14px;">
         <label for="forgotEmailInput">Admin Email Address *</label>
-        <input type="email" id="forgotEmailInput" required placeholder="dr.enamtalha@gmail.com">
+        <input type="email" id="forgotEmailInput" required placeholder="dr.enamtalha@gmail.com" autocomplete="email">
       </div>
       <div id="turnstileForgot" style="margin-bottom: 14px;"></div>
       <button type="submit" class="btn btn-primary" style="width: 100%;">Send Reset Link</button>
@@ -865,11 +865,11 @@
       <input type="hidden" id="resetTokenInput">
       <div class="form-group" style="margin-bottom: 14px;">
         <label for="resetNewPin">New Admin PIN *</label>
-        <input type="password" id="resetNewPin" required minlength="8" placeholder="At least 8 characters">
+        <input type="password" id="resetNewPin" required minlength="8" placeholder="At least 8 characters" autocomplete="new-password">
       </div>
       <div class="form-group" style="margin-bottom: 14px;">
         <label for="resetConfirmPin">Confirm New PIN *</label>
-        <input type="password" id="resetConfirmPin" required minlength="8" placeholder="Re-enter new PIN">
+        <input type="password" id="resetConfirmPin" required minlength="8" placeholder="Re-enter new PIN" autocomplete="new-password">
       </div>
       <div id="turnstileReset" style="margin-bottom: 14px;"></div>
       <button type="submit" class="btn btn-primary" style="width: 100%;">Update Password</button>
