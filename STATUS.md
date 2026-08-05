@@ -4,12 +4,17 @@
 verification, or owner-action state changes. Everything under `docs/` is a dated
 snapshot; if this file and a snapshot disagree, this file wins.
 
-**Updated:** 2026-08-04 (~21:15 UTC / 2026-08-05 03:15 Dhaka) — **FIXPLAN Phase 2
-is now fully closed, including F8.** Production D1 is **clean again** (operator
-deleted the three smoke rows; re-probed 0/0), and **F8's first scheduled digest
-run has been READ FROM LOGS**: both crons fired, both chambers emailed the
-verified recipient, 0 bookings each, zero errors. Nothing in Phase 2 is
-outstanding. Earlier the same day, **the Phase 2 build work was
+**Updated:** 2026-08-05 (~06:30 UTC / 12:30 Dhaka) — **F8 is closed, but F11 is
+not: the uptime monitor has never worked.** Production D1 is **clean again**
+(operator deleted the three smoke rows; re-probed 0/0), and **F8's first
+scheduled digest run has been READ FROM LOGS**: both crons fired, both chambers
+emailed the verified recipient, 0 bookings each, zero errors. Against that,
+**every one of the 8 scheduled uptime runs has failed** with a 403 that is an
+artifact of probing from GitHub Actions IPs, not a real outage — see the uptime
+row. ⚠️ **Timestamps written earlier on 2026-08-04 were taken from a machine
+clock that was ~9 h 24 m slow**; it has since synced and now agrees with network
+time. Anything in this file dated "2026-08-04 21:xx UTC" was really 2026-08-05
+~06:xx UTC. On 2026-08-04, **the Phase 2 build work was
 closed.** Two deploys shipped: `fb1b3aa8` (the pending UX batch, including the
 critical quiz-booking fix) and `42aa5567` (F11 + one new bug fix). **F10** landed
 as 14 Playwright tests, **F11** as a CI gate, an uptime monitor, a proven D1
@@ -17,10 +22,9 @@ backup/restore runbook and structured write logs, **F12** as this update. F10
 immediately earned its keep by catching a **latent bug**: `.fab-btn { display:
 grid }` outranked the `[hidden]` attribute, so `main.js`'s
 `fab.hidden = !digits` never hid anything and an unconfigured WhatsApp number
-would have shown a dead `href="#"` button. Fixed and deployed. **Still open:
-reading the logs for F8's first digest run** — the run itself is no longer
-pending, it fired at 2026-08-04 08:30 UTC; nobody has looked at it. Earlier the
-same day: the doc-validity audit, the UX audit, L6, and Workers Logs on the
+would have shown a dead `href="#"` button. Fixed and deployed. **Now open: fix
+the uptime monitor** — it is the only Phase 2 item not actually working. Earlier
+the same day: the doc-validity audit, the UX audit, L6, and Workers Logs on the
 digest.
 
 ---
@@ -36,8 +40,9 @@ Workers Logs on** — nothing blocks it; its first live run was **2026-08-04 08:
 UTC (14:30 Dhaka)** and is now **proven end-to-end in production from its own
 logs** — see the "Digest first run" row. **L6 is done** — the owner's
 `+8801725196101` is live in production D1, so booking confirmations reach
-WhatsApp. **FIXPLAN Phase 2 (F8, F9, F10, F11, F12) is complete with nothing
-outstanding** — the last item, observing F8's first run, was closed 2026-08-04.
+WhatsApp. **FIXPLAN Phase 2 (F8, F9, F10, F11, F12) is built and deployed, and
+F8 is signed off — but F11 is not done in practice: its uptime monitor has failed
+every scheduled run since it went live.** That is the one open engineering item.
 
 ✅ **Production D1 is clean** — the operator deleted the three deploy-verification
 bookings on 2026-08-04; re-probed as 0 appointments, 0 gallery. The digest can no
@@ -54,7 +59,8 @@ longer email the doctor a list of fake patients.
 | Apex / www / HTTPS | apex 200; www → 301 apex; http → 301 https | curl, 2026-08-03 |
 | Tests | **204/204 green** (`npm test`; Miniflare + real compiled worker, plus 16 digest units, 18 F9 header/inline-handler/exposure units, and 5 new structured-log units). Plus **14/14 `npm run test:e2e`** (F10). Both re-run green after every change and after each of the two deploys | 2026-08-04 |
 | **F10 DOM layer** | **DONE.** `tests/e2e/` — 14 Playwright tests over the five required areas: real pointer-click booking, XSS inert in the CMS, booking-failure state, WhatsApp CTA gating, pre-hydration submit guard; plus the UX batch's assertions. Runs on the **Miniflare harness, not `wrangler pages dev`** — `pages dev` cannot intercept siteverify, so every DOM booking test would 403 under it for a non-DOM reason. `npm run test:e2e`, kept out of `npm test` so the deploy gate stays ~3 s | `npm run test:e2e`, 2026-08-04 |
-| **F11 ops** | **DONE.** `.github/workflows/ci.yml` (`npm test` + e2e on push/PR; **never deploys**), `.github/workflows/uptime.yml` (30-min probe of `/api/config/public` shape + homepage + HSTS/CSP — all three dry-run green against production; **live from the 2026-08-04 push**), `npm run backup:d1` + `docs/RUNBOOK-BACKUP.md` (**restore drill proven**: exported 4/4 tables, replayed into a wiped local D1, counts matched), and JSON write logs | see rows below, 2026-08-04 |
+| **F11 ops** | **PARTLY BROKEN — see the uptime row.** `.github/workflows/ci.yml` (`npm test` + e2e on push/PR; **never deploys**) ✅, `npm run backup:d1` + `docs/RUNBOOK-BACKUP.md` (**restore drill proven**: exported 4/4 tables, replayed into a wiped local D1, counts matched) ✅, JSON write logs ✅ — but **`.github/workflows/uptime.yml` has never passed a scheduled run** | see rows below, 2026-08-05 |
+| 🔴 **Uptime monitor** | **BROKEN — 8 of 8 scheduled runs have FAILED**, every run since it went live (2026-08-04T14:22 → 2026-08-05T04:13). It has never once passed on schedule. **The site is fine**: `GET /api/config/public` returns 200 with correct JSON from a normal client; the probe gets **403 on all 4 retries, every run, for 16 h straight** — too consistent to be a blip. Diagnosis: **Cloudflare edge protection blocking GitHub Actions (Azure datacenter) IPs** — Bot Fight Mode or a managed WAF rule — not a dead Function. **This was recorded as working because only manual dry runs were checked; the scheduled runs were never looked at.** Until fixed it is worse than no monitor: a probe that always cries wolf gets ignored, so a real outage would land in a red run nobody reads. Note also `HEAD` on that endpoint 404s while `GET` 200s — the Function is GET-only, so do not write a HEAD probe | `gh run list --workflow=uptime.yml`, 2026-08-05 |
 | CI on GitHub | ✅ **GREEN on its first real run** — run `30874041644` on push of `c6da817`: both jobs passed (`npm test` 28 s; **Playwright DOM layer 59 s**, browser download and all, on a bare runner). Red is **proven locally**: renaming `validateSlot` made `npm test` exit **1**; reverting returned exit **0** and 204/204. The Node-20 deprecation annotation is **cleared**: all three actions bumped to `@v5` (checkout, setup-node, **and upload-artifact** — that one never appeared in the annotation only because it sits behind `if: failure()` and had not run, so it would have bitten on the first red build, exactly when the traces are needed). `@v5` is the version that moves to Node 24; note **v7 is the current latest** if a future bump is wanted, and setup-node v5+ auto-caches when `package.json` has a `packageManager` field — this repo has none, and `cache: npm` is set explicitly | `gh run view`, 2026-08-05 |
 | Write logs live | **proven in production.** A real apex booking emitted `{"evt":"appointment.create","ts":"…","id":"book-5f67ef11","chamber":"Alliance…","appointment_date":"2026-08-08","service":"…","ok":true,"ms":88}` — **no patient name, no phone**. Read with `npx wrangler pages deployment tail <full-uuid> --project-name=dr-sumya-pervin-portfolio --format json`; `--environment production` alone is rejected non-interactively | `pages deployment tail`, 2026-08-04 |
 | **Bug found by F10** | `.fab-btn { display: grid }` outranked the `[hidden]` attribute (a UA rule), so `main.js:164`'s `fab.hidden = !digits` **hid nothing** — with no WhatsApp number configured the floating button still rendered as a live link to `href="#"`, the exact "live link to nobody" the gating was written to remove. `#navTel` escaped only because `.nav-tel` sets no `display`. Fixed with `[hidden] { display: none !important; }`, deployed in `42aa5567`, verified on the apex | `tests/e2e/whatsapp-gating.spec.mjs` + apex probe, 2026-08-04 |
@@ -63,7 +69,7 @@ longer email the doctor a list of fake patients.
 | CSP violations in browser | **0** across a full local click-through and a full production pass | Playwright console capture, 2026-08-03 |
 | F8 digest worker | **DEPLOYED** — `dr-sumya-digest`, live version **`0f6d80cd`** (2026-08-03 22:16 UTC; supersedes `e89ceefb`), crons `30 8 * * SUN-WED,SAT` + `30 10 * * SUN-THU,SAT` registered; no public URL (`workers_dev = false`, probe 404) | `wrangler deployments list`, 2026-08-03 22:2x UTC |
 | Digest observability | **ON** — `[observability] enabled = true, head_sampling_rate = 1` in `workers/digest/wrangler.toml`, confirmed on the deployed script (`logs.enabled true`, `persist true`, `invocation_logs true`). Enabled *before* the first scheduled run for one reason: this Worker's only trigger is cron and its only output is an email nobody in this repo can read, so **"no mail arrived" and "nothing to report" are the same observation** without logs | Cloudflare API, 2026-08-03 22:16 UTC |
-| **Digest first run** | ✅ **OBSERVED AND GREEN — Phase 2's last open item, now closed.** Both crons fired on 2026-08-04 and both sent: `digest: sent Alliance Hospital Limited (Shyamoli) 2026-08-04 (0 bookings) to dr.enamtalha@gmail.com` and the same for `Dhaka Central International Medical College (DCIMCH)`. Cron strings in the logs match the registered pair (`30 8 * * SUN-WED,SAT`, `30 10 * * SUN-THU,SAT`). **Zero errors or warnings** — all logs for the whole of 2026-08-04 are `level: info`, count 2. The Dhaka date resolved to `2026-08-04`, so the date logic is right in production, not just under `--test-scheduled`. **Note it emails on empty days by design** (`digest.js:134` — "No appointments were booked for today."), so silence from now on means *breakage*, not "no bookings" — the inverse of the pre-observability situation | Workers Logs via observability API, 2026-08-04 21:15 UTC |
+| **Digest first run** | ✅ **OBSERVED AND GREEN — Phase 2's last open item, now closed.** Both crons fired on 2026-08-04 and both sent: `digest: sent Alliance Hospital Limited (Shyamoli) 2026-08-04 (0 bookings) to dr.enamtalha@gmail.com` and the same for `Dhaka Central International Medical College (DCIMCH)`. Cron strings in the logs match the registered pair (`30 8 * * SUN-WED,SAT`, `30 10 * * SUN-THU,SAT`). **Zero errors or warnings** — all logs for the whole of 2026-08-04 are `level: info`, count 2. The Dhaka date resolved to `2026-08-04`, so the date logic is right in production, not just under `--test-scheduled`. **Note it emails on empty days by design** (`digest.js:134` — "No appointments were booked for today."), so silence from now on means *breakage*, not "no bookings" — the inverse of the pre-observability situation | Workers Logs via observability API, 2026-08-05 06:15 UTC |
 | Reading digest logs (method) | `wrangler tail` is **live-stream only** and cannot reach a past run; use the observability API. The Cloudflare MCP `query_worker_observability` **`events` view fails schema validation** on this worker (`outcome` undefined → zod `invalid_union`) — that error means the tool cannot *parse* the logs, **not** that no logs exist. The `calculations` view works: `count` grouped by `$metadata.message`, filter `$metadata.service eq dr-sumya-digest`. Group by `$metadata.level` to check for errors | 2026-08-04 |
 | Digest end-to-end | **proven up to the send**: forced scheduled run on remote bindings routed Alliance → Dhaka date 2026-08-03 → production D1 query OK → both send paths rejected only with "destination address is not a verified address" | `wrangler dev --remote --test-scheduled`, 2026-08-03 |
 | Email Routing (zone) | **enabled, status `ready`** — MX ×3 + SPF + DKIM (`cf2024-1._domainkey`) created automatically | Cloudflare API, 2026-08-03 |
@@ -73,7 +79,7 @@ longer email the doctor a list of fake patients.
 | Booking guard live | tokenless POST on apex → 403; real widget booking succeeded | curl + D1, 2026-08-03 |
 | Repo-root exposure | closed — internals all 404 @ 2,589 B (the 404 page grew when F9's markup changed; still 404, still nothing internal served) | curl, 2026-08-04 |
 | SEO/OG | canonical, OG/Twitter, JSON-LD, robots.txt, sitemap.xml, favicon.svg live | curl, 2026-08-02 |
-| Production D1 | ✅ **clean — 0 appointments, 0 gallery.** The three deploy-verification smoke rows (`book-af0a8c84` 08-05, `book-e879acc5` 08-06, `book-5f67ef11` 08-08, all named `ZZ TEST — …`) were deleted by the operator on 2026-08-04, hours before the 08-05 row would have surfaced in that day's digest. Agents remain SELECT-only on remote D1 | D1 `SELECT COUNT(*)` ×2 (`served_by: v3-prod`), 2026-08-04 21:05 UTC |
+| Production D1 | ✅ **clean — 0 appointments, 0 gallery.** The three deploy-verification smoke rows (`book-af0a8c84` 08-05, `book-e879acc5` 08-06, `book-5f67ef11` 08-08, all named `ZZ TEST — …`) were deleted by the operator on 2026-08-04, hours before the 08-05 row would have surfaced in that day's digest. Agents remain SELECT-only on remote D1 | D1 `SELECT COUNT(*)` ×2 (`served_by: v3-prod`), 2026-08-05 06:05 UTC |
 | WhatsApp/Telegram | **SET — L6 done.** `whatsapp = 8801725196101`, `telegram = +8801725196101` (owner-supplied `+8801725196101`, stored WhatsApp-style without `+` because `main.js` strips non-digits and the CMS field asks for it that way). Written straight to production D1, not through the CMS — the row now reads back on `/api/config/public` | D1 UPDATE (`changes: 1`) + curl, 2026-08-03 22:1x UTC |
 | Telegram button caveat | **the stored `telegram` value drives nothing.** `main.js:726` builds `https://t.me/share/url?...`, a generic share sheet that opens the *patient's* Telegram to pick any recipient — it never routes to the doctor. The value is only echoed back into the CMS Settings input (`main.js:1144`). WhatsApp is wired properly (`wa.me/<digits>`, FAB at `main.js:163` + booking button at `:725`) | code read, 2026-08-03 |
 | Launch steps L1–L8 | L1 ✅ L2 ✅ L4 ✅ L5 ✅ **L6 ✅ L8 ✅** (re-closed 2026-08-04 — smoke rows deleted, D1 back to 0/0) **L7 ✅** (a `managed_challenge`, not a rate limit — see row above; not an open item) · L3 contingency unused | FIXPLAN marks + probes |
