@@ -38,7 +38,10 @@ function base64Utf8(text) {
  */
 export function buildMimeMessage({ from, to, subject, body, now = new Date(), messageId }) {
   const domain = from.split('@')[1] || 'localhost';
-  const id = messageId ?? `<${crypto.randomUUID()}@${domain}>`;
+  const uuid = typeof globalThis.crypto?.randomUUID === 'function'
+    ? globalThis.crypto.randomUUID()
+    : Math.random().toString(36).slice(2);
+  const id = messageId ?? `<${uuid}@${domain}>`;
 
   return [
     `From: ${from}`,

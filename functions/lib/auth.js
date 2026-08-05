@@ -13,9 +13,17 @@ function getSecret(env) {
 
 export async function signToken(env) {
   const secret = getSecret(env);
-  return new SignJWT({ authenticated: true })
+  return new SignJWT({ authenticated: true, twofa: true })
     .setProtectedHeader({ alg: 'HS256' })
     .setExpirationTime('24h')
+    .sign(secret);
+}
+
+export async function signChallengeToken(env, { challenge }) {
+  const secret = getSecret(env);
+  return new SignJWT({ pending_2fa: true, challenge })
+    .setProtectedHeader({ alg: 'HS256' })
+    .setExpirationTime('5m')
     .sign(secret);
 }
 
@@ -31,9 +39,22 @@ export async function verifyToken(request, env) {
   }
 }
 
+export async function verifyChallengeToken(tokenString, env) {
+  if (typeof tokenString !== 'string' || !tokenString) return null;
+  try {
+    const { payload } = await jwtVerify(tokenString, getSecret(env));
+    if (payload && payload.pending_2fa === true && typeof payload.challenge === 'string') {
+      return payload;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
 export async function requireAuth(request, env) {
   const payload = await verifyToken(request, env);
-  if (!payload) {
+  if (!payload || payload.authenticated !== true || payload.twofa !== true) {
     return json({ error: 'Unauthorized. Please login first.' }, 401);
   }
   return null;

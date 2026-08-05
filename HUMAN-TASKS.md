@@ -12,6 +12,31 @@ Do them in order — later tasks assume earlier ones are done.
 
 ---
 
+## Task +1 — Verify Password Reset, 2FA Enrollment & Site Content Editing (15 min · 👩‍⚕️ · browser)
+
+**Why:** Self-service CMS improvements (PIN reset via email, TOTP 2FA, and live site-content editing) are built and deployed with complete test coverage.
+
+1. **Verify Password Reset**:
+   - On the CMS login form, click **Forgot Password?**.
+   - Enter `dr.enamtalha@gmail.com` and submit.
+   - Confirm a password reset email arrives at `dr.enamtalha@gmail.com`.
+   - Open the reset link (`/#reset?token=...`), enter a new 8+ character PIN, and submit.
+   - Confirm PIN updates and returns to login.
+
+2. **Verify TOTP 2FA Enrollment**:
+   - Log into the CMS with your PIN.
+   - Go to **Settings** tab → **Two-Factor Authentication**.
+   - Scan the QR code with Google Authenticator or Authy (or copy the manual secret).
+   - Enter the 6-digit TOTP code and click **Enable 2FA**.
+   - Log out and log back in: verify the 6-digit 2FA step is prompted after entering your PIN.
+
+3. **Verify Site Content Editing**:
+   - In the CMS, click the **Site Content** tab.
+   - Edit a section (e.g. Hero Tagline or Chamber details) and click **Save Changes**.
+   - Refresh `https://drsumyapervin.com` and verify the new text renders live on the website.
+
+---
+
 ## Task −1 — ✅ DONE 2026-08-04 · Delete three test bookings from the live database
 
 Completed by the operator on 2026-08-04, before the 08-05 digest that would have

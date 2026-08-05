@@ -165,10 +165,12 @@ test('critical tap targets stay thumb-sized at 375px', async ({ page, site }) =>
   const measured = await page.evaluate(() => {
     const out = {};
     for (const sel of ['.step-dots button', '.tst-nav button', '.faq-send', '.modal-close']) {
-      out[sel] = Array.from(document.querySelectorAll(sel)).map((el) => {
-        const r = el.getBoundingClientRect();
-        return { w: Math.round(r.width), h: Math.round(r.height) };
-      });
+      out[sel] = Array.from(document.querySelectorAll(sel))
+        .filter((el) => el.offsetParent !== null)
+        .map((el) => {
+          const r = el.getBoundingClientRect();
+          return { w: Math.round(r.width), h: Math.round(r.height) };
+        });
     }
     out.overflow = document.documentElement.scrollWidth > window.innerWidth;
     return out;

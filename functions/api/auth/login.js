@@ -1,4 +1,4 @@
-import { hashPin, safeEqual, signToken, readJson, json } from '../../lib/auth.js';
+import { hashPin, safeEqual, signToken, signChallengeToken, readJson, json } from '../../lib/auth.js';
 import { verifyTurnstile } from '../../lib/turnstile.js';
 
 export async function onRequestPost(context) {
@@ -15,7 +15,7 @@ export async function onRequestPost(context) {
   if (!pin || typeof pin !== 'string') return json({ error: 'PIN is required' }, 400);
 
   const row = await context.env.DB
-    .prepare('SELECT pin_hash, pin_salt FROM admin_settings WHERE id = 1')
+    .prepare('SELECT pin_hash, pin_salt, totp_enabled FROM admin_settings WHERE id = 1')
     .first();
   if (!row || !row.pin_salt) {
     return json({ error: 'No admin configured. Run the D1 migration first.' }, 500);
@@ -23,6 +23,16 @@ export async function onRequestPost(context) {
 
   const inputHash = await hashPin(pin, row.pin_salt);
   if (!safeEqual(inputHash, row.pin_hash)) return json({ error: 'Incorrect PIN' }, 401);
+
+  if (row.totp_enabled === 1) {
+    const challengeId = (globalThis.crypto?.randomUUID ? globalThis.crypto.randomUUID() : Math.random().toString(36).slice(2));
+    await context.env.DB
+      .prepare('INSERT INTO twofa_challenges (challenge_id, attempts) VALUES (?, 0)')
+      .bind(challengeId)
+      .run();
+    const challengeToken = await signChallengeToken(context.env, { challenge: challengeId });
+    return json({ success: true, pending_2fa: true, challenge: challengeToken });
+  }
 
   const token = await signToken(context.env);
   return json({ success: true, token });

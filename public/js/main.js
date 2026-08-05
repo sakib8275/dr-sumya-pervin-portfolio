@@ -43,6 +43,36 @@ async function loadCMSConfig() {
   }
 }
 
+async function loadSiteContent() {
+  try {
+    const data = await api('GET', '/api/content');
+    if (!data) return;
+    document.querySelectorAll('[data-content]').forEach(el => {
+      const key = el.dataset.content;
+      if (data[key] !== undefined && data[key] !== null) {
+        if (key === 'hero.tagline' || key === 'about.intro' || key === 'band.text') {
+          if (window.RichText && typeof window.RichText.renderLightRich === 'function') {
+            el.innerHTML = window.RichText.renderLightRich(data[key]);
+          } else {
+            el.textContent = data[key];
+          }
+        } else {
+          el.textContent = data[key];
+        }
+      }
+    });
+
+    document.querySelectorAll('#siteContentForm [data-key]').forEach(input => {
+      const key = input.dataset.key;
+      if (data[key] !== undefined && data[key] !== null) {
+        input.value = data[key];
+      }
+    });
+  } catch (e) {
+    console.error('Could not load site content:', e);
+  }
+}
+
 async function loadAppointments() {
   try {
     appointmentsList = await api('GET', '/api/appointments');
@@ -184,6 +214,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   await loadCMSConfig();
   renderContactChannels();
+  await loadSiteContent();
 
   if (getToken()) {
     try {
@@ -847,7 +878,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // before or after this file runs; polling for it avoids depending on that order,
   // which an onload= callback would. Widget ids are retained because tokens are
   // single-use: this page survives a failed attempt, so every retry needs a reset.
-  const turnstileIds = { login: null, booking: null };
+  const turnstileIds = { login: null, booking: null, forgot: null, reset: null };
 
   (function renderTurnstile() {
     if (!window.turnstile || typeof window.turnstile.render !== 'function') {
@@ -864,6 +895,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
     mount('turnstileLogin', 'login', 'login');
     mount('turnstileBooking', 'booking', 'booking');
+    mount('turnstileForgot', 'forgot', 'forgot-password');
+    mount('turnstileReset', 'reset', 'reset-password');
   })();
 
   function turnstileToken(key) {
@@ -874,6 +907,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   function turnstileReset(key) {
     if (window.turnstile && turnstileIds[key] !== null) window.turnstile.reset(turnstileIds[key]);
   }
+
+  let pending2faChallenge = null;
 
   async function attemptCMSLogin() {
     if (!cmsPinInput) return;
@@ -888,6 +923,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     try {
       const data = await api('POST', '/api/auth/login', { pin, 'cf-turnstile-response': tsToken });
+      if (data.pending_2fa) {
+        pending2faChallenge = data.challenge;
+        const step = document.getElementById('cms2faStep');
+        if (step) step.style.display = 'block';
+        const codeInput = document.getElementById('cms2faCodeInput');
+        if (codeInput) { codeInput.value = ''; codeInput.focus(); }
+        if (pinError) pinError.style.display = 'none';
+        return;
+      }
       setToken(data.token);
       cmsAuthSection.style.display = 'none';
       cmsMainSection.style.display = 'block';
@@ -910,6 +954,54 @@ document.addEventListener('DOMContentLoaded', async () => {
       // back in within the same page load would otherwise reuse a dead token.
       turnstileReset('login');
     }
+  }
+
+  const submit2faBtn = document.getElementById('submit2faBtn');
+  const cms2faCodeInput = document.getElementById('cms2faCodeInput');
+  const twofaError = document.getElementById('twofaError');
+
+  async function attempt2faVerify() {
+    if (!pending2faChallenge || !cms2faCodeInput) return;
+    const code = cms2faCodeInput.value.trim();
+    if (!code) {
+      if (twofaError) {
+        twofaError.style.display = 'block';
+        twofaError.textContent = 'Please enter your 6-digit code.';
+      }
+      return;
+    }
+    try {
+      const data = await api('POST', '/api/auth/2fa/verify', { challenge: pending2faChallenge, code });
+      setToken(data.token);
+      pending2faChallenge = null;
+      if (twofaError) twofaError.style.display = 'none';
+      const step = document.getElementById('cms2faStep');
+      if (step) step.style.display = 'none';
+      cmsAuthSection.style.display = 'none';
+      cmsMainSection.style.display = 'block';
+      await Promise.all([
+        loadAppointments(),
+        loadGallery(),
+        loadCMSConfig()
+      ]);
+      renderCMSItemList();
+      loadCMSConfigForm();
+    } catch (err) {
+      if (twofaError) {
+        twofaError.style.display = 'block';
+        twofaError.textContent = err.message || 'Invalid code.';
+      }
+    }
+  }
+
+  if (submit2faBtn) submit2faBtn.addEventListener('click', attempt2faVerify);
+  if (cms2faCodeInput) {
+    cms2faCodeInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        attempt2faVerify();
+      }
+    });
   }
 
   if (submitPinBtn) {
@@ -1170,6 +1262,233 @@ const exportBtn = document.getElementById('exportCMSBackup');
       }
     });
   }
+
+  // Site Copy Form
+  const siteContentForm = document.getElementById('siteContentForm');
+  if (siteContentForm) {
+    siteContentForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const payload = {};
+      siteContentForm.querySelectorAll('[data-key]').forEach(input => {
+        payload[input.dataset.key] = input.value;
+      });
+      try {
+        await api('PUT', '/api/content', payload);
+        alert('Site copy updated successfully!');
+        await loadSiteContent();
+      } catch (err) {
+        alert('Failed to save copy: ' + err.message);
+      }
+    });
+  }
+
+  // 2FA Management UI
+  async function update2faTabUI() {
+    const statusBox = document.getElementById('twofaStatusBox');
+    const setupBox = document.getElementById('twofaSetupBox');
+    const btnStart = document.getElementById('btnStart2faSetup');
+    const btnToggleDisable = document.getElementById('btnToggleDisable2fa');
+    const disableForm = document.getElementById('twofaDisableForm');
+    if (!statusBox) return;
+
+    try {
+      const data = await api('GET', '/api/auth/2fa/status');
+      if (data.enabled) {
+        statusBox.textContent = '🔒 Status: 2FA is Currently ENABLED';
+        statusBox.style.background = '#e8f5e9';
+        statusBox.style.color = '#2e7d32';
+        if (btnStart) btnStart.style.display = 'none';
+        if (setupBox) setupBox.style.display = 'none';
+        if (btnToggleDisable) btnToggleDisable.style.display = 'inline-block';
+      } else {
+        statusBox.textContent = '🔓 Status: 2FA is Currently DISABLED';
+        statusBox.style.background = 'var(--butter)';
+        statusBox.style.color = 'var(--ink)';
+        if (btnStart) btnStart.style.display = 'inline-block';
+        if (btnToggleDisable) btnToggleDisable.style.display = 'none';
+        if (disableForm) disableForm.style.display = 'none';
+      }
+    } catch {
+      statusBox.textContent = 'Status: Error checking 2FA';
+    }
+  }
+
+  const btnStart2fa = document.getElementById('btnStart2faSetup');
+  if (btnStart2fa) {
+    btnStart2fa.addEventListener('click', async () => {
+      try {
+        const data = await api('POST', '/api/auth/2fa/setup');
+        const setupBox = document.getElementById('twofaSetupBox');
+        const secretText = document.getElementById('twofaSecretText');
+        const canvas = document.getElementById('twofaQrCanvas');
+
+        if (secretText) secretText.textContent = data.secret;
+        if (canvas && window.QRCode) {
+          window.QRCode.toCanvas(canvas, data.otpauth_uri, { width: 180 });
+        }
+        if (setupBox) setupBox.style.display = 'block';
+      } catch (err) {
+        alert('Failed to initiate 2FA setup: ' + err.message);
+      }
+    });
+  }
+
+  const btnConfirm2fa = document.getElementById('btnConfirm2faSetup');
+  if (btnConfirm2fa) {
+    btnConfirm2fa.addEventListener('click', async () => {
+      const codeInput = document.getElementById('twofaSetupCode');
+      const errBox = document.getElementById('twofaSetupError');
+      const code = codeInput ? codeInput.value.trim() : '';
+
+      try {
+        await api('POST', '/api/auth/2fa/verify-setup', { code });
+        alert('2FA successfully enabled!');
+        if (errBox) errBox.style.display = 'none';
+        await update2faTabUI();
+      } catch (err) {
+        if (errBox) { errBox.style.display = 'block'; errBox.textContent = err.message || 'Invalid code.'; }
+      }
+    });
+  }
+
+  const btnToggleDisable = document.getElementById('btnToggleDisable2fa');
+  const disableForm = document.getElementById('twofaDisableForm');
+  if (btnToggleDisable && disableForm) {
+    btnToggleDisable.addEventListener('click', () => {
+      disableForm.style.display = disableForm.style.display === 'none' ? 'block' : 'none';
+    });
+  }
+
+  const btnConfirmDisable = document.getElementById('btnConfirmDisable2fa');
+  if (btnConfirmDisable) {
+    btnConfirmDisable.addEventListener('click', async () => {
+      const pin = document.getElementById('disable2faPin').value;
+      const code = document.getElementById('disable2faCode').value;
+      try {
+        await api('POST', '/api/auth/2fa/disable', { current_pin: pin, code });
+        alert('2FA disabled.');
+        await update2faTabUI();
+      } catch (err) {
+        alert('Error: ' + err.message);
+      }
+    });
+  }
+
+  // Forgot & Reset Password Modals
+  const openForgotBtn = document.getElementById('openForgotBtn');
+  const forgotModal = document.getElementById('forgotModal');
+  const closeForgotBtn = document.getElementById('closeForgot');
+  const backToLoginLink = document.getElementById('backToLoginLink');
+  const forgotForm = document.getElementById('forgotForm');
+  const forgotStatus = document.getElementById('forgotStatus');
+
+  if (openForgotBtn && forgotModal) {
+    openForgotBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const cmsModal = document.getElementById('cmsModal');
+      if (cmsModal) cmsModal.classList.remove('active');
+      forgotModal.classList.add('active');
+    });
+  }
+  if (closeForgotBtn && forgotModal) {
+    closeForgotBtn.addEventListener('click', () => forgotModal.classList.remove('active'));
+  }
+  if (backToLoginLink) {
+    backToLoginLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (forgotModal) forgotModal.classList.remove('active');
+      const cmsModal = document.getElementById('cmsModal');
+      if (cmsModal) cmsModal.classList.add('active');
+    });
+  }
+
+  if (forgotForm) {
+    forgotForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('forgotEmailInput').value;
+      const tsToken = turnstileToken('forgot');
+      try {
+        const res = await api('POST', '/api/auth/forgot-password', { email, 'cf-turnstile-response': tsToken });
+        if (forgotStatus) {
+          forgotStatus.style.display = 'block';
+          forgotStatus.style.color = '#2e7d32';
+          forgotStatus.textContent = res.message || 'If that address matches, a reset link was sent.';
+        }
+      } catch (err) {
+        if (forgotStatus) {
+          forgotStatus.style.display = 'block';
+          forgotStatus.style.color = '#DC3545';
+          forgotStatus.textContent = err.message || 'Request failed.';
+        }
+      } finally {
+        turnstileReset('forgot');
+      }
+    });
+  }
+
+  const resetModal = document.getElementById('resetModal');
+  const closeResetBtn = document.getElementById('closeReset');
+  const resetForm = document.getElementById('resetForm');
+  const resetStatus = document.getElementById('resetStatus');
+
+  if (closeResetBtn && resetModal) {
+    closeResetBtn.addEventListener('click', () => resetModal.classList.remove('active'));
+  }
+
+  if (resetForm) {
+    resetForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const token = document.getElementById('resetTokenInput').value;
+      const newPin = document.getElementById('resetNewPin').value;
+      const confirmPin = document.getElementById('resetConfirmPin').value;
+      if (newPin !== confirmPin) {
+        if (resetStatus) {
+          resetStatus.style.display = 'block';
+          resetStatus.style.color = '#DC3545';
+          resetStatus.textContent = 'PINs do not match.';
+        }
+        return;
+      }
+      const tsToken = turnstileToken('reset');
+      try {
+        const res = await api('POST', '/api/auth/reset-password', { token, new_pin: newPin, 'cf-turnstile-response': tsToken });
+        if (resetStatus) {
+          resetStatus.style.display = 'block';
+          resetStatus.style.color = '#2e7d32';
+          resetStatus.textContent = res.message || 'Password updated. Please log in.';
+        }
+        setTimeout(() => {
+          if (resetModal) resetModal.classList.remove('active');
+          window.location.hash = '';
+          const cmsModal = document.getElementById('cmsModal');
+          if (cmsModal) cmsModal.classList.add('active');
+        }, 1500);
+      } catch (err) {
+        if (resetStatus) {
+          resetStatus.style.display = 'block';
+          resetStatus.style.color = '#DC3545';
+          resetStatus.textContent = err.message || 'Reset failed.';
+        }
+      } finally {
+        turnstileReset('reset');
+      }
+    });
+  }
+
+  // Hash Router for password reset link
+  function checkResetHash() {
+    const hash = window.location.hash || '';
+    if (hash.startsWith('#reset?token=')) {
+      const token = new URLSearchParams(hash.slice(7)).get('token');
+      if (token && resetModal) {
+        const tokenInput = document.getElementById('resetTokenInput');
+        if (tokenInput) tokenInput.value = token;
+        resetModal.classList.add('active');
+      }
+    }
+  }
+  window.addEventListener('hashchange', checkResetHash);
+  checkResetHash();
 });
 
 function loadCMSConfigForm() {

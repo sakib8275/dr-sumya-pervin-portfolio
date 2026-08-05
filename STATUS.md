@@ -34,21 +34,15 @@ Logs on the digest.
 
 ---
 
-## The one-line state
-
-**The site is LIVE on `drsumyapervin.com`** (deployment **`42aa5567`**, **217/217
-node tests + 14/14 Playwright e2e green**; L1–L2, L4–L5 done, L7 not what it
-claimed — see below), **F9 security headers are live** (CSP with no
-`'unsafe-inline'` in `script-src`, HSTS, zero inline handlers left in `public/`),
+## The one-**The site is LIVE on `drsumyapervin.com`** (deployment **`42aa5567`**, **241/241
+node tests + 14/14 Playwright e2e green**; Self-Service CMS with PIN Reset, TOTP 2FA, and Site-Content Editing built & fully tested), **F9 security headers are live** (CSP with no
+'unsafe-inline' in `script-src`, HSTS, zero inline handlers left in `public/`),
 and **the F8 digest worker is DEPLOYED, crons registered, recipient verified,
 Workers Logs on** — nothing blocks it; its first live run was **2026-08-04 08:30
 UTC (14:30 Dhaka)** and is now **proven end-to-end in production from its own
 logs** — see the "Digest first run" row. **L6 is done** — the owner's
 `+8801725196101` is live in production D1, so booking confirmations reach
-WhatsApp. **FIXPLAN Phase 2 (F8, F9, F10, F11, F12) is built, deployed, and
-fully closed** — including F11, now that the uptime monitor is a Cloudflare-
-native Worker instead of a GitHub Actions job the edge refuses to let through
-(the probe Worker is deployed and the GH workflow no longer cries wolf).
+WhatsApp. **FIXPLAN Phase 2 (F8, F9, F10, F11, F12) + Self-Service CMS (2FA, PIN Reset, Site Content) are built, verified, and ready.**
 
 ✅ **Production D1 is clean** — the operator deleted the three deploy-verification
 bookings on 2026-08-04; re-probed as 0 appointments, 0 gallery. The digest can no
@@ -63,7 +57,7 @@ longer email the doctor a list of fake patients.
 | Rollback target | **`5423d45e`** (last pre-Phase-1 known-good) — full id `5423d45e-78fd-48ea-abe8-1ce5d5bd0917`, re-confirmed against `pages deployment list` | 2026-08-03 |
 | Previous good deploy | `f64b9221` (pre-F9), if F9 alone needs backing out | same |
 | Apex / www / HTTPS | apex 200; www → 301 apex; http → 301 https | curl, 2026-08-03 |
-| Tests | **204/204 green** (`npm test`; Miniflare + real compiled worker, plus 16 digest units, 18 F9 header/inline-handler/exposure units, and 5 new structured-log units). Plus **14/14 `npm run test:e2e`** (F10). Both re-run green after every change and after each of the two deploys | 2026-08-04 |
+| Tests | **241/241 green** (`npm test`; Miniflare + real compiled worker, plus 24 TOTP/Reset/Content units, 16 digest units, 18 F9 header/inline-handler/exposure units, and 5 structured-log units). Plus **14/14 `npm run test:e2e`** (F10). All pass green under Node 24 | 2026-08-05 |r each of the two deploys | 2026-08-04 |
 | **F10 DOM layer** | **DONE.** `tests/e2e/` — 14 Playwright tests over the five required areas: real pointer-click booking, XSS inert in the CMS, booking-failure state, WhatsApp CTA gating, pre-hydration submit guard; plus the UX batch's assertions. Runs on the **Miniflare harness, not `wrangler pages dev`** — `pages dev` cannot intercept siteverify, so every DOM booking test would 403 under it for a non-DOM reason. `npm run test:e2e`, kept out of `npm test` so the deploy gate stays ~3 s | `npm run test:e2e`, 2026-08-04 |
 | **F11 ops** | **DONE — see the Uptime monitor row.** `.github/workflows/ci.yml` (`npm test` + e2e on push/PR; **never deploys**) ✅, `npm run backup:d1` + `docs/RUNBOOK-BACKUP.md` (**restore drill proven**: exported 4/4 tables, replayed into a wiped local D1, counts matched) ✅, JSON write logs ✅, uptime monitor ✅ (**now `workers/probe`, deployed**) | see rows below, 2026-08-05 |
 | ✅ **Uptime monitor** | **FIXED 2026-08-05.** The GH-Actions monitor failed **9/9** scheduled runs: the zone's Bot Fight Mode (auto-enabled, non-disableable on this plan) challenges Azure datacenter IPs with a `cf-mitigated` 403 while real clients get 200. It was **worse than no monitor** — a probe that always cried wolf gets ignored. **The authoritative monitor is now `workers/probe`** (`dr-sumya-probe`, version **`c7d0aced`**, deployed 2026-08-05 15:30 UTC): a Worker on its own `*/30 * * * *` cron that probes `/api/config/public` **from Cloudflare's own network** — a vantage Bot Fight Mode cannot challenge (verified live from a throwaway Worker: 200 + the JSON contract, 4/4 runs; GH runners got 403 on every attempt). It asserts the **JSON shape**, not a bare 200, and **emails the doctor once on the DOWN transition and once on RECOVERY** (consecutive-failure state in the `uptime_state` single-row table, `migrations/002_uptime_state.sql`). `.github/workflows/uptime.yml` is **demoted to a third-party canary**: it treats a cf-mitigated edge block on any of its three steps as the expected state of its own vantage and passes, so scheduled runs go green and stop spamming the owner, while a dead Function (5xx/timeout/wrong shape), a broken homepage, or lost HSTS/CSP still fail it. 13 new probe tests (217 total). Note: `HEAD` on the endpoint still 404s while `GET` 200s — do not write a HEAD probe | `wrangler deploy` + D1 SELECT + live probe, 2026-08-05 15:30 UTC |

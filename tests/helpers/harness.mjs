@@ -14,7 +14,8 @@
 // Everything else stays real: the route table below is compiled by
 // `wrangler pages functions build`, so /api/appointments/:id really is a
 // single-segment match, and _middleware.js really runs.
-import { readFile, stat } from 'node:fs/promises';
+import './polyfill.mjs';
+import { readdir, readFile, stat } from 'node:fs/promises';
 import { join, dirname, normalize, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { Miniflare } from 'miniflare';
@@ -166,19 +167,41 @@ function makeSiteverify(state) {
   };
 }
 
-const SCHEMA_PROMISE = readFile(join(repoRoot, 'migrations', '001_schema.sql'), 'utf8');
+function makeMailerStub(mails) {
+  return async (request) => {
+    try {
+      const data = await request.json();
+      mails.push(data);
+      return new Response(JSON.stringify({ ok: true }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    } catch {
+      return new Response(JSON.stringify({ ok: false, error: 'bad JSON' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+  };
+}
 
-// Applies the real migration. Local D1 starts with zero tables, and a booking
-// against an unmigrated database 500s at the INSERT -- which reads as "Turnstile
-// broke". Every harness therefore migrates before the first request.
+// Applies all real migrations in filename order. Local D1 starts with zero tables.
 async function migrate(db) {
-  const sql = (await SCHEMA_PROMISE)
-    .split('\n')
-    .filter((line) => !line.trimStart().startsWith('--'))
-    .join('\n');
+  const migrationsDir = join(repoRoot, 'migrations');
+  const files = (await readdir(migrationsDir))
+    .filter((f) => f.endsWith('.sql'))
+    .sort();
 
-  for (const statement of sql.split(';')) {
-    if (statement.trim()) await db.prepare(statement).run();
+  for (const file of files) {
+    const raw = await readFile(join(migrationsDir, file), 'utf8');
+    const sql = raw
+      .split('\n')
+      .filter((line) => !line.trimStart().startsWith('--'))
+      .join('\n');
+
+    for (const statement of sql.split(';')) {
+      if (statement.trim()) await db.prepare(statement).run();
+    }
   }
 }
 
@@ -205,6 +228,7 @@ let instanceCounter = 0;
  */
 export async function createHarness(options = {}) {
   const siteverify = { calls: [], unexpectedOutbound: [] };
+  const mails = [];
   const id = `t${process.pid}_${instanceCounter++}`;
 
   const mf = new Miniflare({
@@ -213,7 +237,11 @@ export async function createHarness(options = {}) {
     compatibilityDate: '2026-07-29',
     d1Databases: { DB: `db_${id}` },
     r2Buckets: { GALLERY_BUCKET: `bucket_${id}` },
-    serviceBindings: { ASSETS: serveAsset },
+    serviceBindings: {
+      ASSETS: serveAsset,
+      MAILER: makeMailerStub(mails),
+      ...options.serviceBindings
+    },
     outboundService: makeSiteverify(siteverify),
     bindings: {
       JWT_SECRET: TEST_JWT_SECRET,
@@ -260,6 +288,7 @@ export async function createHarness(options = {}) {
     db,
     bucket,
     siteverify,
+    mails,
     adminToken,
 
     /**

@@ -13,7 +13,8 @@
     "backup:d1": "node scripts/backup-d1.mjs"
   },
   "dependencies": {
-    "jose": "^5.9.0"
+    "jose": "^5.9.0",
+    "qrcode": "^1.5.4"
   },
   "devDependencies": {
     "@playwright/test": "^1.62.1",

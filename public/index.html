@@ -57,6 +57,8 @@
   <!-- Blocking and in <head> on purpose: it must be in place before the booking
        form is parsed. See the comment in the file and above #bookingForm. -->
   <script src="js/formguard.js"></script>
+  <script src="js/richtext.js" defer></script>
+  <script src="js/vendor/qrcode.min.js" defer></script>
   <!-- Explicit render mode: main.js calls turnstile.render() so it can keep each
        widget id and reset it between attempts. -->
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
@@ -87,8 +89,8 @@
       </div>
     </nav></div>
     <div class="hero-inner">
-      <h1 data-r>Personalized Aesthetic Care You Can Trust</h1>
-      <p data-r>Restore confidence in your skin with science-backed, gentle treatments tailored just for you by Dr. Sumya Pervin, MD.</p>
+      <h1 data-r data-content="hero.headline">Personalized Aesthetic Care You Can Trust</h1>
+      <p data-r data-content="hero.tagline">Restore confidence in your skin with science-backed, gentle treatments tailored just for you by Dr. Sumya Pervin, MD.</p>
       <div class="hero-cta" data-r>
         <a class="btn btn-glass open-booking" href="#book">Book Appointment</a>
         <a class="btn btn-ghost" href="#faq">View FAQ</a>
@@ -113,7 +115,7 @@
     <div class="sec-head" data-r>
       <span class="pill">Quick Stats</span>
       <h2><span class="w1">Meet</span> <i class="chip">◎</i> <span class="w2">Dr. Sumya Pervin</span><br><span class="w1">Aesthetic</span> <span class="w2">Expert</span></h2>
-      <p class="sec-sub">Assistant Professor in the Department of Skin &amp; VD at Sir Salimullah Medical College &amp; Mitford Hospital with specialized expertise in Dermatosurgery and Cosmetic Dermatology.</p>
+      <p class="sec-sub" data-content="about.intro">Assistant Professor in the Department of Skin &amp; VD at Sir Salimullah Medical College &amp; Mitford Hospital with specialized expertise in Dermatosurgery and Cosmetic Dermatology.</p>
     </div>
     <div class="stats">
       <article class="stat stat--a" data-r>
@@ -222,7 +224,7 @@
       <img src="assets/clinic.jpg" alt="Clinical Consultation Suite" class="band-bg-img" loading="lazy">
       <span class="pill">What I Do</span>
       <div class="band-inner">
-        <h3>Personalized care for timeless skin</h3>
+        <h3 data-content="band.text">Personalized care for timeless skin</h3>
         <div class="glass">
           <b>Consulting &amp; Skin Diagnostics</b>
           <span>Tailored analysis before any treatment begins.</span>
@@ -600,13 +602,28 @@
       <div id="pinError" style="color: #DC3545; display: none; margin-bottom: 14px; font-weight: 500;"></div>
       <div id="turnstileLogin" style="margin-bottom: 14px;"></div>
       <button class="btn btn-primary" id="submitPin">Login to Admin Panel</button>
+      <div style="margin-top: 12px;">
+        <a href="#" id="openForgotBtn" style="font-size: 13px; color: var(--sienna);">Forgot PIN / Password?</a>
+      </div>
+
+      <!-- 2FA Login Challenge Step (Hidden by default) -->
+      <div id="cms2faStep" style="display: none; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--tan);">
+        <h4 style="margin: 0 0 8px; color: var(--sienna);">Two-Factor Authentication Required</h4>
+        <p style="margin: 0 0 12px; font-size: 13px; color: var(--grey);">Enter the 6-digit verification code from your authenticator app.</p>
+        <div class="form-group" style="max-width: 240px; margin-bottom: 12px;">
+          <label for="cms2faCodeInput">6-Digit Code</label>
+          <input type="text" id="cms2faCodeInput" maxlength="6" placeholder="123456" autocomplete="one-time-code">
+        </div>
+        <div id="twofaError" style="color: #DC3545; display: none; margin-bottom: 12px; font-weight: 500;"></div>
+        <button class="btn btn-primary" id="submit2faBtn">Verify 2FA &amp; Enter CMS</button>
+      </div>
     </div>
 
     <!-- Main CMS Admin Section -->
     <div id="cmsMainSection" style="display: none;">
       <div class="modal-header">
         <h3>Doctor CMS &amp; Clinical Control Center</h3>
-        <p>Manage patient appointments, upload treatment photos, or configure instant phone dispatch settings.</p>
+        <p>Manage patient appointments, upload treatment photos, edit site copy, or configure 2FA security.</p>
       </div>
 
       <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:16px;">
@@ -614,6 +631,8 @@
           <button class="cms-tab-btn active" data-tab="tabAppointments">📋 Appointments</button>
           <button class="cms-tab-btn" data-tab="tabUpload">➕ Upload Photo</button>
           <button class="cms-tab-btn" data-tab="tabGalleryList">🖼️ Gallery Items</button>
+          <button class="cms-tab-btn" data-tab="tabContent">📝 Edit Copy</button>
+          <button class="cms-tab-btn" data-tab="tab2FA">🔐 2FA Security</button>
           <button class="cms-tab-btn" data-tab="tabSettings">⚙️ Settings</button>
         </div>
         <!-- Was onclick="cmsLogout()", which never worked: cmsLogout is declared
@@ -685,7 +704,75 @@
         </div>
       </div>
 
-      <!-- Tab 4: Settings & Phone Numbers -->
+      <!-- Tab 4: Edit Site Copy -->
+      <div id="tabContent" class="cms-tab-content" style="display: none;">
+        <h4 style="margin: 0 0 8px; color: var(--sienna);">Editable Site Copy</h4>
+        <p style="margin: 0 0 14px; font-size: 13.5px; color: var(--grey);">Edit main headlines, introductory text, and band text. Rich formatting (**bold**, *italic*, - list) is supported.</p>
+        <form id="siteContentForm" class="form-grid">
+          <div class="form-group full">
+            <label for="contentHeroHeadline">Hero Headline</label>
+            <input type="text" id="contentHeroHeadline" data-key="hero.headline" placeholder="Personalized Aesthetic Care You Can Trust">
+          </div>
+          <div class="form-group full">
+            <label for="contentHeroTagline">Hero Tagline</label>
+            <textarea id="contentHeroTagline" rows="2" data-key="hero.tagline" placeholder="Restore confidence in your skin..."></textarea>
+          </div>
+          <div class="form-group full">
+            <label for="contentAboutIntro">About Intro Paragraph</label>
+            <textarea id="contentAboutIntro" rows="3" data-key="about.intro" placeholder="Assistant Professor in the Department..."></textarea>
+          </div>
+          <div class="form-group full">
+            <label for="contentBandText">Clinical Highlight Band Text</label>
+            <input type="text" id="contentBandText" data-key="band.text" placeholder="Personalized care for timeless skin">
+          </div>
+          <div class="form-group full">
+            <button type="submit" class="btn btn-primary">Save Site Copy</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Tab 5: 2FA Security -->
+      <div id="tab2FA" class="cms-tab-content" style="display: none;">
+        <h4 style="margin: 0 0 8px; color: var(--sienna);">Two-Factor Authentication (TOTP)</h4>
+        <p style="margin: 0 0 14px; font-size: 13.5px; color: var(--grey);">Protect your doctor admin panel with Google Authenticator or Authy.</p>
+        
+        <div id="twofaStatusBox" style="margin-bottom: 16px; padding: 12px; background: var(--butter); border-radius: 12px; font-weight: 500;">
+          Status: Checking...
+        </div>
+        
+        <div id="twofaSetupBox" style="display: none; background: white; padding: 16px; border: 1px solid var(--tan); border-radius: 12px; margin-bottom: 16px;">
+          <p style="margin: 0 0 10px; font-size: 13px;">1. Scan this QR code with your authenticator app:</p>
+          <div style="text-align: center; margin: 12px 0;">
+            <canvas id="twofaQrCanvas" style="max-width: 180px;"></canvas>
+          </div>
+          <p style="margin: 0 0 12px; font-size: 12.5px; color: var(--grey);">Secret key: <code id="twofaSecretText" style="user-select: all; font-weight: bold; background: var(--butter); padding: 2px 6px; border-radius: 4px;"></code></p>
+          <div class="form-group" style="max-width: 240px; margin-bottom: 12px;">
+            <label for="twofaSetupCode">2. Enter 6-Digit Code</label>
+            <input type="text" id="twofaSetupCode" maxlength="6" placeholder="123456">
+          </div>
+          <div id="twofaSetupError" style="color: #DC3545; display: none; margin-bottom: 10px; font-weight: 500;"></div>
+          <button class="btn btn-primary" id="btnConfirm2faSetup">Enable 2FA Protection</button>
+        </div>
+
+        <div id="twofaActionsBox">
+          <button class="btn btn-primary" id="btnStart2faSetup">Set Up Authenticator App</button>
+          <div id="twofaDisableForm" style="display: none; margin-top: 12px; background: #fff5f5; padding: 14px; border-radius: 12px; border: 1px solid #ffcdd2;">
+            <h5 style="margin: 0 0 8px; color: #c62828;">Disable 2FA Protection</h5>
+            <div class="form-group" style="max-width: 280px; margin-bottom: 10px;">
+              <label for="disable2faPin">Current Admin PIN *</label>
+              <input type="password" id="disable2faPin" placeholder="Current PIN">
+            </div>
+            <div class="form-group" style="max-width: 280px; margin-bottom: 10px;">
+              <label for="disable2faCode">6-Digit 2FA Code *</label>
+              <input type="text" id="disable2faCode" maxlength="6" placeholder="123456">
+            </div>
+            <button class="btn-danger btn-sm" id="btnConfirmDisable2fa">Confirm Disable 2FA</button>
+          </div>
+          <button class="btn-danger btn-sm" id="btnToggleDisable2fa" style="display: none;">Disable 2FA</button>
+        </div>
+      </div>
+
+      <!-- Tab 6: Settings & Phone Numbers -->
       <div id="tabSettings" class="cms-tab-content" style="display: none;">
         <form id="cmsConfigForm" class="form-grid">
           <div class="form-group full">
@@ -702,6 +789,12 @@
           <div class="form-group">
             <label for="doctorTgInput">Telegram Username / Channel</label>
             <input type="text" id="doctorTgInput" placeholder="e.g. dr_sumya_pervin">
+          </div>
+
+          <div class="form-group full">
+            <label for="adminEmailInput">Admin Reset Destination Email *</label>
+            <input type="email" id="adminEmailInput" required placeholder="dr.enamtalha@gmail.com">
+            <span style="font-size: 11.5px; color: var(--grey);">Must be a Cloudflare Email Routing verified recipient</span>
           </div>
 
           <div class="form-group full">
@@ -733,6 +826,54 @@
       </div>
 
     </div>
+  </div>
+</div>
+
+<!-- FORGOT PASSWORD MODAL -->
+<div class="modal-overlay" id="forgotModal" role="dialog" aria-modal="true" style="display:none;">
+  <div class="modal-box" style="max-width: 440px;">
+    <button class="modal-close" id="closeForgot">✕</button>
+    <div class="modal-header">
+      <h3>Reset Password Request</h3>
+      <p>Enter the email address registered to your CMS account to receive a reset link.</p>
+    </div>
+    <div id="forgotStatus" role="status" aria-live="polite" style="display:none; margin-bottom: 14px;"></div>
+    <form id="forgotForm">
+      <div class="form-group" style="margin-bottom: 14px;">
+        <label for="forgotEmailInput">Admin Email Address *</label>
+        <input type="email" id="forgotEmailInput" required placeholder="dr.enamtalha@gmail.com">
+      </div>
+      <div id="turnstileForgot" style="margin-bottom: 14px;"></div>
+      <button type="submit" class="btn btn-primary" style="width: 100%;">Send Reset Link</button>
+      <div style="margin-top: 12px; text-align: center;">
+        <a href="#" id="backToLoginLink" style="font-size: 13px; color: var(--sienna);">← Back to Login</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- RESET PASSWORD MODAL -->
+<div class="modal-overlay" id="resetModal" role="dialog" aria-modal="true" style="display:none;">
+  <div class="modal-box" style="max-width: 440px;">
+    <button class="modal-close" id="closeReset">✕</button>
+    <div class="modal-header">
+      <h3>Set New Admin Password</h3>
+      <p>Choose a new secure PIN (minimum 8 characters) for your CMS account.</p>
+    </div>
+    <div id="resetStatus" role="status" aria-live="polite" style="display:none; margin-bottom: 14px;"></div>
+    <form id="resetForm">
+      <input type="hidden" id="resetTokenInput">
+      <div class="form-group" style="margin-bottom: 14px;">
+        <label for="resetNewPin">New Admin PIN *</label>
+        <input type="password" id="resetNewPin" required minlength="8" placeholder="At least 8 characters">
+      </div>
+      <div class="form-group" style="margin-bottom: 14px;">
+        <label for="resetConfirmPin">Confirm New PIN *</label>
+        <input type="password" id="resetConfirmPin" required minlength="8" placeholder="Re-enter new PIN">
+      </div>
+      <div id="turnstileReset" style="margin-bottom: 14px;"></div>
+      <button type="submit" class="btn btn-primary" style="width: 100%;">Update Password</button>
+    </form>
   </div>
 </div>
 

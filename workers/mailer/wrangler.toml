@@ -1,0 +1,11 @@
+name = "dr-sumya-mailer"
+main = "index.js"
+compatibility_date = "2026-07-29"
+workers_dev = false
+
+[[send_email]]
+name = "EMAIL"
+destination_address = "dr.enamtalha@gmail.com"
+
+[vars]
+MAIL_FROM = "digest@drsumyapervin.com"
