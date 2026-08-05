@@ -265,16 +265,23 @@ agent work, is not yet in the FIXPLAN, and should be proposed before it is built
 
 ---
 
-## Task 11 — Delete the leaked API token (5 min · 🖥️ · low priority)
+## Task 11 — ✅ CLOSED 2026-08-05 · Delete the leaked API token
 
-1. Dashboard → **Manage Account → Account API Tokens**.
-2. **Match by the id in the token's page URL**, not by name:
-   **`b17d8b1322d3a80ddeebb36d76ae8ba5`**. (Two wrong name-based identifications
-   happened already; background in `docs/handoffs/HANDOFF-2026-07-31-v4.md`.)
-3. Delete it. Deleting breaks nothing — the widget and site don't use this token.
-4. Tell the agent; the commented line in `~/.bashrc` can then be removed.
-5. If no token carries that id, it belongs to a different Cloudflare login and
-   cannot be revoked from here — that's the end of it.
+**No token carries id `b17d8b1322d3a80ddeebb36d76ae8ba5` in the dashboard, which
+is the documented end of the road.** Per `HANDOFF-2026-07-31-v4.md`, this id was
+verified `active` on 2026-07-31 but was only ever provisionally identified as
+`DrSumyaPervinToken` by name/scope, never by id — and an operator deletion
+attempt at ~07:22Z on 07-31 did not take effect (token still `active` 10h
+later). "Not found" therefore means either (a) that deletion *was* the right
+token and it is gone, or (b) it belongs to a different Cloudflare login and
+cannot be revoked from this account — both are the "that's the end of it" case.
+
+**Remaining exposure is bounded:** the token value is no longer on this machine
+(`~/.cf-turnstile-token` removed, `~/.bashrc` export line removed — only an
+explanatory comment remains), it never appeared in git history, and its scope is
+Turnstile-only (worst case: break bookings or weaken bot protection — **no
+D1/R2/Pages/patient data reachable**). The `~/.bashrc` comment block was trimmed
+2026-08-05.
 
 ---
 

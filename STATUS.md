@@ -151,8 +151,11 @@ longer email the doctor a list of fake patients.
    `startMin` + `scheduleLabel`), `context.md`, and the printed HTML (card
    `:158-159`/`:169-170` + booking `<option>` labels `:540-541`). Only the
    owner's real-world confirmation remains.
-5. **Leaked token**: delete id `b17d8b1322d3a80ddeebb36d76ae8ba5` — match by the
-   **id in the token page URL**, not the name. Turnstile-only scope; low priority.
+5. ~~**Leaked token**~~ **✅ CLOSED 2026-08-05** — no token in the dashboard carries
+   id `b17d8b1322d3a80ddeebb36d76ae8ba5`, which is the documented "end of it"
+   (either already deleted — the 07-31 attempt may have been the right one — or a
+   different login's token). Turnstile-only scope; value no longer on this machine;
+   `.bashrc` comment trimmed. See Task 11.
 6. ~~**R2 dashboard glance**~~ **✅ DONE 2026-08-05** — verified read-only via the
    R2 Objects API: `dr-sumya-gallery` contains **zero objects**, so there is no
    orphan (D1 also confirms 0 gallery rows). Nothing to glance at; Task 12 closed.
