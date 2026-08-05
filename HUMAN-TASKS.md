@@ -278,12 +278,11 @@ agent work, is not yet in the FIXPLAN, and should be proposed before it is built
 
 ---
 
-## Task 12 — One glance at the photo bucket (2 min · 🖥️)
+## Task 12 — ✅ DONE 2026-08-05 · One glance at the photo bucket
 
-1. Dashboard → **R2** → `dr-sumya-gallery` → **Objects**.
-2. The database has **zero** gallery rows right now, so **any object present is an
-   orphan** and can be deleted in place. (After Task 1, if you deleted the test
-   photo through the CMS, its object was deleted with it.)
+**Verified read-only via the R2 Objects API 2026-08-05:** `dr-sumya-gallery`
+contains **zero objects** and D1 holds zero gallery rows — there is nothing to
+clean up and no orphan exists. Nothing to do.
 
 ---
 

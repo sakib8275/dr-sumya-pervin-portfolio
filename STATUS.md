@@ -146,10 +146,16 @@ longer email the doctor a list of fake patients.
    per chamber-day, **including on days with no bookings**. Still open, and
    optional: create the `digest@` inbound rule; nothing depends on it.
 4. **Confirm chamber schedules** (Alliance Sat–Thu 5–8 PM; DCIMCH Sat–Wed 3–5 PM)
-   — F4's enforcement and F8's digest both depend on these.
+   — F4's enforcement and F8's digest both depend on these. **Agent side
+   re-verified 2026-08-05**: all three sources agree — `schedule.js` (`days` +
+   `startMin` + `scheduleLabel`), `context.md`, and the printed HTML (card
+   `:158-159`/`:169-170` + booking `<option>` labels `:540-541`). Only the
+   owner's real-world confirmation remains.
 5. **Leaked token**: delete id `b17d8b1322d3a80ddeebb36d76ae8ba5` — match by the
    **id in the token page URL**, not the name. Turnstile-only scope; low priority.
-6. R2 dashboard glance: any `dr-sumya-gallery` object without a D1 row is an orphan.
+6. ~~**R2 dashboard glance**~~ **✅ DONE 2026-08-05** — verified read-only via the
+   R2 Objects API: `dr-sumya-gallery` contains **zero objects**, so there is no
+   orphan (D1 also confirms 0 gallery rows). Nothing to glance at; Task 12 closed.
 
 ## If a booking ever 403s in production
 
