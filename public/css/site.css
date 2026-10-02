@@ -181,6 +181,26 @@ h1, h2, h3 { line-height: 1.12; letter-spacing: -.01em; color: var(--ink); }
 .s-prose { max-width: 76ch; }
 .s-prose h2 { font-size: clamp(24px, 2.8vw, 32px); margin: 40px 0 14px; }
 .s-prose p { margin-bottom: 14px; color: var(--ink); }
+.s-prose ul { margin: 0 0 16px 1.2em; }
+.s-prose li { margin-bottom: 8px; }
+.s-prose .defs { list-style: none; margin-left: 0; }
+.s-prose .defs li { border-left: 3px solid var(--gold); padding-left: 14px; }
+.cost-note { background: var(--butter); border-radius: var(--r-card); padding: 20px 24px; margin: 30px 0; }
+.cost-note b { display: block; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--sienna); margin-bottom: 8px; }
+.cost-note p { margin: 0; }
+.faq { border-top: 1px solid var(--hair); }
+.faq details { border-bottom: 1px solid var(--hair); padding: 16px 0; }
+.faq summary { font-weight: 700; cursor: pointer; }
+.faq details p { margin: 12px 0 0; color: var(--grey); }
+.article-links { margin-top: 34px; }
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 18px; margin: 8px 0 24px; }
+.card { position: relative; display: block; border: 1px solid var(--hair); background: var(--ivory);
+  border-radius: var(--r-card); padding: 22px; transition: transform .15s ease, box-shadow .15s ease; }
+.card:hover { transform: translateY(-2px); box-shadow: 0 10px 26px rgba(0,0,0,.07); }
+.card h3 { font-size: 19px; margin-bottom: 8px; }
+.card p { color: var(--grey); font-size: 15px; margin-bottom: 12px; }
+.card-tag { position: absolute; top: 16px; right: 16px; font-size: 11px; font-weight: 800;
+  letter-spacing: .06em; text-transform: uppercase; color: var(--sienna); }
 
 /* — Home — */
 .h-hero { background: radial-gradient(120% 90% at 78% 52%, var(--gold) 0%, var(--amber) 42%, var(--orange) 100%); }

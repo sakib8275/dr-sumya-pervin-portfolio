@@ -19,10 +19,18 @@ import home from '../content/pages/home.mjs';
 import prices from '../content/pages/prices.mjs';
 import about from '../content/pages/about.mjs';
 import ethics from '../content/pages/ethics.mjs';
+import article from '../content/pages/article.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const OUT = join(ROOT, 'public', 'new');
 const BODIES = { home, prices, about, ethics };
+
+// A page renders its bespoke body if named, else the generic article renderer
+// when Phase 3 content exists for its path, else the honest stub.
+function bodyFor(page) {
+  if (BODIES[page.body]) return BODIES[page.body]();
+  return article(page) || stubBody(page);
+}
 
 const esc = (s) => s.replace(/&(?!(amp|lt|gt|quot|apos|#\d+);)/g, '&amp;');
 
@@ -158,7 +166,7 @@ function head(page) {
 <a class="skip-link" href="#main-content">Skip to content</a>
 ${nav()}
 <main id="main-content">
-${BODIES[page.body] ? BODIES[page.body]() : stubBody(page)}
+${bodyFor(page)}
 </main>
 ${footer()}
 ${drawer()}

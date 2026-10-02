@@ -110,3 +110,31 @@ Also: the utility bar renders one slim line on phones (was a 5-line wall), and
 both hero CTAs fit the first phone screen. Pinned by
 `tests/e2e/mobile-site.spec.mjs` (6 specs at 375×667) and the mobile-shell node
 test. Screenshots for owner review: `.zcode/m1-shots/` (untracked).
+
+## Phase 3 content fill (2026-10-03) — all 57 pages carry real copy
+
+The honest stub template is gone: **zero pages render "In preparation".** A generic
+renderer (`content/pages/article.mjs`) turns structured content
+(`content/pages/content.mjs`, split into `conditions` / `treatments` / `aesthetic`
+/ `visit`) into HTML using the existing gold components. The docx page-by-page copy
+(Part 5) maps 1:1 onto the content shape:
+
+| Docx § | Pages | Content module |
+|---|---|---|
+| 5.5–5.17 | Medical hub + 12 conditions | `content/conditions.mjs` |
+| 5.18–5.25 | Skin surgery hub + 6 procedures + patient guide | `content/treatments.mjs` |
+| 5.26–5.36 | Aesthetic hub + 7 concerns + 8 treatments + bridal | `content/aesthetic.mjs` |
+| 5.3, 5.4, 5.39, 5.40 | The Centre, chambers, products, tools, FAQ, contact, legal | `content/visit.mjs` |
+
+- **Renderer blocks:** h2+body, bullet lists, bold-lead definition lists, card
+  grids (hubs), a "What it typically costs here" note, FAQ `<details>` accordions,
+  and a related-links row. Home / Prices / About / What-we-don't-offer stay bespoke.
+- **Fidelity:** copy is transcribed from `content/source/website-content.md`; where
+  the docx gives only a one-line brief (FAQ, contact, legal) the copy is authored
+  from verified site facts and the §1.4 voice rules, never invented clinical claims.
+- **Guard:** `tests/pages.test.mjs` still pins that every internal link resolves —
+  docx "Links out" targets with no page are rendered as body text, never as links.
+- **Still open in this programme:** Phase 2 booking tiers (`/book/` is currently a
+  content page, not yet a working form) and the three interactive tools (mole check,
+  skin-type guide, prepare-for-visit) which are content pages pending their JS.
+- **Verified:** `npm run build:site` → 57 pages; `npm test` → 284/284.

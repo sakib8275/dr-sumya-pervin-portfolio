@@ -95,11 +95,17 @@ Baseline: round-5 batch committed and pushed as `c5552b9`.
   (the interlinking rulebook made executable), unique titles/descriptions/canonicals, `site.css`
   `:root` is a verbatim copy of `style.css`'s (gold identity = one token set), no inline handlers,
   and the load-bearing docx price figures publish verbatim.
-- **Real pages**: Home (diagnosis-first hero, 4 promises, 3 pillars, 5 steps, tier preview, Centre
-  teaser, ethical-limits band, Learn teaser), **Prices** (all of docx Part 6: consultations,
-  follow-up grid, care plans, tests, surgery bands, aesthetic, laser bands, bridal, policies —
-  plus a working course-cost estimator), About (docx 5.2 + the 15/10/7 stat row), What we don't
-  offer (docx 5.38). Everything else renders the honest stub template with real metadata and gate tags.
+- **Phase 3 content fill (2026-10-03) — all 57 pages now carry real content; zero stubs remain.**
+  A generic article renderer (`content/pages/article.mjs`) renders structured content from
+  `content/pages/content.mjs` (split into `conditions` / `treatments` / `aesthetic` / `visit`).
+  Four bespoke bodies remain: Home (diagnosis-first hero, 4 promises, 3 pillars, 5 steps, tier
+  preview, Centre teaser, ethical-limits band, Learn teaser), **Prices** (all of docx Part 6 plus
+  a working course-cost estimator), About (docx 5.2 + the 15/10/7 stat row), What we don't offer
+  (docx 5.38). Everything else is transcribed from docx §5.3–5.40: 3 hubs, 12 condition pages,
+  7 concern pages, 14 treatment pages, the patient guide, The Centre, chambers, book, prep, products,
+  community, a 14-question FAQ, contact, 2 tools, and 4 legal pages (authored from the docx briefs
+  and verified site facts). Renderer supports h2+body, bullet lists, bold-lead definition lists,
+  card grids, cost notes, FAQ accordions and related links.
 - **Gates**: price rows carry docx Part-9 tags (OPENING/LICENCE/LASER/YEAR 2); staging shows all
   sections with badges; the live gate is one constant (`ACTIVE_GATE` in `content/site.mjs`).
   Publishing the price list needs D-01…D-06 sign-off first — that is the owner's, not ours.
@@ -126,9 +132,10 @@ Baseline: round-5 batch committed and pushed as `c5552b9`.
   reference her photo. `public/assets/hero_portrait.{jpg,webp,-400.jpg}` deleted
   (recoverable from git history). No `hero_portrait` reference remains outside
   dated `docs/**` snapshots.
-- **Next**: Phase 2 booking tiers (D1 migration, API, form, digest, CMS) → Phase 3 content fill
-  (33 pages from the docx) → cutover commit flips `BASE` to '' and migrates the one-pager suites.
-  The live site is untouched until then; deploys remain owner-gated.
+- **Next**: Phase 2 booking tiers (D1 migration, API, `/book/` form, digest, CMS) and the three
+  interactive tools (mole check, skin-type guide, prepare-for-visit — currently content pages) →
+  cutover commit flips `BASE` to '' and migrates the one-pager suites. The live site is untouched
+  until then; deploys remain owner-gated.
 
 ---
 
