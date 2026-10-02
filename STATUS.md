@@ -124,7 +124,14 @@ Baseline: round-5 batch committed and pushed as `c5552b9`.
   The form is a bespoke body (`content/pages/book.mjs`) with Turnstile (action `booking`, same
   widget the one-pager uses) and the pre-hydration disabled-button guard; site.js submits to the
   same endpoint. Pinned by 4 API tests + `tests/e2e/site-booking.spec.mjs` (2 specs).
-- **Verified**: 288/288 node + 47/47 e2e (one-pager untouched); live at `wrangler pages dev`
+- **Admin console ported (2026-10-03)** — the multi-page site had **no CMS**; the whole admin
+  panel lived only in the one-pager. A standalone **`public/admin/index.html`** (noindex) now
+  carries the CMS markup and boots the existing tested `js/cms.js` through a small new bridge,
+  `public/js/admin.js` (login/2FA, appointments, gallery, edit-copy, settings, backup, PIN
+  reset). It reuses the one-pager `style.css` for the CMS component styles and `<base href="/">`
+  so `cms.js`'s on-demand qrcode path resolves. Pinned by `tests/e2e/admin-console.spec.mjs`
+  (2 specs: login reaches the panel; a wrong PIN is refused).
+- **Verified**: 288/288 node + 49/49 e2e (one-pager untouched); live at `wrangler pages dev`
   `http://localhost:8788/new/` — desktop nav mega-menus, estimator arithmetic (৳3,000 × 1.25 =
   ৳3,750), mobile drawer + sticky Call/WhatsApp/Book bar, no horizontal overflow at 375px.
 - **M1 mobile pass (2026-10-03)** — the owner rejected the first phone layout, and docx §7.3

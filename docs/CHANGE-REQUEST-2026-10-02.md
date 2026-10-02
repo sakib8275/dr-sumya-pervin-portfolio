@@ -152,7 +152,18 @@ renderer (`content/pages/article.mjs`) turns structured content
   CMS appointment row shows the tier and session.
 - **Verified:** 4 new API tests + `tests/e2e/site-booking.spec.mjs` (2 specs).
 
-- **Still open in this programme:** the **cutover** — flip `BASE` to '' and
-  migrate the one-pager suites (owner-gated).
+## Admin console (2026-10-03) — the multi-page site had no CMS
+
+The admin panel (login/2FA, appointments, gallery, edit-copy, settings, backup,
+PIN reset) existed only in the one-pager. Before cutover, a standalone
+**`public/admin/index.html`** (noindex, login-gated) now carries the CMS markup
+and boots the existing `js/cms.js` through a small bridge, `public/js/admin.js`.
+It reuses the one-pager `style.css` for the CMS component styles and
+`<base href="/">` so cms.js's on-demand qrcode path resolves. Pinned by
+`tests/e2e/admin-console.spec.mjs`.
+
+- **Still open in this programme:** the **cutover** — flip `BASE` to '' so the
+  multi-page build serves from the site root, and migrate/retire the one-pager
+  suites in the same change (owner-gated; the live site is untouched until deploy).
 - **Verified:** `npm run build:site` → 57 pages; `npm test` → 288/288;
-  `npm run test:e2e` → 47/47.
+  `npm run test:e2e` → 49/49.
