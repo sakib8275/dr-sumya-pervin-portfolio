@@ -548,10 +548,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   // thumbnail renders at 78px; pointing these at the 1024px originals made
   // clicking a step dot pull a full-size image for a 78px box.
   const stepThumbsList = [
-    'assets/hero_portrait-400.jpg',
     'assets/clinic-400.jpg',
     'assets/treatment-400.jpg',
-    'assets/hero_portrait-400.jpg'
+    'assets/clinic-400.jpg',
+    'assets/treatment-400.jpg'
   ];
 
   document.querySelectorAll('#stepDots button').forEach((b, i) => {

@@ -74,7 +74,7 @@ button {
 }
 
 /* <picture> must not become the containing block for the <img> inside it.
-   .hero-figure img, .band-bg-img and .ba-image all size themselves with
+   .band-bg-img and .ba-image all size themselves with
    height:100% or position:absolute+inset:0, which resolve against their
    PARENT. An inline <picture> in between would resolve height:100% against an
    auto height (collapsing the hero portrait) and would not be the positioned
@@ -398,25 +398,106 @@ section[id], header[id] {
   overflow: hidden;
 }
 
+/* The portrait was removed at the doctor's request, so the image slot now
+   carries an identity plate. z-index 4 lifts the white plate above
+   .hero-inner::before's dark vignette so it stays crisp. */
 .hero-figure {
   position: absolute;
-  right: 3%;
-  bottom: 0;
-  width: min(50%, 600px);
-  height: 92%;
-  z-index: 2;
-  border-radius: 28px 28px 0 0;
-  overflow: hidden;
+  right: 4%;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 4;
+  width: min(42%, 400px);
+  display: flex;
+  justify-content: flex-end;
 }
 
-.hero-figure img {
+.hero-plate {
+  position: relative;
   width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: top center;
-  mask-image: linear-gradient(to top, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 15%, rgba(0,0,0,1) 90%, rgba(0,0,0,0) 100%);
-  -webkit-mask-image: linear-gradient(to top, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 15%, rgba(0,0,0,1) 90%, rgba(0,0,0,0) 100%);
-  filter: drop-shadow(0 15px 30px rgba(0,0,0,0.15));
+  overflow: hidden;
+  padding: 40px 30px 26px;
+  text-align: center;
+  background: var(--surface);
+  border: 1px solid var(--hair);
+  border-radius: 190px 190px 22px 22px;
+  box-shadow: var(--shadow-md);
+}
+
+.hero-plate::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 52%;
+  pointer-events: none;
+  background: radial-gradient(120% 100% at 50% 0%, rgba(247, 164, 10, .34), rgba(252, 224, 124, 0) 74%);
+}
+
+.hero-plate::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  width: 74%;
+  height: 86%;
+  pointer-events: none;
+  opacity: .6;
+  border: 1px solid var(--gold);
+  border-bottom: 0;
+  border-radius: 176px 176px 0 0;
+}
+
+.hp-mark {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  background: var(--sienna);
+  color: #fff;
+  font-size: 23px;
+  font-weight: 600;
+  letter-spacing: .04em;
+  box-shadow: 0 10px 24px rgba(150, 76, 31, .28);
+}
+
+.hp-name {
+  position: relative;
+  display: block;
+  margin-top: 18px;
+  font-size: 23px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.hp-role {
+  position: relative;
+  display: block;
+  margin-top: 6px;
+  font-size: 13.5px;
+  color: var(--grey);
+}
+
+.hp-tags {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 18px;
+}
+
+.hp-tags span {
+  background: var(--butter);
+  color: var(--sienna);
+  border: 1px solid var(--hair);
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
 }
 
 .hero-inner {
@@ -462,45 +543,6 @@ section[id], header[id] {
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
-}
-
-.namecard {
-  position: absolute;
-  right: var(--pad);
-  bottom: 44px;
-  z-index: 4;
-  background: rgba(255, 255, 255, .2);
-  backdrop-filter: blur(14px);
-  border: 1px solid rgba(255, 255, 255, .3);
-  border-radius: 16px;
-  padding: 16px 22px;
-  color: #fff;
-}
-
-.namecard b {
-  display: block;
-  font-weight: 600;
-  font-size: 17px;
-}
-
-.namecard span {
-  font-size: 13px;
-  color: rgba(255, 255, 255, .82);
-}
-
-.degrees-tags {
-  display: flex;
-  gap: 6px;
-  margin-top: 8px;
-  flex-wrap: wrap;
-}
-
-.degrees-tags span {
-  background: rgba(255, 255, 255, 0.22);
-  padding: 2px 8px;
-  border-radius: 6px;
-  font-size: 11px;
-  font-weight: 600;
 }
 
 /* ABOUT STAT ROW — type only, no boxes (owner-requested, 2026-10-02). Every
@@ -1697,8 +1739,7 @@ html.reveal [data-r]:not(.in) {
   .pill { position: static; display: inline-block; margin-bottom: 16px; }
   .sec-head h2 { margin-inline: 0; max-width: none; }
   .sec-sub { text-align: left; margin-inline: 0; }
-  .namecard { position: relative; margin-top: auto; left: auto; right: auto; bottom: auto; display: inline-block; }
-  .hero-figure { width: 80%; opacity: .8; }
+  .hero-figure { position: relative; right: auto; top: auto; transform: none; width: min(100%, 380px); margin: 30px auto 0; justify-content: center; }
   .form-grid { grid-template-columns: 1fr; }
   .cms-item-row { flex-direction: column; align-items: flex-start; }
 }
