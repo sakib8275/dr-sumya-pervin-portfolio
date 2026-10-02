@@ -76,7 +76,37 @@ Logs on the digest.
 
 ---
 
-## The one-**The site is LIVE on `drsumyapervin.com`** (deployment **`a5077cb3`** — F13/F14, commit `3a00d4f`; **247/247
+## Multi-page rebuild programme (started 2026-10-02) — Phase 1 BUILT, STAGED UNDER `/new/`
+
+Owner change request (`Change Request/` + `docs/CHANGE-REQUEST-2026-10-02.md`): the one-pager
+becomes a ~57-page site — concern-first hubs, published prices, tiered consultations, the 2027
+Centre — **in the existing gold/Outfit identity** (the mockups' teal look was wireframe-only).
+Baseline: round-5 batch committed and pushed as `c5552b9`.
+
+- **Pipeline**: `content/` (site config, sitemap, price data, page bodies) → `scripts/build-pages.mjs`
+  (`npm run build:site`) → `public/new/**` (57 pages + sitemap). Zero deps, CSP-safe output.
+  `tests/pages.test.mjs` (7 tests) pins: every sitemap page built, **every internal link resolves**
+  (the interlinking rulebook made executable), unique titles/descriptions/canonicals, `site.css`
+  `:root` is a verbatim copy of `style.css`'s (gold identity = one token set), no inline handlers,
+  and the load-bearing docx price figures publish verbatim.
+- **Real pages**: Home (diagnosis-first hero, 4 promises, 3 pillars, 5 steps, tier preview, Centre
+  teaser, ethical-limits band, Learn teaser), **Prices** (all of docx Part 6: consultations,
+  follow-up grid, care plans, tests, surgery bands, aesthetic, laser bands, bridal, policies —
+  plus a working course-cost estimator), About (docx 5.2 + the 15/10/7 stat row), What we don't
+  offer (docx 5.38). Everything else renders the honest stub template with real metadata and gate tags.
+- **Gates**: price rows carry docx Part-9 tags (OPENING/LICENCE/LASER/YEAR 2); staging shows all
+  sections with badges; the live gate is one constant (`ACTIVE_GATE` in `content/site.mjs`).
+  Publishing the price list needs D-01…D-06 sign-off first — that is the owner's, not ours.
+- **Verified**: 283/283 node + 35/35 e2e (one-pager untouched); live at `wrangler pages dev`
+  `http://localhost:8788/new/` — desktop nav mega-menus, estimator arithmetic (৳3,000 × 1.25 =
+  ৳3,750), mobile drawer + sticky Call/WhatsApp/Book bar, no horizontal overflow at 375px.
+- **Next**: Phase 2 booking tiers (D1 migration, API, form, digest, CMS) → Phase 3 content fill
+  (33 pages from the docx) → cutover commit flips `BASE` to '' and migrates the one-pager suites.
+  The live site is untouched until then; deploys remain owner-gated.
+
+---
+
+## The site is LIVE on `drsumyapervin.com` (deployment **`a5077cb3`** — F13/F14, commit `3a00d4f`; **247/247
 node tests + 14/14 Playwright e2e green**; Self-Service CMS with PIN Reset, TOTP 2FA, and Site-Content Editing built & fully tested), **F9 security headers are live** (CSP with no
 'unsafe-inline' in `script-src`, HSTS, zero inline handlers left in `public/`),
 and **the F8 digest worker is DEPLOYED, crons registered, recipient verified,

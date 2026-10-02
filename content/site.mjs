@@ -1,0 +1,167 @@
+// Site-wide configuration for the multi-page build (Change Request 2026-10-02).
+//
+// The gold identity stays: these constants and the token block at the top of
+// public/css/site.css are copied from the incumbent one-pager, and
+// tests/pages.test.mjs fails if the two token blocks drift apart.
+//
+// BASE is the staging prefix. Phase 1 builds under /new/ so the incumbent
+// one-pager and its test suite stay intact until the cutover commit flips
+// BASE to '' and migrates the suites in the same change.
+
+export const BASE = '/new';
+
+export const SITE = {
+  name: 'Dr. Sumya Pervin',
+  strapline: 'Skin · Hair · Nail · Laser',
+  domain: 'https://drsumyapervin.com',
+  title: 'Dr. Sumya Pervin, MD — Dermatologist in Dhaka',
+  bmdc: 'BMDC Reg. A-59492',
+  // D-12 placeholders until the owner supplies the real values; rendered
+  // everywhere the docx puts them, so the swap is one edit here.
+  phone: '01X-XXXX-XXXX',
+  whatsapp: '8801725196101', // live CMS-configured number, unchanged
+  centre: {
+    name: "Dr. Sumya Pervin's Dermatology Centre",
+    address: 'Ring Road, Mohammadpur, Dhaka',
+    opening: 'Opening 2027',
+  },
+  credentials: ['MBBS', 'DDV (BSMMU)', 'FCPS (Skin & VD)'],
+};
+
+// Publish gates from docx Part 9. 'staging' renders every section with its
+// gate badge; the cutover config sets the live gate (now | opening | licence
+// | laser) and the build hides anything not yet cleared.
+export const ACTIVE_GATE = 'staging';
+export const GATES = {
+  web: 0, // "now": doctor pages and condition pages
+  opening: 1, // Centre + consultation prices
+  licence: 2, // procedures
+  laser: 3, // laser devices
+  year2: 4, // Year-2 devices
+};
+
+// Resolves a sitemap path against the staging BASE. Cutover flips BASE to ''
+// and every link, canonical and sitemap URL follows.
+export function href(path) {
+  return path === '/' ? (BASE === '' ? '/' : `${BASE}/`) : `${BASE}${path}`;
+}
+
+export function gateVisible(tag) {
+  if (ACTIVE_GATE === 'staging') return true;
+  if (!tag) return true;
+  return GATES[tag] <= GATES[ACTIVE_GATE];
+}
+
+export const NAV = [
+  {
+    label: 'Conditions',
+    href: '/medical-dermatology/',
+    menu: {
+      cols: [
+        {
+          head: 'Common',
+          links: [
+            ['Acne', '/conditions/acne/'],
+            ['Eczema', '/conditions/eczema/'],
+            ['Psoriasis', '/conditions/psoriasis/'],
+            ['Fungal infection', '/conditions/fungal-infection/'],
+            ['Hives &amp; allergy', '/conditions/urticaria-allergy/'],
+          ],
+        },
+        {
+          head: 'Pigment &amp; hair',
+          links: [
+            ['Melasma', '/conditions/melasma/'],
+            ['Vitiligo', '/conditions/vitiligo/'],
+            ['Hair loss', '/conditions/hair-loss/'],
+          ],
+        },
+        {
+          head: 'Growths &amp; screening',
+          links: [
+            ['Mole check (tool)', '/tools/mole-check/'],
+            ['Skin cancer', '/conditions/skin-cancer/'],
+            ['Precancerous lesions', '/conditions/precancerous-skin-lesions/'],
+            ['Seborrhoeic keratosis &amp; DPN', '/conditions/seborrhoeic-keratosis-dpn/'],
+          ],
+        },
+      ],
+      foot: ['Confidential sexual health', '/conditions/sexual-health/'],
+    },
+  },
+  {
+    label: 'Skin Surgery',
+    href: '/skin-surgery/',
+    menu: {
+      cols: [
+        {
+          head: 'Procedures',
+          links: [
+            ['Skin biopsy', '/treatments/skin-biopsy/'],
+            ['Mole &amp; cyst removal', '/treatments/excision-surgery/'],
+            ['Skin tags &amp; DPN removal', '/treatments/electrosurgery/'],
+            ['Wart freezing', '/treatments/cryotherapy/'],
+            ['Keloid &amp; scar injections', '/treatments/intralesional-injection/'],
+            ['Skin cancer treatment', '/treatments/skin-cancer-treatment/'],
+          ],
+        },
+      ],
+      feature: ['Before and after your procedure', '/your-procedure/', 'Prepare, aftercare and what to watch for — the guide every procedure page links to.'],
+    },
+  },
+  {
+    label: 'Aesthetic &amp; Laser',
+    href: '/aesthetic-and-laser/',
+    menu: {
+      cols: [
+        {
+          head: 'By concern',
+          links: [
+            ['Acne scars', '/concerns/acne-scars/'],
+            ['Pigmentation &amp; sun damage', '/concerns/sun-damage-pigmentation/'],
+            ['Unwanted hair', '/concerns/unwanted-hair/'],
+            ['Ageing skin', '/concerns/wrinkles-ageing-skin/'],
+            ['Hair thinning', '/concerns/hair-thinning/'],
+            ['Redness', '/concerns/redness-visible-vessels/'],
+          ],
+        },
+        {
+          head: 'By treatment',
+          links: [
+            ['Medical facial', '/treatments/medical-facial/'],
+            ['Chemical peels', '/treatments/chemical-peel/'],
+            ['Microneedling', '/treatments/microneedling/'],
+            ['PRP', '/treatments/prp-therapy/'],
+            ['Laser hair removal', '/treatments/laser-hair-removal/'],
+            ['Pigment laser', '/treatments/pigment-laser/'],
+          ],
+        },
+      ],
+      feature: ['Bridal &amp; Groom programmes', '/bridal-and-groom/', 'Doctor-planned 8–12 week programmes. Start at least 10 weeks before the event.'],
+    },
+  },
+  ['Prices', '/prices/'],
+  ['The Centre', '/the-centre/'],
+  ['About', '/about/'],
+];
+
+export const FOOTER = {
+  care: [
+    ['Medical dermatology', '/medical-dermatology/'],
+    ['Skin surgery', '/skin-surgery/'],
+    ['Aesthetic &amp; laser', '/aesthetic-and-laser/'],
+    ['Prices', '/prices/'],
+  ],
+  visit: [
+    ['The Centre (opening 2027)', '/the-centre/'],
+    ['Current chambers', '/chambers/'],
+    ['Book a consultation', '/book/'],
+    ['Prepare for your visit', '/consultation-prep/'],
+  ],
+  trust: [
+    ['What we don’t offer', '/what-we-do-not-offer/'],
+    ['Photo &amp; consent policy', '/photo-consent-policy/'],
+    ['Privacy', '/privacy/'],
+    ['Terms · Disclaimer', '/terms/'],
+  ],
+};
