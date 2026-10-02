@@ -32,9 +32,9 @@ Portfolio Sumya Pervin/
 │   │   ├── main.js               # Frontend logic + API fetch calls
 │   │   └── formguard.js          # Blocking, from <head>: cancels native form submits pre-hydration
 │   └── assets/
-│       ├── hero_portrait.jpg
-│       ├── clinic.jpg
-│       └── treatment.jpg
+│       ├── clinic.jpg            # og:image / social + clinic photography
+│       └── treatment.jpg         # (hero_portrait.* was deleted 2026-10-03 — the
+│                                 #  hero now uses a CSS credential plate)
 ├── functions/                    # Pages Functions — served as routes, not as files
 │   ├── _middleware.js            # CORS (scoped to ALLOWED_ORIGIN) + F9 security headers
 │   ├── lib/
@@ -432,4 +432,4 @@ pass the full uuid from `pages deployment list`. Verified 2026-08-04: a live boo
 > **Preserve Medical Accuracy**: Never modify Dr. Sumya Pervin's professional titles (`MBBS (SSMC)`, `BCS (Health)`, `DDV (BSMMU)`, `FCPS (Skin & VD)`), official designation (`Assistant Professor`), or chamber details without explicit instruction from the user.
 
 > [!CAUTION]
-> **Asset Links**: Do not break image source paths (`assets/hero_portrait.jpg`, `assets/clinic.jpg`, `assets/treatment.jpg`). If adding new images, place them in the `assets/` directory.
+> **Asset Links**: Do not break image source paths (`assets/clinic.jpg`, `assets/treatment.jpg`). The doctor's portrait (`assets/hero_portrait.*`) was **deleted 2026-10-03 at her request** and must not be reintroduced — the hero uses a CSS credential plate instead. If adding new images, place them in the `assets/` directory.

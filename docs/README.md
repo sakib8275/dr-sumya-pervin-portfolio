@@ -5,6 +5,10 @@ project changes. Current state lives in [`../STATUS.md`](../STATUS.md); current
 rules and architecture in [`../agent.md`](../agent.md); the active execution
 plan in [`../FIXPLAN-2026-08-02.md`](../FIXPLAN-2026-08-02.md).
 
+**Forward-looking (not a dated snapshot):** [`ERP-INTEGRATION-PLAN.md`](ERP-INTEGRATION-PLAN.md)
+— the proposed ERPNext + Marley Health / patient-portal programme (2026-10-03).
+This one *is* meant to be kept current as the programme progresses.
+
 ## handoffs/ — session logs, 2026-07-28 → 2026-08-04 (v2)
 
 Read only when you need the *why* behind a decision. Reading order for the

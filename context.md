@@ -72,7 +72,7 @@ The single-page web app (`public/index.html`) is structured into distinct intera
 
 | Section ID | Section Title | Key Content & Interactivity |
 | :--- | :--- | :--- |
-| `#top` | **Hero Banner** | High-impact visual header, doctor portrait, official namecard with degree tags, quick CTA buttons. |
+| `#top` | **Hero Banner** | High-impact visual header, arched **credential plate** (the doctor's photograph was removed at her request, 2026-10-03) carrying the SP monogram, name, specialty and MBBS/DDV/FCPS/BMDC degree tags, quick CTA buttons. |
 | `#about` | **Profile** | Intro paragraph (CMS-editable) + type-only stat row: 15+ years medical practice / 10+ years government service / 7+ years dermatology specialist. |
 | `#chambers` | **Chamber Locations** | Interactive location cards, visiting schedules, direct booking triggers per chamber. |
 | `#services` | **Services Showcase** | Filterable/categorized list of clinical, cosmetic, and surgical treatments. |

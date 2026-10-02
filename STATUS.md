@@ -4,7 +4,13 @@
 verification, or owner-action state changes. Everything under `docs/` is a dated
 snapshot; if this file and a snapshot disagree, this file wins.
 
-**Updated:** 2026-10-02 — **Audit round 5 is BUILT AND GREEN BUT NOT DEPLOYED.**
+**Updated:** 2026-10-03 — **Multi-page Phase 1 + the M1 mobile pass are BUILT,
+COMMITTED and PUSHED (`2c1dd87`), and STAGED UNDER `/new/` — not cut over; the
+one-pager still serves.** The hero portrait was removed at the doctor's request
+on **both** surfaces (one-pager `37f41f6` + staged site `691bb2e`) — an arched
+credential plate now stands in for the photo — and `og:image` moved to
+`assets/clinic.jpg`. The live `drsumyapervin.com` is untouched by any of this.
+**Audit round 5 is BUILT AND GREEN BUT NOT DEPLOYED.**
 The serving deployment is still **`a5077cb3`**; everything below in this paragraph
 is in the working tree only. A full read of the frontend, all 18 Functions and the
 three Workers found six shipped defects, a contrast failure running through the
@@ -111,9 +117,43 @@ Baseline: round-5 batch committed and pushed as `c5552b9`.
   Deviation recorded: the estimator stays a flat 3-control form on phones — §7.3's "4-step
   wizard" is deferred to Phase 2's booking JS rebuild. `tests/e2e/mobile-site.spec.mjs` (+6 at
   375×667) and a mobile-shell node test pin all of it.
+- **Portrait removed (2026-10-03, `37f41f6` + staged `691bb2e`)** — the owner asked
+  that her photograph not be published. Both the one-pager hero and the staged
+  multi-page hero now carry an arched **credential plate** (SP monogram, name,
+  specialty, MBBS/DDV/FCPS/BMDC pills) built from the existing gold tokens;
+  `og:image`/`og:image:alt`/`twitter:image`/JSON-LD switched to `assets/clinic.jpg`;
+  the cert cards, before/after slider, step thumbnail and review faces no longer
+  reference her photo. `public/assets/hero_portrait.{jpg,webp,-400.jpg}` deleted
+  (recoverable from git history). No `hero_portrait` reference remains outside
+  dated `docs/**` snapshots.
 - **Next**: Phase 2 booking tiers (D1 migration, API, form, digest, CMS) → Phase 3 content fill
   (33 pages from the docx) → cutover commit flips `BASE` to '' and migrates the one-pager suites.
   The live site is untouched until then; deploys remain owner-gated.
+
+---
+
+## ERP + Patient Portal programme (planned 2026-10-03) — PROPOSED, nothing built
+
+Owner decisions: connect the site to a clinic **ERPNext + Marley Health** instance
+(self-hosted VPS, origin behind a Cloudflare Tunnel) as the system of record, and
+later ship a **patient PWA** (journey timeline, digital prescription, medicine
+reminders; chat + articles deferred). Full plan: **`docs/ERP-INTEGRATION-PLAN.md`**.
+
+- **Not OpenMRS + Ozone** (hospital-scale ops, wrong for a solo operator) and
+  **not from-scratch** (would reimplement billing/inventory/records). ERPNext +
+  Marley Health is one stack, one DB, one operator.
+- **Seam:** site writes the booking locally → `D1 erp_outbox` → new
+  `workers/erp-sync` adapter (token auth, idempotent, retry, DLQ) → ERP. Inbound
+  changes via an HMAC-verified webhook. The public site never blocks on ERP.
+- **Phase 1 here folds into this programme's Phase 2 booking schema** (adds
+  `external_ref`/`erp_patient_id`/`sync_status`/`erp_outbox`) — one migration.
+- **Portal:** PWA-first (agent-built); a BFF on Workers/Durable Objects is the
+  per-patient authorization boundary (ERPNext portal permissions are not
+  patient-scoped). Prescription = signed clinical record + QR, *not* the legal
+  e-prescription (BMDC legal check pending). Chat = no guaranteed response SLA.
+- **Next:** owner provisions Phase 0 (VPS + ERPNext + backups + rehearsed
+  restore); agents then build the D1 seam and `workers/erp-sync`. No ERP code
+  exists yet; the live site is unaffected.
 
 ---
 
