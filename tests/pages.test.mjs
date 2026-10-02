@@ -111,3 +111,22 @@ test('the two placeholder-only facts cannot publish silently', async () => {
   const home = await readFile(join(OUT, 'index.html'), 'utf8');
   assert.ok(home.includes('01X-XXXX-XXXX') || home.includes('Call'), 'utility bar phone line missing');
 });
+
+test('the mobile shell contract: drawer destinations, slim u-bar, labelled cells', async () => {
+  // M1 (docx §7.3). The drawer is the ONLY nav ≤820px, so every page must
+  // carry the pathway map's main destinations in it; the utility bar must ship
+  // the one-line mobile announcement; and every price-table cell must carry
+  // its column label so the ≤820px CSS can stack rows into cards.
+  for (const page of PAGES) {
+    const html = await readPage(page);
+    assert.ok(html.includes('id="drawer"'), `${page.path}: drawer missing`);
+    const drawer = html.slice(html.indexOf('id="drawer"'));
+    assert.ok(drawer.includes('>Prices</a>'), `${page.path}: drawer has no Prices link`);
+    assert.ok(drawer.includes('About Dr. Sumya'), `${page.path}: drawer has no About link`);
+    assert.ok(html.includes('class="u-bar-m"'), `${page.path}: mobile utility line missing`);
+    assert.ok(html.includes('id="scrim"'), `${page.path}: drawer scrim missing`);
+  }
+  const prices = await readFile(join(OUT, 'prices', 'index.html'), 'utf8');
+  const cells = prices.match(/<td(?![^>]*data-th)[^>]*>/g) || [];
+  assert.equal(cells.length, 0, `price tables have ${cells.length} unlabelled cells — the stacked-card layout has no labels for them`);
+});

@@ -90,3 +90,23 @@ row carrying its docx **tag** (see gates below).
   sticky Call/WhatsApp/Book bar).
 - Booking tiers (Phase 2) change the D1 schema, the appointments API, the CMS
   list and the digest; validation rules and Turnstile carry over.
+
+## M1 mobile pass (2026-10-03) — docx §7.3 compliance
+
+The owner rejected the first phone layout ("Don't like the mobile view at all",
+2026-10-03). M1 closes the gap against the docx's own mobile rules:
+
+| §7.3 rule | State |
+|---|---|
+| Single column; recommended card **first** | Done — `.rec` tiers/plans get `order:-1` ≤820px |
+| Price tables → stacked cards (band → price → inclusions → who badge) | Done — builder emits `data-th`, CSS card-ises rows ≤820px |
+| Sticky bottom bar Call · WhatsApp · Book, ≥44px targets | Done — kept, now 48px cells + safe-area padding + top hairline |
+| Tabs become horizontal scroll strip | Already true; fixed the `top:0` bug that hid them under the sticky header |
+| Drawer ≥44px rows | Done — 48px rows (was 37px); light ivory panel + scrim, Prices & About added (both were missing), focus trap + focus return |
+| Hero under 150 KB, LCP < 2.5 s | No hero image on phones (compact credential strip); text LCP |
+| Estimator becomes a 4-step wizard | **Deferred deviation** — the flat 3-control form works at 375px; revisit with Phase 2's booking JS rebuild |
+
+Also: the utility bar renders one slim line on phones (was a 5-line wall), and
+both hero CTAs fit the first phone screen. Pinned by
+`tests/e2e/mobile-site.spec.mjs` (6 specs at 375×667) and the mobile-shell node
+test. Screenshots for owner review: `.zcode/m1-shots/` (untracked).

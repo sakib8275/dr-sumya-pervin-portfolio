@@ -85,7 +85,7 @@ Baseline: round-5 batch committed and pushed as `c5552b9`.
 
 - **Pipeline**: `content/` (site config, sitemap, price data, page bodies) → `scripts/build-pages.mjs`
   (`npm run build:site`) → `public/new/**` (57 pages + sitemap). Zero deps, CSP-safe output.
-  `tests/pages.test.mjs` (7 tests) pins: every sitemap page built, **every internal link resolves**
+  `tests/pages.test.mjs` (8 tests) pins: every sitemap page built, **every internal link resolves**
   (the interlinking rulebook made executable), unique titles/descriptions/canonicals, `site.css`
   `:root` is a verbatim copy of `style.css`'s (gold identity = one token set), no inline handlers,
   and the load-bearing docx price figures publish verbatim.
@@ -97,9 +97,20 @@ Baseline: round-5 batch committed and pushed as `c5552b9`.
 - **Gates**: price rows carry docx Part-9 tags (OPENING/LICENCE/LASER/YEAR 2); staging shows all
   sections with badges; the live gate is one constant (`ACTIVE_GATE` in `content/site.mjs`).
   Publishing the price list needs D-01…D-06 sign-off first — that is the owner's, not ours.
-- **Verified**: 283/283 node + 35/35 e2e (one-pager untouched); live at `wrangler pages dev`
+- **Verified**: 284/284 node + 41/41 e2e (one-pager untouched); live at `wrangler pages dev`
   `http://localhost:8788/new/` — desktop nav mega-menus, estimator arithmetic (৳3,000 × 1.25 =
   ৳3,750), mobile drawer + sticky Call/WhatsApp/Book bar, no horizontal overflow at 375px.
+- **M1 mobile pass (2026-10-03)** — the owner rejected the first phone layout, and docx §7.3
+  (mobile rules) is now executable: the drawer was missing **Prices and About** entirely and its
+  rows were 37px; it is now a light ivory panel over a scrim (48px rows, focus trap, focus returns
+  to the burger). The hero credential plate collapses to a compact ~100px strip ≤820px so both
+  CTAs fit the first phone screen. The utility bar shows one slim line on phones instead of a
+  five-line wall. Price tables stack into `data-th`-labelled cards (band → price → inclusions →
+  who badge), the recommended tier card renders **first** per §7.3, the sticky price tabs no
+  longer slide under the header (a real `top:0` bug), and the bottom bar gets safe-area padding.
+  Deviation recorded: the estimator stays a flat 3-control form on phones — §7.3's "4-step
+  wizard" is deferred to Phase 2's booking JS rebuild. `tests/e2e/mobile-site.spec.mjs` (+6 at
+  375×667) and a mobile-shell node test pin all of it.
 - **Next**: Phase 2 booking tiers (D1 migration, API, form, digest, CMS) → Phase 3 content fill
   (33 pages from the docx) → cutover commit flips `BASE` to '' and migrates the one-pager suites.
   The live site is untouched until then; deploys remain owner-gated.

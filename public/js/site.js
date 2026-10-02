@@ -28,24 +28,43 @@
     }
   });
 
-  // — Mobile drawer —
+  // — Mobile drawer — light panel over a scrim; Tab is trapped inside while
+  // open (the markup already claims aria-modal) and focus returns to the
+  // burger on every close path: ✕ button, scrim tap, link tap, Escape.
   const drawer = document.getElementById('drawer');
   const burger = document.getElementById('burger');
   const close = document.getElementById('drawerClose');
+  const scrim = document.getElementById('scrim');
   if (drawer && burger) {
-    burger.addEventListener('click', () => {
+    const focusables = () => drawer.querySelectorAll('a[href], button:not([disabled])');
+    const open = () => {
       drawer.classList.add('active');
+      if (scrim) scrim.classList.add('active');
+      document.body.classList.add('no-scroll');
       burger.setAttribute('aria-expanded', 'true');
       if (close) close.focus();
-    });
+    };
     const shut = () => {
       drawer.classList.remove('active');
+      if (scrim) scrim.classList.remove('active');
+      document.body.classList.remove('no-scroll');
       burger.setAttribute('aria-expanded', 'false');
+      burger.focus();
     };
+    burger.addEventListener('click', open);
     if (close) close.addEventListener('click', shut);
+    if (scrim) scrim.addEventListener('click', shut);
     drawer.addEventListener('click', (e) => { if (e.target.closest('a')) shut(); });
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && drawer.classList.contains('active')) shut();
+      if (!drawer.classList.contains('active')) return;
+      if (e.key === 'Escape') { shut(); return; }
+      if (e.key !== 'Tab') return;
+      const items = [...focusables()];
+      if (!items.length) return;
+      const first = items[0];
+      const last = items[items.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
     });
   }
 

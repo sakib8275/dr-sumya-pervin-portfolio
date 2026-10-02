@@ -52,8 +52,9 @@ function nav() {
   ).join('');
   return `
 <div class="u-bar"><div class="wrap u-bar-in">
-  <span>${SITE.centre.name} · ${SITE.centre.address} · <b>${SITE.centre.opening}</b> — consulting now in Shyamoli</span>
-  <span><b>Call ${SITE.phone}</b> · WhatsApp · ${SITE.bmdc}</span>
+  <span class="u-bar-full">${SITE.centre.name} · ${SITE.centre.address} · <b>${SITE.centre.opening}</b> — consulting now in Shyamoli</span>
+  <span class="u-bar-full"><b>Call ${SITE.phone}</b> · WhatsApp · ${SITE.bmdc}</span>
+  <span class="u-bar-m"><b>${SITE.centre.opening}</b> — consulting now in Shyamoli</span>
 </div></div>
 <header class="s-nav"><div class="wrap s-nav-in">
   <a class="logo" href="${href('/')}"><span class="logo-n">${SITE.name}</span><span class="logo-s">${SITE.strapline}</span></a>
@@ -63,19 +64,23 @@ function nav() {
 </div></header>`;
 }
 
+// The drawer is the ONLY nav ≤820px, so it must carry every top destination:
+// the docx pathway map sends most mobile visitors to Prices and Book first,
+// and About is a main-nav item. Groups mirror the footer columns.
 function drawer() {
   const group = (links) => links.map(([l, h]) => `<a href="${href(h)}">${l}</a>`).join('');
   return `
+<div class="scrim" id="scrim"></div>
 <div class="drawer" id="drawer" role="dialog" aria-modal="true" aria-label="Site menu">
   <div class="drawer-head"><span class="logo-n">${SITE.name}</span>
     <button type="button" id="drawerClose" aria-label="Close menu">✕</button></div>
   <nav class="drawer-links" aria-label="Site menu">
-    <p class="drawer-cat">Conditions</p>${group(FOOTER.care.slice(0, 3))}
+    <p class="drawer-cat">Care</p>${group(FOOTER.care.slice(0, 3))}
     <a href="${href('/conditions/sexual-health/')}">Confidential sexual health</a>
-    <p class="drawer-cat">Visit</p>${group(FOOTER.visit)}
-    <p class="drawer-cat">Trust</p>${group(FOOTER.trust)}
-    <a class="btn btn-ink" style="margin-top:18px" href="${href('/book/')}">Book a consultation</a>
+    <p class="drawer-cat">Visit</p><a href="${href('/prices/')}">Prices</a>${group(FOOTER.visit.filter(([l]) => l !== 'Book a consultation'))}
+    <p class="drawer-cat">About &amp; trust</p><a href="${href('/about/')}">About Dr. Sumya</a>${group(FOOTER.trust)}
   </nav>
+  <a class="btn btn-ink drawer-book" href="${href('/book/')}">Book a consultation</a>
 </div>`;
 }
 
@@ -138,7 +143,8 @@ function head(page) {
 <meta property="og:description" content="${page.desc}">
 <meta property="og:type" content="website">
 <meta property="og:url" content="${url}">
-<meta property="og:image" content="${SITE.domain}/assets/hero_portrait.jpg">
+<meta property="og:image" content="${SITE.domain}/assets/clinic.jpg">
+<meta property="og:image:alt" content="The consultation suite at Dr. Sumya Pervin's dermatology practice">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">

@@ -18,7 +18,7 @@ function consultationCards(s) {
     </article>`).join('')}</div>
     <div class="pr-fu">${FOLLOW_UPS.map(([p, t]) => `<div><b>${p}</b>${t}</div>`).join('')}</div>
     ${s.rows ? `<table class="pr-table"><thead><tr><th>Service</th><th>Band</th><th>Price</th><th>What you get</th><th>Who</th></tr></thead>
-      <tbody>${s.rows.map((r) => `<tr><td class="bn">${r[0]}</td><td>${r[1]}</td><td class="pp">${r[2]}</td><td>${r[3]}</td><td>${whoBadge(r[4])}</td></tr>`).join('')}</tbody></table>` : ''}`;
+      <tbody>${s.rows.map((r) => `<tr><td class="bn" data-th="Service">${r[0]}</td><td data-th="Band">${r[1]}</td><td class="pp" data-th="Price">${r[2]}</td><td data-th="What you get">${r[3]}</td><td data-th="Who">${whoBadge(r[4])}</td></tr>`).join('')}</tbody></table>` : ''}`;
 }
 
 function plans(s) {
@@ -30,10 +30,12 @@ function plans(s) {
     </article>`).join('')}</div>`;
 }
 
+// data-th mirrors each thead label so ≤820px CSS can rebuild every row as a
+// stacked card (docx §7.3: band → price → inclusions → who-performs badge).
 function table(s) {
   return `<table class="pr-table"><thead><tr><th>Service</th><th>Band / tier</th><th>Price</th><th>What you get</th><th>Who</th></tr></thead>
     <tbody>${s.rows.filter((r) => gateVisible(r[5])).map((r) => `
-    <tr>${r[5] ? `<td class="bn" colspan="2">${r[0]}<span class="gate-tag">${GATE_LABEL[r[5]]}</span></td><td class="pp">${r[2]}</td>` : `<td class="bn">${r[0]}</td><td>${r[1]}</td><td class="pp">${r[2]}</td>`}<td>${r[3]}</td><td>${whoBadge(r[4])}</td></tr>`).join('')}</tbody></table>`;
+    <tr>${r[5] ? `<td class="bn" colspan="2" data-th="Service">${r[0]}<span class="gate-tag">${GATE_LABEL[r[5]]}</span></td><td class="pp" data-th="Price">${r[2]}</td>` : `<td class="bn" data-th="Service">${r[0]}</td><td data-th="Band / tier">${r[1]}</td><td class="pp" data-th="Price">${r[2]}</td>`}<td data-th="What you get">${r[3]}</td><td data-th="Who">${whoBadge(r[4])}</td></tr>`).join('')}</tbody></table>`;
 }
 
 function promises(s) {

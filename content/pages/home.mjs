@@ -1,6 +1,7 @@
 // Home body — docx §5.1 copy verbatim, laid out in the incumbent gold design.
-// Portrait reuses the existing asset until the owner supplies the clinical
-// photo the wireframe asks for (D-12).
+// Owner 2026-10-02: the doctor does not want her photograph published, so the
+// hero carries a credential nameplate (no face) instead of the wireframe's
+// portrait. The arched crown keeps the silhouette the image occupied.
 import { SITE, href } from '../site.mjs';
 
 export default function home() {
@@ -19,16 +20,20 @@ export default function home() {
       <p class="h-alt">Not sure what you need? <a class="tlink" href="${href('/consultation-prep/')}">See what your first visit will involve</a> (2-minute check)</p>
     </div>
     <div class="h-hero-figure">
-      <picture>
-        <source srcset="/assets/hero_portrait.webp" type="image/webp">
-        <img src="/assets/hero_portrait.jpg" width="1024" height="1024" alt="Dr. Sumya Pervin, consultant dermatologist" fetchpriority="high">
-      </picture>
-      <div class="cred">
-        <div class="cred-nm">${SITE.name}</div>
-        <div class="cred-q">Consultant Dermatologist — Skin, Hair, Nail, Allergy &amp; Venereal Diseases</div>
-        <div class="cred-b">
-          <span class="pill">MBBS</span><span class="pill">DDV (BSMMU)</span><span class="pill">FCPS (Skin &amp; VD)</span><span class="pill gold">${SITE.bmdc.replace('BMDC Reg. ', 'BMDC ')}</span>
+      <div class="nameplate">
+        <span class="np-mark" aria-hidden="true">SP</span>
+        <div class="np-body">
+          <p class="np-role">Consultant Dermatologist</p>
+          <p class="np-name">${SITE.name}</p>
+          <p class="np-line">Skin, Hair, Nail, Allergy &amp; Venereal Diseases</p>
+          <ul class="np-creds">
+            <li class="pill">MBBS</li>
+            <li class="pill">DDV (BSMMU)</li>
+            <li class="pill">FCPS (Skin &amp; VD)</li>
+            <li class="pill gold">${SITE.bmdc.replace('BMDC Reg. ', 'BMDC ')}</li>
+          </ul>
         </div>
+        <p class="np-note"><b>Consulting now</b> in Shyamoli · Dermatology Centre opening 2027</p>
       </div>
     </div>
   </div>
