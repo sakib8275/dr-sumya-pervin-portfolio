@@ -41,7 +41,8 @@ export const PAGES = [
   { path: '/book/', title: T('Book a Consultation'),
     desc: 'Book a Specialist, Comprehensive, Signature or Procedure Assessment consultation. Serial, time window and what to bring, by SMS/WhatsApp.' },
   { path: '/consultation-prep/', title: T('Prepare for Your Visit'),
-    desc: 'Seven quick questions and a two-minute guide: what to bring, what your first visit involves, and which consultation depth likely fits.' },
+    desc: 'Seven quick questions and a two-minute guide: what to bring, what your first visit involves, and which consultation depth likely fits.',
+    body: 'prep' },
   { path: '/bridal-and-groom/', title: T('Bridal & Groom Skin Programmes'),
     desc: 'Doctor-planned 8–12 week programmes for wedding preparation. No whitening products, at any tier.', gate: 'licence' },
   { path: '/skin-care-products/', title: T('Skin Care Products — Dermatologist-Selected'),
@@ -55,9 +56,11 @@ export const PAGES = [
 
   // — Tools —
   { path: '/tools/mole-check/', title: T('Mole Check — Check Your Moles in 5 Minutes'),
-    desc: 'The ABCDE rule plus the brown-skin rule: palms, soles and nails, and the ugly-duckling sign. Nothing is stored.' },
+    desc: 'The ABCDE rule plus the brown-skin rule: palms, soles and nails, and the ugly-duckling sign. Nothing is stored.',
+    body: 'moleCheck' },
   { path: '/tools/skin-type-guide/', title: T('Skin Type Guide — 2 Minutes'),
-    desc: 'Six questions to your skin type and sun-reactivity, with a three-step routine for Dhaka’s humidity.' },
+    desc: 'Six questions to your skin type and sun-reactivity, with a three-step routine for Dhaka’s humidity.',
+    body: 'skinType' },
 
   // — 12 condition pages —
   ...[

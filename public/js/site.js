@@ -133,3 +133,94 @@
   syncAreas();
   render();
 })();
+
+// — Interactive tools (docx §5.40): mole check, skin-type guide, prepare-for-visit.
+// All client-side, nothing stored, CSP-safe (no inline handlers).
+(() => {
+  'use strict';
+  const val = (form, name) => {
+    const el = form.querySelector(`input[name="${name}"]:checked`);
+    return el ? el.value : '';
+  };
+  const show = (id, html) => {
+    const out = document.getElementById(id);
+    if (!out) return;
+    out.innerHTML = html;
+    out.hidden = false;
+    out.focus && out.focus();
+  };
+
+  const mole = document.querySelector('form[data-tool="mole-check"]');
+  if (mole) {
+    mole.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const hit = [...mole.querySelectorAll('input[data-sign]:checked')].map((i) => i.dataset.sign);
+      show('moleOut', hit.length
+        ? `<h3>Worth a dermatologist’s look</h3><p>You ticked ${hit.length} sign${hit.length > 1 ? 's' : ''} (${hit.join(', ')}). This does not mean the mole is dangerous, but it should be examined. Book a mole check with a priority slot for suspicious moles.</p>`
+        : `<h3>Nothing concerning today</h3><p>No ABCDE or brown-skin signs were ticked. Check monthly, and come if anything changes — a mole that is new, changing or bleeding always deserves a look.</p>`);
+    });
+  }
+
+  const skin = document.querySelector('form[data-tool="skin-type"]');
+  if (skin) {
+    skin.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const feel = val(skin, 'feel'), react = val(skin, 'react'), sun = val(skin, 'sun');
+      const breakouts = val(skin, 'breakouts'), marks = val(skin, 'marks'), outdoor = val(skin, 'outdoor');
+      if (!feel || !react || !sun || !breakouts || !marks || !outdoor) {
+        show('skinOut', `<h3>Almost there</h3><p>Please answer all six questions so the guide can give you a routine.</p>`);
+        return;
+      }
+      let type = 'combination';
+      if (react === 'sting') type = 'sensitive';
+      else if (feel === 'oily' || breakouts === 'often') type = 'oily';
+      else if (feel === 'tight') type = 'dry';
+      else if (feel === 'tzone') type = 'combination';
+      else type = 'normal';
+
+      const ROUTINE = {
+        oily: ['Gel cleanser, twice a day', 'Light, oil-free moisturiser', 'Non-comedogenic sunscreen SPF 50, every morning'],
+        combination: ['Gentle foaming cleanser', 'Light moisturiser on dry areas', 'Sunscreen SPF 50, every morning'],
+        dry: ['Cream cleanser, no soap', 'Rich moisturiser while skin is damp', 'Sunscreen SPF 50, every morning'],
+        sensitive: ['Fragrance-free gentle cleanser', 'Barrier moisturiser, minimal actives', 'Mineral or fragrance-free sunscreen SPF 50'],
+        normal: ['Gentle cleanser', 'Light moisturiser', 'Sunscreen SPF 50, every morning'],
+      };
+      const sunText = sun === 'burn' ? 'High — you burn easily, so daily sunscreen is essential.'
+        : sun === 'deep' ? 'Lower burning risk, but higher risk of dark marks after any inflammation.'
+        : 'Moderate — daily sunscreen still matters, especially for pigmentation.';
+      const suit = type === 'sensitive' || type === 'dry'
+        ? 'Peels and laser need gentler settings and a patch test; tell your doctor you react easily.'
+        : 'Most peels and lasers suit this skin, with settings chosen for South Asian skin.';
+
+      show('skinOut', `<h3>Your skin type: ${type}</h3>
+        <p><b>Sun reactivity:</b> ${sunText}</p>
+        <p><b>A simple routine for Dhaka</b></p>
+        <ul>${ROUTINE[type].map((s) => `<li>${s}</li>`).join('')}</ul>
+        <p><b>Peels and laser:</b> ${suit}</p>
+        <p class="tool-fine">For a diagnosis, book a consultation.</p>`);
+    });
+  }
+
+  const prep = document.querySelector('form[data-tool="prep"]');
+  if (prep) {
+    prep.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const duration = val(prep, 'duration'), itch = val(prep, 'itch'), products = val(prep, 'products');
+      const doctors = val(prep, 'doctors'), conditions = val(prep, 'conditions'), photo = val(prep, 'photo');
+      const cosmetic = val(prep, 'cosmetic');
+      if (!duration || !itch || !products || !doctors || !conditions || !photo || !cosmetic) {
+        show('prepOut', `<h3>Almost there</h3><p>Please answer all the questions so we can suggest the right depth of visit.</p>`);
+        return;
+      }
+      const deep = ['long', 'chronic'].includes(duration) || products === 'many' || conditions === 'yes' || cosmetic === 'yes';
+      const depth = deep
+        ? ['Comprehensive Assessment (40 minutes, ৳3,500) — long-standing or cosmetic concerns usually need baseline photographs, costed options and an included follow-up.']
+        : ['Specialist Consultation (20–25 minutes, ৳2,000) — a focused first visit with examination, dermoscopy and a written plan.'];
+      const bring = photo === 'yes' ? 'Bring the photo of the problem at its worst — it often changes the plan.' : 'Come without oil on the hair and without nail polish if those are affected.';
+      show('prepOut', `<h3>Your visit will likely include</h3>
+        <p>A history, an examination with dermoscopy where it helps, and — only if it would change the treatment — tests, explained and priced before anything is done. You leave with a written plan.</p>
+        <p><b>Suggested depth:</b> ${depth[0]}</p>
+        <p>${bring} Bring your creams and old prescriptions too.</p>`);
+    });
+  }
+})();

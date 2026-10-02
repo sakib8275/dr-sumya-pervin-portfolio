@@ -134,7 +134,11 @@ renderer (`content/pages/article.mjs`) turns structured content
   from verified site facts and the §1.4 voice rules, never invented clinical claims.
 - **Guard:** `tests/pages.test.mjs` still pins that every internal link resolves —
   docx "Links out" targets with no page are rendered as body text, never as links.
+- **Interactive tools (2026-10-03):** the mole check, skin-type guide and
+  prepare-for-visit are now working tools — bespoke bodies in
+  `content/pages/tools.mjs`, client-side logic in `public/js/site.js` (CSP-safe,
+  nothing stored). Pinned by `tests/e2e/site-tools.spec.mjs` (4 specs).
 - **Still open in this programme:** Phase 2 booking tiers (`/book/` is currently a
-  content page, not yet a working form) and the three interactive tools (mole check,
-  skin-type guide, prepare-for-visit) which are content pages pending their JS.
-- **Verified:** `npm run build:site` → 57 pages; `npm test` → 284/284.
+  content page, not yet a working form).
+- **Verified:** `npm run build:site` → 57 pages; `npm test` → 284/284;
+  `npm run test:e2e` → 45/45.

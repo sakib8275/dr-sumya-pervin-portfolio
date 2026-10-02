@@ -86,31 +86,6 @@ export const visit = {
     links: [['See prices', '/prices/'], ['Prepare for your visit', '/consultation-prep/'], ['Current chambers', '/chambers/']],
   },
 
-  '/consultation-prep/': {
-    crumbLabel: 'Prepare for your visit',
-    h1: 'Make the most of your first visit',
-    lede: 'A two-minute check so you arrive prepared and leave with a plan. Nothing you enter is stored, and nothing here is a diagnosis.',
-    sections: [
-      { h2: 'The seven questions', bullets: [
-        'What is the problem, in your own words?',
-        'How long has it been there?',
-        'Does it itch, hurt or spread?',
-        'What products have you already used, and for how long?',
-        'Which other doctors or treatments have you tried?',
-        'Do you have other health conditions or take other medicines?',
-        'Optional: a clear photo of the problem at its worst.',
-      ] },
-      { h2: 'What your visit will likely include', body: 'A history, an examination with dermoscopy where it helps, and — only if it would change the treatment — tests, explained and priced before anything is done. You leave with a written plan: diagnosis, options, timeline and total cost.' },
-      { h2: 'What to bring', bullets: [
-        'The tubes, not the names: every cream, ointment, oil or soap you use',
-        'Previous prescriptions and reports',
-        'A list of your other medicines',
-        'For hair problems, come without oil; for nails, come without polish',
-      ] },
-    ],
-    links: [['Book a consultation', '/book/'], ['See prices', '/prices/'], ['Current chambers', '/chambers/']],
-  },
-
   '/skin-care-products/': {
     crumbLabel: 'Skin care products',
     h1: 'Skin care, simplified',
@@ -185,45 +160,6 @@ export const visit = {
       { h2: 'Getting here', body: 'Both chambers are on the Ring Road / Khilji Road corridor in Shyamoli. Rickshaw and CNG drop-off is at the gate. Parking is limited — arrive a few minutes early on busy evenings.' },
     ],
     links: [['Book a consultation', '/book/'], ['Current chambers', '/chambers/'], ['Prepare for your visit', '/consultation-prep/']],
-  },
-
-  '/tools/mole-check/': {
-    crumbLabel: 'Mole check',
-    h1: 'Check your moles in 5 minutes',
-    lede: 'The ABCDE rule, plus the brown-skin rule. Nothing you enter is stored, and this is a guide to whether a mole deserves a dermatologist’s look — not a diagnosis.',
-    sections: [
-      { h2: 'The ABCDE rule', defs: [
-        ['A — Asymmetry:', 'One half does not match the other.'],
-        ['B — Border:', 'Edges are irregular, ragged or blurred.'],
-        ['C — Colour:', 'More than one colour, or a new dark colour.'],
-        ['D — Diameter:', 'Larger than a pencil eraser (about 6 mm), or growing.'],
-        ['E — Evolving:', 'Changing in size, shape, colour, or starting to itch or bleed.'],
-      ] },
-      { h2: 'The brown-skin rule', body: 'On South Asian skin, also check the palms, soles and nails. A new dark streak under a nail, or a spot on the palm or sole that is changing, deserves a dermatologist’s look even if it does not follow the ABCDE pattern. The “ugly duckling” sign matters too: a mole that simply looks different from the others.' },
-      { h2: 'What the result means', bullets: [
-        'Nothing concerning — check monthly and come if anything changes.',
-        'Worth a dermatologist’s look — book a mole check, with a priority slot for suspicious moles.',
-      ] },
-    ],
-    links: [['Skin cancer and mole checks', '/conditions/skin-cancer/'], ['Book a consultation', '/book/'], ['Precancerous skin lesions', '/conditions/precancerous-skin-lesions/']],
-  },
-
-  '/tools/skin-type-guide/': {
-    crumbLabel: 'Skin type guide',
-    h1: 'Your skin type, in 2 minutes',
-    lede: 'Six questions to your skin type and sun-reactivity, with a simple routine for Dhaka’s humidity. Nothing is stored, and this is guidance — not a diagnosis.',
-    sections: [
-      { h2: 'The six questions', bullets: [
-        'How does your skin feel by midday?',
-        'How does it react to new products?',
-        'How easily does it tan or burn?',
-        'Do you get breakouts?',
-        'Do you get dark marks after spots?',
-        'How much time do you spend outdoors?',
-      ] },
-      { h2: 'What you get', body: 'Your skin type (oily, combination, dry or sensitive) and sun-reactivity level, a 3-step morning and night routine suited to Dhaka’s climate, and a note on laser and peel suitability for your skin. It ends with the only honest next step: for a diagnosis, book a consultation.' },
-    ],
-    links: [['Skin care products', '/skin-care-products/'], ['Melasma and pigmentation', '/conditions/melasma/'], ['Laser hair removal', '/treatments/laser-hair-removal/']],
   },
 
   '/privacy/': {

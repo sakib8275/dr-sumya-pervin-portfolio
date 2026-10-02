@@ -20,10 +20,11 @@ import prices from '../content/pages/prices.mjs';
 import about from '../content/pages/about.mjs';
 import ethics from '../content/pages/ethics.mjs';
 import article from '../content/pages/article.mjs';
+import { moleCheck, skinType, prep } from '../content/pages/tools.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const OUT = join(ROOT, 'public', 'new');
-const BODIES = { home, prices, about, ethics };
+const BODIES = { home, prices, about, ethics, moleCheck, skinType, prep };
 
 // A page renders its bespoke body if named, else the generic article renderer
 // when Phase 3 content exists for its path, else the honest stub.

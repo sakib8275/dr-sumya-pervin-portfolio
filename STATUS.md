@@ -109,7 +109,14 @@ Baseline: round-5 batch committed and pushed as `c5552b9`.
 - **Gates**: price rows carry docx Part-9 tags (OPENING/LICENCE/LASER/YEAR 2); staging shows all
   sections with badges; the live gate is one constant (`ACTIVE_GATE` in `content/site.mjs`).
   Publishing the price list needs D-01…D-06 sign-off first — that is the owner's, not ours.
-- **Verified**: 284/284 node + 41/41 e2e (one-pager untouched); live at `wrangler pages dev`
+- **Interactive tools (2026-10-03)** — the mole check, skin-type guide and prepare-for-visit
+  pages are now working tools (docx §5.40), not static copy: bespoke bodies in
+  `content/pages/tools.mjs` + client-side logic in `public/js/site.js` (CSP-safe, nothing
+  stored). Mole check scores the ABCDE + brown-skin signs to "nothing concerning" or "worth a
+  dermatologist's look"; the skin-type guide returns a type, sun-reactivity, a 3-step Dhaka
+  routine and peel/laser suitability; prepare-for-visit suggests a consultation depth. Pinned by
+  `tests/e2e/site-tools.spec.mjs` (4 specs).
+- **Verified**: 284/284 node + 45/45 e2e (one-pager untouched); live at `wrangler pages dev`
   `http://localhost:8788/new/` — desktop nav mega-menus, estimator arithmetic (৳3,000 × 1.25 =
   ৳3,750), mobile drawer + sticky Call/WhatsApp/Book bar, no horizontal overflow at 375px.
 - **M1 mobile pass (2026-10-03)** — the owner rejected the first phone layout, and docx §7.3
@@ -132,10 +139,9 @@ Baseline: round-5 batch committed and pushed as `c5552b9`.
   reference her photo. `public/assets/hero_portrait.{jpg,webp,-400.jpg}` deleted
   (recoverable from git history). No `hero_portrait` reference remains outside
   dated `docs/**` snapshots.
-- **Next**: Phase 2 booking tiers (D1 migration, API, `/book/` form, digest, CMS) and the three
-  interactive tools (mole check, skin-type guide, prepare-for-visit — currently content pages) →
-  cutover commit flips `BASE` to '' and migrates the one-pager suites. The live site is untouched
-  until then; deploys remain owner-gated.
+- **Next**: Phase 2 booking tiers (D1 migration, API, `/book/` form, digest, CMS) → cutover
+  commit flips `BASE` to '' and migrates the one-pager suites. The live site is untouched until
+  then; deploys remain owner-gated.
 
 ---
 
