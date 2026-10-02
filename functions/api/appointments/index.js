@@ -5,6 +5,9 @@ import { loggedWrite, logWrite } from '../../lib/log.js';
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 const LIMITS = { patient_name: 120, patient_phone: 40, chamber: 120, service: 120, notes: 2000 };
+// Phase 2 booking tiers (migrations/004). Optional: the one-pager omits them.
+const TIERS = ['Specialist Consultation', 'Comprehensive Assessment', 'Signature Skin & Hair Review', 'Procedure Assessment', 'Private Consultation'];
+const SESSIONS = ['Morning', 'Afternoon', 'Evening'];
 
 export async function onRequestGet(context) {
   const auth = await requireAuth(context.request, context.env);
@@ -31,6 +34,18 @@ export async function onRequestPost(context) {
   const f = {};
   for (const key of Object.keys(LIMITS)) f[key] = String(body[key] || '').trim();
   const appointment_date = String(body.appointment_date || '').trim();
+  const consultation_type = String(body.consultation_type || '').trim();
+  const preferred_session = String(body.preferred_session || '').trim();
+
+  // The tiers are a fixed list, so an unknown value is a caller error, not a
+  // free-text field. Rejecting here keeps the CMS and digest from ever showing
+  // a tier the practice does not offer.
+  if (consultation_type && !TIERS.includes(consultation_type)) {
+    return json({ error: 'Unknown consultation type' }, 400);
+  }
+  if (preferred_session && !SESSIONS.includes(preferred_session)) {
+    return json({ error: 'Unknown preferred session' }, 400);
+  }
 
   if (!f.patient_name || !f.patient_phone || !f.chamber || !appointment_date || !f.service) {
     return json({ error: 'Missing required fields' }, 400);
@@ -90,8 +105,8 @@ export async function onRequestPost(context) {
     { id, chamber: f.chamber, appointment_date, service: f.service },
     () =>
       context.env.DB.prepare(
-        'INSERT INTO appointments (id, patient_name, patient_phone, chamber, appointment_date, service, notes) VALUES (?, ?, ?, ?, ?, ?, ?)'
-      ).bind(id, f.patient_name, f.patient_phone, f.chamber, appointment_date, f.service, f.notes).run()
+        'INSERT INTO appointments (id, patient_name, patient_phone, chamber, appointment_date, service, notes, consultation_type, preferred_session) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)'
+      ).bind(id, f.patient_name, f.patient_phone, f.chamber, appointment_date, f.service, f.notes, consultation_type, preferred_session).run()
   );
 
   return json({ id, message: 'Appointment created successfully' }, 201);

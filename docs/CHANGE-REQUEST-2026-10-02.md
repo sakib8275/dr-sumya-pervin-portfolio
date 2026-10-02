@@ -138,7 +138,21 @@ renderer (`content/pages/article.mjs`) turns structured content
   prepare-for-visit are now working tools — bespoke bodies in
   `content/pages/tools.mjs`, client-side logic in `public/js/site.js` (CSP-safe,
   nothing stored). Pinned by `tests/e2e/site-tools.spec.mjs` (4 specs).
-- **Still open in this programme:** Phase 2 booking tiers (`/book/` is currently a
-  content page, not yet a working form).
-- **Verified:** `npm run build:site` → 57 pages; `npm test` → 284/284;
-  `npm run test:e2e` → 45/45.
+## Phase 2 booking tiers (2026-10-03) — `/book/` is a working form
+
+- `migrations/004_consultation_tiers.sql` adds `consultation_type` and
+  `preferred_session` (both optional — the one-pager omits them, so its rows keep
+  `''` and its tests are untouched).
+- `POST /api/appointments` validates the tier against a fixed allowlist
+  (Specialist / Comprehensive / Signature / Procedure Assessment / Private) and
+  the session (Morning / Afternoon / Evening), and stores both.
+- The form is a bespoke body (`content/pages/book.mjs`) with Turnstile (action
+  `booking`, the same widget the one-pager uses) and the pre-hydration
+  disabled-button guard; `public/js/site.js` submits to the same endpoint. The
+  CMS appointment row shows the tier and session.
+- **Verified:** 4 new API tests + `tests/e2e/site-booking.spec.mjs` (2 specs).
+
+- **Still open in this programme:** the **cutover** — flip `BASE` to '' and
+  migrate the one-pager suites (owner-gated).
+- **Verified:** `npm run build:site` → 57 pages; `npm test` → 288/288;
+  `npm run test:e2e` → 47/47.

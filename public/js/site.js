@@ -201,6 +201,90 @@
     });
   }
 
+  // — /book/ booking form (Phase 2). Reuses the one-pager's /api/appointments,
+  // Turnstile action 'booking' and pre-hydration disabled-button guard.
+  const bk = document.getElementById('siteBookingForm');
+  if (bk) {
+    const SITEKEY = '0x4AAAAAAEClxf8-TRYoLcZl';
+    const submitBtn = document.getElementById('sbSubmit');
+    const status = document.getElementById('sbStatus');
+    const confirmBox = document.getElementById('sbConfirm');
+    const fields = document.getElementById('sbFields');
+    const say = (msg, kind) => {
+      status.hidden = false;
+      status.className = 'bk-status' + (kind ? ' ' + kind : '');
+      status.textContent = msg;
+      status.scrollIntoView({ block: 'nearest' });
+    };
+
+    // Enable the submit only once a handler is attached, so a pre-hydration
+    // submit cannot fall through to a native GET (same rule as the one-pager).
+    if (submitBtn) { submitBtn.disabled = false; submitBtn.removeAttribute('aria-busy'); }
+
+    let widgetId = null;
+    const ensureTurnstile = () => new Promise((resolve, reject) => {
+      if (window.turnstile) return resolve();
+      const s = document.createElement('script');
+      s.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+      s.async = true; s.defer = true;
+      s.onload = () => resolve();
+      s.onerror = () => reject(new Error('turnstile failed to load'));
+      document.head.appendChild(s);
+    });
+    ensureTurnstile().then(() => {
+      const mount = document.getElementById('turnstileBooking');
+      if (mount && window.turnstile && widgetId === null) {
+        widgetId = window.turnstile.render(mount, { sitekey: SITEKEY, action: 'booking' });
+      }
+    }).catch(() => { /* the token guard on submit explains it */ });
+
+    bk.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      confirmBox.hidden = true;
+      const name = document.getElementById('sbName').value.trim();
+      const phone = document.getElementById('sbPhone').value.trim();
+      const tier = document.getElementById('sbTier').value;
+      const chamber = document.getElementById('sbChamber').value;
+      const date = document.getElementById('sbDate').value;
+      const session = document.getElementById('sbSession').value;
+      const notes = document.getElementById('sbNotes').value.trim();
+
+      if (!name || !phone || !date) { say('Please add your name, mobile number and a preferred date.', 'err'); return; }
+      const digits = phone.replace(/[^0-9]/g, '');
+      if (digits.length < 7 || digits.length > 15) { say('Please enter a valid mobile number, including the country code.', 'err'); return; }
+
+      const token = widgetId !== null && window.turnstile ? window.turnstile.getResponse(widgetId) : '';
+      if (!token) { say('Please complete the verification check below, then submit again.', 'warn'); return; }
+
+      const label = submitBtn.textContent;
+      submitBtn.disabled = true; submitBtn.setAttribute('aria-busy', 'true'); submitBtn.textContent = 'Sending your request…';
+      try {
+        const res = await fetch('/api/appointments', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            patient_name: name, patient_phone: phone, chamber, appointment_date: date,
+            service: tier, consultation_type: tier, preferred_session: session, notes,
+            'cf-turnstile-response': token
+          })
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.error || 'We could not send your request.');
+        if (window.turnstile && widgetId !== null) window.turnstile.reset(widgetId);
+        fields.hidden = true;
+        status.hidden = true;
+        confirmBox.hidden = false;
+        confirmBox.innerHTML = `<h2>Request received</h2>
+          <p>Thank you, ${name.replace(/[<>&]/g, '')}. Your reference is <b>${data.id}</b>.</p>
+          <p>We will send your serial, time window and what to bring by SMS/WhatsApp within 2 working hours. If you need to change anything, message the clinic with this reference.</p>
+          <p><a class="btn btn-ink" href="../consultation-prep/">Prepare for your visit</a></p>`;
+      } catch (err) {
+        submitBtn.disabled = false; submitBtn.removeAttribute('aria-busy'); submitBtn.textContent = label;
+        say(err.message || 'We could not send your request. Please try again.', 'err');
+      }
+    });
+  }
+
   const prep = document.querySelector('form[data-tool="prep"]');
   if (prep) {
     prep.addEventListener('submit', (e) => {

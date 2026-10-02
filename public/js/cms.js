@@ -842,7 +842,7 @@ const exportBtn = document.getElementById('exportCMSBackup');
 
           <div style="font-size:13.5px; color:var(--ink);">
             \uD83D\uDCC5 <strong>Date:</strong> ${escapeHTML(app.appointment_date)} &nbsp;|&nbsp; \uD83C\uDFE5 <strong>Chamber:</strong> ${escapeHTML(app.chamber)}<br>
-            \uD83D\uDC89 <strong>Service:</strong> ${escapeHTML(app.service)} ${app.notes ? '<br>\uD83D\uDCDD <strong>Notes:</strong> <em>' + escapeHTML(app.notes) + '</em>' : ''}
+            \uD83D\uDC89 <strong>Service:</strong> ${escapeHTML(app.service)}${app.consultation_type ? ' &nbsp;|&nbsp; \uD83E\uDE7A <strong>Type:</strong> ' + escapeHTML(app.consultation_type) : ''}${app.preferred_session ? ' (' + escapeHTML(app.preferred_session) + ')' : ''} ${app.notes ? '<br>\uD83D\uDCDD <strong>Notes:</strong> <em>' + escapeHTML(app.notes) + '</em>' : ''}
           </div>
 
           <div style="display:flex; justify-content:space-between; align-items:center; margin-top:6px; flex-wrap:wrap; gap:8px;">

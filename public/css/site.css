@@ -220,6 +220,35 @@ h1, h2, h3 { line-height: 1.12; letter-spacing: -.01em; color: var(--ink); }
 .tool-out ul { margin: 8px 0 14px 1.2em; }
 .tool-out li { margin-bottom: 6px; }
 .tool-fine { color: var(--grey); font-size: 13px; margin-top: 16px; max-width: 70ch; }
+/* — Booking (/book/) — */
+.bk-grid { display: grid; grid-template-columns: 1.15fr .85fr; gap: 40px; align-items: start; }
+.bk-form { max-width: none; }
+.bk-field { display: block; font-weight: 600; font-size: 14px; margin-bottom: 16px; }
+.bk-field input, .bk-field select, .bk-field textarea { display: block; width: 100%; margin-top: 6px;
+  padding: 12px 14px; border: 1px solid var(--hair); border-radius: 12px; background: #fff;
+  font: inherit; font-weight: 400; color: var(--ink); }
+.bk-field input:focus, .bk-field select:focus, .bk-field textarea:focus { outline: 2px solid var(--gold); outline-offset: 1px; }
+.bk-remind { margin: 6px 0 20px; }
+.bk-verify { border-top: 1px solid var(--hair); padding-top: 18px; margin-bottom: 18px; }
+.bk-status { padding: 14px 16px; border-radius: 12px; margin-bottom: 18px; font-size: 14px;
+  background: #FFF3CD; color: #856404; }
+.bk-status.err { background: #fdecea; color: #b3261e; }
+.bk-status.warn { background: #FFF3CD; color: #856404; }
+.bk-confirm { padding: 24px 26px; border-radius: var(--r-card); background: var(--butter);
+  border-left: 4px solid var(--gold); margin-bottom: 18px; }
+.bk-confirm h2 { margin-bottom: 10px; }
+.bk-confirm p { margin-bottom: 10px; }
+.bk-aside h2 { font-size: 22px; margin: 4px 0 14px; }
+.bk-steps { margin: 0 0 26px 1.1em; }
+.bk-steps li { margin-bottom: 12px; }
+.bk-steps p { color: var(--grey); font-size: 14px; margin-top: 2px; }
+.bk-fees { list-style: none; margin: 0 0 16px; }
+.bk-fees li { display: flex; justify-content: space-between; gap: 16px; padding: 12px 0;
+  border-bottom: 1px solid var(--hair); font-size: 14px; }
+.bk-fees b { white-space: nowrap; }
+@media (max-width: 820px) {
+  .bk-grid { grid-template-columns: 1fr; gap: 28px; }
+}
 
 /* — Home — */
 .h-hero { background: radial-gradient(120% 90% at 78% 52%, var(--gold) 0%, var(--amber) 42%, var(--orange) 100%); }

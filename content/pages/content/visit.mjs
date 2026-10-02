@@ -66,26 +66,6 @@ export const visit = {
     links: [['Prepare for your visit', '/consultation-prep/'], ['Book a consultation', '/book/']],
   },
 
-  '/book/': {
-    crumbLabel: 'Book',
-    h1: 'Book a consultation',
-    lede: 'Choose the depth of your first visit, then tell us your preferred day and session. You will receive your serial, time window and what to bring by SMS/WhatsApp within 2 working hours.',
-    sections: [
-      { h2: 'Consultation types', defs: [
-        ['Specialist Consultation — ৳2,000:', '20–25 minutes with Dr. Sumya. Examination, dermoscopy, a written diagnosis and care plan, a ৳0 report review within 14 days, and one WhatsApp check-in.'],
-        ['Comprehensive Assessment — ৳3,500:', '40 minutes. Everything in Specialist, plus standardised baseline photographs, costed options for every route, one follow-up within 30 days, and two WhatsApp check-ins.'],
-        ['Signature Skin &amp; Hair Review — ৳6,000:', '60 minutes. Everything in Comprehensive, plus a full-body mole map or scalp trichoscopy, same-visit fungal and Wood’s lamp tests, a typed report, and a 3-month review message.'],
-        ['Procedure Assessment — ৳1,500:', 'For a specific mole, lump, wart or scar. Fully adjusted against session 1 if you proceed.'],
-      ] },
-      { h2: 'What happens next', bullets: [
-        'You will receive your serial, time window and what to bring by SMS/WhatsApp within 2 working hours.',
-        'Bring your creams and old prescriptions — it changes the diagnosis more often than people expect.',
-        'No package is sold at a first visit. If a Care Plan suits you, it is offered only after diagnosis.',
-      ] },
-    ],
-    links: [['See prices', '/prices/'], ['Prepare for your visit', '/consultation-prep/'], ['Current chambers', '/chambers/']],
-  },
-
   '/skin-care-products/': {
     crumbLabel: 'Skin care products',
     h1: 'Skin care, simplified',

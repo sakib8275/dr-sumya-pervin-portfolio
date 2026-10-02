@@ -116,7 +116,15 @@ Baseline: round-5 batch committed and pushed as `c5552b9`.
   dermatologist's look"; the skin-type guide returns a type, sun-reactivity, a 3-step Dhaka
   routine and peel/laser suitability; prepare-for-visit suggests a consultation depth. Pinned by
   `tests/e2e/site-tools.spec.mjs` (4 specs).
-- **Verified**: 284/284 node + 45/45 e2e (one-pager untouched); live at `wrangler pages dev`
+- **Phase 2 booking tiers (2026-10-03)** — `/book/` is now a working form, not copy. Migration
+  `004_consultation_tiers.sql` adds `consultation_type` + `preferred_session` (both optional, so
+  the one-pager is unaffected); `POST /api/appointments` validates the tier against a fixed
+  allowlist (Specialist / Comprehensive / Signature / Procedure Assessment / Private) and the
+  session (Morning / Afternoon / Evening); the CMS appointment row shows the tier and session.
+  The form is a bespoke body (`content/pages/book.mjs`) with Turnstile (action `booking`, same
+  widget the one-pager uses) and the pre-hydration disabled-button guard; site.js submits to the
+  same endpoint. Pinned by 4 API tests + `tests/e2e/site-booking.spec.mjs` (2 specs).
+- **Verified**: 288/288 node + 47/47 e2e (one-pager untouched); live at `wrangler pages dev`
   `http://localhost:8788/new/` — desktop nav mega-menus, estimator arithmetic (৳3,000 × 1.25 =
   ৳3,750), mobile drawer + sticky Call/WhatsApp/Book bar, no horizontal overflow at 375px.
 - **M1 mobile pass (2026-10-03)** — the owner rejected the first phone layout, and docx §7.3
@@ -139,9 +147,10 @@ Baseline: round-5 batch committed and pushed as `c5552b9`.
   reference her photo. `public/assets/hero_portrait.{jpg,webp,-400.jpg}` deleted
   (recoverable from git history). No `hero_portrait` reference remains outside
   dated `docs/**` snapshots.
-- **Next**: Phase 2 booking tiers (D1 migration, API, `/book/` form, digest, CMS) → cutover
-  commit flips `BASE` to '' and migrates the one-pager suites. The live site is untouched until
-  then; deploys remain owner-gated.
+- **Next**: the **cutover** — flip `BASE` to '' so the multi-page build serves from the site root,
+  and migrate the one-pager suites in the same change. This is the one remaining step; it is
+  owner-gated (it replaces the live-serving artifact), and the live site is untouched until the
+  owner deploys.
 
 ---
 

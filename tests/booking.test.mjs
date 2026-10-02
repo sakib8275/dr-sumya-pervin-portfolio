@@ -52,6 +52,44 @@ test('a solved token books, and the id returned is the id stored', async () => {
   assert.equal(row.appointment_date, OPEN_DATE);
 });
 
+test('a consultation tier and session are stored when supplied', async () => {
+  const res = await post(valid({
+    consultation_type: 'Comprehensive Assessment',
+    preferred_session: 'Evening'
+  }));
+  assert.equal(res.status, 201);
+
+  const { id } = await res.json();
+  const row = await h.db.prepare('SELECT consultation_type, preferred_session FROM appointments WHERE id = ?').bind(id).first();
+  assert.equal(row.consultation_type, 'Comprehensive Assessment');
+  assert.equal(row.preferred_session, 'Evening');
+});
+
+test('the one-pager booking with no tier still writes empty tier columns', async () => {
+  const res = await post(valid());
+  assert.equal(res.status, 201);
+  const { id } = await res.json();
+  const row = await h.db.prepare('SELECT consultation_type, preferred_session FROM appointments WHERE id = ?').bind(id).first();
+  assert.equal(row.consultation_type, '');
+  assert.equal(row.preferred_session, '');
+});
+
+test('an unknown consultation tier is refused and writes nothing', async () => {
+  const before = await countRows();
+  const res = await post(valid({ consultation_type: 'Free Whitening Package' }));
+  assert.equal(res.status, 400);
+  assert.match((await res.json()).error, /Unknown consultation type/);
+  assert.equal(await countRows(), before);
+});
+
+test('an unknown preferred session is refused', async () => {
+  const before = await countRows();
+  const res = await post(valid({ preferred_session: 'Midnight' }));
+  assert.equal(res.status, 400);
+  assert.match((await res.json()).error, /Unknown preferred session/);
+  assert.equal(await countRows(), before);
+});
+
 test('siteverify is sent the configured secret and the caller IP field', async () => {
   const before = h.siteverify.calls.length;
   await post(valid());
