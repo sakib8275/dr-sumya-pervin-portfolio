@@ -1,7 +1,7 @@
 import { requireAuth, readJson, json } from '../../lib/auth.js';
 import { verifyTurnstile } from '../../lib/turnstile.js';
 import { validateSlot } from '../../lib/schedule.js';
-import { loggedWrite } from '../../lib/log.js';
+import { loggedWrite, logWrite } from '../../lib/log.js';
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 const LIMITS = { patient_name: 120, patient_phone: 40, chamber: 120, service: 120, notes: 2000 };
@@ -44,6 +44,19 @@ export async function onRequestPost(context) {
     return json({ error: 'appointment_date must be a valid YYYY-MM-DD date' }, 400);
   }
 
+  // The phone is the only way the practice can reach the patient back, and the
+  // client-side check is not one: main.js's validatePhone() strips every
+  // non-digit and then tests a character class that includes digits, so it only
+  // ever counted length -- and any caller can skip the form entirely. Without
+  // this, 'aaaa' stored fine and the CMS row then rendered a WhatsApp button
+  // pointing at https://wa.me/ with no number: a dead control on the one row the
+  // doctor needs to act on. 15 is the E.164 maximum; 7 admits short national
+  // formats without admitting junk.
+  const phoneDigits = f.patient_phone.replace(/[^0-9]/g, '');
+  if (phoneDigits.length < 7 || phoneDigits.length > 15) {
+    return json({ error: 'Please enter a valid mobile number, including the country code.' }, 400);
+  }
+
   // Chamber schedule: only the listed chambers, only on consultation days, and
   // same-day bookings close 30 minutes before consultation starts.
   const slotError = validateSlot(f.chamber, appointment_date);
@@ -57,8 +70,15 @@ export async function onRequestPost(context) {
     .bind(f.patient_phone, appointment_date, f.chamber)
     .first();
   if (duplicate) {
+    // The reference id is deliberately NOT echoed to the caller. This endpoint
+    // is unauthenticated, so returning it let anyone who supplied a phone number
+    // confirm that its owner has a dermatology appointment at a named chamber on
+    // a given date -- and handed them its reference. Turnstile rate-limits that
+    // probe; it does not make the disclosure acceptable. The id goes to the log
+    // instead, which is where the operator looks anyway.
+    logWrite('appointment.duplicate', { id: duplicate.id, chamber: f.chamber, appointment_date });
     return json({
-      error: `A booking already exists for this number at this chamber on ${appointment_date} (reference ${duplicate.id}).`
+      error: `A booking already exists for this number at this chamber on ${appointment_date}. Please contact the chamber if you need to change it.`
     }, 409);
   }
 

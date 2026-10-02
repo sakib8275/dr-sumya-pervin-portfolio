@@ -32,3 +32,9 @@ backups/
 
 # `gh run download` drops Actions logs in the repo root as logs_<run-id>/.
 logs_*/
+
+# ZCode agent-session scratch (memories, artifacts). Not part of this project.
+.zcode/
+
+# LibreOffice in-edit lock files inside Change Request/.
+.~lock*

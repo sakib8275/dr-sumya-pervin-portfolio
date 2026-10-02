@@ -25,6 +25,14 @@ export async function onRequestPost(context) {
   if (!safeEqual(inputHash, row.pin_hash)) return json({ error: 'Incorrect PIN' }, 401);
 
   if (row.totp_enabled === 1) {
+    // One row is written per correct PIN and only deleted on success or on the
+    // 5th wrong code, so every abandoned 2FA prompt leaked a row. The challenge
+    // JWT itself expires in 5 minutes (signChallengeToken), which makes anything
+    // older than that unusable regardless.
+    await context.env.DB
+      .prepare("DELETE FROM twofa_challenges WHERE created_at < datetime('now', '-15 minutes')")
+      .run();
+
     const challengeId = (globalThis.crypto?.randomUUID ? globalThis.crypto.randomUUID() : Math.random().toString(36).slice(2));
     await context.env.DB
       .prepare('INSERT INTO twofa_challenges (challenge_id, attempts) VALUES (?, 0)')

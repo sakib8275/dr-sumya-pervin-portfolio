@@ -54,40 +54,62 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
+  <!-- The hero portrait is the LCP element and is the only eager image on the
+       page. Preloaded as WebP with an explicit type so a browser without WebP
+       support skips the hint entirely and falls through to the <picture>'s JPEG
+       rather than fetching a format it cannot decode. -->
+  <link rel="preload" as="image" href="assets/hero_portrait.webp" type="image/webp" fetchpriority="high">
   <!-- Blocking and in <head> on purpose: it must be in place before the booking
        form is parsed. See the comment in the file and above #bookingForm. -->
   <script src="js/formguard.js"></script>
-  <script src="js/richtext.js" defer></script>
-  <script src="js/vendor/qrcode.min.js" defer></script>
+  <!-- type="module", because richtext.js uses ES exports (tests/richtext.test.mjs
+       imports them). Loaded as a classic script it threw "Unexpected token
+       'export'" on every single page load, which meant the window.RichText
+       assignment at the bottom of the file never ran -- so loadSiteContent()'s
+       check for it always failed and the doctor's **bold** markup in the hero
+       tagline, the about intro and the band text rendered as literal asterisks.
+       Modules are deferred, so this still executes before DOMContentLoaded. -->
+  <script type="module" src="js/richtext.js"></script>
   <!-- Explicit render mode: main.js calls turnstile.render() so it can keep each
        widget id and reset it between attempts. -->
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
 </head>
 <body>
+<a class="skip-link" href="#main-content">Skip to content</a>
 <div class="shell">
+
+  <!-- A11: this wrapper must stay a SIBLING of the hero, never a child.
+       position:sticky only works within the parent's box, and the hero is one
+       viewport tall, so inside it the stuck bar detached below the first screen
+       and every deep anchor landed navless. .shell spans the whole page; the
+       height:0 wrapper and the absolutely positioned .nav keep the transparent
+       over-hero look unchanged until .scrolled sticks the bar. -->
+  <div class="nav-sticky-wrapper"><nav class="nav">
+    <div class="nav-links">
+      <a href="#top" class="on">Home</a>
+      <a href="#about">About</a>
+      <a href="#chambers">Chambers</a>
+      <a href="#services">Services</a>
+      <a href="#results">Results</a>
+      <a href="#faq">FAQ</a>
+    </div>
+    <span class="wordmark">Dr. Sumya Pervin, MD</span>
+    <div class="nav-right">
+      <!-- Populated from /api/config/public; hidden until a real number is set in the CMS. -->
+      <span class="nav-tel" id="navTel" hidden></span>
+      <a class="btn btn-glass open-booking" href="#book">Book Appointment</a>
+      <button class="burger" id="burger" aria-expanded="false" aria-controls="mobileDrawer">Menu</button>
+    </div>
+  </nav></div>
 
   <!-- HERO SECTION WITH DR. SUMYA PERVIN PORTRAIT IMAGE -->
   <header class="hero" id="top">
     <div class="hero-figure">
-      <img src="assets/hero_portrait.jpg" alt="Dr. Sumya Pervin, MD Specialist">
+      <picture>
+        <source srcset="assets/hero_portrait.webp" type="image/webp">
+        <img src="assets/hero_portrait.jpg" width="1024" height="1024" alt="Dr. Sumya Pervin, MD, consultant dermatologist" fetchpriority="high">
+      </picture>
     </div>
-    <div class="nav-sticky-wrapper"><nav class="nav">
-      <div class="nav-links">
-        <a href="#top" class="on">Home</a>
-        <a href="#about">About</a>
-        <a href="#chambers">Chambers</a>
-        <a href="#services">Services</a>
-        <a href="#results">Results</a>
-        <a href="#faq">FAQ</a>
-      </div>
-      <span class="wordmark">Dr. Sumya Pervin, MD</span>
-      <div class="nav-right">
-        <!-- Populated from /api/config/public; hidden until a real number is set in the CMS. -->
-        <span class="nav-tel" id="navTel" hidden></span>
-        <a class="btn btn-glass open-booking" href="#book">Book Appointment</a>
-        <button class="burger" id="burger">Menu</button>
-      </div>
-    </nav></div>
     <div class="hero-inner">
       <h1 data-r data-content="hero.headline">Personalized Aesthetic Care You Can Trust</h1>
       <p data-r data-content="hero.tagline">Restore confidence in your skin with science-backed, gentle treatments tailored just for you by Dr. Sumya Pervin, MD.</p>
@@ -108,36 +130,34 @@
     </div>
   </header>
 
-<main id="main-content">
+<main id="main-content" tabindex="-1">
 
-  <!-- QUICK STATS -->
+  <!-- ABOUT -->
   <section class="sec wrap" id="about">
     <div class="sec-head" data-r>
-      <span class="pill">Quick Stats</span>
       <h2><span class="w1">Meet</span> <i class="chip">◎</i> <span class="w2">Dr. Sumya Pervin</span><br><span class="w1">Aesthetic</span> <span class="w2">Expert</span></h2>
       <p class="sec-sub" data-content="about.intro">Assistant Professor in the Department of Skin &amp; VD at Sir Salimullah Medical College &amp; Mitford Hospital with specialized expertise in Dermatosurgery and Cosmetic Dermatology.</p>
     </div>
-    <div class="stats">
-      <article class="stat stat--a" data-r>
-        <span class="stat-lab">Medical Experience</span>
-        <span class="stat-ico">✚</span>
-        <span class="stat-num">14+</span>
-        <span class="stat-desc">years of experience in aesthetic and clinical dermatology</span>
-        <div class="stat-tags">
-          <span>SSMC &amp; Mitford Hospital</span>
-          <span>Alliance Hospital</span>
-        </div>
-      </article>
-      <article class="stat stat--b" data-r>
-        <span class="stat-lab">Formal Education</span>
-        <span class="stat-ico">▤</span>
-        <div class="diploma-badge">FCPS &amp; DDV</div>
-        <span class="stat-num">6</span>
-        <span class="stat-desc">years of formal specialist medical training</span>
-      </article>
-      <!-- A third stat card ("1500+ procedures annually") was removed 2026-08-02:
-           an unsourced procedure count is a medical advertising claim. Restore only
+    <!-- Type-only stat row (owner-requested 2026-10-02): every other section is
+         a card grid, so About stays editorial — numerals, labels and hairlines
+         that separate without enclosing. All three numbers are owner-supplied;
+         context.md is the source of truth. -->
+    <div class="statrow">
+      <!-- A "1500+ procedures annually" stat was removed 2026-08-02: an
+           unsourced procedure count is a medical advertising claim. Restore only
            with a basis supplied by the practice. -->
+      <div class="statrow-item" data-r>
+        <span class="statrow-num">15+</span>
+        <span class="statrow-lab">Years in Medical Practice</span>
+      </div>
+      <div class="statrow-item" data-r>
+        <span class="statrow-num">10+</span>
+        <span class="statrow-lab">Years in Government Service</span>
+      </div>
+      <div class="statrow-item" data-r>
+        <span class="statrow-num">7+</span>
+        <span class="statrow-lab">Years as Dermatology Specialist</span>
+      </div>
     </div>
   </section>
 
@@ -185,19 +205,19 @@
     <div class="quiz-box" data-r>
       <h4 style="margin: 0 0 12px; color: var(--sienna);">Step 1: What is your main skin concern?</h4>
       <div class="quiz-steps-grid">
-        <button class="quiz-option-btn quiz-goal-btn" data-goal="acne">
+        <button class="quiz-option-btn quiz-goal-btn" data-goal="acne" aria-pressed="false">
           <span>Acne &amp; Deep Scarring</span>
           <span>➔</span>
         </button>
-        <button class="quiz-option-btn quiz-goal-btn" data-goal="pigmentation">
+        <button class="quiz-option-btn quiz-goal-btn" data-goal="pigmentation" aria-pressed="false">
           <span>Melasma &amp; Dark Spots</span>
           <span>➔</span>
         </button>
-        <button class="quiz-option-btn quiz-goal-btn" data-goal="hair">
+        <button class="quiz-option-btn quiz-goal-btn" data-goal="hair" aria-pressed="false">
           <span>Hair Loss &amp; Thinning</span>
           <span>➔</span>
         </button>
-        <button class="quiz-option-btn quiz-goal-btn" data-goal="aging">
+        <button class="quiz-option-btn quiz-goal-btn" data-goal="aging" aria-pressed="false">
           <span>Fine Lines &amp; Dullness</span>
           <span>➔</span>
         </button>
@@ -205,10 +225,10 @@
 
       <h4 style="margin: 24px 0 12px; color: var(--sienna);">Step 2: What is your skin type?</h4>
       <div class="quiz-steps-grid">
-        <button class="quiz-option-btn quiz-type-btn" data-type="oily">Oily / Acne-Prone</button>
-        <button class="quiz-option-btn quiz-type-btn" data-type="sensitive">Sensitive / Redness</button>
-        <button class="quiz-option-btn quiz-type-btn" data-type="combination">Combination</button>
-        <button class="quiz-option-btn quiz-type-btn" data-type="dry">Dry / Dehydrated</button>
+        <button class="quiz-option-btn quiz-type-btn" data-type="oily" aria-pressed="false">Oily / Acne-Prone</button>
+        <button class="quiz-option-btn quiz-type-btn" data-type="sensitive" aria-pressed="false">Sensitive / Redness</button>
+        <button class="quiz-option-btn quiz-type-btn" data-type="combination" aria-pressed="false">Combination</button>
+        <button class="quiz-option-btn quiz-type-btn" data-type="dry" aria-pressed="false">Dry / Dehydrated</button>
       </div>
 
       <div id="quizResultBox" aria-live="polite" style="display:none; margin-top: 24px; background: var(--butter); padding: 22px; border-radius: 18px; border: 1px solid var(--tan);">
@@ -221,7 +241,10 @@
   <!-- WHAT I DO / CLINICAL HIGHLIGHT BAND WITH IMAGE -->
   <section class="sec wrap">
     <div class="band" data-r>
-      <img src="assets/clinic.jpg" alt="Clinical Consultation Suite" class="band-bg-img" loading="lazy">
+      <picture>
+        <source srcset="assets/clinic.webp" type="image/webp">
+        <img src="assets/clinic.jpg" width="1024" height="1024" alt="" class="band-bg-img" loading="lazy">
+      </picture>
       <span class="pill">What I Do</span>
       <div class="band-inner">
         <h3 data-content="band.text">Personalized care for timeless skin</h3>
@@ -240,10 +263,22 @@
       <h2><span class="w1">Reveal</span> <i class="chip">✦</i> <span class="w2">Your</span><br><span class="w1">Best Skin Yet</span></h2>
     </div>
 
-    <div class="ba-container" data-r tabindex="0">
-      <img src="assets/treatment.jpg" class="ba-image" alt="After Treatment" loading="lazy">
+    <!-- Arrow keys already moved this (main.js), but a bare tabindex div is
+         announced as nothing operable: a screen-reader user could focus it and
+         had no way to know it was a control or what value it held. -->
+    <div class="ba-container" data-r tabindex="0" role="slider"
+         aria-label="Before and after comparison"
+         aria-valuemin="0" aria-valuemax="100" aria-valuenow="50"
+         aria-valuetext="50% after treatment">
+      <picture>
+        <source srcset="assets/treatment.webp" type="image/webp">
+        <img src="assets/treatment.jpg" width="1024" height="1024" class="ba-image" alt="After Treatment" loading="lazy">
+      </picture>
       <div class="ba-after">
-        <img src="assets/hero_portrait.jpg" class="ba-image" alt="Before Treatment" style="width:100%; max-width:none;" loading="lazy">
+        <picture>
+          <source srcset="assets/hero_portrait.webp" type="image/webp">
+          <img src="assets/hero_portrait.jpg" width="1024" height="1024" class="ba-image" alt="Before Treatment" style="width:100%; max-width:none;" loading="lazy">
+        </picture>
       </div>
       <div class="ba-slider-handle">
         <div class="ba-handle-circle">↔</div>
@@ -259,16 +294,16 @@
       <p class="sec-sub">My commitment to continuous learning ensures you receive treatments grounded in the latest aesthetic medicine advancements, safety protocols, and refined techniques.</p>
     </div>
     <div class="certs">
-      <div class="cert" data-r><b>FCPS (Skin &amp; VD)</b><div class="cert-tag">BCPS Bangladesh</div><div class="cert-img"><img src="assets/hero_portrait.jpg" alt="FCPS" loading="lazy"></div></div>
-      <div class="cert" data-r><b>DDV Dermatology</b><div class="cert-tag">BSMMU University</div><div class="cert-img"><img src="assets/clinic.jpg" alt="DDV" loading="lazy"></div></div>
-      <div class="cert" data-r><b>MBBS Degree</b><div class="cert-tag">Sir Salimullah Med. College</div><div class="cert-img"><img src="assets/hero_portrait.jpg" alt="MBBS" loading="lazy"></div></div>
-      <div class="cert" data-r><b>Dermatosurgery Training</b><div class="cert-tag">Specialized Surgery</div><div class="cert-img"><img src="assets/treatment.jpg" alt="Dermatosurgery" loading="lazy"></div></div>
-      <div class="cert" data-r><b>PRP &amp; Microneedling</b><div class="cert-tag">Aesthetic Masterclass</div><div class="cert-img"><img src="assets/treatment.jpg" alt="PRP" loading="lazy"></div></div>
-      <div class="cert" data-r><b>Advanced Lasers Training</b><div class="cert-tag">Laser Therapy</div><div class="cert-img"><img src="assets/clinic.jpg" alt="Laser" loading="lazy"></div></div>
-      <div class="cert" data-r><b>Acne &amp; Scar Management</b><div class="cert-tag">Clinical Protocol</div><div class="cert-img"><img src="assets/treatment.jpg" alt="Acne" loading="lazy"></div></div>
-      <div class="cert" data-r><b>Chemical Peels Certification</b><div class="cert-tag">Skin Rejuvenation</div><div class="cert-img"><img src="assets/clinic.jpg" alt="Peels" loading="lazy"></div></div>
-      <div class="cert" data-r><b>Hair Loss &amp; Alopecia Care</b><div class="cert-tag">Trichology</div><div class="cert-img"><img src="assets/hero_portrait.jpg" alt="Hair" loading="lazy"></div></div>
-      <div class="cert" data-r><b>Eczema &amp; Psoriasis Care</b><div class="cert-tag">Clinical Derm</div><div class="cert-img"><img src="assets/treatment.jpg" alt="Eczema" loading="lazy"></div></div>
+      <div class="cert" data-r><b>FCPS (Skin &amp; VD)</b><div class="cert-tag">BCPS Bangladesh</div><div class="cert-img"><img src="assets/hero_portrait-400.jpg" width="400" height="400" alt="FCPS" loading="lazy"></div></div>
+      <div class="cert" data-r><b>DDV Dermatology</b><div class="cert-tag">BSMMU University</div><div class="cert-img"><img src="assets/clinic-400.jpg" width="400" height="400" alt="DDV" loading="lazy"></div></div>
+      <div class="cert" data-r><b>MBBS Degree</b><div class="cert-tag">Sir Salimullah Med. College</div><div class="cert-img"><img src="assets/hero_portrait-400.jpg" width="400" height="400" alt="MBBS" loading="lazy"></div></div>
+      <div class="cert" data-r><b>Dermatosurgery Training</b><div class="cert-tag">Specialized Surgery</div><div class="cert-img"><img src="assets/treatment-400.jpg" width="400" height="400" alt="Dermatosurgery" loading="lazy"></div></div>
+      <div class="cert" data-r><b>PRP &amp; Microneedling</b><div class="cert-tag">Aesthetic Masterclass</div><div class="cert-img"><img src="assets/treatment-400.jpg" width="400" height="400" alt="PRP" loading="lazy"></div></div>
+      <div class="cert" data-r><b>Advanced Lasers Training</b><div class="cert-tag">Laser Therapy</div><div class="cert-img"><img src="assets/clinic-400.jpg" width="400" height="400" alt="Laser" loading="lazy"></div></div>
+      <div class="cert" data-r><b>Acne &amp; Scar Management</b><div class="cert-tag">Clinical Protocol</div><div class="cert-img"><img src="assets/treatment-400.jpg" width="400" height="400" alt="Acne" loading="lazy"></div></div>
+      <div class="cert" data-r><b>Chemical Peels Certification</b><div class="cert-tag">Skin Rejuvenation</div><div class="cert-img"><img src="assets/clinic-400.jpg" width="400" height="400" alt="Peels" loading="lazy"></div></div>
+      <div class="cert" data-r><b>Hair Loss &amp; Alopecia Care</b><div class="cert-tag">Trichology</div><div class="cert-img"><img src="assets/hero_portrait-400.jpg" width="400" height="400" alt="Hair" loading="lazy"></div></div>
+      <div class="cert" data-r><b>Eczema &amp; Psoriasis Care</b><div class="cert-tag">Clinical Derm</div><div class="cert-img"><img src="assets/treatment-400.jpg" width="400" height="400" alt="Eczema" loading="lazy"></div></div>
     </div>
   </section>
 
@@ -282,12 +317,11 @@
 
     <div class="gallery-controls" data-r>
       <div class="gallery-filters" id="galleryFilters">
-        <button class="filter-btn active" data-filter="all">All Photos</button>
-        <button class="filter-btn" data-filter="clinical">Clinical</button>
-        <button class="filter-btn" data-filter="procedures">Procedures</button>
-        <button class="filter-btn" data-filter="clinic">Clinic Suite</button>
+        <button class="filter-btn active" data-filter="all" aria-pressed="true">All Photos</button>
+        <button class="filter-btn" data-filter="clinical" aria-pressed="false">Clinical</button>
+        <button class="filter-btn" data-filter="procedures" aria-pressed="false">Procedures</button>
+        <button class="filter-btn" data-filter="clinic" aria-pressed="false">Clinic Suite</button>
       </div>
-      <button class="cms-btn-trigger open-cms">⚙️ Doctor CMS Admin Panel</button>
     </div>
 
     <div class="gallery-grid" id="galleryGrid">
@@ -304,14 +338,14 @@
     </div>
     <div class="svc-toggle"><button class="btn btn-out" id="svcToggle" aria-expanded="false">Show more</button></div>
     <div class="services" id="svcGrid">
-      <article class="svc" data-r tabindex="0" role="button"><div class="svc-top"><h4>Skin Health Coaching</h4><span class="svc-arrow">→</span></div><p>Comprehensive skin analysis and home care recommendations before treatment.</p></article>
-      <article class="svc" data-r tabindex="0" role="button"><div class="svc-top"><h4>Facial &amp; Neck Mesotherapy</h4><span class="svc-arrow">→</span></div><p>Infusion of vitamins and hyaluronic acid for deep hydration.</p></article>
-      <article class="svc" data-r tabindex="0" role="button"><div class="svc-top"><h4>Chemical Peels</h4><span class="svc-arrow">→</span></div><p>Skin rejuvenation, texture refinement, and pigmentation lightening.</p></article>
-      <article class="svc" data-r tabindex="0" role="button"><div class="svc-top"><h4>Microneedling with Serums</h4><span class="svc-arrow">→</span></div><p>Refines skin texture and minimizes pores using active serum blends.</p></article>
-      <article class="svc hide" tabindex="0" role="button"><div class="svc-top"><h4>LED Therapy</h4><span class="svc-arrow">→</span></div><p>Safe treatment for acne, inflammation, and skin tone improvement.</p></article>
-      <article class="svc hide" tabindex="0" role="button"><div class="svc-top"><h4>Sensitive Skin Care Treatments</h4><span class="svc-arrow">→</span></div><p>Redness reduction, barrier repair, and deep hydration.</p></article>
-      <article class="svc hide" tabindex="0" role="button"><div class="svc-top"><h4>Carboxytherapy</h4><span class="svc-arrow">→</span></div><p>CO₂ therapy for skin tightening, brightening, and collagen stimulation.</p></article>
-      <article class="svc hide" tabindex="0" role="button"><div class="svc-top"><h4>Eye Area Care</h4><span class="svc-arrow">→</span></div><p>Treatments to reduce dark circles and puffiness.</p></article>
+      <article class="svc" data-r><div class="svc-top"><h4><button type="button" class="svc-btn">Skin Health Coaching</button></h4><span class="svc-arrow" aria-hidden="true">→</span></div><p>Comprehensive skin analysis and home care recommendations before treatment.</p></article>
+      <article class="svc" data-r><div class="svc-top"><h4><button type="button" class="svc-btn">Facial &amp; Neck Mesotherapy</button></h4><span class="svc-arrow" aria-hidden="true">→</span></div><p>Infusion of vitamins and hyaluronic acid for deep hydration.</p></article>
+      <article class="svc" data-r><div class="svc-top"><h4><button type="button" class="svc-btn">Chemical Peels</button></h4><span class="svc-arrow" aria-hidden="true">→</span></div><p>Skin rejuvenation, texture refinement, and pigmentation lightening.</p></article>
+      <article class="svc" data-r><div class="svc-top"><h4><button type="button" class="svc-btn">Microneedling with Serums</button></h4><span class="svc-arrow" aria-hidden="true">→</span></div><p>Refines skin texture and minimizes pores using active serum blends.</p></article>
+      <article class="svc hide"><div class="svc-top"><h4><button type="button" class="svc-btn">LED Therapy</button></h4><span class="svc-arrow" aria-hidden="true">→</span></div><p>Safe treatment for acne, inflammation, and skin tone improvement.</p></article>
+      <article class="svc hide"><div class="svc-top"><h4><button type="button" class="svc-btn">Sensitive Skin Care Treatments</button></h4><span class="svc-arrow" aria-hidden="true">→</span></div><p>Redness reduction, barrier repair, and deep hydration.</p></article>
+      <article class="svc hide"><div class="svc-top"><h4><button type="button" class="svc-btn">Carboxytherapy</button></h4><span class="svc-arrow" aria-hidden="true">→</span></div><p>CO₂ therapy for skin tightening, brightening, and collagen stimulation.</p></article>
+      <article class="svc hide"><div class="svc-top"><h4><button type="button" class="svc-btn">Eye Area Care</button></h4><span class="svc-arrow" aria-hidden="true">→</span></div><p>Treatments to reduce dark circles and puffiness.</p></article>
     </div>
   </section>
 
@@ -331,14 +365,14 @@
               <b><em>Step 1</em>Skin Consultation</b>
               <span id="stepDesc">We take a full history and discuss the results you want before anything is touched.</span>
             </div>
-            <img src="assets/hero_portrait.jpg" id="stepThumb" class="step-thumb" alt="Diagnostic Step" loading="lazy">
+            <img src="assets/hero_portrait-400.jpg" width="400" height="400" id="stepThumb" class="step-thumb" alt="" loading="lazy">
           </div>
         </div>
         <div class="step-dots" id="stepDots">
-          <button class="on" aria-label="Step 1"></button>
-          <button aria-label="Step 2"></button>
-          <button aria-label="Step 3"></button>
-          <button aria-label="Step 4"></button>
+          <button class="on" aria-label="Step 1" aria-current="true"></button>
+          <button aria-label="Step 2" aria-current="false"></button>
+          <button aria-label="Step 3" aria-current="false"></button>
+          <button aria-label="Step 4" aria-current="false"></button>
         </div>
       </div>
     </div>
@@ -351,10 +385,14 @@
       <h2><span class="w1">Trusted by</span> <i class="chip">♡</i> <span class="w2">Patients</span></h2>
     </div>
     <div class="tst" data-r>
-      <div class="tst-faces" aria-hidden="true">
-        <img src="assets/hero_portrait.jpg" class="on" alt="Patient review" loading="lazy">
-        <img src="assets/clinic.jpg" alt="Patient review" loading="lazy">
-        <img src="assets/treatment.jpg" alt="Patient review" loading="lazy">
+      <!-- These carried click handlers inside an aria-hidden container: a
+           control a mouse could operate and a keyboard could not reach at all.
+           Real buttons now, labelled by position rather than by a claim about
+           who is pictured (see the content-integrity note in STATUS.md). -->
+      <div class="tst-faces">
+        <button type="button" class="on" aria-pressed="true" aria-label="Show review 1 of 3"><img src="assets/hero_portrait-400.jpg" width="400" height="400" alt="" loading="lazy"></button>
+        <button type="button" aria-pressed="false" aria-label="Show review 2 of 3"><img src="assets/clinic-400.jpg" width="400" height="400" alt="" loading="lazy"></button>
+        <button type="button" aria-pressed="false" aria-label="Show review 3 of 3"><img src="assets/treatment-400.jpg" width="400" height="400" alt="" loading="lazy"></button>
       </div>
       <blockquote id="tstQuote">"I struggled with adult acne for years. After treatment with Dr. Sumya Pervin, MD, my skin finally cleared, and I feel confident again."</blockquote>
       <div class="tst-author" id="tstAuthor">Tanzina A., Dhaka</div>
@@ -376,50 +414,50 @@
       <div class="faq-row open">
         <div class="faq-q">
           <span class="faq-av"></span>
-          <button class="faq-btn">What is included in the initial skin consultation?</button>
-          <button class="faq-send" aria-label="Toggle answer">✕</button>
+          <button class="faq-btn" aria-expanded="true" aria-controls="faqAnswer0">What is included in the initial skin consultation?</button>
+          <button class="faq-send" aria-expanded="true" aria-controls="faqAnswer0" aria-label="Toggle answer">✕</button>
         </div>
-        <div class="faq-a">
+        <div class="faq-a" id="faqAnswer0">
           <div class="faq-bub">You will receive a personalized skin analysis, treatment recommendations, and a tailored skincare plan.</div>
         </div>
       </div>
       <div class="faq-row">
         <div class="faq-q">
           <span class="faq-av"></span>
-          <button class="faq-btn">Can consultations be done remotely?</button>
-          <button class="faq-send" aria-label="Toggle answer">➤</button>
+          <button class="faq-btn" aria-expanded="false" aria-controls="faqAnswer1">Can consultations be done remotely?</button>
+          <button class="faq-send" aria-expanded="false" aria-controls="faqAnswer1" aria-label="Toggle answer">➤</button>
         </div>
-        <div class="faq-a">
+        <div class="faq-a" id="faqAnswer1">
           <div class="faq-bub">Yes. Video consultations cover analysis and home care planning; in-person visits are needed for procedures.</div>
         </div>
       </div>
       <div class="faq-row">
         <div class="faq-q">
           <span class="faq-av"></span>
-          <button class="faq-btn">How long does a typical treatment session take?</button>
-          <button class="faq-send" aria-label="Toggle answer">➤</button>
+          <button class="faq-btn" aria-expanded="false" aria-controls="faqAnswer2">How long does a typical treatment session take?</button>
+          <button class="faq-send" aria-expanded="false" aria-controls="faqAnswer2" aria-label="Toggle answer">➤</button>
         </div>
-        <div class="faq-a">
+        <div class="faq-a" id="faqAnswer2">
           <div class="faq-bub">Most sessions run 30 to 60 minutes. Your plan will state the exact time before you book.</div>
         </div>
       </div>
       <div class="faq-row">
         <div class="faq-q">
           <span class="faq-av"></span>
-          <button class="faq-btn">Is there downtime after microneedling or PRP?</button>
-          <button class="faq-send" aria-label="Toggle answer">➤</button>
+          <button class="faq-btn" aria-expanded="false" aria-controls="faqAnswer3">Is there downtime after microneedling or PRP?</button>
+          <button class="faq-send" aria-expanded="false" aria-controls="faqAnswer3" aria-label="Toggle answer">➤</button>
         </div>
-        <div class="faq-a">
+        <div class="faq-a" id="faqAnswer3">
           <div class="faq-bub">Expect mild redness for 24 to 48 hours. Most patients return to normal activity the next day.</div>
         </div>
       </div>
       <div class="faq-row">
         <div class="faq-q">
           <span class="faq-av"></span>
-          <button class="faq-btn">Is skincare coaching available for at-home routines?</button>
-          <button class="faq-send" aria-label="Toggle answer">➤</button>
+          <button class="faq-btn" aria-expanded="false" aria-controls="faqAnswer4">Is skincare coaching available for at-home routines?</button>
+          <button class="faq-send" aria-expanded="false" aria-controls="faqAnswer4" aria-label="Toggle answer">➤</button>
         </div>
-        <div class="faq-a">
+        <div class="faq-a" id="faqAnswer4">
           <div class="faq-bub">Yes. Coaching includes a written routine, product guidance, and a follow-up review at six weeks.</div>
         </div>
       </div>
@@ -454,10 +492,10 @@
 </div>
 
 <!-- MOBILE NAV DRAWER -->
-<div class="mobile-drawer" id="mobileDrawer">
+<div class="mobile-drawer" id="mobileDrawer" role="dialog" aria-modal="true" aria-label="Site menu">
   <div class="mobile-drawer-header">
     <span style="font-size: 20px; font-weight: 700;">Dr. Sumya Pervin, MD</span>
-    <button id="closeDrawer" style="background:none; border:none; color:#fff; font-size:24px;">✕</button>
+    <button id="closeDrawer" data-dialog-close aria-label="Close menu" style="background:none; border:none; color:#fff; font-size:24px;">✕</button>
   </div>
   <!-- These carried onclick="…classList.remove('active')". The CSP added in F9 has
        no 'unsafe-inline' in script-src, which drops inline handlers silently, so
@@ -476,7 +514,7 @@
 </div>
 
 <!-- SERVICE DETAILS EXPAND MODAL -->
-<div class="modal-overlay" id="serviceModal" role="dialog" aria-modal="true">
+<div class="modal-overlay" id="serviceModal" role="dialog" aria-modal="true" aria-labelledby="serviceModalTitle">
   <div class="modal-box">
     <button class="modal-close" id="closeService">✕</button>
     <div class="modal-header">
@@ -484,19 +522,23 @@
       <p id="serviceModalDesc">Service clinical details and recommendations by Dr. Sumya Pervin, MD.</p>
     </div>
 
-    <div style="background: var(--ivory); padding: 20px; border-radius: 18px; border: 1px solid var(--hair); margin-bottom: 20px;">
+    <!-- Rendered per-cell by openServiceModalFromCard(): a cell appears only when
+         the practice has supplied that fact for the selected service, and the
+         whole block hides when none are known. The literals below are inert
+         defaults for the no-JS case, not values any patient is shown. -->
+    <div id="serviceModalMeta" style="background: var(--ivory); padding: 20px; border-radius: 18px; border: 1px solid var(--hair); margin-bottom: 20px;">
       <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap: 12px; font-size: 14px; text-align: center;">
-        <div>
+        <div data-meta-cell>
           <span style="color: var(--grey); display: block; font-size: 12px;">⏱️ Duration</span>
-          <strong id="serviceModalDuration" style="color: var(--sienna);">30–45 mins</strong>
+          <strong id="serviceModalDuration" style="color: var(--sienna);">—</strong>
         </div>
-        <div>
+        <div data-meta-cell>
           <span style="color: var(--grey); display: block; font-size: 12px;">🩹 Recovery</span>
-          <strong id="serviceModalRecovery" style="color: var(--sienna);">Minimal</strong>
+          <strong id="serviceModalRecovery" style="color: var(--sienna);">—</strong>
         </div>
-        <div>
+        <div data-meta-cell>
           <span style="color: var(--grey); display: block; font-size: 12px;">✨ Ideal For</span>
-          <strong id="serviceModalSuitability" style="color: var(--sienna);">All Skin Phototypes</strong>
+          <strong id="serviceModalSuitability" style="color: var(--sienna);">—</strong>
         </div>
       </div>
     </div>
@@ -506,11 +548,11 @@
 </div>
 
 <!-- BOOKING APPOINTMENT MODAL -->
-<div class="modal-overlay" id="bookingModal" role="dialog" aria-modal="true">
+<div class="modal-overlay" id="bookingModal" role="dialog" aria-modal="true" aria-labelledby="bookingModalTitle">
   <div class="modal-box">
     <button class="modal-close" id="closeBooking">✕</button>
     <div class="modal-header">
-      <h3>Book an Appointment</h3>
+      <h3 id="bookingModalTitle">Book an Appointment</h3>
       <p>Select your preferred chamber location and schedule a consultation with Dr. Sumya Pervin, MD.</p>
     </div>
     <!-- role=status + aria-live: the submit result is the whole point of this
@@ -569,7 +611,7 @@
         <textarea id="patientMessage" rows="3" placeholder="Briefly describe your skin or hair condition..."></textarea>
       </div>
       <div class="form-group full" style="margin-top: 10px;">
-        <p style="font-size: 12.5px; color: var(--grey); margin: 0 0 12px; line-height: 1.4;">🔒 Your details go only to Dr. Pervin's clinic system and are used solely to arrange your appointment. After booking, please share them via WhatsApp/Telegram to confirm.</p>
+        <p style="font-size: 12.5px; color: var(--grey); margin: 0 0 12px; line-height: 1.4;">🔒 Your details go only to Dr. Pervin's clinic system and are used solely to arrange your appointment. The chamber will contact you to confirm your slot.</p>
         <!-- Starts disabled and is enabled by main.js only once the submit handler is
              actually attached, so "enabled" means "a click will really be handled."
              Pair this with the form's onsubmit guard: the guard stops the silent
@@ -585,14 +627,14 @@
 </div>
 
 <!-- DOCTOR CMS ADMIN PANEL MODAL -->
-<div class="modal-overlay" id="cmsModal" role="dialog" aria-modal="true">
+<div class="modal-overlay" id="cmsModal" role="dialog" aria-modal="true" aria-labelledby="cmsModalTitle">
   <div class="modal-box" style="max-width: 840px;">
     <button class="modal-close" id="closeCMS">✕</button>
     
     <!-- PIN Auth Section -->
     <div id="cmsAuthSection">
       <div class="modal-header">
-        <h3>Doctor CMS Admin Login</h3>
+        <h3 id="cmsModalTitle">Doctor CMS Admin Login</h3>
         <p>Enter your doctor PIN to access appointments log, photo uploads, and settings.</p>
       </div>
       <div class="form-group" style="max-width: 320px; margin-bottom: 16px;">
@@ -830,11 +872,18 @@
 </div>
 
 <!-- FORGOT PASSWORD MODAL -->
-<div class="modal-overlay" id="forgotModal" role="dialog" aria-modal="true" style="display:none;">
+<!-- No inline display:none here. These two modals are opened with
+     classList.add('active'), which only changes opacity/visibility, so an inline
+     display:none silently outranked it and NEITHER modal could ever appear:
+     "Forgot PIN / Password?" did nothing, and the emailed /#reset?token= link
+     opened nothing. The whole self-service recovery path was unreachable from
+     the UI while its API tests passed. The base .modal-overlay rule already
+     hides these correctly. -->
+<div class="modal-overlay" id="forgotModal" role="dialog" aria-modal="true" aria-labelledby="forgotModalTitle">
   <div class="modal-box" style="max-width: 440px;">
     <button class="modal-close" id="closeForgot">✕</button>
     <div class="modal-header">
-      <h3>Reset Password Request</h3>
+      <h3 id="forgotModalTitle">Reset Password Request</h3>
       <p>Enter the email address registered to your CMS account to receive a reset link.</p>
     </div>
     <div id="forgotStatus" role="status" aria-live="polite" style="display:none; margin-bottom: 14px;"></div>
@@ -853,11 +902,11 @@
 </div>
 
 <!-- RESET PASSWORD MODAL -->
-<div class="modal-overlay" id="resetModal" role="dialog" aria-modal="true" style="display:none;">
+<div class="modal-overlay" id="resetModal" role="dialog" aria-modal="true" aria-labelledby="resetModalTitle">
   <div class="modal-box" style="max-width: 440px;">
     <button class="modal-close" id="closeReset">✕</button>
     <div class="modal-header">
-      <h3>Set New Admin Password</h3>
+      <h3 id="resetModalTitle">Set New Admin Password</h3>
       <p>Choose a new secure PIN (minimum 8 characters) for your CMS account.</p>
     </div>
     <div id="resetStatus" role="status" aria-live="polite" style="display:none; margin-bottom: 14px;"></div>

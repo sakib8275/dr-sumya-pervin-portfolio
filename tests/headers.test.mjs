@@ -231,19 +231,59 @@ test('the pre-hydration submit guard is loaded from the document head', async ()
   assert.match(guard, /preventDefault/);
 });
 
-test('the CMS row buttons carry data- actions that main.js delegates on', async () => {
+test('the CMS row buttons carry data- actions that cms.js delegates on', async () => {
   // These three buttons are built as HTML strings, which is exactly where an
-  // inline onclick hides from a markup-only review.
-  const main = await readFile(join(repoRoot, 'public', 'js', 'main.js'), 'utf8');
+  // inline onclick hides from a markup-only review. They moved to cms.js with
+  // the rest of the admin panel on 2026-08-27.
+  const cms = await readFile(join(repoRoot, 'public', 'js', 'cms.js'), 'utf8');
   for (const action of ['gallery-delete', 'appointment-status', 'appointment-delete']) {
     assert.ok(
-      main.includes(`data-cms-action="${action}"`),
+      cms.includes(`data-cms-action="${action}"`),
       `the ${action} button lost its data-cms-action`
     );
   }
   assert.match(
-    main,
+    cms,
     /closest\('\[data-cms-action\]'\)/,
     'nothing delegates on [data-cms-action]: the CMS row buttons would be inert'
+  );
+});
+
+test('cms.js is loaded on demand, never shipped to a patient', async () => {
+  // The whole point of the split. A <script src="js/cms.js"> creeping back into
+  // the markup would silently undo it while every other test stayed green.
+  const html = await readFile(join(repoRoot, 'public', 'index.html'), 'utf8');
+  assert.ok(!/<script[^>]+js\/cms\.js/.test(html), 'cms.js is eagerly loaded from index.html');
+  assert.ok(!/<script[^>]+qrcode\.min\.js/.test(html), 'qrcode.min.js is eagerly loaded from index.html');
+
+  const main = await readFile(join(repoRoot, 'public', 'js', 'main.js'), 'utf8');
+  assert.match(main, /s\.src = 'js\/cms\.js'/, 'main.js has no on-demand loader for cms.js');
+  assert.match(
+    main,
+    /startsWith\('#reset\?token='\)/,
+    'nothing pulls cms.js in for a #reset?token= deep link, so the PIN reset mail would land on a dead page'
+  );
+});
+
+test('the sticky nav wrapper sits outside the hero', async () => {
+  // A11: position:sticky only works within the parent's box, and the hero is
+  // one viewport tall, so a wrapper inside it meant the stuck bar detached
+  // below the first screen and every deep anchor landed navless. The e2e suite
+  // (sticky-nav.spec.mjs) pins the runtime geometry; this pins the markup cause.
+  const html = await readFile(join(repoRoot, 'public', 'index.html'), 'utf8');
+  const open = html.indexOf('<div class="nav-sticky-wrapper">');
+  const close = html.indexOf('</nav></div>', open);
+  const hero = html.indexOf('<header class="hero"');
+  assert.ok(open !== -1, 'the nav-sticky wrapper is missing from the markup');
+  assert.ok(
+    open < hero && close < hero,
+    'the nav-sticky wrapper must be a sibling of the hero, not a child: sticky is confined to the parent box'
+  );
+
+  const css = await readFile(join(repoRoot, 'public', 'css', 'style.css'), 'utf8');
+  assert.match(
+    css,
+    /scroll-margin-top/,
+    'sections lost their scroll-margin-top: anchor jumps tuck headings under the stuck bar'
   );
 });

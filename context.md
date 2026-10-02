@@ -10,7 +10,10 @@ This document details the background, medical practitioner profile, chamber info
 - **Name**: Dr. Sumya Pervin, MD
 - **Specialty**: Dermatology, Venereology, Dermatosurgery & Aesthetic Medicine
 - **Current Position**: Assistant Professor, Department of Skin & VD, Sir Salimullah Medical College & Mitford Hospital, Dhaka, Bangladesh.
-- **Experience**: 14+ years of specialized clinical practice and dermatological surgery.
+- **Experience** (owner-supplied 2026-10-02, shown as the About stat row): **15+ years in
+  medical practice**, including **10+ years in government service** (BCS Health) and **7+ years
+  as a dermatology specialist**. (Previously rendered as "14+ years of specialized clinical
+  practice" on two stat cards, removed with the cards the same day.)
 - **Annual Patient Impact**: “1,500+ procedures annually” was **removed from `public/index.html`
   on 2026-08-02** — an unsourced procedure count is a medical advertising claim on a physician's
   site. Restore only if the practice supplies a basis.
@@ -70,7 +73,7 @@ The single-page web app (`public/index.html`) is structured into distinct intera
 | Section ID | Section Title | Key Content & Interactivity |
 | :--- | :--- | :--- |
 | `#top` | **Hero Banner** | High-impact visual header, doctor portrait, official namecard with degree tags, quick CTA buttons. |
-| `#about` | **Quick Stats / Profile** | Years of experience counter, qualification badges, academic affiliation at SSMC & Mitford Hospital. |
+| `#about` | **Profile** | Intro paragraph (CMS-editable) + type-only stat row: 15+ years medical practice / 10+ years government service / 7+ years dermatology specialist. |
 | `#chambers` | **Chamber Locations** | Interactive location cards, visiting schedules, direct booking triggers per chamber. |
 | `#services` | **Services Showcase** | Filterable/categorized list of clinical, cosmetic, and surgical treatments. |
 | `#results` | **Results & Testimonials** | Patient success stories, before/after case showcases, patient reviews. |

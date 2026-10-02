@@ -1,0 +1,99 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;1,400&family=Manrope:wght@400;500;600;700;800&family=Hind+Siliguri:wght@600&display=swap" rel="stylesheet"><meta name="viewport" content="width=1440"><style>
+:root{
+  --teal:#0D6B8F; --teal-d:#0A5572; --teal-l:#E3F1F6;
+  --ink:#12303B; --text:#2B3A42; --muted:#64737B;
+  --sand:#F7F3EC; --sand-d:#EDE5D8; --line:#E2DED6;
+  --gold:#A9824A; --gold-l:#F4EBDD; --white:#fff; --ok:#1E7A55;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Manrope,'Hind Siliguri',Arial,sans-serif;color:var(--text);background:var(--white);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1240px;margin:0 auto;padding:0 40px}
+h1,h2,h3{font-family:Fraunces,'Hind Siliguri',Georgia,serif;color:var(--ink);font-weight:600;letter-spacing:-.01em}
+.eyebrow{font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--teal)}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:14px 24px;border-radius:999px;font-weight:700;font-size:15px;text-decoration:none;border:1.5px solid transparent}
+.btn-p{background:var(--teal);color:#fff}
+.btn-g{border-color:var(--ink);color:var(--ink)}
+.link{color:var(--teal);font-weight:700;text-decoration:none;border-bottom:1.5px solid currentColor}
+.util{background:var(--ink);color:#CFE0E6;font-size:13px}
+.util .wrap{display:flex;justify-content:space-between;padding-top:9px;padding-bottom:9px}
+.util b{color:#fff;font-weight:600}
+header.nav{border-bottom:1px solid var(--line);background:#fff}
+header.nav .wrap{display:flex;align-items:center;justify-content:space-between;height:78px}
+.logo{display:flex;flex-direction:column;line-height:1.1}
+.logo .n{font-family:Fraunces,serif;font-size:23px;color:var(--ink);font-weight:600}
+.logo .s{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-top:3px}
+nav.menu{display:flex;gap:26px;font-size:14.5px;font-weight:600;color:var(--ink)}
+nav.menu span.on{color:var(--teal);box-shadow:inset 0 -2px 0 var(--teal);padding-bottom:4px}
+.badge{position:absolute;width:30px;height:30px;border-radius:50%;background:#E4572E;color:#fff;font:800 14px Manrope;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 4px rgba(228,87,46,.22);z-index:9}
+.rel{position:relative}
+.tick{color:var(--ok);font-weight:800}
+.dash{color:#B7BEC2}
+.pill{display:inline-block;font-size:12px;font-weight:700;padding:5px 11px;border-radius:999px;background:var(--teal-l);color:var(--teal-d)}
+.pill.gold{background:var(--gold-l);color:#7C5C2E}
+.pill.grey{background:#EEF0F1;color:#4E5A60}
+footer{background:var(--ink);color:#B9CBD2;font-size:13.5px;padding:44px 0 28px}
+footer .cols{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:32px}
+footer h4{color:#fff;font:700 13px Manrope;letter-spacing:.12em;text-transform:uppercase;margin-bottom:12px}
+footer p{margin-bottom:6px}
+footer .legal{border-top:1px solid #29495A;margin-top:30px;padding-top:16px;display:flex;justify-content:space-between;font-size:12px}
+.ph{background:repeating-linear-gradient(135deg,#E8E2D7 0 12px,#EFEAE1 12px 24px);display:flex;align-items:center;justify-content:center;color:#857B6B;font-size:13px;font-weight:600;text-align:center}
+</style>
+<style>
+body{background:#fff;padding:34px 34px 30px;width:1600px}
+h1{font-size:30px;margin-bottom:4px}
+.sub{color:var(--muted);font-size:15px;margin-bottom:24px}
+.grid{display:grid;grid-template-columns:repeat(5,1fr);gap:0;position:relative}
+.col{padding:0 14px;position:relative}
+.col:not(:last-child):after{content:"→";position:absolute;right:-14px;top:6px;font:800 26px Manrope;color:var(--teal)}
+.stage{background:var(--ink);color:#fff;border-radius:12px;padding:10px 14px;margin-bottom:14px}
+.stage b{display:block;font:600 19px Fraunces}
+.stage span{font-size:12.5px;color:#A9C1CA}
+.box{border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:10px;background:#fff;font-size:13.5px}
+.box b{display:block;color:var(--ink);font-size:14px}
+.box i{font-style:normal;color:var(--muted);font-size:12.5px}
+.box.t{border-color:var(--teal);background:var(--teal-l)}
+.box.g{border-color:#D9C29C;background:var(--gold-l)}
+.box.k{background:var(--ink);border-color:var(--ink);color:#C9D9DF}
+.box.k b{color:#fff}
+.loop{margin-top:18px;border:2px dashed var(--teal);border-radius:16px;padding:14px 18px;display:flex;gap:26px;align-items:center;font-size:14px}
+.loop b{color:var(--teal-d)}
+.key{display:flex;gap:18px;margin-top:14px;font-size:12.5px;color:var(--muted)}
+.key span:before{content:"";display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-2px;background:var(--c)}
+</style></head><body>
+<h1>Interlinking pathway — how every page moves a visitor one step closer to care</h1>
+<div class="sub">Concern-first navigation → understanding → transparent evaluation → low-risk commitment → retention loop. Every content page links forward to Prices and Book, and sideways to two related pages.</div>
+<div class="grid">
+ <div class="col"><div class="stage"><b>1 · Discover</b><span>Where visitors enter</span></div>
+  <div class="box"><b>Google search</b><i>"fungal infection treatment Dhaka", "laser hair removal price"</i></div>
+  <div class="box"><b>Facebook / Instagram</b><i>Educational posts → Learn articles</i></div>
+  <div class="box"><b>Referral &amp; WhatsApp</b><i>Shared plan, GP referral → About, Book</i></div>
+  <div class="box"><b>Current chamber patients</b><i>QR on prescription → Centre, Prices</i></div>
+  <div class="box t"><b>Home</b><i>"What brings you here?" — 3 pillars</i></div></div>
+ <div class="col"><div class="stage"><b>2 · Understand</b><span>Concern-first content</span></div>
+  <div class="box t"><b>Medical Dermatology hub</b><i>12 condition pages</i></div>
+  <div class="box t"><b>Skin Surgery hub</b><i>6 procedure pages + "Your procedure" guide</i></div>
+  <div class="box t"><b>Aesthetic &amp; Laser hub</b><i>7 concern pages · 8 treatment pages</i></div>
+  <div class="box"><b>Self-check tools</b><i>Mole check · Skin type guide · Visit prep</i></div>
+  <div class="box"><b>Learn articles</b><i>Bylined, reviewed, referenced</i></div></div>
+ <div class="col"><div class="stage"><b>3 · Evaluate</b><span>Trust &amp; price clarity</span></div>
+  <div class="box g"><b>Prices</b><i>Tiers, bands, inclusions, who performs</i></div>
+  <div class="box g"><b>Course estimator</b><i>Total · per session · EMI</i></div>
+  <div class="box"><b>About Dr. Sumya</b><i>Credentials · BMDC no. · philosophy</i></div>
+  <div class="box"><b>The Centre tour</b><i>Rooms, safety, lab, team</i></div>
+  <div class="box k"><b>What we don't offer</b><i>Ethical limits — the credibility page</i></div></div>
+ <div class="col"><div class="stage"><b>4 · Commit</b><span>Smallest next step first</span></div>
+  <div class="box"><b>Ask on WhatsApp</b><i>Lowest-commitment step</i></div>
+  <div class="box t"><b>Book — Specialist / Comprehensive / Signature</b><i>Serial + time window by SMS</i></div>
+  <div class="box t"><b>Book — Procedure Assessment</b><i>৳1,500, adjusted against session 1</i></div>
+  <div class="box"><b>Bridal &amp; Groom</b><i>Starts with an assessment</i></div>
+  <div class="box"><b>Private consultation</b><i>No reason needed when booking</i></div></div>
+ <div class="col"><div class="stage"><b>5 · Stay</b><span>Retention &amp; advocacy</span></div>
+  <div class="box"><b>Written plan + cost</b><i>Given at the visit</i></div>
+  <div class="box"><b>Follow-up messages</b><i>Timed to the condition</i></div>
+  <div class="box g"><b>Care Plan / course</b><i>Offered only after diagnosis</i></div>
+  <div class="box"><b>Aftercare guides</b><i>"Your procedure" page</i></div>
+  <div class="box"><b>Review &amp; referral</b><i>Verified Google review link</i></div></div>
+</div>
+<div class="loop"><b>↻ Retention loop</b><span>Follow-up message → progress photo review → re-book follow-up → relapse-window check-in (3–6 months for chronic conditions) → returns to Stage 4, not Stage 1.</span></div>
+<div class="key"><span style="--c:var(--teal-l)">Hub / booking pages</span><span style="--c:var(--gold-l)">Price pages</span><span style="--c:var(--ink)">Credibility page</span></div>
+</body></html>

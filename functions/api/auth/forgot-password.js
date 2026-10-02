@@ -43,6 +43,14 @@ export async function onRequestPost(context) {
     }
   }
 
+  // Spent and expired tokens are dead weight -- nothing else ever removes them,
+  // and this table only grows. Pruned here rather than on a cron because this is
+  // the only path that writes to it. Deliberately AFTER the throttle check
+  // above, so pruning can never widen the throttle window.
+  await context.env.DB
+    .prepare("DELETE FROM password_resets WHERE expires_at < datetime('now') OR used_at IS NOT NULL")
+    .run();
+
   // Mint new token (valid 30 min)
   const token = newResetToken();
   const hashed = await hashToken(token);

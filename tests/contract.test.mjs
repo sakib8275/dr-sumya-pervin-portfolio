@@ -1,14 +1,17 @@
 // The client/server route contract.
 //
-// public/js/main.js and functions/ are edited independently, and nothing but a
+// The client scripts and functions/ are edited independently, and nothing but a
 // real request proves they agree. Pages routing is strict about segments --
 // functions/api/appointments/[id].js serves /api/appointments/:id and NOT
 // /api/appointments/:id/status -- so a path the client invents falls through to
 // the static-asset handler and comes back as a 404 HTML page. main.js turns that
 // into "Server returned 404 and no JSON", and the CMS shows a generic failure.
 //
-// This file extracts every call site from main.js and asserts a Function
-// actually handles it.
+// This file extracts every call site from BOTH client scripts and asserts a
+// Function actually handles it. Both, because the admin panel was split out into
+// cms.js on 2026-08-27 and it owns most of the authenticated routes -- scanning
+// only main.js would have quietly narrowed this guard from thirteen call sites
+// to five while still reporting green.
 import { test, before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
@@ -20,13 +23,19 @@ import { nextOpenDate, addDays, dhakaParts } from '../functions/lib/schedule.js'
 const CHAMBER = 'Alliance Hospital Limited (Shyamoli)';
 const OPEN_DATE = nextOpenDate(CHAMBER, addDays(dhakaParts().dateStr, 1));
 
+// Every script that talks to the API. Adding one here is the only step needed to
+// bring it under this contract.
+const CLIENT_SCRIPTS = ['main.js', 'cms.js'];
+
 let h;
 let callSites;
 
 before(async () => {
   h = await createHarness();
 
-  const source = await readFile(join(repoRoot, 'public', 'js', 'main.js'), 'utf8');
+  const source = (await Promise.all(
+    CLIENT_SCRIPTS.map((f) => readFile(join(repoRoot, 'public', 'js', f), 'utf8'))
+  )).join('\n');
 
   // Captures the method and the whole path expression, including concatenated
   // suffixes -- '/api/appointments/' + id + '/status' must not be truncated to
@@ -55,9 +64,12 @@ test('the extractor found the call sites it is supposed to guard', () => {
   const paths = callSites.map((c) => c.path);
   assert.ok(paths.includes('/api/appointments'), 'booking call site missing');
   assert.ok(paths.includes('/api/auth/login'), 'login call site missing');
+  // One call site from each script, so a future split that strands a file
+  // outside CLIENT_SCRIPTS fails here rather than silently narrowing the scan.
+  assert.ok(paths.includes('/api/gallery'), 'gallery call site missing');
 });
 
-test('every path main.js calls is handled by a Function, not the 404 page', async () => {
+test('every path the client calls is handled by a Function, not the 404 page', async () => {
   const unrouted = [];
 
   for (const site of callSites) {
@@ -74,7 +86,7 @@ test('every path main.js calls is handled by a Function, not the 404 page', asyn
     }
   }
 
-  assert.deepEqual(unrouted, [], `main.js calls paths with no matching route:\n  ${unrouted.join('\n  ')}`);
+  assert.deepEqual(unrouted, [], `the client calls paths with no matching route:\n  ${unrouted.join('\n  ')}`);
 });
 
 test('the CMS status toggle reaches the appointment update route', async () => {
@@ -87,7 +99,7 @@ test('the CMS status toggle reaches the appointment update route', async () => {
     }
   })).json();
 
-  const source = await readFile(join(repoRoot, 'public', 'js', 'main.js'), 'utf8');
+  const source = await readFile(join(repoRoot, 'public', 'js', 'cms.js'), 'utf8');
   const call = source.match(/toggleAppointmentStatus[\s\S]*?api\(\s*'PUT'\s*,\s*([^,)]+)/);
   assert.ok(call, 'toggleAppointmentStatus no longer PUTs through api()');
 
@@ -120,11 +132,11 @@ test('the CMS photo upload reaches the multipart gallery route', async () => {
   assert.match(row.image_path, /^\/api\/uploads\/gallery-/, 'the upload must yield a real R2 path');
 
   // Matched against the extracted call sites rather than the raw file, so the
-  // comment in main.js explaining this history does not trip the assertion.
+  // comment in cms.js explaining this history does not trip the assertion.
   const uploadCalls = callSites.filter((c) => /gallery\/upload/.test(c.path));
-  assert.deepEqual(uploadCalls, [], 'main.js still calls a gallery upload route that no Function serves');
+  assert.deepEqual(uploadCalls, [], 'the client still calls a gallery upload route that no Function serves');
 
-  const source = await readFile(join(repoRoot, 'public', 'js', 'main.js'), 'utf8');
+  const source = await readFile(join(repoRoot, 'public', 'js', 'cms.js'), 'utf8');
   assert.ok(
     !/catch\s*\([^)]*\)\s*\{\s*imagePath\s*=/.test(source),
     'a failed upload must surface to the admin, not silently become a stock image'

@@ -5,13 +5,33 @@
   --butter: #FCF7DA;
   --sienna: #964C1F;
   --brick: #973324;
-  --rust: #BA735D;
-  --tan: #D9945D;
+  /* WCAG AA (4.5:1) against every surface these land on -- --surface #FFF,
+     --ivory #FDFBEF and --butter #FCF7DA -- measured against the darkest of the
+     three. The previous values were text colours that failed outright:
+     --grey 2.78:1, --tan 2.33:1, --rust 3.41:1, --orange 3.00:1 on --butter.
+     --grey alone carries .svc p, .gallery-body p, .chamber-meta and every form
+     hint on the site.
+     --rust and --tan are the .w1/.w2 two-tone heading pair. Their original
+     distinction was mostly LIGHTNESS, which AA removes -- both must now be dark.
+     These two were chosen to hold the same perceptual separation on the
+     hue/saturation axis instead: deltaE 20.0, against 19.9 for the old pair. Do
+     not "simplify" them toward each other; the heading effect is the reason they
+     are two tokens. */
+  --rust: #A15040;
+  --tan: #A55F27;
+  /* --orange is a DECORATIVE token: the hero, steps and footer gradients only.
+     It never carries text and never sits under text. White on it is 3.24:1, so
+     using it as a button background (which .btn-primary did) failed AA on the
+     site's single most important control. */
   --orange: #EA6806;
+  /* ...and this is its text-bearing counterpart: 4.94:1 both as a foreground on
+     white and as a background under white. Use this one for anything involving
+     text, borders or focus. */
+  --orange-ink: #B85205;
   --amber: #F7A40A;
   --gold: #FCE07C;
   --ink: #4A443E;
-  --grey: #9A948C;
+  --grey: #756F67;
   --hair: #EDE7DD;
   --r-shell: 30px;
   --r-card: 20px;
@@ -53,10 +73,44 @@ button {
   cursor: pointer;
 }
 
+/* <picture> must not become the containing block for the <img> inside it.
+   .hero-figure img, .band-bg-img and .ba-image all size themselves with
+   height:100% or position:absolute+inset:0, which resolve against their
+   PARENT. An inline <picture> in between would resolve height:100% against an
+   auto height (collapsing the hero portrait) and would not be the positioned
+   ancestor the absolute ones expect. display:contents removes the box entirely,
+   so every one of those rules keeps resolving against the figure it always did.
+   Added with the WebP <picture> wrappers on 2026-08-27; it is load-bearing, not
+   a reset. */
+picture {
+  display: contents;
+}
+
 :focus-visible {
-  outline: 2px solid var(--orange);
+  outline: 2px solid var(--orange-ink);
   outline-offset: 3px;
   border-radius: 6px;
+}
+
+/* Skip link. The nav, the hero and the whole reveal-animated page sit between a
+   keyboard user and the content; <main id="main-content"> already existed as a
+   target and nothing pointed at it. Off-screen rather than display:none, so it
+   stays focusable. */
+.skip-link {
+  position: absolute;
+  top: 0;
+  left: -9999px;
+  z-index: 300;
+  background: var(--surface);
+  color: var(--sienna);
+  font-weight: 600;
+  padding: 14px 22px;
+  border-radius: 0 0 12px 0;
+  box-shadow: var(--shadow-md);
+}
+
+.skip-link:focus {
+  left: 0;
 }
 
 .shell {
@@ -143,6 +197,12 @@ button {
   box-shadow: 0 2px 20px rgba(0,0,0,.12);
 }
 
+/* A11: anchor jumps must land below the stuck bar, not under it. The bar is
+   92px at desktop scale; 104px gives the section heading its clearance. */
+section[id], header[id] {
+  scroll-margin-top: 104px;
+}
+
 .nav {
   position: absolute;
   top: 0;
@@ -159,7 +219,13 @@ button {
 .nav-links {
   display: flex;
   gap: 4px;
-  background: rgba(255, 255, 255, .16);
+  /* A DARK glass pill, not a light one. The unscrolled nav sits directly on the
+     gold/amber end of the hero gradient, where the old rgba(255,255,255,.16)
+     pill left 82%-white link text at about 2.6:1 -- the primary navigation of
+     the site, below AA. Darkening the pill (rather than darkening the text,
+     which would fight the scrolled state) puts solid white at roughly 6.7:1
+     here and leaves the .scrolled treatment untouched. */
+  background: rgba(28, 16, 8, .55);
   backdrop-filter: blur(10px);
   border-radius: 100px;
   padding: 5px;
@@ -169,17 +235,20 @@ button {
   padding: 8px 15px;
   border-radius: 100px;
   font-size: 14px;
-  color: rgba(255, 255, 255, .82);
+  color: #fff;
   transition: .25s var(--ease);
 }
 
 .nav-links a:hover {
-  color: #fff;
+  background: rgba(255, 255, 255, .14);
 }
 
+/* Kept deliberately subtle: a brighter fill lightens the backdrop under the
+   white label and pushes the ACTIVE link back below AA (rgba(255,255,255,.26)
+   measured 3.55:1). The weight change carries the emphasis instead. */
 .nav-links a.on {
-  background: rgba(255, 255, 255, .26);
-  color: #fff;
+  background: rgba(255, 255, 255, .14);
+  font-weight: 600;
 }
 
 .wordmark {
@@ -215,7 +284,7 @@ button {
 
 .btn-glass {
   background: rgba(255, 255, 255, .9);
-  color: var(--orange);
+  color: var(--orange-ink);
 }
 
 .btn-glass:hover {
@@ -245,7 +314,7 @@ button {
 }
 
 .btn-primary {
-  background: var(--orange);
+  background: var(--orange-ink);
   color: #fff;
 }
 
@@ -434,130 +503,39 @@ button {
   font-weight: 600;
 }
 
-/* STATS */
-.stats {
+/* ABOUT STAT ROW — type only, no boxes (owner-requested, 2026-10-02). Every
+   other section is a card grid, so About stays editorial: numerals, labels
+   and hairlines that separate without enclosing. */
+.statrow {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
+  margin-top: clamp(44px, 6vw, 72px);
 }
 
-.stat {
-  border-radius: var(--r-card);
-  padding: 26px;
-  min-height: 330px;
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  overflow: hidden;
-}
-
-.stat-lab {
-  font-size: 16px;
-  font-weight: 500;
-  line-height: 1.25;
-  max-width: 9ch;
-}
-
-.stat-ico {
-  position: absolute;
-  top: 24px;
-  right: 24px;
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
+.statrow-item {
   display: grid;
-  place-items: center;
-  font-size: 15px;
+  gap: 10px;
+  padding: 6px 12px;
+  text-align: center;
 }
 
-.stat-num {
-  font-size: clamp(46px, 5.6vw, 66px);
+.statrow-item + .statrow-item {
+  border-inline-start: 1px solid var(--hair);
+}
+
+.statrow-num {
+  font-size: clamp(44px, 5.4vw, 64px);
   font-weight: 600;
   line-height: 1;
-  margin-top: auto;
   letter-spacing: -.02em;
+  color: var(--sienna);
 }
 
-.stat-desc {
-  font-size: 13.5px;
-  line-height: 1.4;
-  margin-top: 10px;
-  max-width: 24ch;
-}
-
-.stat--a {
-  background: var(--sienna);
-  color: #fff;
-}
-
-.stat--a .stat-ico {
-  background: rgba(255, 255, 255, .16);
-}
-
-.stat--a .stat-desc {
-  color: rgba(255, 255, 255, .82);
-}
-
-.stat-tags {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin-top: 16px;
-}
-
-.stat-tags span {
-  border: 1px solid rgba(255, 255, 255, .34);
-  border-radius: 100px;
-  padding: 6px 13px;
+.statrow-lab {
   font-size: 12.5px;
-  color: rgba(255, 255, 255, .9);
-}
-
-.stat--b {
-  background: var(--butter);
-  color: var(--sienna);
-}
-
-.stat--b .stat-ico {
-  background: rgba(150, 76, 31, .1);
-}
-
-.stat--b .stat-desc {
-  color: #8A6A4A;
-}
-
-.stat--b .stat-num {
-  color: var(--sienna);
-}
-
-.diploma-badge {
-  position: absolute;
-  top: 34%;
-  left: 50%;
-  transform: translateX(-30%) rotate(-7deg);
-  width: 110px;
-  height: 140px;
-  border-radius: 6px;
-  background: var(--brick);
-  display: grid;
-  place-items: center;
-  color: #E9C9A0;
-  font-size: 11px;
-  letter-spacing: .1em;
-  font-weight: 600;
-}
-
-.stat--c {
-  background: linear-gradient(160deg, #E0C09A 0%, #A9805A 100%);
-  color: #fff;
-}
-
-.stat--c .stat-ico {
-  background: rgba(255, 255, 255, .26);
-}
-
-.stat--c .stat-desc {
-  color: rgba(255, 255, 255, .9);
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--grey);
 }
 
 /* CHAMBERS GRID */
@@ -847,6 +825,26 @@ button {
   border-color: var(--sienna);
 }
 
+/* The empty gallery is the state production is actually in, so it gets a real
+   style rather than the inline one it used to carry. */
+/* The honest half of the quiz result: quieter than the recommendation, because
+   it is context rather than an answer. */
+.quiz-caveat {
+  display: block;
+  margin-top: 8px;
+  font-size: 13.5px;
+  color: var(--grey);
+}
+
+.gallery-empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 48px 24px;
+  margin: 0;
+  color: var(--grey);
+  font-size: 15px;
+}
+
 .gallery-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -937,6 +935,41 @@ button {
   display: flex;
   flex-direction: column;
   transition: .35s var(--ease);
+  /* Containing block for .svc-btn::after, which stretches the button's hit area
+     over the whole card. */
+  position: relative;
+}
+
+/* The card used to be <article role="button" tabindex="0">. role=button makes
+   every descendant presentational, so the eight <h4> service names vanished
+   from the heading outline for screen-reader users -- the page lost its entire
+   services section from the document structure. A real <button> inside the
+   heading keeps both semantics, and ::after preserves the click-anywhere-on-
+   the-card behaviour that role=button was there to provide. */
+.svc-btn {
+  background: none;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+}
+
+.svc-btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--r-card);
+}
+
+.svc-btn:focus-visible {
+  outline: none;
+}
+
+.svc-btn:focus-visible::after {
+  outline: 2px solid var(--orange-ink);
+  outline-offset: -3px;
 }
 
 .svc:hover {
@@ -1077,6 +1110,14 @@ button {
   margin-bottom: 26px;
 }
 
+.tst-faces button {
+  padding: 0;
+  border: 0;
+  background: none;
+  line-height: 0;
+  border-radius: 14px;
+}
+
 .tst-faces img {
   width: 78px;
   height: 104px;
@@ -1084,9 +1125,13 @@ button {
   object-fit: cover;
   opacity: .5;
   transition: .4s var(--ease);
+  display: block;
 }
 
-.tst-faces img.on {
+/* .on moved from the <img> to its wrapping <button>: these were click-handled
+   images inside an aria-hidden container, i.e. controls that a mouse could
+   operate and a keyboard could not reach at all. */
+.tst-faces button.on img {
   width: 104px;
   height: 132px;
   opacity: 1;
@@ -1256,7 +1301,7 @@ button {
 [hidden] { display: none !important; }
 
 .fab-wa { background: #25D366; }
-.fab-book { background: var(--orange); }
+.fab-book { background: var(--orange-ink); }
 .fab-top { background: var(--sienna); display: none; }
 
 .fab-top.visible { display: grid; }
@@ -1333,13 +1378,68 @@ button {
   justify-content: center;
   padding: 20px;
   opacity: 0;
+  /* visibility, not just opacity: an opacity:0 subtree is still in the tab order
+     and still in the accessibility tree. With every modal closed, 14 controls --
+     the entire booking form and the CMS PIN field among them -- were reachable
+     by Tab, dropping a keyboard user into invisible forms. pointer-events only
+     ever covered the mouse. visibility:hidden removes the subtree from both,
+     and unlike display:none it still animates. */
+  visibility: hidden;
   pointer-events: none;
-  transition: opacity 0.3s var(--ease);
+  /* visibility is stepped, never eased. Easing it over the same 0.3s put the
+     property at `hidden` for the first frame of an OPEN, so the observer's
+     focus() into the dialog was a silent no-op (focus() cannot target a hidden
+     element) and focus stayed on the trigger behind the overlay -- and it left
+     a CLOSING dialog focusable for 300ms after the user dismissed it. So:
+     0s on the way in, 0s delayed by the fade on the way out. */
+  transition: opacity 0.3s var(--ease), visibility 0s linear 0.3s;
 }
 
 .modal-overlay.active {
   opacity: 1;
+  visibility: visible;
   pointer-events: auto;
+  transition: opacity 0.3s var(--ease), visibility 0s linear 0s;
+}
+
+/* CMS feedback. Sticks to the bottom of the panel's scroll box so a
+   confirmation is visible whichever tab the admin is on -- replaces the twenty
+   alert()/confirm() calls that used to be this panel's only feedback. */
+.cms-toasts {
+  position: sticky;
+  bottom: 0;
+  margin: 16px -4px -4px;
+  padding: 13px 16px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.45;
+  box-shadow: var(--shadow-md);
+}
+
+.cms-toasts-ok {
+  background: #D4EDDA;
+  color: #155724;
+}
+
+.cms-toasts-err {
+  background: #F8D7DA;
+  color: #721C24;
+}
+
+/* An armed delete button. It reads "Confirm delete?" while in this state, so the
+   colour is reinforcement rather than the only signal. */
+.btn-danger.is-confirming {
+  background: #721C24;
+  color: #fff;
+}
+
+/* Scroll lock. Without it the page behind an open modal scrolls under the
+   finger on mobile -- the booking form is tall enough that a patient reaching
+   its bottom scrolls the document instead. Set by the modal observer in
+   main.js, cleared only when the LAST modal closes. */
+body.modal-open {
+  overflow: hidden;
 }
 
 .modal-box {
@@ -1430,7 +1530,7 @@ button {
 .form-group select:focus,
 .form-group textarea:focus {
   outline: none;
-  border-color: var(--orange);
+  border-color: var(--orange-ink);
   background: #fff;
   box-shadow: 0 0 0 3px rgba(234, 104, 6, 0.12);
 }
@@ -1456,9 +1556,9 @@ button {
 }
 
 .cms-tab-btn.active {
-  background: var(--orange);
+  background: var(--orange-ink);
   color: #fff;
-  border-color: var(--orange);
+  border-color: var(--orange-ink);
 }
 
 .upload-dropzone {
@@ -1472,7 +1572,7 @@ button {
 
 .upload-dropzone:hover {
   background: #FDF4CD;
-  border-color: var(--orange);
+  border-color: var(--orange-ink);
 }
 
 .preview-thumbnail {
@@ -1586,8 +1686,9 @@ html.reveal [data-r]:not(.in) {
 @media(max-width: 820px) {
   .nav-links, .nav-tel, .nav .btn { display: none; }
   .burger { display: block; }
-  .stats { grid-template-columns: 1fr; }
-  .stat { min-height: 250px; }
+  .statrow { grid-template-columns: 1fr; margin-top: 36px; }
+  .statrow-item { text-align: left; padding: 18px 0; }
+  .statrow-item + .statrow-item { border-inline-start: 0; border-top: 1px solid var(--hair); }
   .certs { grid-template-columns: repeat(2, 1fr); }
   .services { grid-template-columns: 1fr; }
   .chambers-grid { grid-template-columns: 1fr; }

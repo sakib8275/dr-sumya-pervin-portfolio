@@ -1,0 +1,203 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Home mockup</title><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;1,400&family=Manrope:wght@400;500;600;700;800&family=Hind+Siliguri:wght@600&display=swap" rel="stylesheet"><meta name="viewport" content="width=1440"><style>
+:root{
+  --teal:#0D6B8F; --teal-d:#0A5572; --teal-l:#E3F1F6;
+  --ink:#12303B; --text:#2B3A42; --muted:#64737B;
+  --sand:#F7F3EC; --sand-d:#EDE5D8; --line:#E2DED6;
+  --gold:#A9824A; --gold-l:#F4EBDD; --white:#fff; --ok:#1E7A55;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Manrope,'Hind Siliguri',Arial,sans-serif;color:var(--text);background:var(--white);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1240px;margin:0 auto;padding:0 40px}
+h1,h2,h3{font-family:Fraunces,'Hind Siliguri',Georgia,serif;color:var(--ink);font-weight:600;letter-spacing:-.01em}
+.eyebrow{font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--teal)}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:14px 24px;border-radius:999px;font-weight:700;font-size:15px;text-decoration:none;border:1.5px solid transparent}
+.btn-p{background:var(--teal);color:#fff}
+.btn-g{border-color:var(--ink);color:var(--ink)}
+.link{color:var(--teal);font-weight:700;text-decoration:none;border-bottom:1.5px solid currentColor}
+.util{background:var(--ink);color:#CFE0E6;font-size:13px}
+.util .wrap{display:flex;justify-content:space-between;padding-top:9px;padding-bottom:9px}
+.util b{color:#fff;font-weight:600}
+header.nav{border-bottom:1px solid var(--line);background:#fff}
+header.nav .wrap{display:flex;align-items:center;justify-content:space-between;height:78px}
+.logo{display:flex;flex-direction:column;line-height:1.1}
+.logo .n{font-family:Fraunces,serif;font-size:23px;color:var(--ink);font-weight:600}
+.logo .s{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-top:3px}
+nav.menu{display:flex;gap:26px;font-size:14.5px;font-weight:600;color:var(--ink)}
+nav.menu span.on{color:var(--teal);box-shadow:inset 0 -2px 0 var(--teal);padding-bottom:4px}
+.badge{position:absolute;width:30px;height:30px;border-radius:50%;background:#E4572E;color:#fff;font:800 14px Manrope;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 4px rgba(228,87,46,.22);z-index:9}
+.rel{position:relative}
+.tick{color:var(--ok);font-weight:800}
+.dash{color:#B7BEC2}
+.pill{display:inline-block;font-size:12px;font-weight:700;padding:5px 11px;border-radius:999px;background:var(--teal-l);color:var(--teal-d)}
+.pill.gold{background:var(--gold-l);color:#7C5C2E}
+.pill.grey{background:#EEF0F1;color:#4E5A60}
+footer{background:var(--ink);color:#B9CBD2;font-size:13.5px;padding:44px 0 28px}
+footer .cols{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:32px}
+footer h4{color:#fff;font:700 13px Manrope;letter-spacing:.12em;text-transform:uppercase;margin-bottom:12px}
+footer p{margin-bottom:6px}
+footer .legal{border-top:1px solid #29495A;margin-top:30px;padding-top:16px;display:flex;justify-content:space-between;font-size:12px}
+.ph{background:repeating-linear-gradient(135deg,#E8E2D7 0 12px,#EFEAE1 12px 24px);display:flex;align-items:center;justify-content:center;color:#857B6B;font-size:13px;font-weight:600;text-align:center}
+</style>
+<style>
+.hero{background:var(--sand);padding:72px 0 80px}
+.hero .wrap{display:grid;grid-template-columns:1.12fr .88fr;gap:56px;align-items:center}
+.hero h1{font-size:62px;line-height:1.04;margin:16px 0 22px}
+.hero h1 em{font-style:italic;color:var(--teal)}
+.hero p.sub{font-size:19px;color:var(--text);max-width:560px}
+.hero .ctas{display:flex;gap:14px;margin:32px 0 18px}
+.hero .third{font-size:14.5px;color:var(--muted)}
+.portrait{height:520px;border-radius:220px 220px 22px 22px;position:relative}
+.cred{position:absolute;left:-46px;bottom:34px;background:#fff;border-radius:16px;padding:18px 22px;box-shadow:0 18px 40px rgba(18,48,59,.14);width:330px}
+.cred .nm{font:600 19px Fraunces;color:var(--ink)}
+.cred .q{font-size:13.5px;color:var(--muted);margin-top:4px}
+.cred .b{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}
+.promises{border-bottom:1px solid var(--line)}
+.promises .wrap{display:grid;grid-template-columns:repeat(4,1fr)}
+.pr{padding:26px 24px;border-right:1px solid var(--line)}
+.pr:last-child{border-right:0}
+.pr .t{font-weight:800;color:var(--ink);font-size:15.5px;margin-bottom:4px}
+.pr .d{font-size:13.5px;color:var(--muted)}
+.pr .i{width:34px;height:34px;border-radius:10px;background:var(--teal-l);color:var(--teal);display:flex;align-items:center;justify-content:center;font-weight:800;margin-bottom:12px}
+section.blk{padding:84px 0}
+.head{display:flex;justify-content:space-between;align-items:end;margin-bottom:36px}
+.head h2{font-size:40px;line-height:1.12;margin-top:10px;max-width:640px}
+.pillars{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+.pil{border:1px solid var(--line);border-radius:20px;padding:28px;background:#fff}
+.pil .k{font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.1em;text-transform:uppercase}
+.pil h3{font-size:26px;margin:8px 0 10px}
+.pil p{font-size:14.5px;color:var(--muted);margin-bottom:18px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}
+.chip{border:1px solid var(--line);border-radius:999px;padding:7px 13px;font-size:13.5px;font-weight:600;color:var(--ink);background:var(--sand)}
+.steps{display:grid;grid-template-columns:repeat(5,1fr);gap:0;counter-reset:s;position:relative}
+.steps:before{content:"";position:absolute;top:22px;left:6%;right:6%;height:2px;background:var(--line)}
+.st{padding:0 14px;position:relative}
+.st .n{width:46px;height:46px;border-radius:50%;background:var(--ink);color:#fff;display:flex;align-items:center;justify-content:center;font:600 18px Fraunces;margin-bottom:16px}
+.st .t{font-weight:800;color:var(--ink);margin-bottom:6px}
+.st .d{font-size:14px;color:var(--muted)}
+.tiers{display:grid;grid-template-columns:1fr 1.08fr 1fr;gap:20px;align-items:stretch}
+.tier{border:1px solid var(--line);border-radius:22px;padding:30px;background:#fff;position:relative}
+.tier.rec{border:2px solid var(--teal);box-shadow:0 24px 50px rgba(13,107,143,.14);transform:translateY(-10px)}
+.tier.sig{background:var(--ink);color:#D4E1E6;border-color:var(--ink)}
+.tier.sig h3,.tier.sig .pr2{color:#fff}
+.tier .flag{position:absolute;top:-14px;left:30px;background:var(--teal);color:#fff;font-size:12px;font-weight:800;padding:6px 12px;border-radius:999px}
+.tier h3{font-size:24px}
+.tier .min{font-size:13.5px;color:var(--muted);margin-top:2px}
+.tier.sig .min{color:#9FB6BF}
+.pr2{font:600 44px Fraunces;color:var(--ink);margin:18px 0 4px}
+.pr2 small{font:600 14px Manrope;color:var(--muted)}
+.tier ul{list-style:none;margin-top:18px;font-size:14.5px}
+.tier li{padding:8px 0;border-top:1px dashed var(--line);display:flex;gap:10px}
+.tier.sig li{border-color:#2D4B58}
+.note{font-size:13.5px;color:var(--muted);margin-top:26px;text-align:center}
+.rooms{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.room .ph{height:190px;border-radius:16px}
+.room .t{font-weight:800;color:var(--ink);margin-top:12px}
+.room .d{font-size:13.5px;color:var(--muted)}
+.dont{background:var(--ink);color:#C9D9DF;padding:70px 0}
+.dont .wrap{display:grid;grid-template-columns:1fr 1.1fr;gap:60px;align-items:center}
+.dont h2{color:#fff;font-size:40px;line-height:1.12;margin:10px 0 16px}
+.dont .x{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.dont .x div{border:1px solid #2D4B58;border-radius:14px;padding:16px 18px;font-weight:600;color:#fff}
+.dont .x span{display:block;font-weight:500;color:#9FB6BF;font-size:13px;margin-top:3px}
+.learn{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+.art .ph{height:170px;border-radius:16px}
+.art .c{font-size:12px;font-weight:700;color:var(--teal);letter-spacing:.08em;text-transform:uppercase;margin-top:14px}
+.art .t{font:600 21px/1.25 Fraunces;color:var(--ink);margin-top:6px}
+.art .by{font-size:13px;color:var(--muted);margin-top:8px}
+.final{background:var(--teal);color:#E3F1F6;padding:64px 0}
+.final .wrap{display:flex;justify-content:space-between;align-items:center}
+.final h2{color:#fff;font-size:38px;max-width:640px;line-height:1.15}
+.final .btn-p{background:#fff;color:var(--teal-d)}
+.final .btn-g{border-color:#fff;color:#fff}
+</style></head><body>
+
+<div class="util rel"><span class="badge" style="left:8px;top:4px">1</span><div class="wrap"><span>Dr. Sumya Pervin's Dermatology Centre · Ring Road, Mohammadpur · <b>Opening 2027</b> — consulting now in Shyamoli</span><span><b>Call 01X-XXXX-XXXX</b> · WhatsApp · BMDC Reg. A-59492</span></div></div>
+<header class="nav"><div class="wrap"><div class="logo"><span class="n">Dr. Sumya Pervin</span><span class="s">Skin · Hair · Nail · Laser</span></div>
+<nav class="menu"><span>Conditions ▾</span><span>Skin Surgery ▾</span><span>Aesthetic &amp; Laser ▾</span><span>Prices</span><span>The Centre</span><span>About</span></nav>
+<a class="btn btn-p" style="padding:11px 20px">Book a consultation</a></div></header>
+
+<section class="hero"><div class="wrap">
+ <div class="rel"><span class="badge" style="left:-40px;top:40px">2</span>
+  <div class="eyebrow">Specialist dermatology · FCPS (Skin &amp; VD)</div>
+  <h1>Every treatment starts with a <em>diagnosis.</em></h1>
+  <p class="sub">Doctor-led care for skin, hair and nail conditions — and evidence-based aesthetic and laser treatment. Published prices. A written plan at every visit. Follow-up we actually send.</p>
+  <div class="ctas rel"><span class="badge" style="left:-40px;top:8px">3</span><a class="btn btn-p">Book a consultation →</a><a class="btn btn-g">See prices</a></div>
+  <div class="third">Not sure what you need? <a class="link">See what your first visit will involve</a> (2-minute check)</div>
+ </div>
+ <div class="rel"><div class="portrait ph">Professional portrait<br>Dr. Sumya Pervin in clinic<br>(natural light, no props)</div>
+  <div class="cred"><span class="badge" style="right:-12px;top:-12px">4</span><div class="nm">Dr. Sumya Pervin</div><div class="q">Consultant Dermatologist — Skin, Hair, Nail, Allergy &amp; Venereal Diseases</div>
+  <div class="b"><span class="pill">MBBS</span><span class="pill">DDV (BSMMU)</span><span class="pill">FCPS (Skin &amp; VD)</span><span class="pill gold">BMDC A-59492</span></div></div></div>
+</div></section>
+
+<div class="promises rel"><span class="badge" style="left:8px;top:-14px">5</span><div class="wrap">
+ <div class="pr"><div class="i">৳</div><div class="t">Prices published</div><div class="d">See exactly what each fee includes — before you call.</div></div>
+ <div class="pr"><div class="i">Dr</div><div class="t">Doctor-led, always disclosed</div><div class="d">Every price shows who performs it: Dr. Sumya or a trained nurse under her protocol.</div></div>
+ <div class="pr"><div class="i">✎</div><div class="t">Written plan, every visit</div><div class="d">Diagnosis, treatment, timeline and total cost — in writing.</div></div>
+ <div class="pr"><div class="i">↻</div><div class="t">Follow-up we send</div><div class="d">A check-in message at the right time for your condition.</div></div>
+</div></div>
+
+<section class="blk rel"><span class="badge" style="left:8px;top:84px">6</span><div class="wrap">
+ <div class="head"><div><div class="eyebrow">Start with your concern</div><h2>What brings you here?</h2></div><a class="link">All conditions &amp; treatments →</a></div>
+ <div class="pillars">
+  <div class="pil"><div class="k">Medical Dermatology</div><h3>Skin, hair &amp; nail conditions</h3><p>Diagnosed properly, treated with evidence, followed up until controlled.</p><div class="chips"><span class="chip">Acne</span><span class="chip">Eczema</span><span class="chip">Psoriasis</span><span class="chip">Fungal infection</span><span class="chip">Hair fall</span><span class="chip">Melasma</span><span class="chip">Hives</span><span class="chip">Vitiligo</span></div><a class="link">Explore conditions →</a></div>
+  <div class="pil"><div class="k">Skin Surgery &amp; Procedures</div><h3>Moles, lumps &amp; growths</h3><p>Minor skin surgery in a clean procedure room, with lab confirmation when needed.</p><div class="chips"><span class="chip">Mole check</span><span class="chip">Mole / cyst removal</span><span class="chip">Skin tags &amp; DPN</span><span class="chip">Warts</span><span class="chip">Keloid</span><span class="chip">Skin biopsy</span></div><a class="link">Explore procedures →</a></div>
+  <div class="pil"><div class="k">Aesthetic &amp; Laser</div><h3>Look like yourself, rested</h3><p>Only what the evidence supports for South Asian skin — planned by a dermatologist.</p><div class="chips"><span class="chip">Acne scars</span><span class="chip">Pigmentation</span><span class="chip">Unwanted hair</span><span class="chip">Ageing skin</span><span class="chip">Hair thinning</span><span class="chip">Bridal prep</span></div><a class="link">Explore aesthetics →</a></div>
+ </div>
+</div></section>
+
+<section class="blk rel" style="background:var(--sand)"><span class="badge" style="left:8px;top:84px">7</span><div class="wrap">
+ <div class="head"><div><div class="eyebrow">How a consultation works</div><h2>From first visit to a plan you can follow</h2></div></div>
+ <div class="steps">
+  <div class="st"><div class="n">1</div><div class="t">History</div><div class="d">Bring your creams and old prescriptions. We ask what you have tried.</div></div>
+  <div class="st"><div class="n">2</div><div class="t">Examination</div><div class="d">A proper look, with dermoscopy where it helps.</div></div>
+  <div class="st"><div class="n">3</div><div class="t">Tests — only if useful</div><div class="d">Explained and priced before anything is done.</div></div>
+  <div class="st"><div class="n">4</div><div class="t">Written plan</div><div class="d">Diagnosis, options, timeline and total cost.</div></div>
+  <div class="st"><div class="n">5</div><div class="t">Follow-up</div><div class="d">We message you to check progress.</div></div>
+ </div>
+</div></section>
+
+<section class="blk rel"><span class="badge" style="left:8px;top:84px">8</span><div class="wrap">
+ <div class="head"><div><div class="eyebrow">Consultation fees at the Centre</div><h2>Choose the depth of your first visit</h2></div><a class="link">Full price list →</a></div>
+ <div class="tiers">
+  <div class="tier"><h3>Specialist Consultation</h3><div class="min">20–25 minutes with Dr. Sumya</div><div class="pr2">৳2,000</div>
+   <ul><li><span class="tick">✓</span>Examination + dermoscopy</li><li><span class="tick">✓</span>Written diagnosis &amp; care plan</li><li><span class="tick">✓</span>Report review within 14 days — ৳0</li><li><span class="tick">✓</span>One WhatsApp check-in</li><li><span class="dash">—</span><span style="color:var(--muted)">Baseline photo-mapping</span></li></ul></div>
+  <div class="tier rec"><div class="flag">Recommended for long-standing or cosmetic concerns</div><h3>Comprehensive Assessment</h3><div class="min">40 minutes with Dr. Sumya</div><div class="pr2">৳3,500</div>
+   <ul><li><span class="tick">✓</span>Everything in Specialist</li><li><span class="tick">✓</span>Standardised baseline photographs</li><li><span class="tick">✓</span>Costed options for every route</li><li><span class="tick">✓</span>One follow-up within 30 days — included</li><li><span class="tick">✓</span>Two WhatsApp check-ins</li></ul></div>
+  <div class="tier sig"><h3>Signature Skin &amp; Hair Review</h3><div class="min">60 minutes with Dr. Sumya</div><div class="pr2">৳6,000</div>
+   <ul><li><span class="tick" style="color:#7FD1AE">✓</span>Everything in Comprehensive</li><li><span class="tick" style="color:#7FD1AE">✓</span>Full-body mole map or scalp trichoscopy</li><li><span class="tick" style="color:#7FD1AE">✓</span>Same-visit fungal &amp; Wood's lamp tests</li><li><span class="tick" style="color:#7FD1AE">✓</span>Typed report for your records</li><li><span class="tick" style="color:#7FD1AE">✓</span>3-month review message</li></ul></div>
+ </div>
+ <div class="note">Follow-up within 30 days ৳1,200 · No package is sold at a first visit · Hospital-chamber fees follow each hospital's tariff</div>
+</div></section>
+
+<section class="blk rel" style="padding-top:20px"><span class="badge" style="left:8px;top:20px">9</span><div class="wrap">
+ <div class="head"><div><div class="eyebrow">Inside the Centre</div><h2>Built like a clinic, not a salon</h2></div><a class="link">Take the tour →</a></div>
+ <div class="rooms">
+  <div class="room"><div class="ph">Consultation suite</div><div class="t">Consultation suites</div><div class="d">Private, unhurried, with dermoscopy and magnified lighting.</div></div>
+  <div class="room"><div class="ph">Laser suite</div><div class="t">Laser suite</div><div class="d">Interlocked door, eye protection, plume extraction.</div></div>
+  <div class="room"><div class="ph">In-house lab</div><div class="t">In-house lab</div><div class="d">Same-visit fungal microscopy. PRP prepared in a closed system.</div></div>
+ </div>
+</div></section>
+
+<section class="dont rel"><span class="badge" style="left:8px;top:20px">10</span><div class="wrap">
+ <div><div class="eyebrow" style="color:#7FC3DA">Our ethical limits</div><h2>Some treatments are not available here — at any price.</h2><p>Saying no is part of good medicine. Here is what we don't offer, and why.</p><br><a class="btn btn-g" style="border-color:#fff;color:#fff">Read the full list →</a></div>
+ <div class="x"><div>Skin-whitening drips &amp; injections<span>No safety evidence; real harms</span></div><div>Steroid creams without a diagnosis<span>Cause thinning and rebound</span></div><div>"Instant fairness" packages<span>Skin tone is not a disease</span></div><div>Treatment from a photo alone<span>Diagnosis needs examination</span></div><div>Unregistered injectables<span>Only DGDA-registered products</span></div><div>Guaranteed results<span>Honest ranges, not promises</span></div></div>
+</div></section>
+
+<section class="blk rel"><span class="badge" style="left:8px;top:84px">11</span><div class="wrap">
+ <div class="head"><div><div class="eyebrow">Learn</div><h2>Written and reviewed by Dr. Sumya</h2></div><a class="link">All articles →</a></div>
+ <div class="learn">
+  <div class="art"><div class="ph">Article image</div><div class="c">Pigmentation</div><div class="t">Melasma is manageable, not curable — what actually works</div><div class="by">6 min read · Reviewed by Dr. Sumya Pervin, FCPS</div></div>
+  <div class="art"><div class="ph">Article image</div><div class="c">Fungal infection</div><div class="t">Why ringworm keeps coming back — and the cream that makes it worse</div><div class="by">5 min read · Reviewed by Dr. Sumya Pervin, FCPS</div></div>
+  <div class="art"><div class="ph">Article image</div><div class="c">Mole check</div><div class="t">The ABCDE rule — plus the palms, soles and nails rule for South Asian skin</div><div class="by">4 min read · Reviewed by Dr. Sumya Pervin, FCPS</div></div>
+ </div>
+</div></section>
+
+<section class="final rel"><span class="badge" style="left:8px;top:20px">12</span><div class="wrap"><h2>Pick a day. We'll send your serial, time window and what to bring.</h2><div style="display:flex;gap:12px"><a class="btn btn-p">Book a consultation</a><a class="btn btn-g">Ask on WhatsApp</a></div></div></section>
+
+<footer><div class="wrap"><div class="cols">
+ <div><div class="logo"><span class="n" style="color:#fff">Dr. Sumya Pervin</span><span class="s" style="color:#9FB6BF">Dermatology Centre</span></div><p style="margin-top:14px">MBBS · DDV (BSMMU) · FCPS (Skin &amp; VD)<br>BMDC Reg. No. A-59492</p></div>
+ <div><h4>Care</h4><p>Conditions</p><p>Skin surgery</p><p>Aesthetic &amp; laser</p><p>Prices</p></div>
+ <div><h4>Visit</h4><p>The Centre (opening 2027)</p><p>Current chambers</p><p>Book · Prepare for your visit</p></div>
+ <div><h4>Trust</h4><p>What we don't offer</p><p>Photo &amp; consent policy</p><p>Privacy · Terms · Disclaimer</p></div>
+</div><div class="legal"><span>Information on this site is educational and does not replace an examination.</span><span>Prices reviewed: [date]</span></div></div></footer>
+</body></html>

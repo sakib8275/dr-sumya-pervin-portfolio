@@ -1,0 +1,189 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Prices mockup</title><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;1,400&family=Manrope:wght@400;500;600;700;800&family=Hind+Siliguri:wght@600&display=swap" rel="stylesheet"><meta name="viewport" content="width=1440"><style>
+:root{
+  --teal:#0D6B8F; --teal-d:#0A5572; --teal-l:#E3F1F6;
+  --ink:#12303B; --text:#2B3A42; --muted:#64737B;
+  --sand:#F7F3EC; --sand-d:#EDE5D8; --line:#E2DED6;
+  --gold:#A9824A; --gold-l:#F4EBDD; --white:#fff; --ok:#1E7A55;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Manrope,'Hind Siliguri',Arial,sans-serif;color:var(--text);background:var(--white);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1240px;margin:0 auto;padding:0 40px}
+h1,h2,h3{font-family:Fraunces,'Hind Siliguri',Georgia,serif;color:var(--ink);font-weight:600;letter-spacing:-.01em}
+.eyebrow{font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--teal)}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:14px 24px;border-radius:999px;font-weight:700;font-size:15px;text-decoration:none;border:1.5px solid transparent}
+.btn-p{background:var(--teal);color:#fff}
+.btn-g{border-color:var(--ink);color:var(--ink)}
+.link{color:var(--teal);font-weight:700;text-decoration:none;border-bottom:1.5px solid currentColor}
+.util{background:var(--ink);color:#CFE0E6;font-size:13px}
+.util .wrap{display:flex;justify-content:space-between;padding-top:9px;padding-bottom:9px}
+.util b{color:#fff;font-weight:600}
+header.nav{border-bottom:1px solid var(--line);background:#fff}
+header.nav .wrap{display:flex;align-items:center;justify-content:space-between;height:78px}
+.logo{display:flex;flex-direction:column;line-height:1.1}
+.logo .n{font-family:Fraunces,serif;font-size:23px;color:var(--ink);font-weight:600}
+.logo .s{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-top:3px}
+nav.menu{display:flex;gap:26px;font-size:14.5px;font-weight:600;color:var(--ink)}
+nav.menu span.on{color:var(--teal);box-shadow:inset 0 -2px 0 var(--teal);padding-bottom:4px}
+.badge{position:absolute;width:30px;height:30px;border-radius:50%;background:#E4572E;color:#fff;font:800 14px Manrope;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 4px rgba(228,87,46,.22);z-index:9}
+.rel{position:relative}
+.tick{color:var(--ok);font-weight:800}
+.dash{color:#B7BEC2}
+.pill{display:inline-block;font-size:12px;font-weight:700;padding:5px 11px;border-radius:999px;background:var(--teal-l);color:var(--teal-d)}
+.pill.gold{background:var(--gold-l);color:#7C5C2E}
+.pill.grey{background:#EEF0F1;color:#4E5A60}
+footer{background:var(--ink);color:#B9CBD2;font-size:13.5px;padding:44px 0 28px}
+footer .cols{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:32px}
+footer h4{color:#fff;font:700 13px Manrope;letter-spacing:.12em;text-transform:uppercase;margin-bottom:12px}
+footer p{margin-bottom:6px}
+footer .legal{border-top:1px solid #29495A;margin-top:30px;padding-top:16px;display:flex;justify-content:space-between;font-size:12px}
+.ph{background:repeating-linear-gradient(135deg,#E8E2D7 0 12px,#EFEAE1 12px 24px);display:flex;align-items:center;justify-content:center;color:#857B6B;font-size:13px;font-weight:600;text-align:center}
+</style>
+<style>
+.top{background:var(--sand);padding:46px 0 0}
+.crumb{font-size:13px;color:var(--muted)}
+.top h1{font-size:54px;line-height:1.06;margin:14px 0 14px;max-width:880px}
+.top p{font-size:18px;max-width:760px}
+.assure{display:flex;gap:10px;margin:24px 0 30px;flex-wrap:wrap}
+.assure span{background:#fff;border:1px solid var(--line);border-radius:999px;padding:8px 14px;font-size:13.5px;font-weight:700;color:var(--ink)}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);background:#fff;position:relative}
+.tabs .wrap{display:flex;gap:6px}
+.tab{padding:16px 16px;font-weight:700;font-size:14.5px;color:var(--muted)}
+.tab.on{color:var(--teal);box-shadow:inset 0 -3px 0 var(--teal)}
+.sec{padding:56px 0;border-bottom:1px solid var(--line)}
+.sh{display:flex;justify-content:space-between;align-items:end;margin-bottom:26px}
+.sh h2{font-size:34px}
+.sh p{color:var(--muted);font-size:14.5px;max-width:520px}
+.legend{display:flex;gap:18px;font-size:13.5px;color:var(--text);background:var(--teal-l);border-radius:14px;padding:14px 18px;margin-bottom:26px;align-items:center}
+.who{display:inline-flex;align-items:center;justify-content:center;min-width:30px;height:24px;padding:0 7px;border-radius:7px;font:800 12px Manrope;color:#fff;background:var(--ink)}
+.who.n{background:#5E7D89}
+.who.dn{background:var(--teal)}
+.cons{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.cc{border:1px solid var(--line);border-radius:18px;padding:22px;background:#fff;position:relative}
+.cc.rec{border:2px solid var(--teal)}
+.cc .flag{position:absolute;top:-12px;left:18px;background:var(--teal);color:#fff;font-size:11.5px;font-weight:800;padding:5px 10px;border-radius:999px}
+.cc h3{font-size:19px;line-height:1.2;min-height:46px}
+.cc .p{font:600 34px Fraunces;color:var(--ink);margin:10px 0 2px}
+.cc .m{font-size:13px;color:var(--muted);display:flex;gap:8px;align-items:center}
+.cc ul{list-style:none;margin-top:12px;font-size:13.5px}
+.cc li{padding:6px 0;border-top:1px dashed var(--line);display:flex;gap:8px}
+.fu{margin-top:18px;display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.fu div{padding:14px 18px;border-right:1px solid var(--line);font-size:13.5px}
+.fu div:last-child{border-right:0}
+.fu b{display:block;font:600 22px Fraunces;color:var(--ink)}
+.plans{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+.plan{border:1px solid var(--line);border-radius:22px;padding:28px;position:relative;background:#fff}
+.plan.rec{border:2px solid var(--teal);box-shadow:0 20px 44px rgba(13,107,143,.12)}
+.plan h3{font-size:25px}
+.plan .row{display:flex;align-items:baseline;gap:14px;margin:14px 0 4px}
+.plan .p{font:600 42px Fraunces;color:var(--ink)}
+.plan .was{font-size:14px;color:var(--muted)}
+.plan .save{background:#E2F3EA;color:var(--ok);font-weight:800;font-size:13px;padding:5px 10px;border-radius:999px}
+.plan ul{list-style:none;font-size:14.5px;margin-top:14px}
+.plan li{padding:8px 0;border-top:1px dashed var(--line);display:flex;justify-content:space-between;gap:12px}
+.plan li span:last-child{color:var(--muted);white-space:nowrap}
+.est{display:grid;grid-template-columns:1fr 1fr;gap:0;border-radius:22px;overflow:hidden;border:1px solid var(--line)}
+.est .in{padding:30px;background:#fff}
+.est .out{padding:30px;background:var(--ink);color:#C9D9DF}
+.f{margin-bottom:16px}
+.f label{display:block;font-size:12.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+.sel{border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;font-weight:700;color:var(--ink);display:flex;justify-content:space-between}
+.seg{display:flex;gap:8px}
+.seg span{flex:1;text-align:center;border:1.5px solid var(--line);border-radius:12px;padding:11px 0;font-weight:700;font-size:14px}
+.seg span.on{border-color:var(--teal);background:var(--teal-l);color:var(--teal-d)}
+.out .big{font:600 52px Fraunces;color:#fff;margin:6px 0}
+.out .ln{display:flex;justify-content:space-between;padding:10px 0;border-top:1px solid #2D4B58;font-size:14.5px}
+.out .ln b{color:#fff}
+.out .fine{font-size:12.5px;color:#93AAB3;margin-top:14px}
+table.bands{width:100%;border-collapse:separate;border-spacing:0;border:1px solid var(--line);border-radius:18px;overflow:hidden;font-size:14.5px}
+.bands th{background:var(--sand);text-align:left;padding:14px 18px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.bands td{padding:16px 18px;border-top:1px solid var(--line);vertical-align:top}
+.bands td.pp{font:600 22px Fraunces;color:var(--ink);white-space:nowrap}
+.bands td.cp{font:600 18px Fraunces;color:var(--teal-d);white-space:nowrap}
+.bands .bn{font-weight:800;color:var(--ink)}
+.bands small{display:block;color:var(--muted);font-size:12.5px}
+.bridal{display:grid;grid-template-columns:1fr 1.1fr 1fr;gap:18px}
+.br{border:1px solid var(--line);border-radius:20px;padding:24px;background:#fff;position:relative}
+.br.rec{background:var(--gold-l);border-color:#D9C29C}
+.br h3{font-size:21px}
+.br .p{font:600 34px Fraunces;color:var(--ink);margin:10px 0 0}
+.br ul{list-style:none;font-size:13.5px;margin-top:12px}
+.br li{padding:6px 0;border-top:1px dashed #D8CDBA;display:flex;gap:8px}
+.prom{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.pm{background:var(--sand);border-radius:16px;padding:20px}
+.pm .t{font-weight:800;color:var(--ink);margin-bottom:4px}
+.pm .d{font-size:13.5px;color:var(--muted)}
+.sticky{position:relative;background:#fff;border-top:1px solid var(--line);box-shadow:0 -10px 30px rgba(18,48,59,.08)}
+.sticky .wrap{display:flex;justify-content:space-between;align-items:center;padding-top:16px;padding-bottom:16px}
+</style></head><body>
+<div class="util"><div class="wrap"><span>Dr. Sumya Pervin's Dermatology Centre · Ring Road, Mohammadpur · <b>Opening 2027</b></span><span><b>Call 01X-XXXX-XXXX</b> · WhatsApp · BMDC Reg. A-59492</span></div></div>
+<header class="nav"><div class="wrap"><div class="logo"><span class="n">Dr. Sumya Pervin</span><span class="s">Skin · Hair · Nail · Laser</span></div>
+<nav class="menu"><span>Conditions ▾</span><span>Skin Surgery ▾</span><span>Aesthetic &amp; Laser ▾</span><span class="on">Prices</span><span>The Centre</span><span>About</span></nav>
+<a class="btn btn-p" style="padding:11px 20px">Book a consultation</a></div></header>
+
+<section class="top rel"><span class="badge" style="left:8px;top:46px">1</span><div class="wrap">
+ <div class="crumb">Home / Prices</div>
+ <h1>Prices — exactly what you get, before you come.</h1>
+ <p>Every fee below lists what it includes, how long the doctor spends with you, and who performs the treatment. Course prices are offered only after a diagnosis, and you can always pay session by session.</p>
+ <div class="assure"><span>✓ 12-month price lock on courses</span><span>✓ Unused sessions refunded</span><span>✓ No compulsory products</span><span>✓ Card · bKash · Nagad · 0% EMI*</span></div>
+</div>
+<div class="tabs rel"><span class="badge" style="left:8px;top:10px">2</span><div class="wrap"><span class="tab on">Consultations</span><span class="tab">Care Plans</span><span class="tab">Tests</span><span class="tab">Skin Surgery</span><span class="tab">Aesthetic</span><span class="tab">Laser</span><span class="tab">Bridal &amp; Groom</span><span class="tab">Policies</span></div></div></section>
+
+<section class="sec rel"><span class="badge" style="left:8px;top:56px">3</span><div class="wrap">
+ <div class="sh"><h2>Consultations</h2><p>All consultations at the Centre are with Dr. Sumya personally. Choose the depth you need — the doctor will tell you honestly if a shorter visit is enough.</p></div>
+ <div class="legend"><b>Who performs:</b><span><span class="who">Dr</span> Dr. Sumya personally</span><span><span class="who dn">Dr+N</span> Dr. Sumya with a trained nurse</span><span><span class="who n">N</span> Trained nurse under Dr. Sumya's written protocol, doctor on site</span></div>
+ <div class="cons">
+  <div class="cc"><h3>Specialist Consultation</h3><div class="p">৳2,000</div><div class="m"><span class="who">Dr</span>20–25 min</div><ul><li><span class="tick">✓</span>Dermoscopy</li><li><span class="tick">✓</span>Written plan</li><li><span class="tick">✓</span>Report review ≤14 days ৳0</li></ul></div>
+  <div class="cc rec"><div class="flag">Best for long-standing concerns</div><h3>Comprehensive Assessment</h3><div class="p">৳3,500</div><div class="m"><span class="who">Dr</span>40 min</div><ul><li><span class="tick">✓</span>Baseline photographs</li><li><span class="tick">✓</span>Costed options, every route</li><li><span class="tick">✓</span>1 follow-up included</li></ul></div>
+  <div class="cc"><h3>Signature Skin &amp; Hair Review</h3><div class="p">৳6,000</div><div class="m"><span class="who">Dr</span>60 min</div><ul><li><span class="tick">✓</span>Mole map or trichoscopy</li><li><span class="tick">✓</span>Same-visit lab tests</li><li><span class="tick">✓</span>Typed report</li></ul></div>
+  <div class="cc"><h3>Procedure Assessment</h3><div class="p">৳1,500</div><div class="m"><span class="who">Dr</span>15–20 min</div><ul><li><span class="tick">✓</span>Laser / aesthetic suitability</li><li><span class="tick">✓</span>Patch test if needed</li><li><span class="tick">✓</span><span><b>Fully adjusted</b> against session 1</span></li></ul></div>
+ </div>
+ <div class="fu"><div><b>৳1,200</b>Follow-up within 30 days</div><div><b>৳1,500</b>Follow-up 31–90 days</div><div><b>৳0</b>Report review within 14 days</div><div><b>৳0</b>Complication review within 7 days of any procedure</div></div>
+</div></section>
+
+<section class="sec rel" style="background:var(--sand)"><span class="badge" style="left:8px;top:56px">4</span><div class="wrap">
+ <div class="sh"><h2>6-month Care Plans</h2><p>For acne, eczema, psoriasis, hives and vitiligo — conditions controlled over months, not one visit. Offered only after diagnosis. Cancel any time; unused value is refunded pro rata.</p></div>
+ <div class="plans">
+  <div class="plan"><h3>Core Care Plan</h3><div class="row"><span class="p">৳6,500</span><span class="was">Pay-as-you-go ৳8,400</span><span class="save">You keep ৳1,900</span></div>
+   <ul><li><span>4 follow-up visits with Dr. Sumya</span><span>৳4,800</span></li><li><span>6 monthly WhatsApp photo reviews</span><span>৳3,600</span></li><li><span>Reminders matched to your prescription</span><span>Included</span></li><li><span>Priority serial</span><span>Included</span></li></ul></div>
+  <div class="plan rec"><div class="cc" style="position:absolute;top:-13px;left:24px;padding:0;border:0;background:none"><span class="pill" style="background:var(--teal);color:#fff">Recommended when procedures are part of the plan</span></div><h3>Complete Care Plan</h3><div class="row"><span class="p">৳12,500</span><span class="was">Pay-as-you-go up to ৳20,900</span><span class="save">You keep up to ৳8,400</span></div>
+   <ul><li><span>Everything in Core</span><span>৳8,400</span></li><li><span>Month-3 Comprehensive re-assessment</span><span>৳3,500</span></li><li><span>2 in-clinic sessions: peel, extraction, injection or 6 phototherapy</span><span>up to ৳9,000</span></li><li><span>Progress photo timeline you keep</span><span>Included</span></li></ul></div>
+ </div>
+</div></section>
+
+<section class="sec rel"><span class="badge" style="left:8px;top:56px">5</span><div class="wrap">
+ <div class="sh"><h2>Estimate your course cost</h2><p>A planning guide, not a quote. Your doctor confirms the number of sessions after examining you.</p></div>
+ <div class="est">
+  <div class="in"><div class="f"><label>Concern</label><div class="sel">Unwanted hair <span>▾</span></div></div><div class="f"><label>Area</label><div class="sel">Underarms (Band S) <span>▾</span></div></div><div class="f"><label>Payment</label><div class="seg"><span>Per session</span><span class="on">Course of 6</span><span>0% EMI · 6 mo</span></div></div><div class="f"><label>Performed by</label><div class="seg"><span class="on">Laser nurse (N)</span><span>Dr. Sumya (+25%)</span></div></div></div>
+  <div class="out"><div class="eyebrow" style="color:#7FC3DA">Your estimate</div><div class="big">৳25,000</div><div>for 6 sessions — you pay for 5</div>
+   <div class="ln" style="margin-top:16px"><span>Per session</span><b>৳5,000</b></div><div class="ln"><span>Session 6</span><b>Included</b></div><div class="ln"><span>0% EMI over 6 months*</span><b>৳4,167 / month</b></div><div class="ln"><span>Typical course</span><b>6–8 sessions, 4–6 weeks apart</b></div><div class="ln"><span>First session</span><b>Supervised by Dr. Sumya</b></div>
+   <div class="fine">*On partner bank credit cards; total stays ৳25,000. Procedure Assessment fee (৳1,500) is deducted from session 1.</div></div>
+ </div>
+</div></section>
+
+<section class="sec rel"><span class="badge" style="left:8px;top:56px">6</span><div class="wrap">
+ <div class="sh"><h2>Laser hair removal <span class="pill grey" style="vertical-align:middle;font-family:Manrope">Available after laser suite opens</span></h2><p>Priced by area band, not by guesswork. The course price is simply six sessions for the price of five.</p></div>
+ <table class="bands"><tr><th>Band</th><th>Areas included</th><th>Per session</th><th>Course of 6 (pay 5)</th><th>Performed by</th></tr>
+ <tr><td class="bn">XS</td><td>Upper lip · chin · sideburns · between brows</td><td class="pp">৳3,000</td><td class="cp">৳15,000</td><td><span class="who n">N</span></td></tr>
+ <tr><td class="bn">S</td><td>Underarms · full face · bikini line · men's beard line / neck</td><td class="pp">৳5,000</td><td class="cp">৳25,000</td><td><span class="who n">N</span></td></tr>
+ <tr><td class="bn">M</td><td>Forearms · lower legs · chest · abdomen · upper or lower back</td><td class="pp">৳9,000</td><td class="cp">৳45,000</td><td><span class="who n">N</span></td></tr>
+ <tr><td class="bn">L</td><td>Full arms · full legs · full back</td><td class="pp">৳14,000</td><td class="cp">৳70,000</td><td><span class="who n">N</span></td></tr>
+ <tr><td class="bn">Full body</td><td>All bands except face, one visit<small>Two-room scheduling, 2–2.5 hours</small></td><td class="pp">৳35,000</td><td class="cp">৳1,75,000</td><td><span class="who dn">Dr+N</span></td></tr></table>
+ <p style="font-size:13.5px;color:var(--muted);margin-top:12px">Maintenance session after a course: 50% of the band price. Prefer Dr. Sumya to perform every session: +25%. Female patients are treated by female staff.</p>
+</div></section>
+
+<section class="sec rel" style="background:var(--sand)"><span class="badge" style="left:8px;top:56px">7</span><div class="wrap">
+ <div class="sh"><h2>Bridal &amp; Groom Skin Programmes</h2><p>Doctor-planned 8–12 week programmes. Start at least 10 weeks before the event. No whitening products, at any tier.</p></div>
+ <div class="bridal">
+  <div class="br"><h3>Groom Programme</h3><div class="p">৳26,000</div><div class="m" style="font-size:13px;color:var(--muted)">Value at single prices ৳31,900</div><ul><li><span class="tick">✓</span>Comprehensive Assessment</li><li><span class="tick">✓</span>2 Advanced medical facials</li><li><span class="tick">✓</span>2 targeted peels (acne / tone)</li><li><span class="tick">✓</span>2 follow-ups</li></ul></div>
+  <div class="br rec"><span class="pill gold" style="position:absolute;top:-12px;left:22px;background:var(--gold);color:#fff">Recommended for most brides</span><h3>Bridal Essential</h3><div class="p">৳32,000</div><div class="m" style="font-size:13px;color:#7C5C2E">Value at single prices ৳37,900</div><ul><li><span class="tick">✓</span>Comprehensive Assessment</li><li><span class="tick">✓</span>3 Advanced medical facials</li><li><span class="tick">✓</span>2 targeted peels</li><li><span class="tick">✓</span>2 follow-ups + week-of-event check</li></ul></div>
+  <div class="br"><h3>Bridal Signature</h3><div class="p">৳55,000</div><div class="m" style="font-size:13px;color:var(--muted)">Value at single prices ৳66,600</div><ul><li><span class="tick">✓</span>Signature Skin &amp; Hair Review</li><li><span class="tick">✓</span>4 Advanced facials · 3 targeted peels</li><li><span class="tick">✓</span>1 microneedling with PRP</li><li><span class="tick">✓</span>3 follow-ups + event-week priority slot</li></ul></div>
+ </div>
+</div></section>
+
+<section class="sec rel"><span class="badge" style="left:8px;top:56px">8</span><div class="wrap">
+ <div class="sh"><h2>Our pricing promises</h2></div>
+ <div class="prom"><div class="pm"><div class="t">Nothing hidden</div><div class="d">Anaesthetic cream, dressings, consumables and aftercare advice are inside the price.</div></div><div class="pm"><div class="t">Your money back</div><div class="d">Stop a course any time — unused sessions are refunded at the per-session price.</div></div><div class="pm"><div class="t">Price lock</div><div class="d">The course price you are quoted holds for 12 months.</div></div><div class="pm"><div class="t">Lab at cost</div><div class="d">Biopsy and lab tests are passed through at the lab's price — receipt shown.</div></div></div>
+</div></section>
+
+<div class="sticky rel"><span class="badge" style="left:8px;top:-14px">9</span><div class="wrap"><span style="font-weight:700;color:var(--ink)">Not sure which fits? Start with a Specialist Consultation — ৳2,000.</span><div style="display:flex;gap:10px"><a class="btn btn-g" style="padding:11px 18px">Ask on WhatsApp</a><a class="btn btn-p" style="padding:11px 18px">Book a consultation</a></div></div></div>
+</body></html>
