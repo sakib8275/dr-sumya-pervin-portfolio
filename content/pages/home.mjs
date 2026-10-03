@@ -12,6 +12,7 @@
 // schedule); site.js marks the chambers consulting today in Dhaka.
 import { SITE, CHAMBERS_NOW, href } from '../site.mjs';
 import { CHAMBERS } from '../../functions/lib/schedule.js';
+import { mark } from '../brand.mjs';
 import { bnSummary } from '../bn.mjs';
 import { pkgButton, pkgViews } from './pkgview.mjs';
 
@@ -86,7 +87,7 @@ export default function home() {
     </div>
     <div class="h-hero-figure">
       <div class="nameplate">
-        <span class="np-mark" aria-hidden="true">SP</span>
+        <span class="np-mark" aria-hidden="true">${mark('', 4.5)}</span>
         <div class="np-body">
           <p class="np-role">Consultant Dermatologist</p>
           <p class="np-name">${SITE.name}</p>

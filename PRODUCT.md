@@ -69,7 +69,7 @@ The practice is the third option between two flawed ones. The hospital OPD has s
 - **Pending owner sign-off:**
   - The nav departs from the docx menu (The Centre sits under About; Learn was added).
   - The Nil & Haldi visual identity (see Brand Commitments).
-  - Replacement or retraction of the og:image alt text.
+  - The Signature SP mark (see Brand Commitments).
 - **Not deployed:** the live `drsumyapervin.com` is untouched until the owner deploys.
 
 ## Brand Commitments
@@ -95,6 +95,7 @@ The practice is the third option between two flawed ones. The hospital OPD has s
   - The owner's 2026-10-02 decision kept "the current gold/Outfit design system". Outfit remains the typeface.
   - On 2026-10-03 the repo moved to the **Nil & Haldi** palette (indigo + turmeric). It is built and tested but **pending the doctor's sign-off**. It is not binding until she approves it.
   - Until then, the gold decision is the last owner-approved identity, so do not deploy the palette change without approval.
+- **Logo, OPEN DECISION.** Since 2026-10-04 the site uses the **Signature SP** mark, concept 01 of the logo study in `design/clinic-logo/` (one definition in `content/brand.mjs`). It appears in the header, drawer, footer, hero nameplate, favicon, phone icon and share card (`public/assets/og-card.png`, which replaced the AI-looking `clinic.jpg` as the share image). Like the palette, it is **pending the doctor's sign-off**, and the study notes it is not trademark-cleared.
 - **Language:** English is primary. Bangla summaries (`content/bn.mjs`) publish only after Dr. Sumya reads and approves each one. Machine-drafted Bangla never reaches a page unapproved.
 
 ## Evidence on Hand
@@ -103,7 +104,7 @@ The practice is the third option between two flawed ones. The hospital OPD has s
 - **Credentials and experience** (owner-supplied): 15+ years in medical practice, 10+ years in government service (BCS Health), 7+ years as a dermatology specialist.
 - **Clinical bylines:** "Written and reviewed by Dr. Sumya Pervin, FCPS (Skin & VD), BMDC A-59492 · Last reviewed October 2026".
 - **Photographs:** **no real ones exist yet.** Real chamber and Centre photography is expected later.
-  - `public/assets/clinic.jpg` (the current og:image) and `treatment.jpg` appear AI-generated with non-local subjects. Do not present them, or any generated image, as the practice's real rooms, staff or patients.
+  - `public/assets/clinic.jpg` (no longer the share image) and `treatment.jpg` appear AI-generated with non-local subjects. Do not present them, or any generated image, as the practice's real rooms, staff or patients.
 - **Reviews:** none. The review section stays empty until real, verified Google reviews exist.
 - **Procedure counts:** none. "1,500+ procedures annually" was removed as an unsourced claim; restore it only with a basis.
 - **Before/after cases:** none. They publish only with signed consent and identical, unedited lighting.

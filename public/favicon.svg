@@ -1,10 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <defs>
-    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#F7A40A"/>
-      <stop offset="1" stop-color="#EA6806"/>
-    </linearGradient>
-  </defs>
-  <rect width="64" height="64" rx="14" fill="url(#g)"/>
-  <text x="32" y="43" font-family="Georgia, 'Times New Roman', serif" font-size="30" font-weight="700" fill="#FFF6E4" text-anchor="middle">SP</text>
+  <title>Dr. Sumya Pervin</title>
+  <!-- Signature SP (content/brand.mjs) in paper on Deep Nil. Stroke weighted
+       for a 16px tab, where the study's 4-unit stroke would vanish. -->
+  <rect width="64" height="64" rx="14" fill="#1A2756"/>
+  <g transform="translate(-5.9 -6.3) scale(0.75)" fill="none" stroke="#F7F3EA" stroke-width="7.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M45 30C39 22 23 25 23 36C23 47 45 44 45 56C45 67 28 72 21 63"/>
+    <path d="M56 68V27H66C84 27 84 49 66 49H56"/>
+    <path d="M24 80Q50 72 77 80"/>
+  </g>
 </svg>

@@ -154,7 +154,15 @@ a.chip:hover { background: var(--surface); border-color: var(--nil); color: var(
 .s-nav { border-bottom: 1px solid var(--rule); background: var(--paper);
   position: sticky; top: 0; z-index: 100; }
 .s-nav-in { display: flex; align-items: center; justify-content: space-between; gap: 20px; height: 78px; }
-.logo { display: flex; flex-direction: column; line-height: 1.15; }
+/* The Signature SP mark (content/brand.mjs) beside the name. The mark's own
+   box carries ~20% air on every side, so the box runs a little larger than
+   the type block it sits beside and the visible glyph matches its height. */
+.logo { display: flex; align-items: center; gap: 8px; line-height: 1.15; }
+.logo-t { display: flex; flex-direction: column; }
+.logo-mark { width: 52px; height: 52px; flex: none; margin: -6px -2px -6px -8px; color: var(--nil); }
+.logo-sm { gap: 6px; }
+.logo-sm .logo-mark { width: 40px; height: 40px; margin: -6px -2px -6px -6px; }
+.logo-sm .logo-n { font-size: 19px; }
 .logo-n { font-size: 22px; font-weight: 700; color: var(--ink); }
 .logo-s { font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: var(--ink-2); }
 .s-menu { display: flex; gap: 24px; font-size: 14.5px; font-weight: 600; align-items: center; }
@@ -441,9 +449,9 @@ a.chip:hover { background: var(--surface); border-color: var(--nil); color: var(
 .np-mark {
   position: relative; display: inline-flex; align-items: center; justify-content: center;
   width: 76px; height: 76px; border-radius: 50%;
-  border: 1.5px solid var(--haldi); color: #fff; font-size: 26px; font-weight: 600;
-  letter-spacing: .04em;
+  border: 1.5px solid var(--haldi); color: #fff;
 }
+.np-mark svg { width: 100%; height: 100%; }
 .np-role {
   position: relative; margin-top: 20px; font-size: 12px; font-weight: 700;
   letter-spacing: .16em; text-transform: uppercase; color: var(--haldi);
@@ -790,6 +798,7 @@ a.chip:hover { background: var(--surface); border-color: var(--nil); color: var(
 .foot-hours b { color: #fff; font-weight: 600; }
 .foot-cols a:hover { color: var(--haldi); }
 .foot-cols p { margin-top: 14px; }
+.foot-mark { display: block; width: 64px; height: 64px; margin: -10px 0 4px -12px; color: #fff; }
 .foot .logo-n { display: block; color: #fff; }
 .foot .logo-s { display: block; margin-top: 4px; color: var(--on-nil); font-size: 14px; letter-spacing: 0; text-transform: none; }
 .foot-legal { border-top: 1px solid var(--rule-dark); margin-top: 30px; padding-top: 16px;
@@ -863,7 +872,7 @@ a.chip:hover { background: var(--surface); border-color: var(--nil); color: var(
     padding: 18px 20px; border-radius: var(--r-card);
   }
   .nameplate::before, .nameplate::after { display: none; }
-  .np-mark { width: 52px; height: 52px; font-size: 19px; flex: none; margin: 0; }
+  .np-mark { width: 52px; height: 52px; flex: none; margin: 0; }
   .np-role { margin-top: 0; font-size: 12px; letter-spacing: .1em; }
   /* The name is already in the header 100px above; the strip carries the
      credentials instead of repeating it. */

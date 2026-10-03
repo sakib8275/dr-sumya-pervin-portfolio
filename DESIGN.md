@@ -279,8 +279,15 @@ The three consultation depths. The middle one is recommended: 2px Nil Indigo bor
 - **Mega menus:** a Clean Sheet panel with an 18px radius that settles 6px into place over 200ms.
 - **Mobile:** at 1100px and below, a right-hand drawer (Clean Sheet, 48px rows with hairline dividers) over an indigo scrim. Below 820px a Deep Nil sticky bar adds Call / WhatsApp / Book.
 
+### The Mark (Signature SP)
+The practice's logo: a custom S beside a rounded P, grounded by one curved skin contour. It is concept 01 of `design/clinic-logo/`, defined once in `content/brand.mjs` (`mark(cls, weight)`).
+- **Colour:** one colour only, drawn in `currentColor`. Nil Indigo on paper, white or paper on Deep Nil. Turmeric may surround it but never fills it.
+- **Weight:** the study's 4-unit stroke is right from about 40px up. Smaller placements pass a heavier weight (header 5, drawer 6, favicon 7.5 on its 64-unit tile) so it never thins below about 1.4px.
+- **Placements:** header and drawer beside the name, footer above it, the nameplate's turmeric ring (in place of typed initials), the favicon (paper on a Deep Nil tile), the phone icon, and the share card.
+- **Raster assets** come from `npm run build:brand` (`scripts/render-brand-assets.mjs`). Rerun it when the mark or the name changes.
+
 ### The Nameplate (signature)
-The doctor's credential plate in the hero, standing in for the portrait she chose not to publish. It is a Deep Nil arch with a lighter indigo bloom at the crown. Inside: a turmeric-ringed "SP" monogram, the role in turmeric label type, the name in white, credential pills outlined in Night Rule, and the BMDC pill in solid turmeric. On phones it collapses to a compact horizontal strip. It is the page's only indigo object above the fold.
+The doctor's credential plate in the hero, standing in for the portrait she chose not to publish. It is a Deep Nil arch with a lighter indigo bloom at the crown. Inside: the Signature SP mark in a turmeric ring, the role in turmeric label type, the name in white, credential pills outlined in Night Rule, and the BMDC pill in solid turmeric. On phones it collapses to a compact horizontal strip. It is the page's only indigo object above the fold.
 
 ### Package Sheet
 The detail view for a visit or plan: a native dialog, as a 540px side sheet on desktop and a bottom sheet (90dvh, 22px top corners) on phones. Clean Sheet, a large Figure price between rules, label-type section heads, and actions pinned to the bottom. Where View Transitions exist, it grows out of the tapped fee card and shrinks back into it (440ms ease-out). Otherwise it slides 36px in over 320ms.

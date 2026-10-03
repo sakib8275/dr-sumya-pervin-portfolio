@@ -14,6 +14,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { SITE, BASE, NAV, FOOTER, HUB_LABEL, CHAMBERS_NOW, href } from '../content/site.mjs';
 import { PAGES } from '../content/sitemap.mjs';
+import { mark } from '../content/brand.mjs';
 import home from '../content/pages/home.mjs';
 import prices from '../content/pages/prices.mjs';
 import about from '../content/pages/about.mjs';
@@ -85,7 +86,7 @@ function nav() {
   <span class="u-bar-m"><b>Consulting now in Shyamoli</b> · Centre ${SITE.centre.opening.toLowerCase()}</span>
 </div></div>
 <header class="s-nav"><div class="wrap s-nav-in">
-  <a class="logo" href="${href('/')}"><span class="logo-n">${SITE.name}</span><span class="logo-s">${SITE.strapline}</span></a>
+  <a class="logo" href="${href('/')}">${mark('logo-mark', 5)}<span class="logo-t"><span class="logo-n">${SITE.name}</span><span class="logo-s">${SITE.strapline}</span></span></a>
   <nav class="s-menu" aria-label="Main">${items}</nav>
   <a class="btn btn-ink btn-nav" href="${href('/book/')}">Book a consultation</a>
   <button type="button" class="burger" id="burger" aria-expanded="false" aria-controls="drawer">Menu</button>
@@ -107,7 +108,7 @@ function drawer() {
   return `
 <div class="scrim" id="scrim"></div>
 <div class="drawer" id="drawer" role="dialog" aria-modal="true" aria-label="Site menu">
-  <div class="drawer-head"><span class="logo-n">${SITE.name}</span>
+  <div class="drawer-head"><span class="logo logo-sm">${mark('logo-mark', 6)}<span class="logo-n">${SITE.name}</span></span>
     <button type="button" id="drawerClose" aria-label="Close menu">${CLOSE}</button></div>
   <nav class="drawer-links" aria-label="Site menu">
     <p class="drawer-cat">Care</p>${expandable}
@@ -124,7 +125,7 @@ function footer() {
   return `
 <footer class="foot"><div class="wrap">
   <div class="foot-cols">
-    <div class="foot-brand"><span class="logo-n">${SITE.name}</span><span class="logo-s">${SITE.centre.name}</span>
+    <div class="foot-brand">${mark('foot-mark', 4.5)}<span class="logo-n">${SITE.name}</span><span class="logo-s">${SITE.centre.name}</span>
       <p>${SITE.credentials.join(' · ')}<br>${SITE.bmdc}</p>
       <p class="foot-contact"><a href="tel:${SITE.phoneTel}">Call ${SITE.phone}</a><a href="https://wa.me/${SITE.whatsapp}" rel="noopener">WhatsApp</a><a href="mailto:${SITE.email}">${SITE.email}</a></p>
       <p class="foot-hours">${CHAMBERS_NOW.map((c) => `<span><b>${c.short}</b> · ${c.daysShort}, <i>${c.hours}</i></span>`).join('')}</p></div>
@@ -166,6 +167,7 @@ function head(page) {
         '@context': 'https://schema.org', '@type': 'Physician', name: SITE.name,
         medicalSpecialty: 'Dermatologic', url: SITE.domain,
         credential: SITE.credentials.join(', '), identifier: SITE.bmdc,
+        logo: `${SITE.domain}/assets/logo-512.png`, image: `${SITE.domain}/assets/og-card.png`,
       }
     : { '@context': 'https://schema.org', '@type': 'WebPage', name: page.title, url };
   return `<!doctype html>
@@ -180,10 +182,14 @@ function head(page) {
 <meta property="og:description" content="${page.desc}">
 <meta property="og:type" content="website">
 <meta property="og:url" content="${url}">
-<meta property="og:image" content="${SITE.domain}/assets/clinic.jpg">
-<meta property="og:image:alt" content="The consultation suite at Dr. Sumya Pervin's dermatology practice">
-<meta name="twitter:card" content="summary">
+<meta property="og:image" content="${SITE.domain}/assets/og-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Signature SP mark of Dr. Sumya Pervin, dermatologist in Dhaka">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<meta name="theme-color" content="#1A2756">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Hind+Siliguri:wght@400;600&display=swap" rel="stylesheet">
