@@ -104,6 +104,14 @@ test('load-bearing docx price figures publish verbatim', async () => {
   }
 });
 
+test('the prices page publishes the owner VAT and review facts', async () => {
+  const html = await readFile(join(OUT, 'prices', 'index.html'), 'utf8');
+  assert.ok(html.includes('15% VAT is added at checkout'), 'the VAT wording is missing');
+  assert.ok(html.includes('November 2026'), 'the prices-reviewed date is missing');
+  assert.ok(!html.includes('[date]'), 'the prices-reviewed placeholder still ships');
+  assert.ok(!html.includes('[confirm with CA]'), 'the VAT placeholder still ships');
+});
+
 test('the owner-supplied phone publishes and the placeholder is gone', async () => {
   // D-12: the phone was a bracketed placeholder until the owner supplied it.
   // The prices-reviewed date is still owner-supplied; this guards the phone.

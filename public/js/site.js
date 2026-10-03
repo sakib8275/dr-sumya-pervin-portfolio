@@ -114,19 +114,28 @@
     const item = Number(concern.value);
     // Only laser hair removal offers the doctor-performed +25% option.
     const uplift = state.who === 'dr' && item === 0 ? 1.25 : 1;
+    // Displayed prices exclude VAT; the estimator shows the 15% added at checkout.
+    const vat = Number(document.getElementById('estimator').dataset.vat) || 0;
+    const base = state.pay === 'single' ? Math.round(per * uplift) : Math.round(course * uplift);
+    const vatAmount = Math.round(base * vat);
+    const vatLines =
+      `<div class="ln"><span>VAT (${Math.round(vat * 100)}%, added at checkout)</span><b>${taka(vatAmount)}</b></div>` +
+      `<div class="ln ln-total"><span>Total at checkout</span><b>${taka(base + vatAmount)}</b></div>`;
     if (state.pay === 'single') {
       total.textContent = taka(Math.round(per * uplift));
       sub.textContent = 'per session';
       lines.innerHTML =
         `<div class="ln"><span>Full course (6 sessions, pay for 5)</span><b>${taka(Math.round(course * uplift))}</b></div>` +
-        `<div class="ln"><span>Typical course</span><b>6–8 sessions, 4–6 weeks apart</b></div>`;
+        `<div class="ln"><span>Typical course</span><b>6–8 sessions, 4–6 weeks apart</b></div>` +
+        vatLines;
     } else {
       total.textContent = taka(Math.round(course * uplift));
       sub.textContent = 'for the full course';
       lines.innerHTML =
         `<div class="ln"><span>Per session</span><b>${taka(Math.round(per * uplift))}</b></div>` +
         (item === 0 ? `<div class="ln"><span>Session 6</span><b>Included</b></div>` : '') +
-        `<div class="ln"><span>Typical course</span><b>6–8 sessions, 4–6 weeks apart</b></div>`;
+        `<div class="ln"><span>Typical course</span><b>6–8 sessions, 4–6 weeks apart</b></div>` +
+        vatLines;
     }
   }
 

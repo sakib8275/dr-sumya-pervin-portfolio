@@ -48,7 +48,7 @@ function estimator() {
     it.areas.map(([label, per, course], j) => `<option value="${j}" data-i="${i}" data-per="${per}" data-course="${course}">${label}</option>`).join('')
   ).join('');
   return `
-<div class="pr-est" id="estimator">
+<div class="pr-est" id="estimator" data-vat="${SITE.vatRate}">
   <div class="pr-est-in">
     <p class="eyebrow">Estimate your course cost</p>
     <h2>Plan it before you commit</h2>
@@ -104,5 +104,5 @@ export default function prices() {
 </div></section>
 ${estimator()}
 ${sectionsHtml}
-<p class="pr-foot">Prices include applicable VAT [confirm with CA] · Prices reviewed: ${SITE.pricesReviewed} · Hospital-chamber fees follow each hospital’s tariff.</p>`;
+<p class="pr-foot">Prices exclude VAT; ${Math.round(SITE.vatRate * 100)}% VAT is added at checkout · Prices reviewed: ${SITE.pricesReviewed} · Hospital-chamber fees follow each hospital’s tariff.</p>`;
 }

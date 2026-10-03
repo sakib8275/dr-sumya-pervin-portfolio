@@ -144,7 +144,7 @@ Baseline: round-5 batch committed and pushed as `c5552b9`.
   surfaces they pinned. `forgot-password.js` now mails `/admin/#reset?token=`. Dead one-pager
   scripts (`main.js`, `richtext.js`, `formguard.js`) removed; `style.css`/`cms.js` stay (the admin
   console uses them).
-- **Verified**: 280/280 node + 26/26 e2e at the cut-over root; served at `wrangler pages dev`
+- **Verified**: 281/281 node + 27/27 e2e at the cut-over root; served at `wrangler pages dev`
   `http://localhost:8788/` — desktop nav mega-menus, estimator arithmetic (৳3,000 × 1.25 =
   ৳3,750), mobile drawer + sticky Call/WhatsApp/Book bar, no horizontal overflow at 375px.
 - **M1 mobile pass (2026-10-03)** — the owner rejected the first phone layout, and docx §7.3
@@ -174,11 +174,14 @@ Baseline: round-5 batch committed and pushed as `c5552b9`.
   `005_admin_contact.sql` sets the CMS `admin_email` to the practice inbox (Email Routing →
   the doctor's mailbox) and the CMS `whatsapp` field to the new number; the admin Settings
   placeholders were updated. Pinned by new `pages.test.mjs` + `config.test.mjs` guards.
-- **Next (owner inputs, before deploy)**: the prices-reviewed date — now one edit,
-  `SITE.pricesReviewed` in `content/site.mjs` (renders on Prices + footer) — plus the VAT
-  `[confirm with CA]` note; the live `ACTIVE_GATE` (currently `staging`, which shows every
-  gated section with its badge); and the `/admin/` URL for the doctor. Deploy is owner-gated;
-  the live site is untouched until then.
+- **Prices VAT + review date (2026-10-03)** — owner-supplied: the price list is reviewed
+  **November 2026**, and displayed prices **exclude VAT** with **15% added at checkout**.
+  Wired via `SITE.pricesReviewed` + `SITE.vatRate` (`content/site.mjs`), rendered on the Prices
+  page and footer; the estimator now shows the VAT line and the checkout total. Pinned by
+  `pages.test.mjs` + `tests/e2e/site-prices.spec.mjs`.
+- **Next (owner inputs, before deploy)**: the live `ACTIVE_GATE` (currently `staging`, which
+  shows every gated section with its badge) and the `/admin/` URL for the doctor. Deploy is
+  owner-gated; the live site is untouched until then.
 - **Polish (2026-10-03)** — the builder now also emits a multi-page **`public/404.html`** (same
   nav/footer/drawer shell, `noindex`, no canonical) so a lost visitor can still navigate, and
   `robots.txt` carries `Disallow: /admin/`. Pinned by 2 new `tests/pages.test.mjs` tests. The

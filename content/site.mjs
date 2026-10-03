@@ -24,9 +24,10 @@ export const SITE = {
   phoneTel: '+8801353787080',
   email: 'appointments@drsumyapervin.com',
   whatsapp: '8801353787080', // site WhatsApp links (wa.me) — follows the new phone
-  // Owner input: the month the price list is approved, e.g. 'October 2026'.
-  // Rendered on the Prices page and the footer; still a placeholder until then.
-  pricesReviewed: '[date]',
+  // Owner-supplied: the price list is approved for November 2026. Displayed
+  // prices exclude VAT; 15% is added at checkout.
+  pricesReviewed: 'November 2026',
+  vatRate: 0.15,
   centre: {
     name: "Dr. Sumya Pervin's Dermatology Centre",
     address: 'Ring Road, Mohammadpur, Dhaka',

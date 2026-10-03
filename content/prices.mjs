@@ -151,7 +151,7 @@ export const SECTIONS = [
       ['Cancellation', 'Free with 24 hours’ notice; under 24 hours, 50% of the consultation fee; no-show, full consultation fee. Procedure slots: one free reschedule.'],
       ['Payment', 'Cash, Visa/Mastercard/Amex, bKash, Nagad. 0% EMI for 3–12 months on partner bank credit cards for amounts ≥ ৳15,000. Total always shown beside the monthly figure.'],
       ['Products', 'Sold at MRP; never compulsory; never bundled into a treatment price.'],
-      ['VAT &amp; review', 'Displayed prices are final prices including any applicable VAT [confirm with CA]. Prices reviewed every 6 months; the date is shown on the page; changes never affect courses already bought.'],
+      ['VAT &amp; review', 'Displayed prices exclude VAT; 15% VAT is added at checkout. Prices are reviewed every 6 months, the date is shown on the page, and changes never affect courses already bought.'],
     ],
   },
 ];
