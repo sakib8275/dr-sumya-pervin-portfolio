@@ -133,9 +133,9 @@ export const visit = {
         ['DCIMCH:', '2/1, Ring Road, Shyamoli, Dhaka · Saturday – Wednesday, 3:00 – 5:00 PM · Friday closed'],
       ] },
       { h2: 'Reach us', defs: [
-        ['Phone:', `${SITE.phone} (owner to confirm — D-12)`],
+        ['Phone:', `<a class="tlink" href="tel:${SITE.phoneTel}">${SITE.phone}</a>`],
         ['WhatsApp:', 'Message us and we will reply within 2 working hours during chamber days.'],
-        ['Email:', 'Shared at booking confirmation; the practice inbox is monitored on working days.'],
+        ['Email:', `<a class="tlink" href="mailto:${SITE.email}">${SITE.email}</a> — monitored on working days.`],
       ] },
       { h2: 'Getting here', body: 'Both chambers are on the Ring Road / Khilji Road corridor in Shyamoli. Rickshaw and CNG drop-off is at the gate. Parking is limited — arrive a few minutes early on busy evenings.' },
     ],

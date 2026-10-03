@@ -116,9 +116,9 @@ function footer() {
       <p>${SITE.credentials.join(' · ')}<br>${SITE.bmdc}</p></div>
     ${col('Care', FOOTER.care)}${col('Visit', FOOTER.visit)}${col('Trust', FOOTER.trust)}
   </div>
-  <div class="foot-legal"><span>Information on this site is educational and does not replace an examination.</span><span>Prices reviewed: [date]</span></div>
+  <div class="foot-legal"><span>Information on this site is educational and does not replace an examination.</span><span>Prices reviewed: ${SITE.pricesReviewed}</span></div>
 </div></footer>
-<div class="m-sticky"><a href="tel:${SITE.phone.replace(/X/g, '0')}">Call</a><a href="https://wa.me/${SITE.whatsapp}" rel="noopener">WhatsApp</a><a class="m-book" href="${href('/book/')}">Book</a></div>`;
+<div class="m-sticky"><a href="tel:${SITE.phoneTel}">Call</a><a href="https://wa.me/${SITE.whatsapp}" rel="noopener">WhatsApp</a><a class="m-book" href="${href('/book/')}">Book</a></div>`;
 }
 
 function stubBody(page) {

@@ -144,7 +144,7 @@ Baseline: round-5 batch committed and pushed as `c5552b9`.
   surfaces they pinned. `forgot-password.js` now mails `/admin/#reset?token=`. Dead one-pager
   scripts (`main.js`, `richtext.js`, `formguard.js`) removed; `style.css`/`cms.js` stay (the admin
   console uses them).
-- **Verified**: 278/278 node + 26/26 e2e at the cut-over root; served at `wrangler pages dev`
+- **Verified**: 280/280 node + 26/26 e2e at the cut-over root; served at `wrangler pages dev`
   `http://localhost:8788/` — desktop nav mega-menus, estimator arithmetic (৳3,000 × 1.25 =
   ৳3,750), mobile drawer + sticky Call/WhatsApp/Book bar, no horizontal overflow at 375px.
 - **M1 mobile pass (2026-10-03)** — the owner rejected the first phone layout, and docx §7.3
@@ -167,10 +167,18 @@ Baseline: round-5 batch committed and pushed as `c5552b9`.
   reference her photo. `public/assets/hero_portrait.{jpg,webp,-400.jpg}` deleted
   (recoverable from git history). No `hero_portrait` reference remains outside
   dated `docs/**` snapshots.
-- **Next (owner inputs, before deploy)**: replace the D-12 placeholders (`phone` in
-  `content/site.mjs`, the prices-reviewed `[date]`), decide the live `ACTIVE_GATE` (currently
-  `staging`, which shows every gated section with its badge), and confirm the `/admin/` URL for
-  the doctor. Deploy is owner-gated; the live site is untouched until then.
+- **Contact details wired (2026-10-03)** — owner-supplied phone `01353-787080` (`phone`
+  display + `phoneTel` E.164 for `tel:`), practice email `appointments@drsumyapervin.com`,
+  and the site WhatsApp link now `8801353787080` (follows the new phone). They publish on the
+  utility bar, the sticky Call/WhatsApp bar and `/contact/` (tel + mailto). Migration
+  `005_admin_contact.sql` sets the CMS `admin_email` to the practice inbox (Email Routing →
+  the doctor's mailbox) and the CMS `whatsapp` field to the new number; the admin Settings
+  placeholders were updated. Pinned by new `pages.test.mjs` + `config.test.mjs` guards.
+- **Next (owner inputs, before deploy)**: the prices-reviewed date — now one edit,
+  `SITE.pricesReviewed` in `content/site.mjs` (renders on Prices + footer) — plus the VAT
+  `[confirm with CA]` note; the live `ACTIVE_GATE` (currently `staging`, which shows every
+  gated section with its badge); and the `/admin/` URL for the doctor. Deploy is owner-gated;
+  the live site is untouched until then.
 - **Polish (2026-10-03)** — the builder now also emits a multi-page **`public/404.html`** (same
   nav/footer/drawer shell, `noindex`, no canonical) so a lost visitor can still navigate, and
   `robots.txt` carries `Disallow: /admin/`. Pinned by 2 new `tests/pages.test.mjs` tests. The

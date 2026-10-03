@@ -17,10 +17,16 @@ export const SITE = {
   domain: 'https://drsumyapervin.com',
   title: 'Dr. Sumya Pervin, MD — Dermatologist in Dhaka',
   bmdc: 'BMDC Reg. A-59492',
-  // D-12 placeholders until the owner supplies the real values; rendered
-  // everywhere the docx puts them, so the swap is one edit here.
-  phone: '01X-XXXX-XXXX',
-  whatsapp: '8801725196101', // live CMS-configured number, unchanged
+  // Owner-supplied contact details. phone is the display form; phoneTel is the
+  // dialable E.164 form for tel: links. The prices-reviewed date is still a
+  // placeholder until the owner supplies it.
+  phone: '01353-787080',
+  phoneTel: '+8801353787080',
+  email: 'appointments@drsumyapervin.com',
+  whatsapp: '8801353787080', // site WhatsApp links (wa.me) — follows the new phone
+  // Owner input: the month the price list is approved, e.g. 'October 2026'.
+  // Rendered on the Prices page and the footer; still a placeholder until then.
+  pricesReviewed: '[date]',
   centre: {
     name: "Dr. Sumya Pervin's Dermatology Centre",
     address: 'Ring Road, Mohammadpur, Dhaka',

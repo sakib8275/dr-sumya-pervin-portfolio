@@ -1,7 +1,7 @@
 // Prices body — docx §5.37 structure, every figure from content/prices.mjs
 // (docx Part 6). Gated sections render with their badge in staging and are
 // dropped by the build when the live gate says so.
-import { href, gateVisible } from '../site.mjs';
+import { href, gateVisible, SITE } from '../site.mjs';
 import { SECTIONS, WHO, FOLLOW_UPS, ESTIMATOR } from '../prices.mjs';
 
 const GATE_LABEL = { opening: 'From Centre opening, 2027', licence: 'With procedure licensing', laser: 'When the laser suite opens', year2: 'Year-2 device' };
@@ -104,5 +104,5 @@ export default function prices() {
 </div></section>
 ${estimator()}
 ${sectionsHtml}
-<p class="pr-foot">Prices include applicable VAT [confirm with CA] · Prices reviewed: [date] · Hospital-chamber fees follow each hospital’s tariff.</p>`;
+<p class="pr-foot">Prices include applicable VAT [confirm with CA] · Prices reviewed: ${SITE.pricesReviewed} · Hospital-chamber fees follow each hospital’s tariff.</p>`;
 }

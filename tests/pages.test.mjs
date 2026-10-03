@@ -15,7 +15,7 @@ import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { repoRoot } from './helpers/harness.mjs';
 import { PAGES } from '../content/sitemap.mjs';
-import { BASE } from '../content/site.mjs';
+import { BASE, SITE } from '../content/site.mjs';
 
 const OUT = join(repoRoot, 'public');
 
@@ -104,12 +104,18 @@ test('load-bearing docx price figures publish verbatim', async () => {
   }
 });
 
-test('the two placeholder-only facts cannot publish silently', async () => {
-  // D-12: phone and prices-reviewed date are owner inputs. The build renders
-  // them as bracketed placeholders; the cutover gate must fail until both
-  // are replaced with real values in content/site.mjs.
+test('the owner-supplied phone publishes and the placeholder is gone', async () => {
+  // D-12: the phone was a bracketed placeholder until the owner supplied it.
+  // The prices-reviewed date is still owner-supplied; this guards the phone.
   const home = await readFile(join(OUT, 'index.html'), 'utf8');
-  assert.ok(home.includes('01X-XXXX-XXXX') || home.includes('Call'), 'utility bar phone line missing');
+  assert.ok(!home.includes('01X-XXXX-XXXX'), 'the D-12 phone placeholder still ships');
+  assert.ok(home.includes(SITE.phone), 'the real phone number must appear on the home page');
+  assert.ok(home.includes(`tel:${SITE.phoneTel}`), 'the sticky bar must dial the real number');
+});
+
+test('the contact page carries the practice email', async () => {
+  const html = await readFile(join(OUT, 'contact', 'index.html'), 'utf8');
+  assert.ok(html.includes(`mailto:${SITE.email}`), 'the contact page must link the practice email');
 });
 
 test('the mobile shell contract: drawer destinations, slim u-bar, labelled cells', async () => {

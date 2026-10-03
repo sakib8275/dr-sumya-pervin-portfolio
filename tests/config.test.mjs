@@ -12,6 +12,13 @@ let h;
 before(async () => { h = await createHarness(); });
 after(async () => { await h.dispose(); });
 
+test('the migrated default admin_email is the owner-supplied inbox', async () => {
+  // migrations/005_admin_contact.sql sets the reset destination to the practice
+  // inbox (Email Routing forwards it to the doctor's mailbox).
+  const body = await (await h.asAdmin('GET', '/api/config')).json();
+  assert.equal(body.admin_email, 'appointments@drsumyapervin.com');
+});
+
 test('the public route serves the contact channels and nothing else', async () => {
   await h.db
     .prepare("UPDATE admin_settings SET whatsapp = '8801700000000', telegram = 'drsumya' WHERE id = 1")
