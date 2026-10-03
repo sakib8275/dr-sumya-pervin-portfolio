@@ -81,28 +81,28 @@
       <div class="pr-price">৳2,000</div>
       <p class="pr-meta"><span class="who who-dr" title="Dr. Sumya personally">Dr</span> 20–25 min</p>
       <ul><li>Dermoscopy</li><li>Written diagnosis &amp; care plan</li><li>Report review within 14 days ৳0</li></ul>
-      <a class="btn btn-ghost card-link pr-card-book" href="/book/?tier=Specialist%20Consultation">Book this visit</a>
+      <button type="button" class="btn btn-ghost pr-card-book card-link" data-pkg-open="specialist" aria-haspopup="dialog">See what’s included</button>
     </article>
     <article class="pr-card rec"><p class="pr-flag">Best for long-standing concerns</p>
       <h3>Comprehensive Assessment</h3>
       <div class="pr-price">৳3,500</div>
       <p class="pr-meta"><span class="who who-dr" title="Dr. Sumya personally">Dr</span> 40 min</p>
       <ul><li>Everything in Specialist</li><li>Baseline photographs</li><li>Costed options, every route</li><li>1 follow-up included</li></ul>
-      <a class="btn btn-ink card-link pr-card-book" href="/book/?tier=Comprehensive%20Assessment">Book this visit</a>
+      <button type="button" class="btn btn-ink pr-card-book card-link" data-pkg-open="comprehensive" aria-haspopup="dialog">See what’s included</button>
     </article>
     <article class="pr-card">
       <h3>Signature Skin &amp; Hair Review</h3>
       <div class="pr-price">৳6,000</div>
       <p class="pr-meta"><span class="who who-dr" title="Dr. Sumya personally">Dr</span> 60 min</p>
       <ul><li>Mole map or trichoscopy</li><li>Same-visit lab tests</li><li>Typed report</li></ul>
-      <a class="btn btn-ghost card-link pr-card-book" href="/book/?tier=Signature%20Skin%20%26%20Hair%20Review">Book this visit</a>
+      <button type="button" class="btn btn-ghost pr-card-book card-link" data-pkg-open="signature" aria-haspopup="dialog">See what’s included</button>
     </article>
     <article class="pr-card">
       <h3>Procedure Assessment</h3>
       <div class="pr-price">৳1,500</div>
       <p class="pr-meta"><span class="who who-dr" title="Dr. Sumya personally">Dr</span> 15–20 min</p>
       <ul><li>Laser / aesthetic / surgery suitability</li><li>Patch test if needed</li><li>Fully adjusted against session 1</li></ul>
-      <a class="btn btn-ghost card-link pr-card-book" href="/book/?tier=Procedure%20Assessment">Book this visit</a>
+      <button type="button" class="btn btn-ghost pr-card-book card-link" data-pkg-open="procedure" aria-haspopup="dialog">See what’s included</button>
     </article></div>
     <div class="pr-fu"><div><b>৳1,200</b>Follow-up within 30 days</div><div><b>৳1,500</b>Follow-up 31–90 days</div><div><b>৳0</b>Report review within 14 days</div><div><b>৳0</b>Complication review within 7 days of any procedure</div></div>
     <table class="pr-table"><thead><tr><th>Service</th><th>Band</th><th>Price</th><th>What you get</th><th>Who</th></tr></thead>
@@ -119,11 +119,13 @@
       <h3>Core Care Plan</h3>
       <div class="pr-plan-row"><span class="pr-price">৳6,500</span><span class="pr-was">Pay-as-you-go ৳8,400</span><span class="pr-save">You keep ৳1,900</span></div>
       <ul><li><span>4 follow-up visits with Dr. Sumya</span><span>৳4,800</span></li><li><span>6 monthly WhatsApp photo reviews</span><span>৳3,600</span></li><li><span>Reminders matched to your prescription</span><span>Included</span></li><li><span>Priority serial</span><span>Included</span></li></ul>
+      <button type="button" class="btn btn-ghost pr-card-book card-link" data-pkg-open="core" aria-haspopup="dialog">See what’s included</button>
     </article>
     <article class="pr-plan rec"><p class="pr-flag">Recommended when procedures are part of the plan</p>
       <h3>Complete Care Plan</h3>
       <div class="pr-plan-row"><span class="pr-price">৳12,500</span><span class="pr-was">Pay-as-you-go up to ৳20,900</span><span class="pr-save">You keep up to ৳8,400</span></div>
       <ul><li><span>Everything in Core</span><span>৳8,400</span></li><li><span>Month-3 Comprehensive re-assessment</span><span>৳3,500</span></li><li><span>2 in-clinic sessions: peel, extraction, injection or 6 phototherapy</span><span>up to ৳9,000</span></li><li><span>Progress photo timeline you keep</span><span>Included</span></li></ul>
+      <button type="button" class="btn btn-ink pr-card-book card-link" data-pkg-open="complete" aria-haspopup="dialog">See what’s included</button>
     </article></div>
       </div>
     </section>
@@ -160,6 +162,105 @@
   </div>
 </div>
 </div></section>
+
+<dialog class="pkg-view" id="pkgView" aria-labelledby="pkgTitle">
+  <div class="pkg-in">
+    <button type="button" class="pkg-close" data-pkg-close aria-label="Close"><svg class="ico-x" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M3.5 3.5l9 9m0-9-9 9" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
+    <div class="pkg-body" id="pkgBody"></div>
+  </div>
+</dialog>
+<template id="pkg-specialist">
+    <h2 class="pkg-title" id="pkgTitle" tabindex="-1">Specialist Consultation</h2>
+    <p class="pkg-meta"><span>20–25 minutes</span><span class="pkg-who"><span class="who who-dr">Dr</span> Dr. Sumya personally</span></p>
+    
+    <div class="pkg-price"><b>৳2,000</b><span>৳2,300 with 15% VAT</span></div>
+    <h3>What you get</h3>
+    <ul class="ticks pkg-list"><li>History, examination and dermoscopy (a magnified skin check)</li><li>Written diagnosis and care plan</li><li>Report review within 14 days — free</li><li>One WhatsApp check-in</li></ul>
+    
+    <h3>After this visit</h3>
+    <ul class="pkg-rows"><li><span>Follow-up within 30 days</span><b>৳1,200</b></li><li><span>Follow-up 31–90 days</span><b>৳1,500</b></li><li><span>Report review within 14 days</span><b>Free</b></li></ul>
+    <p class="pkg-fine">Centre price, from opening in 2027. At Alliance and DCIMCH today, fees follow each hospital’s own tariff. No package is sold at a first visit.</p>
+    <div class="pkg-actions">
+      <a class="btn btn-ink" href="/book/?tier=Specialist%20Consultation">Book this visit</a>
+      <button type="button" class="btn btn-ghost" data-pkg-close>Close</button>
+    </div></template>
+<template id="pkg-comprehensive">
+    <h2 class="pkg-title" id="pkgTitle" tabindex="-1">Comprehensive Assessment</h2>
+    <p class="pkg-meta"><span>40 minutes</span><span class="pkg-who"><span class="who who-dr">Dr</span> Dr. Sumya personally</span></p>
+    <p class="pkg-band">Recommended for long-standing or cosmetic concerns</p>
+    <div class="pkg-price"><b>৳3,500</b><span>৳4,025 with 15% VAT</span></div>
+    <h3>What you get</h3>
+    <ul class="ticks pkg-list"><li>Everything in the Specialist Consultation</li><li>Standardised baseline photographs</li><li>Costed options for every route</li><li>One follow-up within 30 days — included</li><li>Two WhatsApp check-ins</li></ul>
+    
+    <h3>After this visit</h3>
+    <ul class="pkg-rows"><li><span>Follow-up within 30 days</span><b>৳1,200</b></li><li><span>Follow-up 31–90 days</span><b>৳1,500</b></li><li><span>Report review within 14 days</span><b>Free</b></li></ul>
+    <p class="pkg-fine">Centre price, from opening in 2027. At Alliance and DCIMCH today, fees follow each hospital’s own tariff. No package is sold at a first visit.</p>
+    <div class="pkg-actions">
+      <a class="btn btn-ink" href="/book/?tier=Comprehensive%20Assessment">Book this visit</a>
+      <button type="button" class="btn btn-ghost" data-pkg-close>Close</button>
+    </div></template>
+<template id="pkg-signature">
+    <h2 class="pkg-title" id="pkgTitle" tabindex="-1">Signature Skin &amp; Hair Review</h2>
+    <p class="pkg-meta"><span>60 minutes</span><span class="pkg-who"><span class="who who-dr">Dr</span> Dr. Sumya personally</span></p>
+    
+    <div class="pkg-price"><b>৳6,000</b><span>৳6,900 with 15% VAT</span></div>
+    <h3>What you get</h3>
+    <ul class="ticks pkg-list"><li>Everything in the Comprehensive Assessment</li><li>Full-body mole map, or scalp trichoscopy (magnified scalp mapping)</li><li>Same-visit fungal microscopy (KOH) and Wood’s lamp (UV light) tests</li><li>Typed report for your records</li><li>3-month review message</li></ul>
+    
+    <h3>After this visit</h3>
+    <ul class="pkg-rows"><li><span>Follow-up within 30 days</span><b>৳1,200</b></li><li><span>Follow-up 31–90 days</span><b>৳1,500</b></li><li><span>Report review within 14 days</span><b>Free</b></li></ul>
+    <p class="pkg-fine">Centre price, from opening in 2027. At Alliance and DCIMCH today, fees follow each hospital’s own tariff. No package is sold at a first visit.</p>
+    <div class="pkg-actions">
+      <a class="btn btn-ink" href="/book/?tier=Signature%20Skin%20%26%20Hair%20Review">Book this visit</a>
+      <button type="button" class="btn btn-ghost" data-pkg-close>Close</button>
+    </div></template>
+<template id="pkg-procedure">
+    <h2 class="pkg-title" id="pkgTitle" tabindex="-1">Procedure Assessment</h2>
+    <p class="pkg-meta"><span>15–20 minutes</span><span class="pkg-who"><span class="who who-dr">Dr</span> Dr. Sumya personally</span></p>
+    <p class="pkg-band">Aesthetic, laser or surgery suitability</p>
+    <div class="pkg-price"><b>৳1,500</b><span>৳1,725 with 15% VAT</span></div>
+    <h3>What you get</h3>
+    <ul class="ticks pkg-list"><li>Suitability, skin type and current medicines reviewed</li><li>Patch test if needed</li><li>Written plan with the total course cost</li></ul>
+    <p class="pkg-note">Fully adjusted against session 1 within 30 days.</p>
+    <h3>After this visit</h3>
+    <ul class="pkg-rows"><li><span>Follow-up within 30 days</span><b>৳1,200</b></li><li><span>Follow-up 31–90 days</span><b>৳1,500</b></li><li><span>Report review within 14 days</span><b>Free</b></li></ul>
+    <p class="pkg-fine">Centre price, from opening in 2027. At Alliance and DCIMCH today, fees follow each hospital’s own tariff. No package is sold at a first visit.</p>
+    <div class="pkg-actions">
+      <a class="btn btn-ink" href="/book/?tier=Procedure%20Assessment">Book this visit</a>
+      <button type="button" class="btn btn-ghost" data-pkg-close>Close</button>
+    </div></template>
+<template id="pkg-core">
+    <h2 class="pkg-title" id="pkgTitle" tabindex="-1">Core Care Plan</h2>
+    <p class="pkg-meta"><span>6 months</span><span class="pkg-who"><span class="who who-dr">Dr</span> Dr. Sumya personally</span></p>
+    <p class="pkg-band">For chronic conditions</p>
+    <div class="pkg-price"><b>৳6,500</b><span>৳7,475 with 15% VAT</span></div>
+    <h3>What’s inside, and what it costs separately</h3>
+    <ul class="pkg-rows"><li><span>4 follow-up visits with Dr. Sumya</span><b>৳4,800</b></li><li><span>6 monthly WhatsApp photo reviews</span><b>৳3,600</b></li><li><span>Reminders matched to your prescription</span><b>Included</b></li><li><span>Priority serial</span><b>Included</b></li></ul>
+    <p class="pkg-save"><span>Pay-as-you-go ৳8,400</span><b>You keep ৳1,900</b></p>
+    <h3>Who it’s for</h3>
+    <p class="pkg-text">Acne, eczema, psoriasis, hives, vitiligo, hair loss and melasma — conditions controlled over months, not one visit.</p>
+    <p class="pkg-note">Offered only after a diagnosis, never at a first visit.</p>
+    <p class="pkg-fine">Cancel any time; unused value is refunded pro rata at single prices. Centre price, from opening in 2027.</p>
+    <div class="pkg-actions">
+      <a class="btn btn-ink" href="/book/">Book a consultation first</a>
+      <button type="button" class="btn btn-ghost" data-pkg-close>Close</button>
+    </div></template>
+<template id="pkg-complete">
+    <h2 class="pkg-title" id="pkgTitle" tabindex="-1">Complete Care Plan</h2>
+    <p class="pkg-meta"><span>6 months</span><span class="pkg-who"><span class="who who-dr">Dr</span> Dr. Sumya personally</span><span class="pkg-who"><span class="who who-drn">Dr+N</span> Dr. Sumya with a trained nurse</span></p>
+    <p class="pkg-band">When procedures are part of the plan</p>
+    <div class="pkg-price"><b>৳12,500</b><span>৳14,375 with 15% VAT</span></div>
+    <h3>What’s inside, and what it costs separately</h3>
+    <ul class="pkg-rows"><li><span>Everything in Core</span><b>৳8,400</b></li><li><span>Month-3 Comprehensive re-assessment</span><b>৳3,500</b></li><li><span>2 in-clinic sessions: superficial peel, extraction, injection, or 6 phototherapy (NB-UVB) sessions</span><b>up to ৳9,000</b></li><li><span>Progress photo timeline you keep</span><b>Included</b></li></ul>
+    <p class="pkg-save"><span>Pay-as-you-go up to ৳20,900</span><b>You keep up to ৳8,400</b></p>
+    <h3>Who it’s for</h3>
+    <p class="pkg-text">Acne, eczema, psoriasis, hives, vitiligo, hair loss and melasma — conditions controlled over months, not one visit.</p>
+    <p class="pkg-note">Offered only after a diagnosis, never at a first visit.</p>
+    <p class="pkg-fine">Cancel any time; unused value is refunded pro rata at single prices. Centre price, from opening in 2027.</p>
+    <div class="pkg-actions">
+      <a class="btn btn-ink" href="/book/">Book a consultation first</a>
+      <button type="button" class="btn btn-ghost" data-pkg-close>Close</button>
+    </div></template>
 <p class="pr-foot">Prices exclude VAT; 15% VAT is added at checkout · Prices reviewed: November 2026 · Hospital-chamber fees follow each hospital’s tariff.</p>
 </main>
 

@@ -3,6 +3,7 @@
 // dropped by the build when the live gate says so.
 import { href, gateVisible, SITE, GATE_NOTE as GATE_LABEL } from '../site.mjs';
 import { SECTIONS, WHO, FOLLOW_UPS, ESTIMATOR } from '../prices.mjs';
+import { pkgButton, pkgViews } from './pkgview.mjs';
 
 const whoBadge = (k) => `<span class="who who-${k}" title="${WHO[k].text}">${WHO[k].label}</span>`;
 
@@ -13,7 +14,7 @@ function consultationCards(s) {
       <div class="pr-price">${c.price}</div>
       <p class="pr-meta">${whoBadge(c.meta[0])} ${c.meta[1]}</p>
       <ul>${c.incl.map((i) => `<li>${i}</li>`).join('')}</ul>
-      <a class="btn ${c.rec ? 'btn-ink' : 'btn-ghost'} card-link pr-card-book" href="${href('/book/')}?tier=${encodeURIComponent(c.name.replace(/&amp;/g, '&'))}">Book this visit</a>
+      ${c.pkg ? pkgButton(c.pkg, `${c.rec ? 'btn-ink' : 'btn-ghost'} pr-card-book`) : ''}
     </article>`).join('')}</div>
     <div class="pr-fu">${FOLLOW_UPS.map(([p, t]) => `<div><b>${p}</b>${t}</div>`).join('')}</div>
     ${s.rows ? `<table class="pr-table"><thead><tr><th>Service</th><th>Band</th><th>Price</th><th>What you get</th><th>Who</th></tr></thead>
@@ -26,6 +27,7 @@ function plans(s) {
       <h3>${p.name}</h3>
       <div class="pr-plan-row"><span class="pr-price">${p.price}</span><span class="pr-was">${p.was}</span>${p.save ? `<span class="pr-save">${p.save}</span>` : ''}</div>
       <ul>${p.incl.map(([l, v]) => `<li><span>${l}</span><span>${v}</span></li>`).join('')}</ul>
+      ${p.pkg ? pkgButton(p.pkg, `${p.rec ? 'btn-ink' : 'btn-ghost'} pr-card-book`) : ''}
     </article>`).join('')}</div>`;
 }
 
@@ -121,5 +123,6 @@ export default function prices() {
 ${gateVisible('laser') ? estimator() : ''}
 ${sectionsHtml}
 ${gateVisible('laser') ? '' : estimatorNote()}
+${pkgViews(visible.flatMap((sec) => [...(sec.cards || []), ...(sec.plans || [])]).map((c) => c.pkg).filter(Boolean))}
 <p class="pr-foot">Prices exclude VAT; ${Math.round(SITE.vatRate * 100)}% VAT is added at checkout · Prices reviewed: ${SITE.pricesReviewed} · Hospital-chamber fees follow each hospital’s tariff.</p>`;
 }

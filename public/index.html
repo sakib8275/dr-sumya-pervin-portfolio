@@ -185,7 +185,7 @@
         <div class="h-tier-p">৳2,000</div>
         <p class="h-tier-vat">৳2,300 with 15% VAT</p>
         <ul class="ticks"><li>Examination + dermoscopy (a magnified skin check)</li><li>Written diagnosis &amp; care plan</li><li>Report review within 14 days — free</li><li>One WhatsApp check-in</li></ul>
-        <a class="btn btn-ghost h-tier-book card-link" href="/book/?tier=Specialist%20Consultation">Book this visit</a>
+        <button type="button" class="btn btn-ghost h-tier-book card-link" data-pkg-open="specialist" aria-haspopup="dialog">See what’s included</button>
       </article>
       <article class="h-tier rec">
         <p class="h-tier-flag">Recommended for long-standing or cosmetic concerns</p>
@@ -193,19 +193,71 @@
         <div class="h-tier-p">৳3,500</div>
         <p class="h-tier-vat">৳4,025 with 15% VAT</p>
         <ul class="ticks"><li>Everything in Specialist</li><li>Standardised baseline photographs</li><li>Costed options for every route</li><li>One follow-up within 30 days — included</li><li>Two WhatsApp check-ins</li></ul>
-        <a class="btn btn-ink h-tier-book card-link" href="/book/?tier=Comprehensive%20Assessment">Book this visit</a>
+        <button type="button" class="btn btn-ink h-tier-book card-link" data-pkg-open="comprehensive" aria-haspopup="dialog">See what’s included</button>
       </article>
       <article class="h-tier sig">
         <h3>Signature Skin &amp; Hair Review</h3><p class="h-tier-min">60 minutes with Dr. Sumya</p>
         <div class="h-tier-p">৳6,000</div>
         <p class="h-tier-vat">৳6,900 with 15% VAT</p>
         <ul class="ticks"><li>Everything in Comprehensive</li><li>Full-body mole map, or a magnified scalp check (trichoscopy)</li><li>Same-visit fungal &amp; Wood’s lamp (UV light) tests</li><li>Typed report for your records</li><li>3-month review message</li></ul>
-        <a class="btn btn-ghost-inv h-tier-book card-link" href="/book/?tier=Signature%20Skin%20%26%20Hair%20Review">Book this visit</a>
+        <button type="button" class="btn btn-ghost-inv h-tier-book card-link" data-pkg-open="signature" aria-haspopup="dialog">See what’s included</button>
       </article>
     </div>
     <p class="h-note">Follow-up within 30 days ৳1,200 · No package is sold at a first visit.</p>
   </div>
 </section>
+
+<dialog class="pkg-view" id="pkgView" aria-labelledby="pkgTitle">
+  <div class="pkg-in">
+    <button type="button" class="pkg-close" data-pkg-close aria-label="Close"><svg class="ico-x" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M3.5 3.5l9 9m0-9-9 9" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
+    <div class="pkg-body" id="pkgBody"></div>
+  </div>
+</dialog>
+<template id="pkg-specialist">
+    <h2 class="pkg-title" id="pkgTitle" tabindex="-1">Specialist Consultation</h2>
+    <p class="pkg-meta"><span>20–25 minutes</span><span class="pkg-who"><span class="who who-dr">Dr</span> Dr. Sumya personally</span></p>
+    
+    <div class="pkg-price"><b>৳2,000</b><span>৳2,300 with 15% VAT</span></div>
+    <h3>What you get</h3>
+    <ul class="ticks pkg-list"><li>History, examination and dermoscopy (a magnified skin check)</li><li>Written diagnosis and care plan</li><li>Report review within 14 days — free</li><li>One WhatsApp check-in</li></ul>
+    
+    <h3>After this visit</h3>
+    <ul class="pkg-rows"><li><span>Follow-up within 30 days</span><b>৳1,200</b></li><li><span>Follow-up 31–90 days</span><b>৳1,500</b></li><li><span>Report review within 14 days</span><b>Free</b></li></ul>
+    <p class="pkg-fine">Centre price, from opening in 2027. At Alliance and DCIMCH today, fees follow each hospital’s own tariff. No package is sold at a first visit.</p>
+    <div class="pkg-actions">
+      <a class="btn btn-ink" href="/book/?tier=Specialist%20Consultation">Book this visit</a>
+      <button type="button" class="btn btn-ghost" data-pkg-close>Close</button>
+    </div></template>
+<template id="pkg-comprehensive">
+    <h2 class="pkg-title" id="pkgTitle" tabindex="-1">Comprehensive Assessment</h2>
+    <p class="pkg-meta"><span>40 minutes</span><span class="pkg-who"><span class="who who-dr">Dr</span> Dr. Sumya personally</span></p>
+    <p class="pkg-band">Recommended for long-standing or cosmetic concerns</p>
+    <div class="pkg-price"><b>৳3,500</b><span>৳4,025 with 15% VAT</span></div>
+    <h3>What you get</h3>
+    <ul class="ticks pkg-list"><li>Everything in the Specialist Consultation</li><li>Standardised baseline photographs</li><li>Costed options for every route</li><li>One follow-up within 30 days — included</li><li>Two WhatsApp check-ins</li></ul>
+    
+    <h3>After this visit</h3>
+    <ul class="pkg-rows"><li><span>Follow-up within 30 days</span><b>৳1,200</b></li><li><span>Follow-up 31–90 days</span><b>৳1,500</b></li><li><span>Report review within 14 days</span><b>Free</b></li></ul>
+    <p class="pkg-fine">Centre price, from opening in 2027. At Alliance and DCIMCH today, fees follow each hospital’s own tariff. No package is sold at a first visit.</p>
+    <div class="pkg-actions">
+      <a class="btn btn-ink" href="/book/?tier=Comprehensive%20Assessment">Book this visit</a>
+      <button type="button" class="btn btn-ghost" data-pkg-close>Close</button>
+    </div></template>
+<template id="pkg-signature">
+    <h2 class="pkg-title" id="pkgTitle" tabindex="-1">Signature Skin &amp; Hair Review</h2>
+    <p class="pkg-meta"><span>60 minutes</span><span class="pkg-who"><span class="who who-dr">Dr</span> Dr. Sumya personally</span></p>
+    
+    <div class="pkg-price"><b>৳6,000</b><span>৳6,900 with 15% VAT</span></div>
+    <h3>What you get</h3>
+    <ul class="ticks pkg-list"><li>Everything in the Comprehensive Assessment</li><li>Full-body mole map, or scalp trichoscopy (magnified scalp mapping)</li><li>Same-visit fungal microscopy (KOH) and Wood’s lamp (UV light) tests</li><li>Typed report for your records</li><li>3-month review message</li></ul>
+    
+    <h3>After this visit</h3>
+    <ul class="pkg-rows"><li><span>Follow-up within 30 days</span><b>৳1,200</b></li><li><span>Follow-up 31–90 days</span><b>৳1,500</b></li><li><span>Report review within 14 days</span><b>Free</b></li></ul>
+    <p class="pkg-fine">Centre price, from opening in 2027. At Alliance and DCIMCH today, fees follow each hospital’s own tariff. No package is sold at a first visit.</p>
+    <div class="pkg-actions">
+      <a class="btn btn-ink" href="/book/?tier=Signature%20Skin%20%26%20Hair%20Review">Book this visit</a>
+      <button type="button" class="btn btn-ghost" data-pkg-close>Close</button>
+    </div></template>
 
 <section class="s-sec">
   <div class="wrap">

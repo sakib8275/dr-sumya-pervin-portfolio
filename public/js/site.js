@@ -68,6 +68,39 @@
     });
   }
 
+  // — Package detail view (home tiers, /prices/ cards and care plans). A card's
+  // "See what's included" button is stretched over the card, so a tap anywhere
+  // on it lands here. The detail is a build-time <template>; it is cloned into
+  // the native <dialog>, whose showModal() supplies focus containment and Esc.
+  // Focus returns to the card's button on every close path.
+  const view = document.getElementById('pkgView');
+  if (view && typeof view.showModal === 'function') {
+    const body = document.getElementById('pkgBody');
+    let opener = null;
+    document.addEventListener('click', (e) => {
+      const trigger = e.target.closest('[data-pkg-open]');
+      if (trigger) {
+        const tpl = document.getElementById('pkg-' + trigger.dataset.pkgOpen);
+        if (!tpl) return;
+        opener = trigger;
+        body.replaceChildren(tpl.content.cloneNode(true));
+        view.showModal();
+        document.body.classList.add('no-scroll');
+        view.scrollTop = 0;
+        const title = view.querySelector('#pkgTitle');
+        if (title) title.focus({ preventScroll: true });
+        return;
+      }
+      if (e.target.closest('[data-pkg-close]')) view.close();
+    });
+    // A click on the backdrop targets the <dialog> itself (the panel fills it).
+    view.addEventListener('click', (e) => { if (e.target === view) view.close(); });
+    view.addEventListener('close', () => {
+      document.body.classList.remove('no-scroll');
+      if (opener) opener.focus({ preventScroll: true });
+    });
+  }
+
   // — Course-cost estimator (docx 5.37): a planning guide, not a quote.
   // Prices arrive as data attributes from content/prices.mjs; the arithmetic
   // mirrors the docx course rules (fixed course prices, +25% doctor-performed

@@ -10,6 +10,7 @@
 // with VAT shown, so "published prices" stays true for the visitor booking now.
 import { SITE, CHAMBERS_NOW, href } from '../site.mjs';
 import { bnSummary } from '../bn.mjs';
+import { pkgButton, pkgViews } from './pkgview.mjs';
 
 const vatPct = Math.round(SITE.vatRate * 100);
 const withVat = (taka) => {
@@ -41,16 +42,16 @@ const PILLARS = [
 
 const TIERS = [
   {
-    name: 'Specialist Consultation', min: '20–25 minutes with Dr. Sumya', price: '৳2,000',
+    pkg: 'specialist', name: 'Specialist Consultation', min: '20–25 minutes with Dr. Sumya', price: '৳2,000',
     incl: ['Examination + dermoscopy (a magnified skin check)', 'Written diagnosis &amp; care plan', 'Report review within 14 days — free', 'One WhatsApp check-in'],
   },
   {
-    name: 'Comprehensive Assessment', min: '40 minutes with Dr. Sumya', price: '৳3,500', cls: 'rec',
+    pkg: 'comprehensive', name: 'Comprehensive Assessment', min: '40 minutes with Dr. Sumya', price: '৳3,500', cls: 'rec',
     flag: 'Recommended for long-standing or cosmetic concerns',
     incl: ['Everything in Specialist', 'Standardised baseline photographs', 'Costed options for every route', 'One follow-up within 30 days — included', 'Two WhatsApp check-ins'],
   },
   {
-    name: 'Signature Skin &amp; Hair Review', value: 'Signature Skin & Hair Review', min: '60 minutes with Dr. Sumya', price: '৳6,000', cls: 'sig',
+    pkg: 'signature', name: 'Signature Skin &amp; Hair Review', value: 'Signature Skin & Hair Review', min: '60 minutes with Dr. Sumya', price: '৳6,000', cls: 'sig',
     incl: ['Everything in Comprehensive', 'Full-body mole map, or a magnified scalp check (trichoscopy)', 'Same-visit fungal &amp; Wood’s lamp (UV light) tests', 'Typed report for your records', '3-month review message'],
   },
 ];
@@ -187,12 +188,13 @@ export default function home() {
         <div class="h-tier-p">${t.price}</div>
         <p class="h-tier-vat">${withVat(t.price)} with ${vatPct}% VAT</p>
         <ul class="ticks">${t.incl.map((i) => `<li>${i}</li>`).join('')}</ul>
-        <a class="btn ${t.cls === 'sig' ? 'btn-ghost-inv' : t.cls === 'rec' ? 'btn-ink' : 'btn-ghost'} h-tier-book card-link" href="${href('/book/')}?tier=${encodeURIComponent(t.value || t.name)}">Book this visit</a>
+        ${pkgButton(t.pkg, `${t.cls === 'sig' ? 'btn-ghost-inv' : t.cls === 'rec' ? 'btn-ink' : 'btn-ghost'} h-tier-book`)}
       </article>`).join('')}
     </div>
     <p class="h-note">Follow-up within 30 days ৳1,200 · No package is sold at a first visit.</p>
   </div>
 </section>
+${pkgViews(TIERS.map((t) => t.pkg))}
 
 <section class="s-sec">
   <div class="wrap">

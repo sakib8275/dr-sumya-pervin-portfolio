@@ -508,6 +508,54 @@ a.chip:hover { background: var(--surface); border-color: var(--sienna); color: v
 .h-final .btn-ink { background: #fff; color: var(--sienna); }
 .h-final-inner { margin-top: 44px; border-radius: 22px; padding: 40px; }
 
+/* — Package detail view: a side sheet on desktop, a bottom sheet on phones.
+   Native <dialog> (focus containment, Esc, ::backdrop); the actions stay
+   pinned at the bottom of the sheet while the detail scrolls. — */
+.pkg-view {
+  position: fixed; inset: 0 0 0 auto; margin: 0; width: min(540px, 100vw); height: 100dvh; max-height: none; max-width: none;
+  border: 0; padding: 0; overflow-y: auto; overscroll-behavior: contain;
+  background: var(--ivory); color: var(--ink);
+  box-shadow: -24px 0 48px -20px rgba(74, 68, 62, .35);
+}
+.pkg-view::backdrop { background: rgba(74, 68, 62, .48); }
+.pkg-view[open] { animation: pkg-in .32s var(--ease); }
+@keyframes pkg-in { from { transform: translateX(36px); opacity: 0; } }
+.pkg-in { position: relative; min-height: 100%; display: flex; flex-direction: column; padding: 30px clamp(20px, 4vw, 36px) 0; }
+.pkg-body { flex: 1; display: flex; flex-direction: column; }
+.pkg-close {
+  position: absolute; top: 18px; right: 18px; z-index: 2; display: grid; place-items: center;
+  width: 44px; height: 44px; border: 0; border-radius: 50%; background: var(--butter); color: var(--ink); cursor: pointer;
+}
+.pkg-close:hover { background: var(--gold); }
+.pkg-title { font-size: clamp(26px, 3vw, 32px); line-height: 1.1; margin: 4px 56px 10px 0; }
+.pkg-title:focus { outline: none; }
+.pkg-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; font-size: 15px; color: var(--grey); }
+.pkg-who { display: inline-flex; align-items: center; gap: 6px; }
+.pkg-band { margin-top: 10px; font-weight: 600; color: var(--sienna); }
+.pkg-price { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 14px; margin-top: 20px; padding: 18px 0; border-block: 1px solid var(--hair); }
+.pkg-price b { font-size: 46px; font-weight: 600; line-height: 1; color: var(--sienna); font-variant-numeric: tabular-nums; }
+.pkg-price span { font-size: 15px; color: var(--grey); }
+.pkg-view h3 { margin: 26px 0 8px; font-size: 13px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--grey); }
+.pkg-list { list-style: none; font-size: 16px; }
+.pkg-list li { padding: 9px 0 9px 26px; border-top: 1px dashed var(--hair); }
+.pkg-list li:first-child { border-top: 0; }
+.pkg-list.ticks li::before { top: calc(9px + .38em); }
+.pkg-rows { list-style: none; font-size: 15.5px; }
+.pkg-rows li { display: flex; justify-content: space-between; gap: 18px; padding: 10px 0; border-top: 1px dashed var(--hair); }
+.pkg-rows li:first-child { border-top: 0; }
+.pkg-rows b { white-space: nowrap; font-weight: 600; }
+.pkg-save { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 16px; margin-top: 10px; padding: 12px 14px; border-radius: 12px; background: var(--gold); }
+.pkg-save b { color: var(--sienna); }
+.pkg-text { font-size: 16px; }
+.pkg-note { margin-top: 14px; padding: 12px 14px; border-radius: 12px; background: var(--butter); font-weight: 600; }
+.pkg-fine { margin-top: 20px; font-size: 14px; color: var(--grey); }
+.pkg-actions {
+  position: sticky; bottom: 0; margin: auto calc(-1 * clamp(20px, 4vw, 36px)) 0; padding: 18px clamp(20px, 4vw, 36px) calc(18px + env(safe-area-inset-bottom));
+  display: flex; flex-wrap: wrap; gap: 10px; background: var(--ivory); border-top: 1px solid var(--hair);
+}
+.pkg-body > .pkg-fine { margin-bottom: 22px; }
+.card-link[aria-haspopup] { font-size: 14px; }
+
 /* — About stat row (same treatment as the one-pager's A12) — */
 .statrow { display: grid; grid-template-columns: repeat(3, 1fr); margin-top: clamp(44px, 6vw, 72px); }
 .statrow-item { display: grid; gap: 10px; padding: 6px 12px; text-align: center; }
@@ -741,6 +789,15 @@ a.chip:hover { background: var(--surface); border-color: var(--sienna); color: v
   .pr-table td.bn::before { content: none; }
   .pr-table td.pp { font-size: 24px; white-space: normal; }
 }
+@media (max-width: 820px) {
+  .pkg-view { inset: auto 0 0 0; width: 100%; height: auto; max-height: 90dvh; border-radius: 22px 22px 0 0;
+    box-shadow: 0 -18px 44px -18px rgba(74, 68, 62, .35); }
+  .pkg-view[open] { animation-name: pkg-up; }
+  .pkg-in { padding-top: 26px; }
+  .pkg-price b { font-size: 40px; }
+  .pkg-actions .btn { flex: 1; justify-content: center; }
+}
+@keyframes pkg-up { from { transform: translateY(48px); opacity: 0; } }
 @media (max-width: 480px) {
   .h-promises .wrap { grid-template-columns: 1fr; }
   .h-pr { border-right: 0; }
@@ -754,5 +811,6 @@ a.chip:hover { background: var(--surface); border-color: var(--sienna); color: v
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   .drawer, .scrim, .skip-link, .card, .h-learn-card, .ico-chev, .faq summary::after, a.chip { transition: none; }
+  .pkg-view[open] { animation: none; }
   .card:hover, .h-learn-card:hover { transform: none; }
 }
