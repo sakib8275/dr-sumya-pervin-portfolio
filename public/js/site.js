@@ -5,6 +5,9 @@
 // functions/lib/schedule.js to /js/schedule.mjs, so the form's date rules and
 // the booking API's are the same code.
 import { CHAMBERS, dhakaTodayStr, weekdayOf, closedDayRefusal } from './schedule.mjs';
+import { EMERGENCY, moleDecision, skinTypeResult, skinCheckTriage, prepAdvice } from './tools.mjs';
+import { estimate } from './estimator.mjs';
+import { writePrefill, takePrefill } from './prefill.mjs';
 
 (() => {
   'use strict';
@@ -200,34 +203,16 @@ import { CHAMBERS, dhakaTodayStr, weekdayOf, closedDayRefusal } from './schedule
   function render() {
     const opt = area.options[area.selectedIndex];
     if (!opt) return;
-    const per = Number(opt.dataset.per);
-    const course = Number(opt.dataset.course);
-    const item = Number(concern.value);
-    // Only laser hair removal offers the doctor-performed +25% option.
-    const uplift = state.who === 'dr' && item === 0 ? 1.25 : 1;
-    // Displayed prices exclude VAT; the estimator shows the 15% added at checkout.
-    const vat = Number(document.getElementById('estimator').dataset.vat) || 0;
-    const base = state.pay === 'single' ? Math.round(per * uplift) : Math.round(course * uplift);
-    const vatAmount = Math.round(base * vat);
-    const vatLines =
-      `<div class="ln"><span>VAT (${Math.round(vat * 100)}%, added at checkout)</span><b>${taka(vatAmount)}</b></div>` +
-      `<div class="ln ln-total"><span>Total at checkout</span><b>${taka(base + vatAmount)}</b></div>`;
-    if (state.pay === 'single') {
-      total.textContent = taka(Math.round(per * uplift));
-      sub.textContent = 'per session';
-      lines.innerHTML =
-        `<div class="ln"><span>Full course (6 sessions, pay for 5)</span><b>${taka(Math.round(course * uplift))}</b></div>` +
-        `<div class="ln"><span>Typical course</span><b>6–8 sessions, 4–6 weeks apart</b></div>` +
-        vatLines;
-    } else {
-      total.textContent = taka(Math.round(course * uplift));
-      sub.textContent = 'for the full course';
-      lines.innerHTML =
-        `<div class="ln"><span>Per session</span><b>${taka(Math.round(per * uplift))}</b></div>` +
-        (item === 0 ? `<div class="ln"><span>Session 6</span><b>Included</b></div>` : '') +
-        `<div class="ln"><span>Typical course</span><b>6–8 sessions, 4–6 weeks apart</b></div>` +
-        vatLines;
-    }
+    // The arithmetic and the row copy live in estimator.mjs (node-tested);
+    // this adapter only formats and writes the DOM.
+    const r = estimate({
+      pay: state.pay, who: state.who, item: Number(concern.value),
+      per: Number(opt.dataset.per), course: Number(opt.dataset.course),
+      vat: Number(document.getElementById('estimator').dataset.vat) || 0
+    });
+    total.textContent = taka(r.amount);
+    sub.textContent = r.note;
+    lines.innerHTML = r.rows.map((row) => `<div class="ln${row.total ? ' ln-total' : ''}"><span>${row.label}</span><b>${row.amount !== undefined ? taka(row.amount) : row.text}</b></div>`).join('');
   }
 
   syncAreas();
@@ -252,23 +237,23 @@ import { CHAMBERS, dhakaTodayStr, weekdayOf, closedDayRefusal } from './schedule
 
   // A tool's answers must never reach a URL (history, server logs, referrers).
   // Its "Book" button is a plain /book/ link carrying the pre-fill in data-
-  // attributes; on click they move to sessionStorage, which /book/ reads once
-  // and clears. If storage is blocked the patient simply picks the visit.
+  // attributes; on click they move to sessionStorage (public/js/prefill.mjs),
+  // which /book/ reads once and clears. If storage is blocked the patient
+  // simply picks the visit.
   document.addEventListener('click', (e) => {
     const a = e.target.closest('a[data-prefill-tier], a[data-prefill-reason]');
-    if (!a) return;
-    try {
-      sessionStorage.setItem('bookPrefill', JSON.stringify({ tier: a.dataset.prefillTier || '', reason: a.dataset.prefillReason || '' }));
-    } catch { /* storage unavailable: the plain link still works */ }
+    if (a) writePrefill(a);
   });
 
+  // Each tool below is a thin DOM adapter: it gathers the answers, calls the
+  // pure decision in tools.mjs, and renders the staged copy it returns.
   const mole = document.querySelector('form[data-tool="mole-check"]');
   if (mole) {
     mole.addEventListener('submit', (e) => {
       e.preventDefault();
-      const hit = [...mole.querySelectorAll('input[data-sign]:checked')].map((i) => i.dataset.sign);
-      show('moleOut', hit.length
-        ? `<h3>Worth a dermatologist’s look</h3><p>You ticked ${hit.length} sign${hit.length > 1 ? 's' : ''} (${hit.join(', ')}). This does not mean the mole is dangerous, but it should be examined.</p><p><a class="btn btn-ink" href="/book/" data-prefill-reason="mole">Book a mole check (priority slot)</a></p>`
+      const r = moleDecision([...mole.querySelectorAll('input[data-sign]:checked')].map((i) => i.dataset.sign));
+      show('moleOut', r.concerning
+        ? `<h3>Worth a dermatologist’s look</h3><p>You ticked ${r.count} sign${r.count > 1 ? 's' : ''} (${r.signs.join(', ')}). This does not mean the mole is dangerous, but it should be examined.</p><p><a class="btn btn-ink" href="/book/" data-prefill-reason="mole">Book a mole check (priority slot)</a></p>`
         : `<h3>Nothing concerning today</h3><p>No ABCDE or brown-skin signs were ticked. Check monthly, and come if anything changes — a mole that is new, changing or bleeding always deserves a look.</p>`);
     });
   }
@@ -277,111 +262,65 @@ import { CHAMBERS, dhakaTodayStr, weekdayOf, closedDayRefusal } from './schedule
   if (skin) {
     skin.addEventListener('submit', (e) => {
       e.preventDefault();
-      const feel = val(skin, 'feel'), react = val(skin, 'react'), sun = val(skin, 'sun');
-      const breakouts = val(skin, 'breakouts'), marks = val(skin, 'marks'), outdoor = val(skin, 'outdoor');
-      if (!feel || !react || !sun || !breakouts || !marks || !outdoor) {
+      const r = skinTypeResult({
+        feel: val(skin, 'feel'), react: val(skin, 'react'), sun: val(skin, 'sun'),
+        breakouts: val(skin, 'breakouts'), marks: val(skin, 'marks'), outdoor: val(skin, 'outdoor')
+      });
+      if (r.stage === 'incomplete') {
         show('skinOut', `<h3>Almost there</h3><p>Please answer all six questions so the guide can give you a routine.</p>`);
         return;
       }
-      let type = 'combination';
-      if (react === 'sting') type = 'sensitive';
-      else if (feel === 'oily' || breakouts === 'often') type = 'oily';
-      else if (feel === 'tight') type = 'dry';
-      else if (feel === 'tzone') type = 'combination';
-      else type = 'normal';
-
-      const ROUTINE = {
-        oily: ['Gel cleanser, twice a day', 'Light, oil-free moisturiser', 'Non-comedogenic sunscreen SPF 50, every morning'],
-        combination: ['Gentle foaming cleanser', 'Light moisturiser on dry areas', 'Sunscreen SPF 50, every morning'],
-        dry: ['Cream cleanser, no soap', 'Rich moisturiser while skin is damp', 'Sunscreen SPF 50, every morning'],
-        sensitive: ['Fragrance-free gentle cleanser', 'Barrier moisturiser, minimal actives', 'Mineral or fragrance-free sunscreen SPF 50'],
-        normal: ['Gentle cleanser', 'Light moisturiser', 'Sunscreen SPF 50, every morning'],
-      };
-      const sunText = sun === 'burn' ? 'High — you burn easily, so daily sunscreen is essential.'
-        : sun === 'deep' ? 'Lower burning risk, but higher risk of dark marks after any inflammation.'
-        : 'Moderate — daily sunscreen still matters, especially for pigmentation.';
-      const suit = type === 'sensitive' || type === 'dry'
-        ? 'Peels and laser need gentler settings and a patch test; tell your doctor you react easily.'
-        : 'Most peels and lasers suit this skin, with settings chosen for South Asian skin.';
-
-      show('skinOut', `<h3>Your skin type: ${type}</h3>
-        <p><b>Sun reactivity:</b> ${sunText}</p>
+      show('skinOut', `<h3>Your skin type: ${r.type}</h3>
+        <p><b>Sun reactivity:</b> ${r.sunNote}</p>
         <p><b>A simple routine for Dhaka</b></p>
-        <ul>${ROUTINE[type].map((s) => `<li>${s}</li>`).join('')}</ul>
-        <p><b>Peels and laser:</b> ${suit}</p>
+        <ul>${r.routine.map((s) => `<li>${s}</li>`).join('')}</ul>
+        <p><b>Peels and laser:</b> ${r.peelNote}</p>
         <p class="tool-fine">For a diagnosis, book a consultation.</p>`);
     });
   }
 
   // — Skin check (/tools/skin-check/): conditions a description often turns
   // out to be, how soon to be seen, which visit fits. Never a diagnosis, never
-  // a procedure. Answers stay on the page: book links carry only the visit
-  // type, never a symptom (a URL ends up in history, logs and referrers).
-  // The urgency wording was reviewed and approved by Dr. Sumya on 2026-10-04,
-  // amended so a bleeding or fast-changing mole is "in the next day or two".
+  // a procedure. The triage ladder lives in tools.mjs (node-tested); answers
+  // stay on the page — book links carry only the visit type, never a symptom
+  // (a URL ends up in history, logs and referrers).
   const sc = document.querySelector('form[data-tool="skin-check"]');
   if (sc) {
     sc.addEventListener('submit', (e) => {
       e.preventDefault();
       const ticked = (name) => [...sc.querySelectorAll(`input[name="${name}"]:checked`)].map((i) => i.value);
-      const warn = ticked('warn');
-      const acts = ticked('act');
+      const lookIn = sc.querySelector('input[name="look"]:checked');
+      const t = skinCheckTriage({
+        where: val(sc, 'where'), look: lookIn ? lookIn.value : '', dur: val(sc, 'dur'),
+        acts: ticked('act'), warn: ticked('warn')
+      });
 
       // Emergencies first, and alone: no booking, no reading list.
-      if (warn.includes('airway') || warn.includes('fever')) {
-        show('scOut', `<div class="sc-urgency sc-emergency"><h3>Go to the nearest emergency department now</h3>
-          <p>${warn.includes('airway')
-            ? 'Swelling of the lips, tongue or throat, or trouble breathing, can be a severe allergic reaction.'
-            : 'Fever with a widespread rash, or blistering or peeling skin, needs hospital care the same day.'}
-          Do not wait for a clinic appointment.</p></div>`);
+      if (t.stage === 'emergency') {
+        show('scOut', `<div class="sc-urgency sc-emergency"><h3>${EMERGENCY.heading}</h3><p>${EMERGENCY[t.emergency]} ${EMERGENCY.tail}</p></div>`);
         return;
       }
-
-      const where = val(sc, 'where'), dur = val(sc, 'dur');
-      const lookIn = sc.querySelector('input[name="look"]:checked');
-      if (!where || !lookIn || !dur) {
+      if (t.stage === 'incomplete') {
         show('scOut', `<h3>Almost there</h3><p>Please answer where it is, what you notice most, and how long it has been there.</p>`);
         return;
       }
-      const look = lookIn.value;
-      const mole = look === 'mole' || warn.includes('mole-fast');
-      const priv = where === 'private' || look === 'private';
-      // The number lives in content/site.mjs; the build stamps it on <body>.
+
+      // The WhatsApp number lives in content/site.mjs; the build stamps it on
+      // <body>. The decision says when to offer it; only the adapter can link it.
       const wa = document.body.dataset.wa || '/contact/';
-
-      let urgency;
-      if (warn.includes('hot')) {
-        urgency = ['today', 'See a doctor today',
-          `Red, hot, painful skin that spreads fast can be an infection that needs treatment the same day. If you cannot see a doctor today, go to an emergency department. You can also <a class="tlink" href="${wa}" rel="noopener">WhatsApp us</a>; we reply within 2 working hours.`];
-      } else if (warn.includes('mole-fast')) {
-        urgency = ['soon', 'Be seen in the next day or two',
-          'A mole that is bleeding or changing quickly should be examined quickly. It is usually harmless, but this is the one to check rather than watch. When you book, say it is a changing mole — we give these a priority slot.'];
-      } else if (mole || priv || acts.includes('bleed')) {
-        urgency = ['soon', 'Be seen within the next few days',
-          mole ? 'A mole that is new, changing or bleeding should be examined soon. It is usually harmless, but this is the one to check rather than watch.'
-            : priv ? 'Sores, bumps or discharge in the private area are best seen soon. Most causes are very treatable, and partners may need treatment too.'
-            : 'Skin that bleeds or oozes should be examined soon, especially if it does not heal within two weeks.'];
-      } else {
-        urgency = ['routine', 'A routine visit is fine',
-          'Nothing you described sounds urgent. Book when it suits you, and come sooner if it changes quickly, spreads, or stops you sleeping.'];
-      }
-
-      let visit;
-      if (priv) visit = ['Private Consultation', 'A private time slot. No reason is needed when booking, and the invoice wording is discreet.'];
-      else if (dur === 'long' || acts.length >= 2) visit = ['Comprehensive Assessment', '40 minutes. Long-standing or busy problems usually need baseline photographs, costed options and an included follow-up.'];
-      else visit = ['Specialist Consultation', '20–25 minutes. A focused first visit: examination, dermoscopy where it helps, and a written plan.'];
-      // Pre-fill rides in data- attributes → sessionStorage, never the URL.
-      const book = mole ? 'data-prefill-reason="mole"' : `data-prefill-tier="${visit[0]}"`;
-
+      const body = t.urgency.body + (t.urgency.offerWa
+        ? ` You can also <a class="tlink" href="${wa}" rel="noopener">WhatsApp us</a>; we reply within 2 working hours.` : '');
+      // Condition cards are build-time <template>s keyed by the look answer's
+      // data-cond slugs (content/pages/tools.mjs).
       const slugs = (lookIn.dataset.cond || '').split(',').filter(Boolean);
-      show('scOut', `<div class="sc-urgency sc-${urgency[0]}"><h3>${urgency[1]}</h3><p>${urgency[2]}</p></div>
+      show('scOut', `<div class="sc-urgency sc-${t.urgency.key}"><h3>${t.urgency.heading}</h3><p>${body}</p></div>
         ${slugs.length ? `<h3>Conditions that often look like this</h3>
         <p>People who describe this are often diagnosed with ${slugs.length > 1 ? 'one of these' : 'this'}. Only an examination can tell: several skin conditions look alike, and some need a quick test.</p>
         <div class="sc-conds" id="scConds"></div>`
-        : `<h3>What to bring</h3><p>Not every skin problem fits a list. Bring a photo of it at its worst, and any creams you have tried.</p>`}
+          : `<h3>What to bring</h3><p>Not every skin problem fits a list. Bring a photo of it at its worst, and any creams you have tried.</p>`}
         <h3>Which visit fits</h3>
-        <p><b>${visit[0]}.</b> ${visit[1]}${mole ? ' Mention the mole when you book and we will give you a priority slot.' : ''}</p>
-        <p><a class="btn btn-ink" href="/book/" ${book}>${mole ? 'Book a mole check' : `Book a ${visit[0]}`}</a></p>`);
+        <p><b>${t.visit.name}.</b> ${t.visit.blurb}${t.mole ? ' Mention the mole when you book and we will give you a priority slot.' : ''}</p>
+        <p><a class="btn btn-ink" href="/book/" ${t.mole ? 'data-prefill-reason="mole"' : `data-prefill-tier="${t.visit.name}"`}>${t.mole ? 'Book a mole check' : `Book a ${t.visit.name}`}</a></p>`);
       const into = document.getElementById('scConds');
       for (const slug of slugs) {
         const tpl = document.getElementById('sc-' + slug);
@@ -421,21 +360,15 @@ import { CHAMBERS, dhakaTodayStr, weekdayOf, closedDayRefusal } from './schedule
 
     dateIn.min = dhakaTodayStr();
 
-    // Pre-fill. Static links use the URL (/book/?tier=… from a package view,
-    // ?chamber=… from a chamber, ?reason=mole from the mole-check page's fixed
-    // CTAs). A tool's answers arrive instead through sessionStorage (see the
-    // tools block), read once and cleared, so they never sit in a URL. The mole
-    // "priority slot" promise reaches staff through the notes.
-    const q = new URLSearchParams(location.search);
-    let kept = {};
-    try {
-      kept = JSON.parse(sessionStorage.getItem('bookPrefill') || '{}') || {};
-      sessionStorage.removeItem('bookPrefill');
-    } catch { kept = {}; }
+    // Pre-fill via the one protocol (public/js/prefill.mjs): a tool's answers
+    // arrive through sessionStorage, read once and cleared here; static links
+    // use ?tier= / ?chamber= / ?reason=mole URL params. The mole "priority
+    // slot" promise reaches staff through the notes.
+    const pf = takePrefill(new URLSearchParams(location.search));
     const pick = (sel, val) => { if (val && [...sel.options].some((o) => o.value === val)) sel.value = val; };
-    pick($('sbTier'), kept.tier || q.get('tier'));
-    pick(chamberSel, [...chamberSel.options].map((o) => o.value).find((v) => q.get('chamber') && v.toLowerCase().includes(q.get('chamber').toLowerCase())));
-    if ((kept.reason || q.get('reason')) === 'mole' && !$('sbNotes').value) $('sbNotes').value = 'Mole check: please give me a priority slot.';
+    pick($('sbTier'), pf.tier);
+    pick(chamberSel, [...chamberSel.options].map((o) => o.value).find((v) => pf.chamber && v.toLowerCase().includes(pf.chamber.toLowerCase())));
+    if (pf.reason === 'mole' && !$('sbNotes').value) $('sbNotes').value = 'Mole check: please give me a priority slot.';
 
     const syncChamber = () => { hint.textContent = `Consults ${chamberOpt().dataset.when}. Your serial sets the exact time.`; };
     chamberSel.addEventListener('change', () => { syncChamber(); if (dateIn.value) checkDate(); });
@@ -581,22 +514,19 @@ import { CHAMBERS, dhakaTodayStr, weekdayOf, closedDayRefusal } from './schedule
   if (prep) {
     prep.addEventListener('submit', (e) => {
       e.preventDefault();
-      const duration = val(prep, 'duration'), itch = val(prep, 'itch'), products = val(prep, 'products');
-      const doctors = val(prep, 'doctors'), conditions = val(prep, 'conditions'), photo = val(prep, 'photo');
-      const cosmetic = val(prep, 'cosmetic');
-      if (!duration || !itch || !products || !doctors || !conditions || !photo || !cosmetic) {
+      const r = prepAdvice({
+        duration: val(prep, 'duration'), itch: val(prep, 'itch'), products: val(prep, 'products'),
+        doctors: val(prep, 'doctors'), conditions: val(prep, 'conditions'), photo: val(prep, 'photo'),
+        cosmetic: val(prep, 'cosmetic')
+      });
+      if (r.stage === 'incomplete') {
         show('prepOut', `<h3>Almost there</h3><p>Please answer all the questions so we can suggest the right depth of visit.</p>`);
         return;
       }
-      const deep = ['long', 'chronic'].includes(duration) || products === 'many' || conditions === 'yes' || cosmetic === 'yes';
-      const depth = deep
-        ? ['Comprehensive Assessment (40 minutes, ৳3,500) — long-standing or cosmetic concerns usually need baseline photographs, costed options and an included follow-up.']
-        : ['Specialist Consultation (20–25 minutes, ৳2,000) — a focused first visit with examination, dermoscopy and a written plan.'];
-      const bring = photo === 'yes' ? 'Bring the photo of the problem at its worst — it often changes the plan.' : 'Come without oil on the hair and without nail polish if those are affected.';
       show('prepOut', `<h3>Your visit will likely include</h3>
         <p>A history, an examination with dermoscopy where it helps, and — only if it would change the treatment — tests, explained and priced before anything is done. You leave with a written plan.</p>
-        <p><b>Suggested depth:</b> ${depth[0]}</p>
-        <p>${bring} Bring your creams and old prescriptions too.</p>`);
+        <p><b>Suggested depth:</b> ${r.depth}</p>
+        <p>${r.bring} Bring your creams and old prescriptions too.</p>`);
     });
   }
 })();
