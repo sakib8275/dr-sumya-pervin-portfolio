@@ -312,8 +312,8 @@
   // out to be, how soon to be seen, which visit fits. Never a diagnosis, never
   // a procedure. Answers stay on the page: book links carry only the visit
   // type, never a symptom (a URL ends up in history, logs and referrers).
-  // ⚠️ The urgency wording below is clinical copy published before the
-  // doctor's review (owner's choice, 2026-10-03) — see content/pages/tools.mjs.
+  // The urgency wording was reviewed and approved by Dr. Sumya on 2026-10-04,
+  // amended so a bleeding or fast-changing mole is "in the next day or two".
   const sc = document.querySelector('form[data-tool="skin-check"]');
   if (sc) {
     sc.addEventListener('submit', (e) => {
@@ -348,6 +348,9 @@
       if (warn.includes('hot')) {
         urgency = ['today', 'See a doctor today',
           `Red, hot, painful skin that spreads fast can be an infection that needs treatment the same day. If you cannot see a doctor today, go to an emergency department. You can also <a class="tlink" href="${wa}" rel="noopener">WhatsApp us</a>; we reply within 2 working hours.`];
+      } else if (warn.includes('mole-fast')) {
+        urgency = ['soon', 'Be seen in the next day or two',
+          'A mole that is bleeding or changing quickly should be examined quickly. It is usually harmless, but this is the one to check rather than watch. When you book, say it is a changing mole — we give these a priority slot.'];
       } else if (mole || priv || acts.includes('bleed')) {
         urgency = ['soon', 'Be seen within the next few days',
           mole ? 'A mole that is new, changing or bleeding should be examined soon. It is usually harmless, but this is the one to check rather than watch.'

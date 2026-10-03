@@ -58,10 +58,33 @@ test('a changing mole is "soon" and books a mole check with a priority slot', as
   await page.goto(site.baseURL + '/tools/skin-check/', { waitUntil: 'networkidle' });
   const out = await answer(page, { where: 'face', look: 'mole', dur: 'months' });
   await expect(out.locator('.sc-urgency')).toHaveClass(/sc-soon/);
-  await expect(out.locator('.sc-cond')).toHaveAttribute('href', '/conditions/skin-cancer/');
+  // Cancer first — it is the reason to come — with its benign look-alike
+  // beside it so the answer is not a lone alarming card.
+  await expect(out.locator('.sc-cond')).toHaveCount(2);
+  await expect(out.locator('.sc-cond').first()).toHaveAttribute('href', '/conditions/skin-cancer/');
+  await expect(out.locator('.sc-cond').nth(1)).toHaveAttribute('href', '/conditions/seborrhoeic-keratosis-dpn/');
   await out.locator('a.btn', { hasText: 'Book a mole check' }).click();
   await expect(page).toHaveURL(/\/book\/$/);
   await expect(page.locator('#sbNotes')).toHaveValue(/priority slot/);
+});
+
+test('a bleeding or fast-changing mole is "in the next day or two"', async ({ page, site }) => {
+  await page.goto(site.baseURL + '/tools/skin-check/', { waitUntil: 'networkidle' });
+  const out = await answer(page, { where: 'body', look: 'mole', dur: 'weeks', warn: ['mole-fast'] });
+  await expect(out.locator('.sc-urgency')).toHaveClass(/sc-soon/);
+  await expect(out.locator('.sc-urgency h3')).toHaveText('Be seen in the next day or two');
+  await expect(out.locator('.sc-urgency p')).toContainText('priority slot');
+});
+
+test('rough scaly palms or soles lead with the common causes', async ({ page, site }) => {
+  await page.goto(site.baseURL + '/tools/skin-check/', { waitUntil: 'networkidle' });
+  const out = await answer(page, { where: 'hands-feet', look: 'palms', dur: 'months' });
+  const cards = out.locator('.sc-cond');
+  await expect(cards).toHaveCount(4);
+  await expect(cards.first()).toHaveAttribute('href', '/conditions/eczema/');
+  await expect(cards.nth(1)).toHaveAttribute('href', '/conditions/fungal-infection/');
+  await expect(cards.nth(2)).toHaveAttribute('href', '/conditions/psoriasis/');
+  await expect(cards.nth(3)).toHaveAttribute('href', '/conditions/precancerous-skin-lesions/');
 });
 
 test('answers never leave the page in a URL', async ({ page, site }) => {
