@@ -23,6 +23,10 @@ import { MARK_PATHS } from '../content/brand.mjs';
 
 const OUT = join(dirname(fileURLToPath(import.meta.url)), '..', 'public', 'assets');
 const C = { paper: '#F7F3EA', nil: '#23336B', deep: '#1A2756', onNil: '#C9D1EA', haldi: '#E0A526' };
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+// The headline credential: FCPS if listed, else the last (highest) one, so a
+// renamed or reordered credential list changes the card instead of crashing it.
+const topCredential = SITE.credentials.find((c) => c.startsWith('FCPS')) ?? SITE.credentials.at(-1) ?? '';
 const svg = (stroke, weight, cls = '') =>
   `<svg class="${cls}" viewBox="0 0 100 100"><g fill="none" stroke="${stroke}" stroke-width="${weight}" stroke-linecap="round" stroke-linejoin="round">${MARK_PATHS.map((d) => `<path d="${d}"/>`).join('')}</g></svg>`;
 
@@ -43,8 +47,8 @@ const ogCard = page(1200, 630, `
   .p { font-size: 30px; line-height: 1.35; font-weight: 500; }
   .d { margin-top: 30px; font-size: 21px; letter-spacing: .14em; text-transform: uppercase; color: ${C.onNil}; }`,
   `<div class="m">${svg('#fff', 4)}</div>
-   <div class="t"><p class="n">${SITE.name}</p>
-     <p class="r">Dermatologist in Dhaka · ${SITE.credentials.find((c) => c.startsWith('FCPS')).replace('&', '&amp;')}</p>
+   <div class="t"><p class="n">${esc(SITE.name)}</p>
+     <p class="r">Dermatologist in Dhaka${topCredential ? ` · ${esc(topCredential)}` : ''}</p>
      <div class="rule"></div>
      <p class="p">Diagnosis first. Published prices.<br>A written plan at every visit.</p>
      <p class="d">${SITE.domain.replace(/^https?:\/\//, '')}</p></div>`);

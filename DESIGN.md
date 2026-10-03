@@ -24,41 +24,41 @@ colors:
 typography:
   display:
     fontFamily: "Outfit, Hind Siliguri, ui-sans-serif, system-ui, sans-serif"
-    fontSize: "clamp(38px, 5vw, 62px)"
+    fontSize: "clamp(2.375rem, 5vw, 3.875rem)"
     fontWeight: 700
     lineHeight: 1.04
     letterSpacing: "-0.02em"
   headline:
     fontFamily: "Outfit, Hind Siliguri, ui-sans-serif, system-ui, sans-serif"
-    fontSize: "clamp(28px, 3.4vw, 40px)"
+    fontSize: "clamp(1.75rem, 3.4vw, 2.5rem)"
     fontWeight: 700
     lineHeight: 1.12
     letterSpacing: "-0.01em"
   title:
     fontFamily: "Outfit, Hind Siliguri, ui-sans-serif, system-ui, sans-serif"
-    fontSize: "21px"
+    fontSize: "1.3125rem"
     fontWeight: 700
     lineHeight: 1.12
     letterSpacing: "-0.01em"
   figure:
     fontFamily: "Outfit, Hind Siliguri, ui-sans-serif, system-ui, sans-serif"
-    fontSize: "44px"
+    fontSize: "2.75rem"
     fontWeight: 600
     lineHeight: 1.1
     fontFeature: "\"tnum\" 1"
   body:
     fontFamily: "Outfit, Hind Siliguri, ui-sans-serif, system-ui, sans-serif"
-    fontSize: "16px"
+    fontSize: "1rem"
     fontWeight: 400
     lineHeight: 1.55
   body-small:
     fontFamily: "Outfit, Hind Siliguri, ui-sans-serif, system-ui, sans-serif"
-    fontSize: "14.5px"
+    fontSize: "0.90625rem"
     fontWeight: 400
     lineHeight: 1.55
   label:
     fontFamily: "Outfit, Hind Siliguri, ui-sans-serif, system-ui, sans-serif"
-    fontSize: "12px"
+    fontSize: "0.75rem"
     fontWeight: 700
     lineHeight: 1.3
     letterSpacing: "0.14em"
@@ -198,6 +198,7 @@ A two-dye palette on paper: deep Bengal indigo carries structure and action, and
 **Display Font:** Outfit (with Hind Siliguri, then the system sans)
 **Body Font:** Outfit
 **Bangla:** Hind Siliguri, loaded by unicode-range only when Bengali text is present, at line-height 1.75.
+**Units:** every font size is in `rem` (px ÷ 16), so text follows the reader's browser font-size setting. The px figures below are the sizes at the default 16px.
 
 **Character:** One geometric sans in a few weights. It is plain enough to read like a clinical document and round enough to stay kind. Hierarchy comes from size and weight, never from a second display face or from italics. Outfit has no italic, so emphasis is Nil Indigo color plus a turmeric underline.
 

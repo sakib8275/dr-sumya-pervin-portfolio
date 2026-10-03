@@ -245,13 +245,25 @@
     out.focus && out.focus();
   };
 
+  // A tool's answers must never reach a URL (history, server logs, referrers).
+  // Its "Book" button is a plain /book/ link carrying the pre-fill in data-
+  // attributes; on click they move to sessionStorage, which /book/ reads once
+  // and clears. If storage is blocked the patient simply picks the visit.
+  document.addEventListener('click', (e) => {
+    const a = e.target.closest('a[data-prefill-tier], a[data-prefill-reason]');
+    if (!a) return;
+    try {
+      sessionStorage.setItem('bookPrefill', JSON.stringify({ tier: a.dataset.prefillTier || '', reason: a.dataset.prefillReason || '' }));
+    } catch { /* storage unavailable: the plain link still works */ }
+  });
+
   const mole = document.querySelector('form[data-tool="mole-check"]');
   if (mole) {
     mole.addEventListener('submit', (e) => {
       e.preventDefault();
       const hit = [...mole.querySelectorAll('input[data-sign]:checked')].map((i) => i.dataset.sign);
       show('moleOut', hit.length
-        ? `<h3>Worth a dermatologist’s look</h3><p>You ticked ${hit.length} sign${hit.length > 1 ? 's' : ''} (${hit.join(', ')}). This does not mean the mole is dangerous, but it should be examined.</p><p><a class="btn btn-ink" href="/book/?reason=mole">Book a mole check (priority slot)</a></p>`
+        ? `<h3>Worth a dermatologist’s look</h3><p>You ticked ${hit.length} sign${hit.length > 1 ? 's' : ''} (${hit.join(', ')}). This does not mean the mole is dangerous, but it should be examined.</p><p><a class="btn btn-ink" href="/book/" data-prefill-reason="mole">Book a mole check (priority slot)</a></p>`
         : `<h3>Nothing concerning today</h3><p>No ABCDE or brown-skin signs were ticked. Check monthly, and come if anything changes — a mole that is new, changing or bleeding always deserves a look.</p>`);
     });
   }
@@ -329,7 +341,8 @@
       const look = lookIn.value;
       const mole = look === 'mole' || warn.includes('mole-fast');
       const priv = where === 'private' || look === 'private';
-      const wa = (document.querySelector('a[href^="https://wa.me/"]') || {}).href || 'https://wa.me/8801353787080';
+      // The number lives in content/site.mjs; the build stamps it on <body>.
+      const wa = document.body.dataset.wa || '/contact/';
 
       let urgency;
       if (warn.includes('hot')) {
@@ -349,7 +362,8 @@
       if (priv) visit = ['Private Consultation', 'A private time slot. No reason is needed when booking, and the invoice wording is discreet.'];
       else if (dur === 'long' || acts.length >= 2) visit = ['Comprehensive Assessment', '40 minutes. Long-standing or busy problems usually need baseline photographs, costed options and an included follow-up.'];
       else visit = ['Specialist Consultation', '20–25 minutes. A focused first visit: examination, dermoscopy where it helps, and a written plan.'];
-      const book = mole ? '/book/?reason=mole' : `/book/?tier=${encodeURIComponent(visit[0])}`;
+      // Pre-fill rides in data- attributes → sessionStorage, never the URL.
+      const book = mole ? 'data-prefill-reason="mole"' : `data-prefill-tier="${visit[0]}"`;
 
       const slugs = (lookIn.dataset.cond || '').split(',').filter(Boolean);
       show('scOut', `<div class="sc-urgency sc-${urgency[0]}"><h3>${urgency[1]}</h3><p>${urgency[2]}</p></div>
@@ -359,7 +373,7 @@
         : `<h3>What to bring</h3><p>Not every skin problem fits a list. Bring a photo of it at its worst, and any creams you have tried.</p>`}
         <h3>Which visit fits</h3>
         <p><b>${visit[0]}.</b> ${visit[1]}${mole ? ' Mention the mole when you book and we will give you a priority slot.' : ''}</p>
-        <p><a class="btn btn-ink" href="${book}">${mole ? 'Book a mole check' : `Book a ${visit[0]}`}</a></p>`);
+        <p><a class="btn btn-ink" href="/book/" ${book}>${mole ? 'Book a mole check' : `Book a ${visit[0]}`}</a></p>`);
       const into = document.getElementById('scConds');
       for (const slug of slugs) {
         const tpl = document.getElementById('sc-' + slug);
@@ -378,7 +392,7 @@
   const bk = document.getElementById('siteBookingForm');
   if (bk) {
     const SITEKEY = '0x4AAAAAAEClxf8-TRYoLcZl';
-    const WA = 'https://wa.me/8801353787080';
+    const WA = document.body.dataset.wa || '/contact/'; // from content/site.mjs via the build
     const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     const $ = (id) => document.getElementById(id);
     const submitBtn = $('sbSubmit');
@@ -408,13 +422,21 @@
 
     dateIn.min = dhakaToday();
 
-    // Deep links: /book/?tier=…, /book/?chamber=…, /book/?reason=mole (the mole
-    // tool's "priority slot" promise reaches staff through the notes).
+    // Pre-fill. Static links use the URL (/book/?tier=… from a package view,
+    // ?chamber=… from a chamber, ?reason=mole from the mole-check page's fixed
+    // CTAs). A tool's answers arrive instead through sessionStorage (see the
+    // tools block), read once and cleared, so they never sit in a URL. The mole
+    // "priority slot" promise reaches staff through the notes.
     const q = new URLSearchParams(location.search);
+    let kept = {};
+    try {
+      kept = JSON.parse(sessionStorage.getItem('bookPrefill') || '{}') || {};
+      sessionStorage.removeItem('bookPrefill');
+    } catch { kept = {}; }
     const pick = (sel, val) => { if (val && [...sel.options].some((o) => o.value === val)) sel.value = val; };
-    pick($('sbTier'), q.get('tier'));
+    pick($('sbTier'), kept.tier || q.get('tier'));
     pick(chamberSel, [...chamberSel.options].map((o) => o.value).find((v) => q.get('chamber') && v.toLowerCase().includes(q.get('chamber').toLowerCase())));
-    if (q.get('reason') === 'mole' && !$('sbNotes').value) $('sbNotes').value = 'Mole check: please give me a priority slot.';
+    if ((kept.reason || q.get('reason')) === 'mole' && !$('sbNotes').value) $('sbNotes').value = 'Mole check: please give me a priority slot.';
 
     const syncChamber = () => { hint.textContent = `Consults ${chamberOpt().dataset.when}. Your serial sets the exact time.`; };
     chamberSel.addEventListener('change', () => { syncChamber(); if (dateIn.value) checkDate(); });

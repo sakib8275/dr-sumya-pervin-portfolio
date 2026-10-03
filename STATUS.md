@@ -4,7 +4,17 @@
 verification, or owner-action state changes. Everything under `docs/` is a dated
 snapshot; if this file and a snapshot disagree, this file wins.
 
-**Updated:** 2026-10-04 — **Skin check tool + whole-card fix: BUILT AND GREEN
+**Updated:** 2026-10-04 (PR #1 review fixes) — **BUILT AND GREEN (295 node + 49
+e2e), NOT DEPLOYED.** Review fix-now list done: tap targets measured in a
+browser (≥44px at phone width, ≥24px desktop); tool answers reach /book/ via
+sessionStorage, never a URL; the WhatsApp number comes only from
+content/site.mjs (stamped on `<body data-wa>`); site.css font sizes are rem;
+agent.md §2/§4 brought current; "Consulting today" has e2e coverage.
+The reviewer's three skin-check clinical concerns (palms/soles mapping, the
+skin-cancer card on any new mole, "within days" for a fast-changing mole) are
+for Dr. Sumya's review and are unchanged in code.
+
+**Earlier 2026-10-04 — Skin check tool + whole-card fix: BUILT AND GREEN
 (295 node + 44 e2e), NOT DEPLOYED.** New `/tools/skin-check/` (64 pages): a
 five-question symptom guide that shows the conditions a description often
 turns out to be (linking the condition pages), how soon to be seen, and which

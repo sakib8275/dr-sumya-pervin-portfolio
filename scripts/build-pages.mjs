@@ -197,7 +197,7 @@ function head(page) {
 <script type="application/ld+json">${JSON.stringify(ld)}</script>
 <script src="/js/site.js" defer></script>
 </head>
-<body data-page="${page.path}">
+<body data-page="${page.path}" data-wa="https://wa.me/${SITE.whatsapp}">
 <a class="skip-link" href="#main-content">Skip to content</a>
 ${nav()}
 <main id="main-content" tabindex="-1">
@@ -227,7 +227,7 @@ function notFoundPage() {
 <link rel="stylesheet" href="/css/site.css">
 <script src="/js/site.js" defer></script>
 </head>
-<body>
+<body data-wa="https://wa.me/${SITE.whatsapp}">
 <a class="skip-link" href="#main-content">Skip to content</a>
 ${nav()}
 <main id="main-content" tabindex="-1">
