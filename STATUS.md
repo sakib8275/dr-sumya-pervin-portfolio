@@ -4,8 +4,24 @@
 verification, or owner-action state changes. Everything under `docs/` is a dated
 snapshot; if this file and a snapshot disagree, this file wins.
 
-**Updated:** 2026-10-04 (skin-check wording + SP mark approved) — **BUILT AND
-GREEN (295 node + 51 e2e), NOT DEPLOYED.** Review fix-now list done: tap
+**Updated:** 2026-10-04 (DEPLOYED) — **The multi-page site is LIVE on
+drsumyapervin.com.** Owner-gated deploy executed per agent.md §2: D1 backed up
+first (backups/d1-20261003T223337Z.sql — contains patient data, move somewhere
+private per RUNBOOK-BACKUP.md); migrations 003 (self-service CMS tables), 004
+(consultation tiers) and 005 (admin contact) applied to remote D1 — prod had
+none of them; then `npx wrangler pages deploy` (deployment 34cadcbe). Verified
+on the live apex: the new home (Nil & Haldi hero, SP mark, 64-URL sitemap), all
+F9 security headers with a per-request CSP nonce, leak checks 404
+(/migrations, /wrangler.toml, /agent.md), /book/ runs the schedule module
+(Dhaka min-date, chamber hint) and **Turnstile minted a live token under the
+apex CSP**; /api/config/public serves the WhatsApp number; og:image is the new
+og-card.png. **Still open:** rotate the admin PIN (audit round 5, owner
+action), the owner's real-phone pass (package sheet, skin check, drawer) and
+the WhatsApp share-card preview.
+
+**Earlier 2026-10-04 (skin-check wording + SP mark approved)** — built and
+green (295 node + 51 e2e, later 320 node after the architecture refactors).
+Review fix-now list done: tap
 targets measured in a browser (≥44px at phone width, ≥24px desktop); tool
 answers reach /book/ via sessionStorage, never a URL; the WhatsApp number
 comes only from content/site.mjs (stamped on `<body data-wa>`); site.css font
