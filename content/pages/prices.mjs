@@ -13,6 +13,7 @@ function consultationCards(s) {
       <div class="pr-price">${c.price}</div>
       <p class="pr-meta">${whoBadge(c.meta[0])} ${c.meta[1]}</p>
       <ul>${c.incl.map((i) => `<li>${i}</li>`).join('')}</ul>
+      <a class="btn ${c.rec ? 'btn-ink' : 'btn-ghost'} card-link pr-card-book" href="${href('/book/')}?tier=${encodeURIComponent(c.name.replace(/&amp;/g, '&'))}">Book this visit</a>
     </article>`).join('')}</div>
     <div class="pr-fu">${FOLLOW_UPS.map(([p, t]) => `<div><b>${p}</b>${t}</div>`).join('')}</div>
     ${s.rows ? `<table class="pr-table"><thead><tr><th>Service</th><th>Band</th><th>Price</th><th>What you get</th><th>Who</th></tr></thead>

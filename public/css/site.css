@@ -453,6 +453,18 @@ a.chip:hover { background: var(--surface); border-color: var(--sienna); color: v
 }
 .h-tier.sig .ticks li::before { background: var(--gold); }
 .h-tier-book { margin-top: 22px; align-self: flex-start; }
+/* Whole-card target: the card's own "Book this visit" link stretches over the
+   card, so a tap anywhere on a fee card picks that visit. The link text stays
+   the accessible name; the flag and copy remain selectable underneath. */
+.card-link::after { content: ""; position: absolute; inset: 0; border-radius: inherit; }
+.h-tier:has(.card-link), .pr-card:has(.card-link) { cursor: pointer; transition: border-color .15s var(--ease), box-shadow .15s var(--ease); }
+.h-tier:not(.sig):not(.rec):has(.card-link:hover), .pr-card:not(.rec):has(.card-link:hover) { border-color: var(--sienna); box-shadow: var(--shadow-sm); }
+.h-tier.rec:has(.card-link:hover), .pr-card.rec:has(.card-link:hover) { box-shadow: var(--shadow-md); }
+.h-tier.sig:has(.card-link:hover) { box-shadow: var(--shadow-md); }
+.h-tier:has(.card-link:hover) .card-link.btn-ghost, .pr-card:has(.card-link:hover) .card-link.btn-ghost { background: var(--butter); }
+.pr-card { display: flex; flex-direction: column; }
+.pr-card ul { flex: 1; }
+.pr-card-book { margin-top: 18px; align-self: flex-start; padding: 11px 18px; font-size: 14px; }
 .h-tier-flag {
   position: absolute; top: -14px; left: 26px; background: var(--sienna);
   color: #fff; font-size: 12px; font-weight: 800; padding: 6px 12px; border-radius: 999px;

@@ -187,7 +187,7 @@ export default function home() {
         <div class="h-tier-p">${t.price}</div>
         <p class="h-tier-vat">${withVat(t.price)} with ${vatPct}% VAT</p>
         <ul class="ticks">${t.incl.map((i) => `<li>${i}</li>`).join('')}</ul>
-        <a class="btn ${t.cls === 'sig' ? 'btn-ghost-inv' : t.cls === 'rec' ? 'btn-ink' : 'btn-ghost'} h-tier-book" href="${href('/book/')}?tier=${encodeURIComponent(t.value || t.name)}">Book this visit</a>
+        <a class="btn ${t.cls === 'sig' ? 'btn-ghost-inv' : t.cls === 'rec' ? 'btn-ink' : 'btn-ghost'} h-tier-book card-link" href="${href('/book/')}?tier=${encodeURIComponent(t.value || t.name)}">Book this visit</a>
       </article>`).join('')}
     </div>
     <p class="h-note">Follow-up within 30 days ৳1,200 · No package is sold at a first visit.</p>
