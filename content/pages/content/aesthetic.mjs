@@ -10,27 +10,27 @@ export const aesthetic = {
       {
         h2: 'Browse by concern',
         cards: [
-          ['Acne scars', 'Marks fade with time and the right creams; scars need procedures. Expect 40–70% improvement, not perfect skin.', '/concerns/acne-scars/', 'LICENCE'],
-          ['Wrinkles &amp; ageing skin', 'Daily sunscreen and a retinoid do the most. Microneedling and peels improve texture; injectables are not offered at launch.', '/concerns/wrinkles-ageing-skin/', 'LICENCE'],
-          ['Sun damage &amp; pigmentation', 'Different spots need different tools. Diagnose melasma versus freckles versus post-acne marks first.', '/concerns/sun-damage-pigmentation/', 'LICENCE / LASER'],
-          ['Unwanted hair', '6–8 sessions reduce hair by most of its density; occasional maintenance is needed. Hormonal causes are checked first.', '/concerns/unwanted-hair/', 'LASER'],
-          ['Hair thinning', 'Medical treatment comes first; PRP is an add-on, not a replacement for minoxidil.', '/concerns/hair-thinning/', 'LICENCE'],
-          ['Redness &amp; visible vessels', 'Rosacea and steroid-induced redness need medical treatment first; vascular laser or IPL is a later option.', '/concerns/redness-visible-vessels/', 'YEAR 2'],
-          ['Body contouring', 'Not offered yet — devices reduce small fat bulges at a stable weight; they are not weight loss. Join the waitlist.', '/concerns/body-contouring/', 'NOT OFFERED (launch)'],
+          ['Acne scars', 'Marks fade with time and the right creams; scars need procedures. Expect 40–70% improvement, not perfect skin.', '/concerns/acne-scars/', 'Procedure'],
+          ['Wrinkles &amp; ageing skin', 'Daily sunscreen and a retinoid do the most. Microneedling and peels improve texture; injectables are not offered at launch.', '/concerns/wrinkles-ageing-skin/', 'Procedure'],
+          ['Sun damage &amp; pigmentation', 'Different spots need different tools. Diagnose melasma versus freckles versus post-acne marks first.', '/concerns/sun-damage-pigmentation/', 'Procedure · Laser'],
+          ['Unwanted hair', '6–8 sessions reduce hair by most of its density; occasional maintenance is needed. Hormonal causes are checked first.', '/concerns/unwanted-hair/', 'Laser'],
+          ['Hair thinning', 'Medical treatment comes first; PRP is an add-on, not a replacement for minoxidil.', '/concerns/hair-thinning/', 'Procedure'],
+          ['Redness &amp; visible vessels', 'Rosacea and steroid-induced redness need medical treatment first; vascular laser or IPL is a later option.', '/concerns/redness-visible-vessels/', 'From Year 2'],
+          ['Body contouring', 'Not offered yet — devices reduce small fat bulges at a stable weight; they are not weight loss. Join the waitlist.', '/concerns/body-contouring/', 'Not yet offered'],
         ],
       },
       {
         h2: 'Browse by treatment',
         cards: [
-          ['Medical facial', 'A clinical facial that cleans, exfoliates and hydrates without harsh scrubs, bleaching agents or “whitening” products.', '/treatments/medical-facial/', 'LICENCE'],
-          ['Chemical peels', 'A controlled acid solution matched to brown skin for acne, marks, oiliness and texture.', '/treatments/chemical-peel/', 'LICENCE'],
-          ['Microneedling', 'Fine sterile needles trigger new collagen — one of the safest scar treatments for brown skin.', '/treatments/microneedling/', 'LICENCE'],
-          ['PRP', 'Prepared from your own blood and injected into the scalp to support hair growth in pattern hair loss.', '/treatments/prp-therapy/', 'LICENCE'],
-          ['Laser hair removal', 'A diode laser targets the hair root while sparing the skin around it, priced by area band.', '/treatments/laser-hair-removal/', 'LASER'],
-          ['Pigment laser', 'A very short-pulse laser for freckles, sun spots, nevus of Ota and tattoos; melasma toning as an add-on only.', '/treatments/pigment-laser/', 'LASER'],
-          ['Fractional CO2 laser', 'The most powerful option for acne scars, with more downtime. A Year-2 device.', '/treatments/fractional-co2-laser/', 'YEAR 2'],
-          ['Light therapy', 'Narrowband UVB for psoriasis, vitiligo and eczema, with carefully selected IPL. A Year-2 service.', '/treatments/light-therapy/', 'YEAR 2'],
-          ['Bridal &amp; groom', 'Doctor-planned 8–12 week programmes at a fixed price, with every session scheduled backwards from your date.', '/bridal-and-groom/', 'LICENCE'],
+          ['Medical facial', 'A clinical facial that cleans, exfoliates and hydrates without harsh scrubs, bleaching agents or “whitening” products.', '/treatments/medical-facial/', 'Procedure'],
+          ['Chemical peels', 'A controlled acid solution matched to brown skin for acne, marks, oiliness and texture.', '/treatments/chemical-peel/', 'Procedure'],
+          ['Microneedling', 'Fine sterile needles trigger new collagen — one of the safest scar treatments for brown skin.', '/treatments/microneedling/', 'Procedure'],
+          ['PRP', 'Prepared from your own blood and injected into the scalp to support hair growth in pattern hair loss.', '/treatments/prp-therapy/', 'Procedure'],
+          ['Laser hair removal', 'A diode laser targets the hair root while sparing the skin around it, priced by area band.', '/treatments/laser-hair-removal/', 'Laser'],
+          ['Pigment laser', 'A very short-pulse laser for freckles, sun spots, nevus of Ota and tattoos; melasma toning as an add-on only.', '/treatments/pigment-laser/', 'Laser'],
+          ['Fractional CO2 laser', 'The most powerful option for acne scars, with more downtime. A Year-2 device.', '/treatments/fractional-co2-laser/', 'From Year 2'],
+          ['Light therapy', 'Narrowband UVB for psoriasis, vitiligo and eczema, with carefully selected IPL. A Year-2 service.', '/treatments/light-therapy/', 'From Year 2'],
+          ['Bridal &amp; groom', 'Doctor-planned 8–12 week programmes at a fixed price, with every session scheduled backwards from your date.', '/bridal-and-groom/', 'Procedure'],
         ],
       },
       { h2: 'Start with a Procedure Assessment, ৳1,500, fully adjusted against your first session', body: 'Dr. Sumya checks suitability, skin type and medicines, does a patch test if needed, and gives you a written plan with the total course cost. If you don’t go ahead, you only paid for a specialist opinion.' },
@@ -44,9 +44,9 @@ export const aesthetic = {
     lede: 'Types of scars (rolling, boxcar, ice-pick) and dark marks. Marks fade with time and the right creams; scars need procedures. Expect 40–70% improvement over several sessions, not perfect skin. Active acne must be controlled first.',
     sections: [
       { h2: 'Treatment options, ranked', body: 'Subcision is also performed in clinic.', cards: [
-        ['Microneedling (± PRP)', 'Fine sterile needles trigger new collagen — one of the safest scar treatments for brown skin.', '/treatments/microneedling/', 'LICENCE'],
-        ['Chemical peel', 'A controlled peel matched to brown skin for marks, oiliness and texture.', '/treatments/chemical-peel/', 'LICENCE'],
-        ['Fractional CO2 laser', 'The most powerful option for scars, with more downtime. A Year-2 device.', '/treatments/fractional-co2-laser/', 'YEAR 2'],
+        ['Microneedling (± PRP)', 'Fine sterile needles trigger new collagen — one of the safest scar treatments for brown skin.', '/treatments/microneedling/', 'Procedure'],
+        ['Chemical peel', 'A controlled peel matched to brown skin for marks, oiliness and texture.', '/treatments/chemical-peel/', 'Procedure'],
+        ['Fractional CO2 laser', 'The most powerful option for scars, with more downtime. A Year-2 device.', '/treatments/fractional-co2-laser/', 'From Year 2'],
       ] },
     ],
     links: [['Medical acne care', '/conditions/acne/'], ['Prices', '/prices/'], ['Book a Procedure Assessment', '/book/']],
@@ -58,8 +58,8 @@ export const aesthetic = {
     lede: 'Daily sunscreen and a retinoid do the most. Microneedling and peels improve texture. Injectables (botulinum toxin, fillers) are not offered at launch, and if added will only use DGDA-registered products.',
     sections: [
       { h2: 'Options, ranked', body: 'A prescribed retinoid plan (by consultation) and daily sunscreen do the most. RF microneedling is a Year-2 option.', cards: [
-        ['Microneedling', 'Improves texture and fine lines; RF microneedling is a Year-2 option.', '/treatments/microneedling/', 'LICENCE'],
-        ['Chemical peel', 'Improves texture and tone, matched to brown skin.', '/treatments/chemical-peel/', 'LICENCE'],
+        ['Microneedling', 'Improves texture and fine lines; RF microneedling is a Year-2 option.', '/treatments/microneedling/', 'Procedure'],
+        ['Chemical peel', 'Improves texture and tone, matched to brown skin.', '/treatments/chemical-peel/', 'Procedure'],
       ] },
     ],
     links: [['Prices', '/prices/'], ['Book a Procedure Assessment', '/book/']],
@@ -72,9 +72,9 @@ export const aesthetic = {
     sections: [
       { h2: 'Options, ranked', cards: [
         ['Melasma', 'Manageable, not curable — a medical plan first, and why sun protection is the whole game.', '/conditions/melasma/', 'Care Plan'],
-        ['Chemical peel', 'A controlled peel matched to brown skin for marks and uneven tone.', '/treatments/chemical-peel/', 'LICENCE'],
-        ['Pigment laser', 'Works for freckles and sun spots; for melasma it is only an add-on to a medical plan.', '/treatments/pigment-laser/', 'LASER'],
-        ['Medical facial', 'Cleans, exfoliates and hydrates without harsh scrubs or “whitening” products.', '/treatments/medical-facial/', 'LICENCE'],
+        ['Chemical peel', 'A controlled peel matched to brown skin for marks and uneven tone.', '/treatments/chemical-peel/', 'Procedure'],
+        ['Pigment laser', 'Works for freckles and sun spots; for melasma it is only an add-on to a medical plan.', '/treatments/pigment-laser/', 'Laser'],
+        ['Medical facial', 'Cleans, exfoliates and hydrates without harsh scrubs or “whitening” products.', '/treatments/medical-facial/', 'Procedure'],
       ] },
     ],
     links: [['Prices', '/prices/'], ['Book a Procedure Assessment', '/book/']],
@@ -86,7 +86,7 @@ export const aesthetic = {
     lede: '6–8 sessions reduce hair by most of its density; occasional maintenance is needed. Hormonal causes (e.g. PCOS) are checked first. Female patients are treated by female staff.',
     sections: [
       { h2: 'Options, ranked', body: 'A hormone check (by consultation) is advised first where a hormonal cause such as PCOS is suspected.', cards: [
-        ['Laser hair removal', 'A diode laser targets the hair root while sparing the skin around it, priced by area band.', '/treatments/laser-hair-removal/', 'LASER'],
+        ['Laser hair removal', 'A diode laser targets the hair root while sparing the skin around it, priced by area band.', '/treatments/laser-hair-removal/', 'Laser'],
       ] },
     ],
     links: [['Prices', '/prices/'], ['Book a Procedure Assessment', '/book/']],
@@ -99,7 +99,7 @@ export const aesthetic = {
     sections: [
       { h2: 'Options, ranked', body: 'The medical hair-loss plan comes first; a Signature Review is also available.', cards: [
         ['Hair loss (alopecia)', 'Pattern loss, telogen effluvium and alopecia areata have distinct causes and treatments.', '/conditions/hair-loss/', 'Care Plan'],
-        ['PRP therapy', 'Prepared from your own blood and injected into the scalp to support hair growth in pattern hair loss.', '/treatments/prp-therapy/', 'LICENCE'],
+        ['PRP therapy', 'Prepared from your own blood and injected into the scalp to support hair growth in pattern hair loss.', '/treatments/prp-therapy/', 'Procedure'],
       ] },
     ],
     links: [['Prices', '/prices/'], ['Book a Procedure Assessment', '/book/']],
@@ -111,7 +111,7 @@ export const aesthetic = {
     lede: 'Rosacea and steroid-induced redness need medical treatment first; vascular laser or IPL is a later option (Year 2) with careful selection for brown skin.',
     sections: [
       { h2: 'Options, ranked', body: 'A consultation comes first. Vascular laser or IPL is a Year-2 option, used with careful selection for brown skin.', cards: [
-        ['Light therapy', 'Narrowband UVB and carefully selected IPL for redness and some pigment. A Year-2 service.', '/treatments/light-therapy/', 'YEAR 2'],
+        ['Light therapy', 'Narrowband UVB and carefully selected IPL for redness and some pigment. A Year-2 service.', '/treatments/light-therapy/', 'From Year 2'],
       ] },
     ],
     links: [['Prices', '/prices/'], ['Book a Comprehensive Assessment', '/book/']],

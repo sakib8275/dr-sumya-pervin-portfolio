@@ -155,6 +155,15 @@ test('every clinical page carries a byline, review date and references (docx §1
   }
 });
 
+test('no internal publish-gate jargon shows to patients', async () => {
+  for (const path of ['/aesthetic-and-laser/', '/concerns/acne-scars/', '/concerns/redness-visible-vessels/', '/concerns/body-contouring/']) {
+    const html = await readPage({ path });
+    for (const jargon of ['LICENCE', 'LASER', 'YEAR 2', 'NOT OFFERED']) {
+      assert.ok(!html.includes(`>${jargon}<`), `${path}: internal tag ${jargon} shown to patients`);
+    }
+  }
+});
+
 test('no bracketed owner placeholder ships', async () => {
   for (const page of PAGES) {
     const html = await readPage(page);
