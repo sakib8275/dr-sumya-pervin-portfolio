@@ -7,7 +7,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  CHAMBERS, dhakaParts, weekdayOf, addDays, nextOpenDate, validateSlot
+  CHAMBERS, dhakaParts, dhakaTodayStr, weekdayOf, addDays, nextOpenDate,
+  closedDayRefusal, validateSlot
 } from '../functions/lib/schedule.js';
 
 const ALLIANCE = 'Alliance Hospital Limited (Shyamoli)';
@@ -46,7 +47,7 @@ test('one minute before the Alliance cutoff, same-day is still bookable', () => 
 test('at the Alliance cutoff, same-day closes with the time and the next open date', () => {
   const err = validateSlot(ALLIANCE, '2026-08-02', dhaka('16:30'));
   assert.match(err, /close at 4:30 PM/);
-  assert.match(err, /next available date is 2026-08-03/); // Monday, open
+  assert.match(err, /next open day is 2026-08-03/); // Monday, open
 });
 
 test('the DCIMCH cutoff is 14:30, not 16:30', () => {
@@ -62,13 +63,42 @@ test('a future date is unaffected by the cutoff', () => {
 test('Thursday is refused for DCIMCH with Saturday offered next', () => {
   const err = validateSlot(DCIMCH, '2026-08-06', dhaka('09:00'));
   assert.match(err, /does not consult at DCIMCH on Thursdays/);
-  assert.match(err, /next available date is 2026-08-08/); // Friday is closed too
+  assert.match(err, /next open day is 2026-08-08/); // Friday is closed too
 });
 
 test('Friday is refused for Alliance with Saturday offered next', () => {
   const err = validateSlot(ALLIANCE, '2026-08-07', dhaka('09:00'));
   assert.match(err, /does not consult at Alliance Hospital on Fridays/);
-  assert.match(err, /next available date is 2026-08-08/);
+  assert.match(err, /next open day is 2026-08-08/);
+});
+
+test('the closed-day refusal is one message, shared by server and booking form', () => {
+  // validateSlot delegates to closedDayRefusal, and the form calls it with a
+  // nicer date formatter — same facts, same words, so the field error and a
+  // server 400 can no longer disagree (they once did, down to the name).
+  const direct = closedDayRefusal(DCIMCH, '2026-08-06');
+  assert.equal(validateSlot(DCIMCH, '2026-08-06', dhaka('09:00')), direct);
+  assert.match(direct, /Dr\. Sumya Pervin does not consult at DCIMCH on Thursdays/);
+  assert.match(direct, /\(Saturday – Wednesday, 3:00 PM – 5:00 PM\)/);
+  assert.ok(direct.endsWith('The next open day is 2026-08-08.'));
+  assert.ok(closedDayRefusal(DCIMCH, '2026-08-06', () => 'SATURDAY').endsWith('The next open day is SATURDAY.'));
+});
+
+test('chamber display facts are derived from the minute facts', () => {
+  const a = CHAMBERS[ALLIANCE];
+  assert.equal(a.hours, '5:00 – 8:00 PM');
+  assert.equal(a.scheduleLabel, 'Saturday – Thursday, 5:00 PM – 8:00 PM');
+  assert.equal(a.session, 'Evening');
+  assert.equal(a.daysShort, 'Sat–Thu');
+  const d = CHAMBERS[DCIMCH];
+  assert.equal(d.hours, '3:00 – 5:00 PM');
+  assert.equal(d.scheduleLabel, 'Saturday – Wednesday, 3:00 PM – 5:00 PM');
+  assert.equal(d.session, 'Afternoon');
+});
+
+test('dhakaTodayStr is the calendar date a patient in Dhaka means by "today"', () => {
+  // 23:30 UTC on 08-02 is already 05:30 on 08-03 in Dhaka.
+  assert.equal(dhakaTodayStr(new Date('2026-08-02T23:30:00Z')), '2026-08-03');
 });
 
 test('a past date is refused regardless of the schedule', () => {

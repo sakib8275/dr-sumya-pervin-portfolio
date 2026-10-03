@@ -1,6 +1,11 @@
 // site.js — the multi-page shell's only script: nav dropdowns, the mobile
-// drawer, and the course-cost estimator on /prices/. CSP-safe by design (the
-// Pages middleware ships no 'unsafe-inline'): zero inline handlers anywhere.
+// drawer, the tools, and the /book/ form. CSP-safe by design (the Pages
+// middleware ships no 'unsafe-inline'): zero inline handlers anywhere. Loaded
+// as a module so it can import the schedule module — the build copies
+// functions/lib/schedule.js to /js/schedule.mjs, so the form's date rules and
+// the booking API's are the same code.
+import { CHAMBERS, dhakaTodayStr, weekdayOf, closedDayRefusal } from './schedule.mjs';
+
 (() => {
   'use strict';
 
@@ -143,7 +148,7 @@
   // — "Consulting today" on the home chamber columns. Weekdays are stamped at
   // build time from functions/lib/schedule.js; Dhaka is UTC+6 all year, so
   // today is Dhaka's today wherever the phone is (same rule as /book/).
-  const dhakaDay = new Date(Date.now() + 6 * 3600 * 1000).getUTCDay();
+  const dhakaDay = weekdayOf(dhakaTodayStr());
   for (const ch of document.querySelectorAll('.h-ch[data-days]')) {
     if (!ch.dataset.days.split(',').map(Number).includes(dhakaDay)) continue;
     ch.classList.add('is-today');
@@ -396,7 +401,6 @@
   if (bk) {
     const SITEKEY = '0x4AAAAAAEClxf8-TRYoLcZl';
     const WA = document.body.dataset.wa || '/contact/'; // from content/site.mjs via the build
-    const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     const $ = (id) => document.getElementById(id);
     const submitBtn = $('sbSubmit');
     const status = $('sbStatus');
@@ -406,24 +410,16 @@
     const dateIn = $('sbDate');
     const hint = $('sbChamberHint');
 
-    // Dhaka is UTC+6 all year: "today" is Dhaka's today wherever the phone is.
-    const dhakaToday = () => new Date(Date.now() + 6 * 3600 * 1000).toISOString().slice(0, 10);
-    const weekday = (d) => new Date(d + 'T00:00:00Z').getUTCDay();
+    // The date rules — Dhaka "today", weekdays, next open day, the refusal
+    // wording — come from the schedule module, the same interface the booking
+    // API validates with. The consulting weekdays are also stamped on each
+    // <option data-days> at build time; the module is the rule, the stamp is
+    // the no-JS fallback.
     const chamberOpt = () => chamberSel.options[chamberSel.selectedIndex];
-    const openDays = () => chamberOpt().dataset.days.split(',').map(Number);
-    const nextOpen = (from) => {
-      const days = openDays();
-      let d = new Date(from + 'T00:00:00Z');
-      for (let i = 0; i < 8; i++) {
-        const iso = d.toISOString().slice(0, 10);
-        if (days.includes(d.getUTCDay())) return iso;
-        d = new Date(d.getTime() + 864e5);
-      }
-      return from;
-    };
+    const openDays = () => CHAMBERS[chamberSel.value]?.days ?? [];
     const niceDate = (iso) => new Date(iso + 'T00:00:00Z').toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'UTC' });
 
-    dateIn.min = dhakaToday();
+    dateIn.min = dhakaTodayStr();
 
     // Pre-fill. Static links use the URL (/book/?tier=… from a package view,
     // ?chamber=… from a chamber, ?reason=mole from the mole-check page's fixed
@@ -455,14 +451,13 @@
     };
 
     // Returns the problem with the date, or '' — also used live on change.
+    // The refusal text is the module's, so the field error and a server 400
+    // can no longer disagree (they once did, down to the doctor's name).
     function dateProblem() {
       const d = dateIn.value;
       if (!d) return 'Choose a preferred date.';
-      if (d < dhakaToday()) return 'That date has passed. Choose today or a later date.';
-      if (!openDays().includes(weekday(d))) {
-        const next = nextOpen(d);
-        return `Dr. Sumya doesn’t consult at ${chamberOpt().text.split(' (')[0]} on ${DAYS[weekday(d)]}s. The next open day is ${niceDate(next)}.`;
-      }
+      if (d < dhakaTodayStr()) return 'That date has passed. Choose today or a later date.';
+      if (!openDays().includes(weekdayOf(d))) return closedDayRefusal(chamberSel.value, d, niceDate);
       return '';
     }
     function checkDate() { const p = dateProblem(); setErr('sbDate', p); return p; }

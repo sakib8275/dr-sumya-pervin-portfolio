@@ -9,6 +9,8 @@
 // and moved the build to public/ root, so links, canonicals and sitemap URLs
 // now match the live domain exactly.
 
+import { CHAMBERS } from '../functions/lib/schedule.js';
+
 export const BASE = '';
 
 export const SITE = {
@@ -39,32 +41,31 @@ export const SITE = {
   credentials: ['MBBS', 'DDV (BSMMU)', 'FCPS (Skin & VD)'],
 };
 
-// Where Dr. Sumya consults until the Centre opens (copy from /chambers/). `key`
-// is the exact chamber string the booking API validates — functions/lib/
-// schedule.js CHAMBERS — and tests/pages.test.mjs fails if the two drift. Each
-// chamber runs one session, so the booking form derives it instead of asking.
-export const CHAMBERS_NOW = [
-  {
-    key: 'Alliance Hospital Limited (Shyamoli)',
+// Where Dr. Sumya consults until the Centre opens (copy from /chambers/). The
+// schedule facts — days, hours, session — come from functions/lib/schedule.js,
+// the same module the booking API validates against, so they cannot drift;
+// only the location facts (name, address) are site content. `key` is the
+// exact chamber string the booking API validates. Each chamber runs one
+// session, so the booking form derives it instead of asking.
+const CHAMBER_PLACES = {
+  'Alliance Hospital Limited (Shyamoli)': {
     name: 'Alliance Hospital Limited',
-    short: 'Alliance Hospital',
     address: '24/3 Khilji Road (Ring Road), Shyamoli, Dhaka',
-    days: 'Saturday – Thursday',
-    daysShort: 'Sat–Thu',
-    hours: '5:00 – 8:00 PM',
-    session: 'Evening',
   },
-  {
-    key: 'Dhaka Central International Medical College (DCIMCH)',
+  'Dhaka Central International Medical College (DCIMCH)': {
     name: 'Dhaka Central International Medical College (DCIMCH)',
-    short: 'DCIMCH',
     address: '2/1 Ring Road, Shyamoli, Dhaka',
-    days: 'Saturday – Wednesday',
-    daysShort: 'Sat–Wed',
-    hours: '3:00 – 5:00 PM',
-    session: 'Afternoon',
   },
-];
+};
+export const CHAMBERS_NOW = Object.entries(CHAMBERS).map(([key, c]) => ({
+  key,
+  short: c.short,
+  ...CHAMBER_PLACES[key],
+  days: c.daysLabel,
+  daysShort: c.daysShort,
+  hours: c.hours,
+  session: c.session,
+}));
 
 // Publish gates from docx Part 9. 'staging' renders every section with its
 // gate badge; the cutover config sets the live gate (now | opening | licence
