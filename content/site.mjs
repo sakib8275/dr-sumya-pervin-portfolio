@@ -28,6 +28,9 @@ export const SITE = {
   // prices exclude VAT; 15% is added at checkout.
   pricesReviewed: 'November 2026',
   vatRate: 0.15,
+  // docx §1.4: every clinical page carries a byline and a review date. Owner
+  // supplied October 2026 as the month the clinical content was reviewed.
+  reviewed: 'October 2026',
   centre: {
     name: "Dr. Sumya Pervin's Dermatology Centre",
     address: 'Ring Road, Mohammadpur, Dhaka',
@@ -39,13 +42,21 @@ export const SITE = {
 // Publish gates from docx Part 9. 'staging' renders every section with its
 // gate badge; the cutover config sets the live gate (now | opening | licence
 // | laser) and the build hides anything not yet cleared.
-export const ACTIVE_GATE = 'staging';
+export const ACTIVE_GATE = 'opening';
 export const GATES = {
   web: 0, // "now": doctor pages and condition pages
   opening: 1, // Centre + consultation prices
   licence: 2, // procedures
   laser: 3, // laser devices
   year2: 4, // Year-2 devices
+};
+
+// Human-readable reason shown wherever a gated figure is withheld.
+export const GATE_NOTE = {
+  opening: 'From Centre opening, 2027',
+  licence: 'With procedure licensing',
+  laser: 'When the laser suite opens',
+  year2: 'Year-2 device',
 };
 
 // Resolves a sitemap path against the staging BASE. Cutover flips BASE to ''

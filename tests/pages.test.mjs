@@ -90,17 +90,82 @@ test('no inline event handlers in generated pages', async () => {
   }
 });
 
-test('load-bearing docx price figures publish verbatim', async () => {
+test('load-bearing docx price figures publish verbatim at the opening gate', async () => {
   const html = await readFile(join(OUT, 'prices', 'index.html'), 'utf8');
-  // Consultation tiers, follow-ups, laser bands and bridal programmes, docx
-  // Part 6. If any of these change, content/prices.mjs changed — make sure
-  // that came from the docx, not from a typo.
-  for (const figure of [
-    '৳2,000', '৳3,500', '৳6,000', '৳1,500', '৳1,200',
-    '৳15,000', '৳25,000', '৳45,000', '৳70,000', '৳1,75,000',
-    '৳6,500', '৳12,500', '৳26,000', '৳32,000', '৳55,000',
-  ]) {
+  // The live 'opening' gate publishes consultations, care plans, tests and
+  // policies only. If any of these change, content/prices.mjs changed — make
+  // sure that came from the docx, not from a typo.
+  for (const figure of ['৳2,000', '৳3,500', '৳6,000', '৳1,500', '৳1,200', '৳6,500', '৳12,500']) {
     assert.ok(html.includes(figure), `figure ${figure} missing from the built Prices page`);
+  }
+});
+
+test('prices not yet cleared are withheld at the live gate', async () => {
+  const prices = await readFile(join(OUT, 'prices', 'index.html'), 'utf8');
+  // Surgery, aesthetic, laser and bridal sections publish at LICENCE/LASER
+  // (docx Part 9) and must not appear at the opening gate.
+  for (const id of ['surgery', 'aesthetic', 'laser', 'bridal']) {
+    assert.ok(!prices.includes(`id="${id}"`), `gated section ${id} leaked onto the Prices page`);
+  }
+  // Figures unique to the gated sections (৳15,000 also appears as an EMI
+  // threshold in the visible policies, so it is not a safe sentinel).
+  for (const figure of ['৳25,000', '৳45,000', '৳70,000', '৳1,75,000', '৳26,000', '৳32,000', '৳55,000']) {
+    assert.ok(!prices.includes(figure), `gated figure ${figure} leaked onto the Prices page`);
+  }
+  // The estimator is laser-only data and must not render its controls either.
+  assert.ok(!prices.includes('id="estConcern"'), 'the laser estimator leaked at a non-laser gate');
+  // Gated pages keep their clinical copy but must not publish a positive price.
+  for (const path of ['/treatments/laser-hair-removal/', '/treatments/excision-surgery/', '/bridal-and-groom/']) {
+    const html = await readFile(join(OUT, path, 'index.html'), 'utf8');
+    assert.ok(!/৳[1-9]/.test(html), `${path} still publishes a price at the live gate`);
+  }
+});
+
+test('the linking rulebook holds (docx §3.4)', async () => {
+  const has = (html, p) => html.includes(`href="${p}"`);
+  const hasPrefix = (html, p) => new RegExp(`href="${p}`).test(html);
+  const SURGICAL = ['skin-biopsy', 'cryotherapy', 'excision-surgery', 'electrosurgery', 'intralesional-injection', 'skin-cancer-treatment'];
+  for (const page of PAGES) {
+    const html = await readPage(page);
+    if (/^\/conditions\//.test(page.path)) {
+      assert.ok(has(html, '/consultation-prep/'), `${page.path}: no /consultation-prep/ link`);
+      assert.ok(hasPrefix(html, '/learn/'), `${page.path}: no Learn link`);
+    } else if (/^\/concerns\//.test(page.path) && page.path !== '/concerns/body-contouring/') {
+      // The rulebook asks for 2–3 treatment links; where only one treatment is
+      // clinically relevant (e.g. unwanted hair → laser) one is the honest set.
+      assert.ok((html.match(/href="\/treatments\//g) || []).length >= 1, `${page.path}: no treatment link`);
+    } else if (/^\/treatments\//.test(page.path) && SURGICAL.includes(page.path.split('/')[2])) {
+      assert.ok(has(html, '/your-procedure/'), `${page.path}: no /your-procedure/ link`);
+    } else if (/^\/learn\/.+\//.test(page.path)) {
+      assert.ok(hasPrefix(html, '/conditions/'), `${page.path}: no primary condition link`);
+      assert.ok(has(html, '/book/'), `${page.path}: no Book link`);
+      assert.ok(hasPrefix(html, '/tools/') || has(html, '/consultation-prep/'), `${page.path}: no tool link`);
+    }
+  }
+});
+
+test('every clinical page carries a byline, review date and references (docx §1.4)', async () => {
+  const clinical = PAGES.filter((p) => /^\/(conditions|concerns|treatments)\//.test(p.path) || /^\/learn\/.+\//.test(p.path));
+  assert.ok(clinical.length >= 39, `expected the full set of clinical pages, found ${clinical.length}`);
+  for (const page of clinical) {
+    const html = await readPage(page);
+    assert.ok(html.includes('Written and reviewed by Dr. Sumya Pervin'), `${page.path}: byline missing`);
+    assert.ok(html.includes(`Last reviewed ${SITE.reviewed}`), `${page.path}: review date missing`);
+    assert.ok(html.includes('<div class="refs">'), `${page.path}: references missing`);
+  }
+});
+
+test('no bracketed owner placeholder ships', async () => {
+  for (const page of PAGES) {
+    const html = await readPage(page);
+    assert.ok(!/\[(LANDMARK|details|DATE|confirm|owner|TBC)/i.test(html), `${page.path}: bracketed owner placeholder`);
+  }
+});
+
+test('no publish-gate marker leaks into the built pages', async () => {
+  for (const page of PAGES) {
+    const html = await readPage(page);
+    assert.ok(!html.includes('[['), `${page.path}: unresolved [[gate: …]] marker`);
   }
 });
 

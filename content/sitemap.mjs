@@ -32,6 +32,18 @@ export const PAGES = [
     desc: 'Only what the evidence supports for South Asian skin — planned by a dermatologist. Browse by concern or by treatment.' },
   { path: '/learn/', title: T('Learn — Articles Written and Reviewed by Dr. Sumya'),
     desc: 'Bylined, reviewed, referenced articles on the conditions we treat. Launch set: melasma, ringworm, the ABCDE rule for brown skin, laser hair removal, hair fall, arsenic and skin.' },
+  { path: '/learn/melasma-manageable-not-curable/', title: T('Melasma: Manageable, Not Curable — What Actually Works'),
+    desc: 'What triggers melasma, why sun and visible light are the whole game, and which creams, tablets and peels actually help on South Asian skin.' },
+  { path: '/learn/ringworm-keeps-coming-back/', title: T('Why Ringworm Keeps Coming Back'),
+    desc: 'The steroid cream that hides a fungal infection, how a same-visit KOH test confirms it, and the household steps that stop it returning.' },
+  { path: '/learn/abcde-rule-brown-skin/', title: T('The ABCDE Rule for Brown Skin — Plus Palms, Soles & Nails'),
+    desc: 'How to check moles with the ABCDE rule, and the extra rule for South Asian skin: watch the palms, soles and nails too.' },
+  { path: '/learn/laser-hair-removal-permanent/', title: T('Laser Hair Removal: What “Permanent” Really Means'),
+    desc: 'Long-term hair reduction, not a forever promise: sessions, safety on brown skin, hormonal causes and honest expectations.' },
+  { path: '/learn/hair-fall-after-illness/', title: T('Hair Fall After Illness or Childbirth'),
+    desc: 'Why shedding follows a fever, stress, diet or childbirth, how the type is found with trichoscopy, and what actually helps.' },
+  { path: '/learn/arsenic-and-skin/', title: T('Arsenic and Your Skin in Bangladesh'),
+    desc: 'The rough palm and sole spots long-term arsenic leaves behind, why they matter, and how to get your tube-well tested.' },
 
   // — Visit / trust pages —
   { path: '/the-centre/', title: T('Inside the Centre — Opening 2027, Ring Road'),

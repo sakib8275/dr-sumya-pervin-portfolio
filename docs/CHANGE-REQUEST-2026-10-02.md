@@ -74,13 +74,21 @@ row carrying its docx **tag** (see gates below).
 
 ## Open inputs (owner)
 
-- Real phone number (mockups and docx carry placeholders; D-12).
-- Centre name, address details, photos (D-12; existing assets reused meanwhile).
+- ~~Real phone number~~ **DONE 2026-10-03** — `01353-787080` / `+8801353787080`.
+- ~~Prices-reviewed date + VAT~~ **DONE 2026-10-03** — reviewed November 2026,
+  displayed prices exclude VAT, 15% added at checkout.
+- ~~Publish gate~~ **DECIDED 2026-10-03** — live gate `opening`; all pages stay
+  public, unpublished prices are withheld.
+- **Approve the draft references** (`content/references.mjs`) — agent-drafted
+  organisation-level guideline pointers; the owner/doctor must confirm or correct
+  them before deploy.
+- Centre name, address details, photos, exact landmark and parking (D-12;
+  existing assets reused meanwhile).
 - SMS provider decision — tiered booking promises "serial + time window by SMS"
   (docx 1.1); the stack has email + WhatsApp only. Fallback: email + WhatsApp
   deep-link confirmation until supplied.
 - EMI partner-bank list (D-10) before showing EMI lines as anything but generic.
-- Gate flips (when D-01–D-08 sign off).
+- Sign-offs D-01 … D-12.
 
 ## Effect on the current site
 
@@ -111,7 +119,7 @@ both hero CTAs fit the first phone screen. Pinned by
 `tests/e2e/mobile-site.spec.mjs` (6 specs at 375×667) and the mobile-shell node
 test. Screenshots for owner review: `.zcode/m1-shots/` (untracked).
 
-## Phase 3 content fill (2026-10-03) — all 57 pages carry real copy
+## Phase 3 content fill (2026-10-03) — all pages carry real copy
 
 The honest stub template is gone: **zero pages render "In preparation".** A generic
 renderer (`content/pages/article.mjs`) turns structured content
@@ -164,7 +172,7 @@ It reuses the one-pager `style.css` for the CMS component styles and
 
 ## Cutover (2026-10-03) — the multi-page site now serves from the root
 
-`BASE` is `''` and `npm run build:site` writes the 57-page site to `public/` root,
+`BASE` is `''` and `npm run build:site` writes the 63-page site to `public/` root,
 replacing the one-pager's `index.html`. The builder cleans only its own outputs
 (page directories, root `index.html`, `sitemap.xml`, the retired `/new/` tree) and
 never the hand-maintained `css/`, `js/`, `assets/`, `admin/`.
@@ -182,5 +190,5 @@ scripts (`main.js`, `richtext.js`, `formguard.js`) were removed (`style.css` and
 - **Still open (owner inputs, before deploy):** the D-12 phone/prices-date
   placeholders, the live `ACTIVE_GATE` decision, and the `/admin/` URL hand-off.
   Deploy is owner-gated; the live site is untouched until then.
-- **Verified:** `npm run build:site` → 57 pages; `npm test` → 276/276;
-  `npm run test:e2e` → 26/26.
+- **Verified:** `npm run build:site` → 63 pages; `npm test` → 286/286;
+  `npm run test:e2e` → 29/29.

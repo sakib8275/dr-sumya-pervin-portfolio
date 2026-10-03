@@ -5,7 +5,7 @@ verification, or owner-action state changes. Everything under `docs/` is a dated
 snapshot; if this file and a snapshot disagree, this file wins.
 
 **Updated:** 2026-10-03 — **The multi-page site is CUT OVER in the repo.** `BASE` is
-now `''` and `npm run build:site` writes the 57-page site to `public/` root, replacing
+now `''` and `npm run build:site` writes the 63-page site to `public/` root, replacing
 the one-pager's `index.html`. The one-pager CMS moved to a standalone **`/admin/`**
 console (`public/admin/index.html` + `public/js/admin.js`); the one-pager-only scripts
 (`main.js`, `richtext.js`, `formguard.js`) and their suites were retired. The hero
@@ -87,19 +87,19 @@ Logs on the digest.
 ## Multi-page rebuild programme (started 2026-10-02) — CUT OVER to the site root
 
 Owner change request (`Change Request/` + `docs/CHANGE-REQUEST-2026-10-02.md`): the one-pager
-becomes a ~57-page site — concern-first hubs, published prices, tiered consultations, the 2027
+becomes a ~63-page site — concern-first hubs, published prices, tiered consultations, the 2027
 Centre — **in the existing gold/Outfit identity** (the mockups' teal look was wireframe-only).
 Baseline: round-5 batch committed and pushed as `c5552b9`.
 
 - **Pipeline**: `content/` (site config, sitemap, price data, page bodies) → `scripts/build-pages.mjs`
-  (`npm run build:site`) → `public/**` (57 pages + sitemap) at the site root. Zero deps, CSP-safe
+  (`npm run build:site`) → `public/**` (63 pages + sitemap) at the site root. Zero deps, CSP-safe
   output. The builder cleans only the page directories, root `index.html`, `sitemap.xml` and the
   retired `/new/` tree — never the hand-maintained `css/`, `js/`, `assets/`, `admin/`.
   `tests/pages.test.mjs` (8 tests) pins: every sitemap page built, **every internal link resolves**
   (the interlinking rulebook made executable), unique titles/descriptions/canonicals, `site.css`
   `:root` is a verbatim copy of `style.css`'s (gold identity = one token set), no inline handlers,
   and the load-bearing docx price figures publish verbatim.
-- **Phase 3 content fill (2026-10-03) — all 57 pages now carry real content; zero stubs remain.**
+- **Phase 3 content fill (2026-10-03) — all pages now carry real content; zero stubs remain.**
   A generic article renderer (`content/pages/article.mjs`) renders structured content from
   `content/pages/content.mjs` (split into `conditions` / `treatments` / `aesthetic` / `visit`).
   Four bespoke bodies remain: Home (diagnosis-first hero, 4 promises, 3 pillars, 5 steps, tier
@@ -144,7 +144,7 @@ Baseline: round-5 batch committed and pushed as `c5552b9`.
   surfaces they pinned. `forgot-password.js` now mails `/admin/#reset?token=`. Dead one-pager
   scripts (`main.js`, `richtext.js`, `formguard.js`) removed; `style.css`/`cms.js` stay (the admin
   console uses them).
-- **Verified**: 281/281 node + 27/27 e2e at the cut-over root; served at `wrangler pages dev`
+- **Verified**: 286/286 node + 29/29 e2e at the cut-over root; served at `wrangler pages dev`
   `http://localhost:8788/` — desktop nav mega-menus, estimator arithmetic (৳3,000 × 1.25 =
   ৳3,750), mobile drawer + sticky Call/WhatsApp/Book bar, no horizontal overflow at 375px.
 - **M1 mobile pass (2026-10-03)** — the owner rejected the first phone layout, and docx §7.3
@@ -179,8 +179,36 @@ Baseline: round-5 batch committed and pushed as `c5552b9`.
   Wired via `SITE.pricesReviewed` + `SITE.vatRate` (`content/site.mjs`), rendered on the Prices
   page and footer; the estimator now shows the VAT line and the checkout total. Pinned by
   `pages.test.mjs` + `tests/e2e/site-prices.spec.mjs`.
-- **Next (owner inputs, before deploy)**: the live `ACTIVE_GATE` (currently `staging`, which
-  shows every gated section with its badge) and the `/admin/` URL for the doctor. Deploy is
+- **Content-completion pass (2026-10-03) — the docx gaps are closed; 63 pages.**
+  Owner decisions: go live at the **`opening` gate** (`ACTIVE_GATE`), keeping all
+  pages public while withholding unpublished prices; close every docx content gap.
+  - **Publish gates now hold site-wide.** The gate previously filtered only the
+    Prices page; it now also (a) withholds the laser-only estimator, (b) drops the
+    cost note and any positive-`৳` block on a gated page (concerns/treatments/bridal
+    keep their clinical copy, no prices), and (c) strips inline `[[gate: …]]`
+    fragments on otherwise-visible pages (condition cost notes). Pinned by
+    `pages.test.mjs` (opening figure set + "prices not yet cleared are withheld" +
+    "no marker leaks").
+  - **Learn articles**: the six docx §3.2 launch articles now exist under
+    `/learn/[slug]/` (melasma, ringworm, ABCDE, laser hair removal, hair fall,
+    arsenic), authored from the matching condition/treatment pages in the §1.4
+    voice, linked from the hub and the home teaser. `tests/e2e/site-learn.spec.mjs`.
+  - **Clinical bylines + review date**: every clinical page (conditions, concerns,
+    treatments, Learn) carries "Written and reviewed by Dr. Sumya Pervin, FCPS
+    (Skin & VD), BMDC A-59492 · Last reviewed October 2026" (`SITE.reviewed`).
+  - **References (DRAFT — owner approval required)**: `content/references.mjs` adds
+    2–3 organisation-level guideline pointers per clinical page, rendered at the
+    foot. **Drafted by the agent, not yet clinically verified — do not deploy until
+    the owner/doctor approves or corrects the list.**
+  - **Linking rulebook** (docx §3.4) completed and enforced: conditions link
+    `/consultation-prep` + a Learn article; surgical treatments link
+    `/your-procedure`; Learn articles link a condition + a tool + Book.
+  - **Placeholders gone**: the `/the-centre/` `[LANDMARK]`/`[details]` brackets were
+    removed (owner D-12 details pending); a guard now fails on any bracketed
+    placeholder in the build.
+- **Next (owner inputs, before deploy)**: **approve or correct `content/references.mjs`**;
+  the Centre landmark/parking + name/address/photos (D-12); the SMS-provider and
+  EMI-partner-bank (D-10) decisions; and the `/admin/` URL hand-off. Deploy is
   owner-gated; the live site is untouched until then.
 - **Polish (2026-10-03)** — the builder now also emits a multi-page **`public/404.html`** (same
   nav/footer/drawer shell, `noindex`, no canonical) so a lost visitor can still navigate, and

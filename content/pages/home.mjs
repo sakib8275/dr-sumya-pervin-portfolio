@@ -150,9 +150,9 @@ export default function home() {
     <div class="s-head"><div><p class="eyebrow">Learn</p><h2>Written and reviewed by Dr. Sumya</h2></div>
       <a class="tlink" href="${href('/learn/')}">All articles →</a></div>
     <div class="h-learn">
-      <article><p class="cat">Pigmentation</p><h3>Melasma is manageable, not curable — what actually works</h3><p class="by">6 min read · Reviewed by Dr. Sumya Pervin, FCPS</p></article>
-      <article><p class="cat">Fungal infection</p><h3>Why ringworm keeps coming back — and the cream that makes it worse</h3><p class="by">5 min read · Reviewed by Dr. Sumya Pervin, FCPS</p></article>
-      <article><p class="cat">Mole check</p><h3>The ABCDE rule — plus the palms, soles and nails rule for South Asian skin</h3><p class="by">4 min read · Reviewed by Dr. Sumya Pervin, FCPS</p></article>
+      <a class="h-learn-card" href="${href('/learn/melasma-manageable-not-curable/')}"><p class="cat">Pigmentation</p><h3>Melasma is manageable, not curable — what actually works</h3><p class="by">6 min read · Reviewed by Dr. Sumya Pervin, FCPS</p></a>
+      <a class="h-learn-card" href="${href('/learn/ringworm-keeps-coming-back/')}"><p class="cat">Fungal infection</p><h3>Why ringworm keeps coming back — and the cream that makes it worse</h3><p class="by">5 min read · Reviewed by Dr. Sumya Pervin, FCPS</p></a>
+      <a class="h-learn-card" href="${href('/learn/abcde-rule-brown-skin/')}"><p class="cat">Mole check</p><h3>The ABCDE rule — plus the palms, soles and nails rule for South Asian skin</h3><p class="by">4 min read · Reviewed by Dr. Sumya Pervin, FCPS</p></a>
     </div>
   </div>
 </section>

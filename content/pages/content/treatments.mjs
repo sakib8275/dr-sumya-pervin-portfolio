@@ -59,7 +59,7 @@ export const treatments = {
       { h2: 'Possible side effects', body: 'Pain, blistering, lighter or darker marks, rarely nail or nerve damage near fingers.' },
     ],
     cost: 'Band A 1–3 lesions ৳2,000 · Band B 4–10 ৳3,500 · Band C 11+ ৳5,000',
-    links: [['Precancerous skin lesions', '/conditions/precancerous-skin-lesions/'], ['Seborrhoeic keratosis &amp; DPN', '/conditions/seborrhoeic-keratosis-dpn/'], ['Skin surgery prices', '/prices/']],
+    links: [['Precancerous skin lesions', '/conditions/precancerous-skin-lesions/'], ['Seborrhoeic keratosis &amp; DPN', '/conditions/seborrhoeic-keratosis-dpn/'], ['Before and after your procedure', '/your-procedure/'], ['Skin surgery prices', '/prices/']],
   },
 
   '/treatments/excision-surgery/': {
@@ -121,7 +121,7 @@ export const treatments = {
       { h2: 'Possible side effects', body: 'Skin thinning or lightening at the site if over-used. We space and dose carefully.' },
     ],
     cost: '1–2 lesions ৳2,000 · 3+ lesions or keloid over 3 cm ৳3,500',
-    links: [['Skin surgery prices', '/prices/']],
+    links: [['Before and after your procedure', '/your-procedure/'], ['Skin surgery prices', '/prices/']],
   },
 
   '/treatments/skin-cancer-treatment/': {
@@ -140,7 +140,7 @@ export const treatments = {
       { h2: 'Before and after', body: 'You receive a written summary of the diagnosis, the referral letter and the follow-up schedule.' },
       { h2: 'Possible side effects', body: 'Risks depend on the treatment chosen; each team explains its own consent.' },
     ],
-    links: [['Skin cancer', '/conditions/skin-cancer/'], ['Excision surgery', '/treatments/excision-surgery/'], ['Skin biopsy', '/treatments/skin-biopsy/']],
+    links: [['Skin cancer', '/conditions/skin-cancer/'], ['Excision surgery', '/treatments/excision-surgery/'], ['Skin biopsy', '/treatments/skin-biopsy/'], ['Before and after your procedure', '/your-procedure/'], ['Skin surgery prices', '/prices/']],
   },
 
   '/your-procedure/': {

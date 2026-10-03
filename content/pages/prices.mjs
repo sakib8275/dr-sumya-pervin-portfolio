@@ -1,10 +1,8 @@
 // Prices body — docx §5.37 structure, every figure from content/prices.mjs
 // (docx Part 6). Gated sections render with their badge in staging and are
 // dropped by the build when the live gate says so.
-import { href, gateVisible, SITE } from '../site.mjs';
+import { href, gateVisible, SITE, GATE_NOTE as GATE_LABEL } from '../site.mjs';
 import { SECTIONS, WHO, FOLLOW_UPS, ESTIMATOR } from '../prices.mjs';
-
-const GATE_LABEL = { opening: 'From Centre opening, 2027', licence: 'With procedure licensing', laser: 'When the laser suite opens', year2: 'Year-2 device' };
 
 const whoBadge = (k) => `<span class="who who-${k}" title="${WHO[k].text}">${WHO[k].label}</span>`;
 
@@ -70,6 +68,20 @@ function estimator() {
 </div>`;
 }
 
+// The estimator is laser-only data (laser bands and courses), so it publishes
+// with the laser gate. Until then it is replaced by a note, not a half-built tool.
+function estimatorNote() {
+  return `
+<div class="pr-est pr-est-gated" id="estimator">
+  <div class="pr-est-in">
+    <p class="eyebrow">Estimate your course cost</p>
+    <h2>Publishes when the laser suite opens</h2>
+    <p class="pr-est-note">Course-cost estimates belong to the laser price list, which publishes with the laser gate. Until then, your doctor will cost any course after a diagnosis — and you can always pay session by session.</p>
+    <div class="h-ctas"><a class="btn btn-ink" href="${href('/book/')}">Book a consultation</a></div>
+  </div>
+</div>`;
+}
+
 export default function prices() {
   const visible = SECTIONS.filter((s) => gateVisible(s.gate));
   const tabs = visible.map((s) => `<a href="#${s.id}">${s.tab}${s.gate !== 'opening' ? ` <span class="gate-dot" title="${GATE_LABEL[s.gate]}">●</span>` : ''}</a>`).join('');
@@ -102,7 +114,7 @@ export default function prices() {
     <span>${whoBadge('n')} Trained nurse under Dr. Sumya’s written protocol, doctor on site</span>
   </div>
 </div></section>
-${estimator()}
+${gateVisible('laser') ? estimator() : estimatorNote()}
 ${sectionsHtml}
 <p class="pr-foot">Prices exclude VAT; ${Math.round(SITE.vatRate * 100)}% VAT is added at checkout · Prices reviewed: ${SITE.pricesReviewed} · Hospital-chamber fees follow each hospital’s tariff.</p>`;
 }

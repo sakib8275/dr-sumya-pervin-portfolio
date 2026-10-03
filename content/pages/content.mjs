@@ -7,10 +7,12 @@ import { conditions } from './content/conditions.mjs';
 import { treatments } from './content/treatments.mjs';
 import { aesthetic } from './content/aesthetic.mjs';
 import { visit } from './content/visit.mjs';
+import { learn } from './content/learn.mjs';
 
 export const CONTENT = {
   ...conditions,
   ...treatments,
   ...aesthetic,
   ...visit,
+  ...learn,
 };

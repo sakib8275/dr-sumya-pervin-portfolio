@@ -60,13 +60,13 @@ export const conditions = {
       ] },
       { h2: 'When to see a doctor quickly', body: 'Painful nodules, sudden severe acne, acne with fever or joint pain, or low mood linked to your skin.' },
     ],
-    cost: 'Specialist Consultation ৳2,000 · follow-up ৳1,200 · Core Care Plan ৳6,500 for 6 months · acne extraction ৳2,500 · targeted peel ৳7,000 (from licence).',
+    cost: 'Specialist Consultation ৳2,000 · follow-up ৳1,200 · Core Care Plan ৳6,500 for 6 months · acne extraction ৳2,500 · [[licence:targeted peel ৳7,000 (from licence)]].',
     faqs: [
       ['Will my acne come back?', 'It can. A maintenance cream after clearing reduces the chance considerably.'],
       ['How soon will I see a change?', 'Usually some improvement by week 6 and a clear difference by week 12.'],
       ['Is isotretinoin safe?', 'In the right patient, with monitoring, it is one of the most effective medicines in dermatology. We explain every risk before prescribing.'],
     ],
-    links: [['Acne scars', '/concerns/acne-scars/'], ['Chemical peels', '/treatments/chemical-peel/'], ['Care plans', '/prices/']],
+    links: [['Acne scars', '/concerns/acne-scars/'], ['Chemical peels', '/treatments/chemical-peel/'], ['Care plans', '/prices/'], ['Prepare for your visit', '/consultation-prep/'], ['Learn: skin articles', '/learn/']],
   },
 
   '/conditions/sexual-health/': {
@@ -89,7 +89,7 @@ export const conditions = {
       { h2: 'When to see a doctor quickly', body: 'Severe pain, fever with genital sores, or symptoms in pregnancy.' },
     ],
     cost: 'Private consultation ৳2,000 (a private time slot; your invoice reads “Specialist consultation”).',
-    links: [['Privacy policy', '/privacy/'], ['Book a consultation', '/book/']],
+    links: [['Privacy policy', '/privacy/'], ['Prices', '/prices/'], ['Prepare for your visit', '/consultation-prep/'], ['Book a consultation', '/book/'], ['Learn: skin articles', '/learn/']],
   },
 
   '/conditions/eczema/': {
@@ -120,7 +120,7 @@ export const conditions = {
       { h2: 'When to see a doctor quickly', body: 'Weeping, crusted or painful eczema (possible infection), sudden spread with fever, or eczema around the eyes.' },
     ],
     cost: 'Comprehensive Assessment ৳3,500 recommended for long-standing eczema · patch test ৳6,500 · Core Care Plan ৳6,500 / Complete ৳12,500.',
-    links: [['Hives &amp; allergy', '/conditions/urticaria-allergy/'], ['Phototherapy', '/treatments/light-therapy/'], ['Care plans', '/prices/']],
+    links: [['Hives &amp; allergy', '/conditions/urticaria-allergy/'], ['Phototherapy', '/treatments/light-therapy/'], ['Care plans', '/prices/'], ['Prepare for your visit', '/consultation-prep/'], ['Learn: skin articles', '/learn/']],
   },
 
   '/conditions/psoriasis/': {
@@ -143,8 +143,8 @@ export const conditions = {
       ] },
       { h2: 'When to see a doctor quickly', body: 'Rapidly spreading redness over most of the body, pustules with fever, or swollen painful joints.' },
     ],
-    cost: 'Comprehensive Assessment ৳3,500 · follow-up ৳1,200 · NB-UVB ৳800 per session or 12 for ৳8,800 (Year 2) · Care Plans from ৳6,500.',
-    links: [['Eczema', '/conditions/eczema/'], ['Phototherapy', '/treatments/light-therapy/'], ['Care plans', '/prices/']],
+    cost: 'Comprehensive Assessment ৳3,500 · follow-up ৳1,200 · [[year2:NB-UVB ৳800 per session or 12 for ৳8,800 (Year 2)]] · Care Plans from ৳6,500.',
+    links: [['Eczema', '/conditions/eczema/'], ['Phototherapy', '/treatments/light-therapy/'], ['Care plans', '/prices/'], ['Prepare for your visit', '/consultation-prep/'], ['Learn: skin articles', '/learn/']],
   },
 
   '/conditions/fungal-infection/': {
@@ -174,7 +174,7 @@ export const conditions = {
       { h2: 'When to see a doctor quickly', body: 'Painful, pus-filled patches on the scalp (especially in children), or infection in people with diabetes or low immunity.' },
     ],
     cost: 'Specialist Consultation ৳2,000 · KOH microscopy ৳500 (included in the Signature Review) · follow-up ৳1,200.',
-    links: [['Eczema', '/conditions/eczema/'], ['Prices: tests', '/prices/']],
+    links: [['Eczema', '/conditions/eczema/'], ['Prices: tests', '/prices/'], ['Prepare for your visit', '/consultation-prep/'], ['Learn: why ringworm returns', '/learn/ringworm-keeps-coming-back/']],
   },
 
   '/conditions/melasma/': {
@@ -204,8 +204,8 @@ export const conditions = {
       ] },
       { h2: 'When to see a doctor quickly', body: 'A single dark spot that is changing, bleeding, or looks different from the rest (see Mole check).' },
     ],
-    cost: 'Comprehensive Assessment ৳3,500 (includes baseline photos for honest comparison) · targeted peel ৳7,000 · full-face laser toning ৳9,000 (laser stage).',
-    links: [['Sun damage', '/concerns/sun-damage-pigmentation/'], ['Chemical peel', '/treatments/chemical-peel/'], ['Pigment laser', '/treatments/pigment-laser/'], ['Skin type guide', '/tools/skin-type-guide/']],
+    cost: 'Comprehensive Assessment ৳3,500 (includes baseline photos for honest comparison) · [[licence:targeted peel ৳7,000 · ]][[laser:full-face laser toning ৳9,000 (laser stage)]].',
+    links: [['Sun damage', '/concerns/sun-damage-pigmentation/'], ['Chemical peel', '/treatments/chemical-peel/'], ['Pigment laser', '/treatments/pigment-laser/'], ['Skin type guide', '/tools/skin-type-guide/'], ['Prices', '/prices/'], ['Prepare for your visit', '/consultation-prep/'], ['Learn: melasma', '/learn/melasma-manageable-not-curable/']],
   },
 
   '/conditions/hair-loss/': {
@@ -229,8 +229,8 @@ export const conditions = {
       ] },
       { h2: 'When to see a doctor quickly', body: 'Rapid patchy loss, a painful or scarring scalp, or hair loss with other symptoms like weight change.' },
     ],
-    cost: 'Signature Skin & Hair Review ৳6,000 (includes trichoscopy) or Specialist ৳2,000 + trichoscopy ৳1,500 · PRP ৳9,000 per session, 3 sessions ৳24,000.',
-    links: [['Hair thinning', '/concerns/hair-thinning/'], ['PRP therapy', '/treatments/prp-therapy/'], ['Intralesional injection', '/treatments/intralesional-injection/']],
+    cost: 'Signature Skin & Hair Review ৳6,000 (includes trichoscopy) or Specialist ৳2,000 + trichoscopy ৳1,500 · [[licence:PRP ৳9,000 per session, 3 sessions ৳24,000]].',
+    links: [['Hair thinning', '/concerns/hair-thinning/'], ['PRP therapy', '/treatments/prp-therapy/'], ['Intralesional injection', '/treatments/intralesional-injection/'], ['Prices', '/prices/'], ['Prepare for your visit', '/consultation-prep/'], ['Learn: hair fall', '/learn/hair-fall-after-illness/']],
   },
 
   '/conditions/urticaria-allergy/': {
@@ -252,7 +252,7 @@ export const conditions = {
       { h2: 'When to see a doctor quickly', body: 'Emergency: swelling of the tongue or throat, difficulty breathing, or feeling faint. Go to the nearest emergency department now.' },
     ],
     cost: 'Specialist Consultation ৳2,000 · follow-up ৳1,200 · Core Care Plan ৳6,500.',
-    links: [['Eczema', '/conditions/eczema/']],
+    links: [['Eczema', '/conditions/eczema/'], ['Prices', '/prices/'], ['Prepare for your visit', '/consultation-prep/'], ['Learn: skin articles', '/learn/']],
   },
 
   '/conditions/vitiligo/': {
@@ -275,8 +275,8 @@ export const conditions = {
       ] },
       { h2: 'When to see a doctor quickly', body: 'Rapidly spreading new patches: early treatment can slow this.' },
     ],
-    cost: 'Comprehensive Assessment ৳3,500 (includes photo mapping) · NB-UVB card 12 for ৳8,800 (Year 2) · Care Plans from ৳6,500.',
-    links: [['Phototherapy', '/treatments/light-therapy/'], ['Care plans', '/prices/']],
+    cost: 'Comprehensive Assessment ৳3,500 (includes photo mapping) · [[year2:NB-UVB card 12 for ৳8,800 (Year 2)]] · Care Plans from ৳6,500.',
+    links: [['Phototherapy', '/treatments/light-therapy/'], ['Care plans', '/prices/'], ['Prepare for your visit', '/consultation-prep/'], ['Learn: skin articles', '/learn/']],
   },
 
   '/conditions/seborrhoeic-keratosis-dpn/': {
@@ -297,8 +297,8 @@ export const conditions = {
       ] },
       { h2: 'When to see a doctor quickly', body: 'If a spot bleeds, grows quickly or looks different from the others, have it checked.' },
     ],
-    cost: 'Electrosurgery by number of lesions: up to 10 ৳3,500 · 11–30 ৳6,000 · 31+ / full face and neck ৳9,000 (from licence).',
-    links: [['Electrosurgery', '/treatments/electrosurgery/'], ['Cryotherapy', '/treatments/cryotherapy/'], ['Mole check', '/tools/mole-check/']],
+    cost: '[[licence:Electrosurgery by number of lesions: up to 10 ৳3,500 · 11–30 ৳6,000 · 31+ / full face and neck ৳9,000 (from licence).]]',
+    links: [['Electrosurgery', '/treatments/electrosurgery/'], ['Cryotherapy', '/treatments/cryotherapy/'], ['Mole check', '/tools/mole-check/'], ['Prices', '/prices/'], ['Prepare for your visit', '/consultation-prep/'], ['Learn: skin articles', '/learn/']],
   },
 
   '/conditions/precancerous-skin-lesions/': {
@@ -320,8 +320,8 @@ export const conditions = {
       ] },
       { h2: 'When to see a doctor quickly', body: 'A spot that grows, bleeds, ulcerates or becomes painful.' },
     ],
-    cost: 'Specialist Consultation ৳2,000 · cryotherapy from Band A ৳2,000 · biopsy ৳4,000 + lab at cost.',
-    links: [['Skin cancer', '/conditions/skin-cancer/'], ['Skin biopsy', '/treatments/skin-biopsy/'], ['Cryotherapy', '/treatments/cryotherapy/']],
+    cost: 'Specialist Consultation ৳2,000 · [[licence:cryotherapy from Band A ৳2,000 · ]]biopsy ৳4,000 + lab at cost.',
+    links: [['Skin cancer', '/conditions/skin-cancer/'], ['Skin biopsy', '/treatments/skin-biopsy/'], ['Cryotherapy', '/treatments/cryotherapy/'], ['Prices', '/prices/'], ['Prepare for your visit', '/consultation-prep/'], ['Learn: arsenic and skin', '/learn/arsenic-and-skin/']],
   },
 
   '/conditions/skin-cancer/': {
@@ -343,6 +343,6 @@ export const conditions = {
       { h2: 'When to see a doctor quickly', body: 'A new dark stripe in a nail, a dark spot on the sole that is changing, any sore that has not healed in 4 weeks, or a mole that bleeds.' },
     ],
     cost: 'Specialist Consultation ৳2,000 · digital mole record (up to 5 lesions) ৳2,500 · full-body mole map in the Signature Review ৳6,000 · biopsy ৳4,000 + lab at cost.',
-    links: [['Mole check tool', '/tools/mole-check/'], ['Skin biopsy', '/treatments/skin-biopsy/'], ['Excision', '/treatments/excision-surgery/']],
+    links: [['Mole check tool', '/tools/mole-check/'], ['Skin biopsy', '/treatments/skin-biopsy/'], ['Excision', '/treatments/excision-surgery/'], ['Prices', '/prices/'], ['Prepare for your visit', '/consultation-prep/'], ['Learn: the ABCDE rule', '/learn/abcde-rule-brown-skin/']],
   },
 };

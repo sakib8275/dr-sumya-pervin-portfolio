@@ -10,17 +10,17 @@ export const visit = {
     h1: 'Articles written and reviewed by Dr. Sumya',
     lede: 'Bylined, referenced explanations of the conditions we treat. Every article is written or reviewed by Dr. Sumya Pervin, FCPS (Skin &amp; VD), and links back to the page where you can act on it.',
     sections: [
-      { h2: 'Pigmentation &amp; pigment', bullets: [
-        '**Melasma is manageable, not curable — what actually works** — 6 min read · Reviewed by Dr. Sumya Pervin, FCPS',
-        '**Arsenic and your skin** — 7 min read · Reviewed by Dr. Sumya Pervin, FCPS',
+      { h2: 'Pigmentation &amp; pigment', cards: [
+        ['Melasma is manageable, not curable', 'What triggers it, why sun and visible light are the whole game, and which treatments help.', '/learn/melasma-manageable-not-curable/', '6 min'],
+        ['Arsenic and your skin', 'The rough spots long-term arsenic leaves on the palms and soles, and why they matter here.', '/learn/arsenic-and-skin/', '7 min'],
       ] },
-      { h2: 'Skin, hair &amp; nails', bullets: [
-        '**Why ringworm keeps coming back — and the cream that makes it worse** — 5 min read · Reviewed by Dr. Sumya Pervin, FCPS',
-        '**Hair fall after illness or childbirth** — 5 min read · Reviewed by Dr. Sumya Pervin, FCPS',
+      { h2: 'Skin, hair &amp; nails', cards: [
+        ['Why ringworm keeps coming back', 'The steroid cream that hides the infection — and how to treat it so it stays gone.', '/learn/ringworm-keeps-coming-back/', '5 min'],
+        ['Hair fall after illness or childbirth', 'Why shedding follows a fever, stress or childbirth, and when it is a different type.', '/learn/hair-fall-after-illness/', '5 min'],
       ] },
-      { h2: 'Screening &amp; aesthetics', bullets: [
-        '**The ABCDE rule — plus the palms, soles and nails rule for South Asian skin** — 4 min read · Reviewed by Dr. Sumya Pervin, FCPS',
-        '**Laser hair removal: what “permanent” really means** — 6 min read · Reviewed by Dr. Sumya Pervin, FCPS',
+      { h2: 'Screening &amp; aesthetics', cards: [
+        ['The ABCDE rule for brown skin', 'How to check moles, including the palms, soles and nails rule for South Asian skin.', '/learn/abcde-rule-brown-skin/', '4 min'],
+        ['Laser hair removal: what “permanent” means', 'Long-term reduction, not a forever promise — sessions, safety and expectations.', '/learn/laser-hair-removal-permanent/', '6 min'],
       ] },
     ],
     links: [['Mole check tool', '/tools/mole-check/'], ['Skin type guide', '/tools/skin-type-guide/'], ['All conditions', '/medical-dermatology/']],
@@ -43,7 +43,10 @@ export const visit = {
         ['Phototherapy cabin (Year 2):', 'Narrowband UVB for psoriasis, vitiligo and eczema. Doses are measured and logged.'],
       ] },
       { h2: 'Our team', body: 'Roles at opening: Medical Director, registered nurse, dermatology assistant, two front-office executives. The laser nurse and visiting consultants join at full launch. Every team member is credentialed against the same written standards, so your care does not depend on who is on duty.' },
-      { h2: 'Getting here', body: `Ring Road / Tajmahal Road corridor, Mohammadpur, Dhaka. Landmark: [LANDMARK — owner to confirm]. Parking: [details — owner to confirm]. Rickshaw and CNG drop-off at the gate. The Centre opens in 2027; until then Dr. Sumya consults at the chambers in Shyamoli.` },
+      // Owner input pending (D-12): exact landmark and parking details. Omitted
+      // rather than shipping a bracketed placeholder; add them here before the
+      // Centre's opening pages go live.
+      { h2: 'Getting here', body: `Ring Road / Tajmahal Road corridor, Mohammadpur, Dhaka. Rickshaw and CNG drop-off at the gate. The Centre opens in 2027; until then Dr. Sumya consults at the chambers in Shyamoli.` },
     ],
     links: [['Prices', '/prices/'], ['Laser hair removal', '/treatments/laser-hair-removal/'], ['Skin surgery', '/skin-surgery/'], ['Light therapy', '/treatments/light-therapy/']],
   },
