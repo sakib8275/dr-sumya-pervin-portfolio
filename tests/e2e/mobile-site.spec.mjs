@@ -6,7 +6,8 @@
 //   2. the drawer (the only nav ≤820px) carries Prices + About, its rows meet
 //      the 44px tap-target minimum, the scrim shows, and Esc both closes it and
 //      returns focus to the burger (the markup claims aria-modal),
-//   3. the Prices section tabs stay pinned BELOW the sticky header — the Phase 1
+//   3. the Prices section tabs stay pinned BELOW the sticky header (64px on
+//      phones since the critique round slimmed it) — the Phase 1
 //      CSS pinned them at top:0 where they slid underneath it and vanished,
 //   4. the recommended tier card renders first (§7.3 "recommended card first"),
 //   5. price tables collapse to stacked cards driven by the builder's data-th,
@@ -37,9 +38,14 @@ test.describe('mobile 375×667', () => {
     await expect(page.locator('#drawer a', { hasText: 'Prices' }).first()).toBeVisible();
     await expect(page.locator('#drawer a', { hasText: 'About Dr. Sumya' })).toBeVisible();
 
-    const minRow = await page.evaluate(() =>
-      Math.min(...[...document.querySelectorAll('.drawer-links a')].map((a) => a.getBoundingClientRect().height))
+    // Rows inside a collapsed group have no box until it opens; measure every
+    // visible row, then open a group and measure its rows too.
+    const rowHeights = () => page.evaluate(() =>
+      [...document.querySelectorAll('.drawer-links a, .drawer-grp summary')]
+        .map((a) => a.getBoundingClientRect().height).filter((h) => h > 0)
     );
+    await page.locator('.drawer-grp summary').first().click();
+    const minRow = Math.min(...(await rowHeights()));
     expect(minRow, 'every drawer row must be a ≥44px tap target (§7.3)').toBeGreaterThanOrEqual(44);
 
     await page.keyboard.press('Escape');
@@ -55,8 +61,8 @@ test.describe('mobile 375×667', () => {
       const tabs = document.querySelector('.pr-tabs').getBoundingClientRect();
       return { headerBottom: header.bottom, tabsTop: tabs.top };
     });
-    expect(gap.tabsTop, 'tabs must sit at the header bottom (78px), not slide under it').toBeGreaterThanOrEqual(77);
-    expect(gap.tabsTop).toBeLessThanOrEqual(79);
+    expect(gap.tabsTop, 'tabs must sit at the header bottom, not slide under it').toBeGreaterThanOrEqual(gap.headerBottom - 1);
+    expect(gap.tabsTop).toBeLessThanOrEqual(gap.headerBottom + 1);
   });
 
   test('recommended tier card renders first on phones (§7.3)', async ({ page, site }) => {

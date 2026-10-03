@@ -107,3 +107,37 @@ test('the .w1 / .w2 heading pair stays visually distinguishable', () => {
   const deltaE = Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
   assert.ok(deltaE >= 15, `--rust and --tan are only deltaE ${deltaE.toFixed(1)} apart; the .w1/.w2 two-tone heading needs visible separation`);
 });
+
+// The multi-page site puts text on two surfaces the token checks above never
+// see: the hero gradient and the ink footer. Both shipped failing — the hero
+// eyebrow and links at ~2:1 over the gradient's orange, and the doctor's name
+// in every footer at 1:1 (ink on ink). These pin the fixes in site.css.
+const siteCss = await readFile(join(repoRoot, 'public', 'css', 'site.css'), 'utf8');
+
+test('hero copy sits on --gold, with orange only in the figure-side pool', () => {
+  const heroRules = [...siteCss.matchAll(/\.h-hero\s*\{([^}]*)\}/g)].map((m) => m[1]);
+  assert.ok(heroRules.length >= 1, '.h-hero rule not found in site.css');
+  for (const rule of heroRules) {
+    const bg = rule.replace(/\/\*[\s\S]*?\*\//g, '');
+    if (!/background/.test(bg)) continue;
+    assert.match(bg, /var\(--gold\)\s*;?\s*$/, '.h-hero must paint --gold as its base layer under the copy');
+    assert.match(bg, /radial-gradient\([^;]*at (100%|50% 100%)/, 'the orange pool must sit at the figure side (right, or bottom when stacked)');
+  }
+  assert.ok(contrast(token('ink'), token('gold')) >= 4.5, 'ink on --gold must pass AA for body copy');
+  assert.ok(contrast(token('ink'), token('amber')) >= 4.5, 'ink on --amber must pass AA where the pool fades under copy');
+  assert.ok(contrast(token('sienna'), token('gold')) >= 4.5, 'the sienna headline accent must pass on --gold');
+  assert.doesNotMatch(siteCss, /\.h-hero[^{]*\.tlink\s*\{[^}]*orange-ink/, 'hero links must not use --orange-ink (2:1 on the gradient)');
+});
+
+test('the footer brand is light on the ink footer', () => {
+  const m = siteCss.match(/\.foot \.logo-n\s*\{([^}]*)\}/);
+  assert.ok(m, '.foot .logo-n override missing — .logo-n is --ink, the footer background');
+  assert.doesNotMatch(m[1], /var\(--ink\)/, 'the footer name must not be ink on ink');
+  const s = siteCss.match(/\.foot \.logo-s\s*\{([^}]*)\}/);
+  assert.ok(s && /var\(--butter\)|#fff/i.test(s[1]), '.foot .logo-s must be butter or white on ink');
+});
+
+test('form fields and focus rings meet the 3:1 non-text floor', () => {
+  assert.ok(contrast(token('field-line'), '#FFFFFF') >= 3, '--field-line must be ≥3:1 on white (WCAG 1.4.11)');
+  assert.match(siteCss, /:focus-visible\s*\{[^}]*outline:\s*2px solid var\(--ink\)/, 'a site-wide ink focus ring must exist');
+});

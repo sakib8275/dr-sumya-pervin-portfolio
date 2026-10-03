@@ -90,8 +90,9 @@
     seg.addEventListener('click', (e) => {
       const b = e.target.closest('button');
       if (!b) return;
-      active(seg).classList.remove('on');
-      b.classList.add('on');
+      const prev = active(seg);
+      prev.classList.remove('on'); prev.setAttribute('aria-pressed', 'false');
+      b.classList.add('on'); b.setAttribute('aria-pressed', 'true');
       if (seg === paySeg) state.pay = b.dataset.pay;
       else state.who = b.dataset.who;
       render();
@@ -100,15 +101,17 @@
   concern.addEventListener('change', () => { syncAreas(); render(); });
   area.addEventListener('change', render);
 
+  // The area list is rebuilt from the full set rather than hiding <option>s:
+  // iOS Safari's native picker ignores the hidden attribute on options.
+  const allAreas = [...area.options].map((o) => o.cloneNode(true));
   function syncAreas() {
-    for (const opt of area.options) opt.hidden = opt.dataset.i !== concern.value;
-    const first = [...area.options].find((o) => !o.hidden);
-    if (first) area.value = first.value;
+    area.replaceChildren(...allAreas.filter((o) => o.dataset.i === concern.value).map((o) => o.cloneNode(true)));
+    area.selectedIndex = 0;
   }
 
   function render() {
     const opt = area.options[area.selectedIndex];
-    if (!opt || opt.hidden) return;
+    if (!opt) return;
     const per = Number(opt.dataset.per);
     const course = Number(opt.dataset.course);
     const item = Number(concern.value);
@@ -165,7 +168,7 @@
       e.preventDefault();
       const hit = [...mole.querySelectorAll('input[data-sign]:checked')].map((i) => i.dataset.sign);
       show('moleOut', hit.length
-        ? `<h3>Worth a dermatologist’s look</h3><p>You ticked ${hit.length} sign${hit.length > 1 ? 's' : ''} (${hit.join(', ')}). This does not mean the mole is dangerous, but it should be examined. Book a mole check with a priority slot for suspicious moles.</p>`
+        ? `<h3>Worth a dermatologist’s look</h3><p>You ticked ${hit.length} sign${hit.length > 1 ? 's' : ''} (${hit.join(', ')}). This does not mean the mole is dangerous, but it should be examined.</p><p><a class="btn btn-ink" href="/book/?reason=mole">Book a mole check (priority slot)</a></p>`
         : `<h3>Nothing concerning today</h3><p>No ABCDE or brown-skin signs were ticked. Check monthly, and come if anything changes — a mole that is new, changing or bleeding always deserves a look.</p>`);
     });
   }
@@ -212,17 +215,90 @@
 
   // — /book/ booking form (Phase 2). Reuses the one-pager's /api/appointments,
   // Turnstile action 'booking' and pre-hydration disabled-button guard.
+  // Errors sit under the field that caused them (aria-invalid + describedby),
+  // with a one-line summary in #sbStatus that takes focus. The chamber's
+  // consulting weekdays ride on its <option data-days> (stamped at build time
+  // from functions/lib/schedule.js), so a closed day is refused here, before
+  // the Turnstile round trip; the server still enforces every rule.
   const bk = document.getElementById('siteBookingForm');
   if (bk) {
     const SITEKEY = '0x4AAAAAAEClxf8-TRYoLcZl';
-    const submitBtn = document.getElementById('sbSubmit');
-    const status = document.getElementById('sbStatus');
-    const confirmBox = document.getElementById('sbConfirm');
-    const fields = document.getElementById('sbFields');
-    const say = (msg, kind) => {
+    const WA = 'https://wa.me/8801353787080';
+    const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const $ = (id) => document.getElementById(id);
+    const submitBtn = $('sbSubmit');
+    const status = $('sbStatus');
+    const confirmBox = $('sbConfirm');
+    const fields = $('sbFields');
+    const chamberSel = $('sbChamber');
+    const dateIn = $('sbDate');
+    const hint = $('sbChamberHint');
+
+    // Dhaka is UTC+6 all year: "today" is Dhaka's today wherever the phone is.
+    const dhakaToday = () => new Date(Date.now() + 6 * 3600 * 1000).toISOString().slice(0, 10);
+    const weekday = (d) => new Date(d + 'T00:00:00Z').getUTCDay();
+    const chamberOpt = () => chamberSel.options[chamberSel.selectedIndex];
+    const openDays = () => chamberOpt().dataset.days.split(',').map(Number);
+    const nextOpen = (from) => {
+      const days = openDays();
+      let d = new Date(from + 'T00:00:00Z');
+      for (let i = 0; i < 8; i++) {
+        const iso = d.toISOString().slice(0, 10);
+        if (days.includes(d.getUTCDay())) return iso;
+        d = new Date(d.getTime() + 864e5);
+      }
+      return from;
+    };
+    const niceDate = (iso) => new Date(iso + 'T00:00:00Z').toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'UTC' });
+
+    dateIn.min = dhakaToday();
+
+    // Deep links: /book/?tier=…, /book/?chamber=…, /book/?reason=mole (the mole
+    // tool's "priority slot" promise reaches staff through the notes).
+    const q = new URLSearchParams(location.search);
+    const pick = (sel, val) => { if (val && [...sel.options].some((o) => o.value === val)) sel.value = val; };
+    pick($('sbTier'), q.get('tier'));
+    pick(chamberSel, [...chamberSel.options].map((o) => o.value).find((v) => q.get('chamber') && v.toLowerCase().includes(q.get('chamber').toLowerCase())));
+    if (q.get('reason') === 'mole' && !$('sbNotes').value) $('sbNotes').value = 'Mole check: please give me a priority slot.';
+
+    const syncChamber = () => { hint.textContent = `Consults ${chamberOpt().dataset.when}. Your serial sets the exact time.`; };
+    chamberSel.addEventListener('change', () => { syncChamber(); if (dateIn.value) checkDate(); });
+    syncChamber();
+
+    const setErr = (id, msg) => {
+      const input = $(id);
+      const out = $(id + 'Err');
+      input.setAttribute('aria-invalid', msg ? 'true' : 'false');
+      if (!out) return;
+      out.textContent = msg || '';
+      out.hidden = !msg;
+    };
+
+    // Returns the problem with the date, or '' — also used live on change.
+    function dateProblem() {
+      const d = dateIn.value;
+      if (!d) return 'Choose a preferred date.';
+      if (d < dhakaToday()) return 'That date has passed. Choose today or a later date.';
+      if (!openDays().includes(weekday(d))) {
+        const next = nextOpen(d);
+        return `Dr. Sumya doesn’t consult at ${chamberOpt().text.split(' (')[0]} on ${DAYS[weekday(d)]}s. The next open day is ${niceDate(next)}.`;
+      }
+      return '';
+    }
+    function checkDate() { const p = dateProblem(); setErr('sbDate', p); return p; }
+    dateIn.addEventListener('change', checkDate);
+
+    // status holds plain text, plus an optional "or WhatsApp us" escape hatch.
+    const say = (msg, kind, offerWa) => {
       status.hidden = false;
       status.className = 'bk-status' + (kind ? ' ' + kind : '');
       status.textContent = msg;
+      if (offerWa) {
+        const a = document.createElement('a');
+        a.className = 'tlink'; a.href = WA; a.rel = 'noopener'; a.textContent = 'book on WhatsApp instead';
+        status.append(' Or ', a, '.');
+      }
+      status.focus({ preventScroll: true });
       status.scrollIntoView({ block: 'nearest' });
     };
 
@@ -231,6 +307,7 @@
     if (submitBtn) { submitBtn.disabled = false; submitBtn.removeAttribute('aria-busy'); }
 
     let widgetId = null;
+    let turnstileFailed = false;
     const ensureTurnstile = () => new Promise((resolve, reject) => {
       if (window.turnstile) return resolve();
       const s = document.createElement('script');
@@ -241,55 +318,86 @@
       document.head.appendChild(s);
     });
     ensureTurnstile().then(() => {
-      const mount = document.getElementById('turnstileBooking');
+      const mount = $('turnstileBooking');
       if (mount && window.turnstile && widgetId === null) {
-        widgetId = window.turnstile.render(mount, { sitekey: SITEKEY, action: 'booking' });
+        widgetId = window.turnstile.render(mount, { sitekey: SITEKEY, action: 'booking', theme: 'light' });
       }
-    }).catch(() => { /* the token guard on submit explains it */ });
+    }).catch(() => { turnstileFailed = true; });
 
     bk.addEventListener('submit', async (e) => {
       e.preventDefault();
       confirmBox.hidden = true;
-      const name = document.getElementById('sbName').value.trim();
-      const phone = document.getElementById('sbPhone').value.trim();
-      const tier = document.getElementById('sbTier').value;
-      const chamber = document.getElementById('sbChamber').value;
-      const date = document.getElementById('sbDate').value;
-      const session = document.getElementById('sbSession').value;
-      const notes = document.getElementById('sbNotes').value.trim();
-
-      if (!name || !phone || !date) { say('Please add your name, mobile number and a preferred date.', 'err'); return; }
+      const name = $('sbName').value.trim();
+      const phone = $('sbPhone').value.trim();
+      const tier = $('sbTier').value;
+      const chamber = chamberSel.value;
+      const date = dateIn.value;
+      const notes = $('sbNotes').value.trim();
       const digits = phone.replace(/[^0-9]/g, '');
-      if (digits.length < 7 || digits.length > 15) { say('Please enter a valid mobile number, including the country code.', 'err'); return; }
 
-      const token = widgetId !== null && window.turnstile ? window.turnstile.getResponse(widgetId) : '';
-      if (!token) { say('Please complete the verification check below, then submit again.', 'warn'); return; }
+      const problems = [];
+      const nameP = name ? '' : 'Enter your full name.';
+      const phoneP = !phone ? 'Enter your mobile number.'
+        : digits.length < 7 || digits.length > 15 ? 'Check the number: it should look like 01712345678.' : '';
+      const dateP = dateProblem();
+      setErr('sbName', nameP); setErr('sbPhone', phoneP); setErr('sbDate', dateP);
+      if (nameP) problems.push(['sbName', 'your name']);
+      if (phoneP) problems.push(['sbPhone', 'mobile number']);
+      if (dateP) problems.push(['sbDate', 'preferred date']);
+      if (problems.length) {
+        say(`Please check ${problems.length === 1 ? 'one field' : problems.length + ' fields'}: ${problems.map((p) => p[1]).join(', ')}.`, 'err');
+        $(problems[0][0]).focus();
+        return;
+      }
+
+      if (turnstileFailed || !window.turnstile) {
+        say('The verification check could not load, so the request can’t be sent from this page. Refresh and try again.', 'warn', true);
+        return;
+      }
+      const token = widgetId !== null ? window.turnstile.getResponse(widgetId) : '';
+      if (!token) { say('Please complete the “I’m a person” check just above the button, then send again.', 'warn'); return; }
 
       const label = submitBtn.textContent;
       submitBtn.disabled = true; submitBtn.setAttribute('aria-busy', 'true'); submitBtn.textContent = 'Sending your request…';
       try {
-        const res = await fetch('/api/appointments', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            patient_name: name, patient_phone: phone, chamber, appointment_date: date,
-            service: tier, consultation_type: tier, preferred_session: session, notes,
-            'cf-turnstile-response': token
-          })
-        });
+        let res;
+        try {
+          res = await fetch('/api/appointments', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              patient_name: name, patient_phone: phone, chamber, appointment_date: date,
+              service: tier, consultation_type: tier, preferred_session: chamberOpt().dataset.session,
+              reminders: $('sbRemind').checked, notes,
+              'cf-turnstile-response': token
+            })
+          });
+        } catch {
+          throw Object.assign(new Error('We couldn’t reach the booking system. Check your connection and send again.'), { wa: true });
+        }
         const data = await res.json().catch(() => ({}));
-        if (!res.ok) throw new Error(data.error || 'We could not send your request.');
+        if (!res.ok) throw Object.assign(new Error(data.error || 'We could not send your request.'), { wa: res.status >= 500 || res.status === 403 });
         if (window.turnstile && widgetId !== null) window.turnstile.reset(widgetId);
         fields.hidden = true;
         status.hidden = true;
         confirmBox.hidden = false;
-        confirmBox.innerHTML = `<h2>Request received</h2>
-          <p>Thank you, ${name.replace(/[<>&]/g, '')}. Your reference is <b>${data.id}</b>.</p>
-          <p>We will send your serial, time window and what to bring by SMS/WhatsApp within 2 working hours. If you need to change anything, message the clinic with this reference.</p>
-          <p><a class="btn btn-ink" href="../consultation-prep/">Prepare for your visit</a></p>`;
+        // Built as nodes, not innerHTML: the name and reference are echoed back.
+        const h = document.createElement('h2'); h.textContent = 'Request received';
+        const p1 = document.createElement('p');
+        const ref = document.createElement('b'); ref.textContent = String(data.id || '');
+        p1.append(`Thank you, ${name}. Your reference is `, ref, '.');
+        const p2 = document.createElement('p');
+        p2.textContent = `We will send your serial, time window and what to bring by SMS/WhatsApp within 2 working hours, for ${niceDate(date)} at ${chamberOpt().text.split(' (')[0]}. If you need to change anything, message the clinic with this reference.`;
+        const p3 = document.createElement('p');
+        const a = document.createElement('a'); a.className = 'btn btn-ink'; a.href = '/consultation-prep/'; a.textContent = 'Prepare for your visit';
+        p3.append(a);
+        confirmBox.replaceChildren(h, p1, p2, p3);
+        confirmBox.focus({ preventScroll: true });
+        confirmBox.scrollIntoView({ block: 'nearest' });
       } catch (err) {
         submitBtn.disabled = false; submitBtn.removeAttribute('aria-busy'); submitBtn.textContent = label;
-        say(err.message || 'We could not send your request. Please try again.', 'err');
+        if (window.turnstile && widgetId !== null) window.turnstile.reset(widgetId);
+        say(err.message || 'We could not send your request. Please try again.', 'err', err.wa);
       }
     });
   }

@@ -69,7 +69,7 @@ export async function onRequestPost(context) {
   // formats without admitting junk.
   const phoneDigits = f.patient_phone.replace(/[^0-9]/g, '');
   if (phoneDigits.length < 7 || phoneDigits.length > 15) {
-    return json({ error: 'Please enter a valid mobile number, including the country code.' }, 400);
+    return json({ error: 'Please enter a valid mobile number, for example 01712345678.' }, 400);
   }
 
   // Chamber schedule: only the listed chambers, only on consultation days, and
@@ -95,6 +95,15 @@ export async function onRequestPost(context) {
     return json({
       error: `A booking already exists for this number at this chamber on ${appointment_date}. Please contact the chamber if you need to change it.`
     }, 409);
+  }
+
+  // The /book/ form's "Send me reminders" box is pre-ticked by owner design
+  // (docx behavioural defaults: reminders on, one tap to untick). There is no
+  // reminders column, so an opt-out travels where staff already read before
+  // messaging anyone: the front of the notes. Only an explicit false opts out;
+  // the one-pager and older clients omit the field and keep the default.
+  if (body.reminders === false) {
+    f.notes = f.notes ? `[No reminders] ${f.notes}` : '[No reminders]';
   }
 
   const id = 'book-' + crypto.randomUUID().slice(0, 8);

@@ -4,7 +4,31 @@
 verification, or owner-action state changes. Everything under `docs/` is a dated
 snapshot; if this file and a snapshot disagree, this file wins.
 
-**Updated:** 2026-10-03 — **The multi-page site is CUT OVER in the repo.** `BASE` is
+**Updated:** 2026-10-03 (later) — **Design critique round: BUILT AND GREEN, NOT
+COMMITTED, NOT DEPLOYED.** An Impeccable audit (13/20) + critique (21/40) found
+the home hero's small text at 1.8–4.0:1 on the gradient, the doctor's name in
+every footer at 1:1 (ink on ink), a /book/ form that defaulted to a "Morning"
+session no chamber runs, accepted past dates and closed days client-side, and
+silently dropped its pre-ticked reminders box, and Centre fee tiers presented
+without saying hospital-chamber fees differ. Fixed: hero recoloured (now
+4.8–7.4:1 measured), footer brand, site-wide ink `:focus-visible`; /book/
+derives each chamber's session and consulting days from `functions/lib/
+schedule.js`, sets `min`, shows per-field errors, and sends `reminders` — the
+API records an opt-out as `[No reminders]` at the front of the notes (no schema
+change); home leads with the two Shyamoli chambers, ethics band second, Centre
+tiers/rooms labelled "from opening in 2027" with VAT-inclusive totals; nav gains
+Learn + an About menu (chambers, contact, FAQ, Centre), drawer mirrors the mega
+menus, footer carries phone/WhatsApp/email/hours; burger below 1100px; ABCDE
+illustrations on the mole tool (docx §5.40). New shared tokens `--hair-dark`,
+`--field-line`, `--err-*`, `--warn-*` in BOTH :root blocks. **294/294 node +
+31/31 e2e green.** Owner sign-off needed: the nav departs from the docx menu
+(The Centre moved under About; Learn added); `content/bn.mjs` holds unapproved
+Bangla drafts that render only when marked approved; `assets/clinic.jpg` (the
+og:image) and `treatment.jpg` appear AI-generated with non-local subjects and
+the og alt text calls clinic.jpg "the consultation suite at Dr. Sumya Pervin's
+practice" — a claim the owner should replace or retract.
+
+**Earlier 2026-10-03 — The multi-page site is CUT OVER in the repo.** `BASE` is
 now `''` and `npm run build:site` writes the 63-page site to `public/` root, replacing
 the one-pager's `index.html`. The one-pager CMS moved to a standalone **`/admin/`**
 console (`public/admin/index.html` + `public/js/admin.js`); the one-pager-only scripts

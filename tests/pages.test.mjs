@@ -232,3 +232,28 @@ test('robots.txt keeps crawlers out of the admin console', async () => {
   const txt = await readFile(join(repoRoot, 'public', 'robots.txt'), 'utf8');
   assert.match(txt, /Disallow:\s*\/admin\//, 'robots.txt must disallow /admin/');
 });
+
+test('the booking form offers only real chambers, stamped with the server schedule', async () => {
+  // /book/ derives its chamber options, closed-day check and session from
+  // CHAMBERS_NOW + functions/lib/schedule.js. A key that drifts from the
+  // server's list would make every booking at that chamber a 400.
+  const { CHAMBERS } = await import('../functions/lib/schedule.js');
+  const { CHAMBERS_NOW } = await import('../content/site.mjs');
+  const html = await readFile(join(OUT, 'book', 'index.html'), 'utf8');
+  for (const c of CHAMBERS_NOW) {
+    assert.ok(CHAMBERS[c.key], `${c.key} is not a chamber the booking API accepts`);
+    assert.ok(html.includes(`value="${c.key}" data-days="${CHAMBERS[c.key].days.join(',')}"`), `${c.key}: option missing or not stamped with its consulting days`);
+  }
+  assert.ok(!/value="Morning"/.test(html), 'the form must not offer a session no chamber runs');
+});
+
+test('no unapproved Bangla draft reaches a built page', async () => {
+  // content/bn.mjs holds machine-drafted Bangla awaiting the doctor's review.
+  const { BN } = await import('../content/bn.mjs');
+  for (const page of PAGES) {
+    const html = await readPage(page);
+    for (const [path, entry] of Object.entries(BN)) {
+      if (!entry.approved) assert.ok(!html.includes(entry.text), `${page.path}: unapproved Bangla draft for ${path} is published`);
+    }
+  }
+});

@@ -33,6 +33,12 @@
   --ink: #4A443E;
   --grey: #756F67;
   --hair: #EDE7DD;
+  --hair-dark: #5B564F;
+  --field-line: #8F877D;
+  --err-ink: #B3261E;
+  --err-bg: #FDECEA;
+  --warn-ink: #856404;
+  --warn-bg: #FFF3CD;
   --r-shell: 30px;
   --r-card: 20px;
   --pad: clamp(18px, 3.4vw, 56px);

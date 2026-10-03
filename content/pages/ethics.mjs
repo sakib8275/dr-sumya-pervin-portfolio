@@ -29,7 +29,7 @@ export default function ethics() {
 
 <section class="s-sec"><div class="wrap">
   <div class="ethics-grid">
-    ${REFUSALS.map(([t, w]) => `<article class="ethics-card"><h3>${t}</h3><p>${w}</p></article>`).join('')}
+    ${REFUSALS.map(([t, w]) => `<article class="ethics-card"><h2>${t}</h2><p>${w}</p></article>`).join('')}
   </div>
   <div class="h-final h-final-inner">
     <h2>Good medicine starts with what we won’t do.</h2>
