@@ -13,7 +13,7 @@ test('the prices estimator publishes with the laser gate', async ({ page, site }
   await page.goto(site.baseURL + '/prices/', { waitUntil: 'networkidle' });
 
   if (!gateVisible('laser')) {
-    await expect(page.locator('#estimator')).toContainText('Publishes when the laser suite opens');
+    await expect(page.locator('#estimator')).toContainText(/publishes when the laser suite opens/i);
     await expect(page.locator('#estTotal')).toHaveCount(0);
     return;
   }

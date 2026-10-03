@@ -84,13 +84,22 @@ The single-page web app (`public/index.html`) is structured into distinct intera
 
 ## 5. Design System & Aesthetic Architecture
 
-- **Visual Theme**: Clean, modern, luxury medical aesthetic combining soft glassmorphism card surfaces with dark/vibrant rich accents.
-- **Typography**: Google Fonts **Outfit** (`300`, `400`, `500`, `600`, `700` weights) providing a clean, modern, accessible aesthetic.
+- **Visual Theme** (since 2026-10-03): **Nil & Haldi** — Bengal indigo and turmeric on unbleached
+  paper. Indigo is the complement of brown skin, so the frame recedes and skin in photographs reads
+  true; turmeric is the one rare warm signal. Tokens and rationale: `public/css/site.css` `:root`
+  (mirrored into `style.css` for the admin panel; legacy gold names survive there as aliases).
+- **Typography**: Google Fonts **Outfit** (+ Hind Siliguri for Bangla).
 - **Color Palette**:
-  - Primary Accent: Rich Emerald / Teal Hues (`hsl()` tailored variables)
-  - Translucent Overlays: Glass backdrop-blur components (`backdrop-filter: blur(12px)`)
-  - Text & Contrast: High-contrast crisp typography for optimal readability across devices.
-- **Micro-Interactions**: Smooth scroll transitions, hover elevation on cards, subtle pill badges, button press animations.
+  - Grounds: `--paper` #F7F3EA, `--paper-2` #EFE8DA, `--surface` #FFFDF8; dark grounds `--nil-deep` #1A2756
+  - Text: `--ink` #1C2233, `--ink-2` #4F5568; on indigo `#fff` / `--on-nil` #C9D1EA
+  - Brand & action: `--nil` #23336B (buttons, links, prices, focus ring)
+  - Accent: `--haldi` #E0A526 as a fill or mark only (2:1 on paper); `--haldi-ink` #8A5A00 when it must be text
+  - No gradients under text. Every pairing is pinned in `tests/contrast.test.mjs`.
+- **Motion**: one authored moment — the home hero entrance (headline settles out of a blur, the
+  nameplate arch fills with indigo, the turmeric underline draws under "diagnosis"). Supporting
+  motion only explains state: the package sheet grows out of the tapped fee card (View Transitions,
+  keyframe fallback), menus settle 6px, buttons sink 2% on press. Everything has a
+  `prefers-reduced-motion` path.
 
 ---
 

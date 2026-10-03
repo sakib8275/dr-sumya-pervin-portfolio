@@ -8,6 +8,24 @@ export { href } from './site.mjs';
 
 const T = (s) => `${s} | ${SITE.name}, Dermatologist in Dhaka`;
 
+// The 12 condition pages: [slug, name, blurb]. The blurb is each page's meta
+// description, and the skin check (/tools/skin-check/) shows the same name
+// and blurb as its result cards, so the two can never disagree.
+export const CONDITIONS = [
+  ['acne', 'Acne and Acne Scarring', 'Acne is a treatable medical condition, not a hygiene problem. Diagnosis first, then evidence-based treatment — and honest talk about what scarring treatments can and cannot do.'],
+  ['eczema', 'Eczema (Dermatitis)', 'Eczema flares, steroid fear and the creams that make it worse: how eczema is diagnosed, controlled over months, and monitored with a written plan.'],
+  ['psoriasis', 'Psoriasis', 'Psoriasis is controlled, not cured — with a clear plan and follow-up timed to the condition. Includes phototherapy and care-plan options.'],
+  ['fungal-infection', 'Fungal Infection (Ringworm, Tinea)', 'Why ringworm keeps coming back — and the cream that makes it worse. Same-visit fungal microscopy, right treatment, family checks.'],
+  ['melasma', 'Melasma and Pigmentation', 'Melasma is manageable, not curable — what actually works, what to avoid, and why sun protection is the whole game in Dhaka.'],
+  ['hair-loss', 'Hair Loss (Alopecia)', 'Pattern loss, telogen effluvium, alopecia areata: hair loss has distinct causes with distinct treatments. Trichoscopy and a plan, not miracle oils.'],
+  ['urticaria-allergy', 'Hives and Skin Allergy (Urticaria)', 'Acute and chronic hives: what triggers look like, when allergy testing helps, and how long control really takes.'],
+  ['vitiligo', 'Vitiligo', 'Vitiligo treatment works better the earlier it starts. Honest expectations, medical options, and how we monitor response with photographs.'],
+  ['seborrhoeic-keratosis-dpn', 'Seborrhoeic Keratosis & DPN', 'Harmless growths that are easy to remove — after a dermatologist confirms that is what they are.'],
+  ['precancerous-skin-lesions', 'Precancerous Skin Lesions', 'Actinic and arsenical keratosis: why Bangladesh’s arsenic history makes regular skin checks matter, and how these are treated.'],
+  ['skin-cancer', 'Skin Cancer and Mole Checks', 'The ABCDE rule plus the palms-soles-nails rule for South Asian skin. Screening, biopsy, treatment and referral — with priority slots for suspicious moles.'],
+  ['sexual-health', 'Confidential Sexual Health', 'Private consultation slots, no reason needed when booking, discreet invoice wording, and evidence-based STI care.'],
+];
+
 export const PAGES = [
   // — Real pages (Phase 1) —
   { path: '/', title: 'Dermatologist in Dhaka | Dr. Sumya Pervin, FCPS (Skin & VD)',
@@ -74,22 +92,12 @@ export const PAGES = [
   { path: '/tools/skin-type-guide/', title: T('Skin Type Guide — 2 Minutes'),
     desc: 'Six questions to your skin type and sun-reactivity, with a three-step routine for Dhaka’s humidity.',
     body: 'skinType' },
+  { path: '/tools/skin-check/', title: T('Skin Check — What Might This Be?'),
+    desc: 'Five questions about what you can see and feel: the conditions it often turns out to be, how soon to be seen, and which visit fits. Nothing is stored.',
+    body: 'skinCheck' },
 
-  // — 12 condition pages —
-  ...[
-    ['acne', 'Acne and Acne Scarring', 'Acne is a treatable medical condition, not a hygiene problem. Diagnosis first, then evidence-based treatment — and honest talk about what scarring treatments can and cannot do.'],
-    ['eczema', 'Eczema (Dermatitis)', 'Eczema flares, steroid fear and the creams that make it worse: how eczema is diagnosed, controlled over months, and monitored with a written plan.'],
-    ['psoriasis', 'Psoriasis', 'Psoriasis is controlled, not cured — with a clear plan and follow-up timed to the condition. Includes phototherapy and care-plan options.'],
-    ['fungal-infection', 'Fungal Infection (Ringworm, Tinea)', 'Why ringworm keeps coming back — and the cream that makes it worse. Same-visit fungal microscopy, right treatment, family checks.'],
-    ['melasma', 'Melasma and Pigmentation', 'Melasma is manageable, not curable — what actually works, what to avoid, and why sun protection is the whole game in Dhaka.'],
-    ['hair-loss', 'Hair Loss (Alopecia)', 'Pattern loss, telogen effluvium, alopecia areata: hair loss has distinct causes with distinct treatments. Trichoscopy and a plan, not miracle oils.'],
-    ['urticaria-allergy', 'Hives and Skin Allergy (Urticaria)', 'Acute and chronic hives: what triggers look like, when allergy testing helps, and how long control really takes.'],
-    ['vitiligo', 'Vitiligo', 'Vitiligo treatment works better the earlier it starts. Honest expectations, medical options, and how we monitor response with photographs.'],
-    ['seborrhoeic-keratosis-dpn', 'Seborrhoeic Keratosis & DPN', 'Harmless growths that are easy to remove — after a dermatologist confirms that is what they are.'],
-    ['precancerous-skin-lesions', 'Precancerous Skin Lesions', 'Actinic and arsenical keratosis: why Bangladesh’s arsenic history makes regular skin checks matter, and how these are treated.'],
-    ['skin-cancer', 'Skin Cancer and Mole Checks', 'The ABCDE rule plus the palms-soles-nails rule for South Asian skin. Screening, biopsy, treatment and referral — with priority slots for suspicious moles.'],
-    ['sexual-health', 'Confidential Sexual Health', 'Private consultation slots, no reason needed when booking, discreet invoice wording, and evidence-based STI care.'],
-  ].map(([slug, name, blurb]) => ({
+  // — 12 condition pages (CONDITIONS above; the skin check links to them too) —
+  ...CONDITIONS.map(([slug, name, blurb]) => ({
     path: `/conditions/${slug}/`, title: T(`${name} — Diagnosis & Treatment`), desc: blurb,
   })),
 

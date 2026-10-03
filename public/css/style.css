@@ -1,45 +1,53 @@
 :root {
-  --canvas: #FADAA7;
-  --surface: #FFFFFF;
-  --ivory: #FDFBEF;
-  --butter: #FCF7DA;
-  --sienna: #964C1F;
-  --brick: #973324;
-  /* WCAG AA (4.5:1) against every surface these land on -- --surface #FFF,
-     --ivory #FDFBEF and --butter #FCF7DA -- measured against the darkest of the
-     three. The previous values were text colours that failed outright:
-     --grey 2.78:1, --tan 2.33:1, --rust 3.41:1, --orange 3.00:1 on --butter.
-     --grey alone carries .svc p, .gallery-body p, .chamber-meta and every form
-     hint on the site.
-     --rust and --tan are the .w1/.w2 two-tone heading pair. Their original
-     distinction was mostly LIGHTNESS, which AA removes -- both must now be dark.
-     These two were chosen to hold the same perceptual separation on the
-     hue/saturation axis instead: deltaE 20.0, against 19.9 for the old pair. Do
-     not "simplify" them toward each other; the heading effect is the reason they
-     are two tokens. */
-  --rust: #A15040;
-  --tan: #A55F27;
-  /* --orange is a DECORATIVE token: the hero, steps and footer gradients only.
-     It never carries text and never sits under text. White on it is 3.24:1, so
-     using it as a button background (which .btn-primary did) failed AA on the
-     site's single most important control. */
-  --orange: #EA6806;
-  /* ...and this is its text-bearing counterpart: 4.94:1 both as a foreground on
-     white and as a background under white. Use this one for anything involving
-     text, borders or focus. */
-  --orange-ink: #B85205;
-  --amber: #F7A40A;
-  --gold: #FCE07C;
-  --ink: #4A443E;
-  --grey: #756F67;
-  --hair: #EDE7DD;
+  /* Shared token block — a verbatim copy of public/css/site.css :root, where
+     the palette is explained (tests/pages.test.mjs enforces the match). This
+     stylesheet now serves only the admin panel, which reads the legacy names
+     at the bottom of the block. */
+  --paper: #F7F3EA;
+  --paper-2: #EFE8DA;
+  --surface: #FFFDF8;
+  --ink: #1C2233;
+  --ink-2: #4F5568;
+  --nil: #23336B;
+  --nil-deep: #1A2756;
+  --nil-tint: #E4E8F4;
+  --on-nil: #C9D1EA;
+  --haldi: #E0A526;
+  --haldi-ink: #8A5A00;
+  --rule: #DDD5C6;
+  --rule-dark: #3A4677;
+  --field-line: #8C8576;
+  --ok: #2F6B45;
+  --err-ink: #A8322A;
+  --err-bg: #FBEAE7;
+  --warn-ink: #7A5200;
+  --warn-bg: #FBF0D6;
   --r-shell: 30px;
   --r-card: 20px;
   --pad: clamp(18px, 3.4vw, 56px);
   --sec-y: clamp(56px, 7vw, 104px);
   --ease: cubic-bezier(.22, .61, .36, 1);
-  --shadow-sm: 0 4px 14px rgba(150, 76, 31, 0.08);
-  --shadow-md: 0 12px 30px rgba(150, 76, 31, 0.12);
+  --ease-out: cubic-bezier(.16, 1, .3, 1);
+  --ease-move: cubic-bezier(.65, 0, .35, 1);
+  --t-press: 160ms;
+  --t-state: 320ms;
+  --t-focal: 760ms;
+  --shadow-sm: 0 4px 14px rgba(28, 34, 51, .07);
+  --shadow-md: 0 16px 34px -10px rgba(28, 34, 51, .18);
+  --canvas: var(--paper);
+  --ivory: var(--surface);
+  --butter: var(--paper-2);
+  --sienna: var(--nil);
+  --brick: var(--nil-deep);
+  --rust: var(--nil);
+  --tan: var(--haldi-ink);
+  --orange: var(--nil);
+  --orange-ink: var(--nil);
+  --amber: var(--haldi);
+  --gold: var(--haldi);
+  --grey: var(--ink-2);
+  --hair: var(--rule);
+  --hair-dark: var(--rule-dark);
 }
 
 * {

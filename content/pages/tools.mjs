@@ -1,6 +1,7 @@
 // Interactive tools — docx §5.40. Bespoke bodies because they carry forms;
 // site.js wires the behaviour (CSP-safe: no inline handlers, no data stored).
 import { href } from '../site.mjs';
+import { CONDITIONS } from '../sitemap.mjs';
 
 const hero = (crumb, h1, lede) => `
 <section class="pg-hero"><div class="wrap">
@@ -9,11 +10,11 @@ const hero = (crumb, h1, lede) => `
   <p class="lede">${lede}</p>
 </div></section>`;
 
-const cta = (h2, label) => `
+const cta = (h2, label, book = href('/book/')) => `
 <div class="h-final h-final-inner">
   <h2>${h2}</h2>
   <div class="h-final-ctas">
-    <a class="btn btn-ink" href="${href('/book/')}">${label}</a>
+    <a class="btn btn-ink" href="${book}">${label}</a>
     <a class="btn btn-ghost-inv" href="${href('/prices/')}">See prices</a>
   </div>
 </div>`;
@@ -27,18 +28,29 @@ export function moleCheck() {
     ['E', 'Evolving', 'Changing in size, shape, colour, or starting to itch or bleed.'],
     ['S', 'Brown-skin rule', 'A spot on the palm, sole, or a new dark streak under a nail.'],
   ];
+  // docx §5.40 asks for "steps with illustrations". Schematic, not clinical
+  // photographs: each drawing shows only the one property its letter names.
+  const ART = {
+    A: '<path class="ab-m" d="M28 10c8 0 15 6 15 16 0 11-6 20-15 20-6 0-8-4-9-9-1-4-6-6-6-12 0-9 7-15 15-15z"/><path class="ab-axis" d="M28 5v46"/>',
+    B: '<path class="ab-m" d="M28 9l4 5 7-3 1 7 7 3-4 6 4 6-7 3 0 7-7-2-4 6-5-5-7 2 0-7-7-3 4-6-5-5 7-3-1-7 7 2z"/>',
+    C: '<circle class="ab-m2" cx="28" cy="28" r="17"/><path class="ab-m" d="M18 23c3-6 12-6 14 0s-4 10-9 9-7-5-5-9z"/><circle class="ab-m3" cx="35" cy="34" r="5.5"/>',
+    D: '<circle class="ab-m" cx="17" cy="24" r="11"/><path class="ab-rule" d="M6 44h22M6 40.5v7M28 40.5v7"/><text class="ab-t" x="31" y="47.5">6 mm</text>',
+    E: '<circle class="ab-m" cx="13" cy="30" r="6"/><path class="ab-rule" d="M23 30h9m-3.5-3.5L32 30l-3.5 3.5"/><path class="ab-m" d="M45 16c6 2 9 9 7 15s-8 9-13 7-7-8-5-13 5-10 11-9z"/>',
+    S: '<rect class="ab-nail" x="15" y="8" width="26" height="40" rx="12"/><rect class="ab-m3" x="25.5" y="10" width="5" height="36" rx="2.5"/>',
+  };
+  const art = (k) => `<svg class="ab" viewBox="0 0 56 56" aria-hidden="true" focusable="false">${ART[k]}</svg>`;
   return `${hero('Mole check', 'Check your moles in 5 minutes', 'The ABCDE rule, plus the brown-skin rule. Nothing you enter is stored, and this tells you whether a mole deserves a dermatologist’s look — it is not a diagnosis.')}
 <section class="s-sec"><div class="wrap">
   <form class="tool" data-tool="mole-check" novalidate>
     <p class="tool-note">Tick anything that applies to the mole you are checking. Nothing is sent anywhere.</p>
     <div class="tool-list">
-      ${signs.map(([k, t, d]) => `<label class="tool-check"><input type="checkbox" data-sign="${k}"><span><b>${k} — ${t}.</b> ${d}</span></label>`).join('')}
+      ${signs.map(([k, t, d]) => `<label class="tool-check tool-check-art"><input type="checkbox" data-sign="${k}">${art(k)}<span><b>${k}: ${t}.</b> ${d}</span></label>`).join('')}
     </div>
     <button type="submit" class="btn btn-ink">Check my mole</button>
   </form>
   <div class="tool-out" id="moleOut" role="status" aria-live="polite" hidden></div>
-  <p class="tool-fine">This tool is a guide, not a diagnosis. If a mole is new, changing, or bleeding, book a mole check with a priority slot.</p>
-  ${cta('Worth a dermatologist’s look? Book a mole check.', 'Book a mole check')}
+  <p class="tool-fine">This tool is a guide, not a diagnosis. If a mole is new, changing, or bleeding, <a class="tlink" href="${href('/book/')}?reason=mole">book a mole check with a priority slot</a>.</p>
+  ${cta('Worth a dermatologist’s look? Book a mole check.', 'Book a mole check', `${href('/book/')}?reason=mole`)}
 </div></section>`;
 }
 
@@ -62,6 +74,69 @@ export function skinType() {
   <div class="tool-out" id="skinOut" role="status" aria-live="polite" hidden></div>
   <p class="tool-fine">A guide to routine and suitability, not a diagnosis. For a diagnosis, book a consultation.</p>
   ${cta('Want a routine built for your skin? Book a consultation.', 'Book a consultation')}
+</div></section>`;
+}
+
+// Skin check (2026-10-03, owner request: "let a patient know their general
+// condition easily"). A symptom guide, not the v1 quiz: it never names a
+// diagnosis or a procedure. It shows the conditions a description often turns
+// out to be (linking her own condition pages), how soon to be seen, and which
+// visit fits.
+//
+// ⚠️ CLINICAL COPY PUBLISHED BEFORE THE DOCTOR'S REVIEW (owner's choice): the
+// sign → condition mapping (data-cond) and the warning signs below, and the
+// urgency wording in public/js/site.js. Dr. Sumya should read both; see
+// STATUS.md. The emergency wording follows the docx urticaria page (§5.12).
+//
+// Condition cards are build-time <template>s cloned by site.js, with name and
+// blurb from CONDITIONS (content/sitemap.mjs), the same text as each page's
+// meta description.
+export function skinCheck() {
+  const where = [['face', 'Face'], ['body', 'Body (arms, legs, trunk)'], ['scalp', 'Scalp and hair'], ['nails', 'Nails'], ['hands-feet', 'Hands and feet'], ['private', 'Private (genital) area']];
+  const look = [
+    ['spots', 'Spots, pimples or blackheads', 'acne'],
+    ['dry-itchy', 'Dry, itchy, rough patches', 'eczema'],
+    ['scaly', 'Thick red patches with silvery scale', 'psoriasis'],
+    ['ring', 'An itchy ring-shaped or spreading rash, often in folds or the groin', 'fungal-infection'],
+    ['dark', 'Brown or dark patches', 'melasma'],
+    ['light', 'White or lighter patches', 'vitiligo,fungal-infection'],
+    ['welts', 'Raised itchy welts that come and go', 'urticaria-allergy'],
+    ['hair', 'Hair falling, thinning or bald patches', 'hair-loss'],
+    ['mole', 'A mole or dark spot that is new or changing', 'skin-cancer'],
+    ['bumps', 'Small raised brown or dark bumps', 'seborrhoeic-keratosis-dpn'],
+    ['palms', 'Rough scaly spots on the palms or soles', 'precancerous-skin-lesions'],
+    ['nail-change', 'Thick, discoloured or crumbling nails', 'fungal-infection,psoriasis'],
+    ['private', 'Sores, bumps or discharge in the private area', 'sexual-health'],
+    ['other', 'Something else', ''],
+  ];
+  const dur = [['days', 'Under 2 weeks'], ['weeks', '2–6 weeks'], ['months', '6 weeks to 6 months'], ['long', 'Over 6 months']];
+  const acts = [['itch', 'Itchy'], ['pain', 'Painful'], ['spread', 'Spreading'], ['bleed', 'Bleeding or oozing'], ['comes-goes', 'Comes and goes']];
+  const warn = [
+    ['airway', 'Swelling of the lips, tongue or throat, or trouble breathing'],
+    ['fever', 'Fever with a widespread rash, or blistering or peeling skin'],
+    ['hot', 'Red, hot, painful skin that is spreading fast'],
+    ['mole-fast', 'A mole that is bleeding or changing quickly'],
+  ];
+  const radios = (name, opts) => `<div class="tool-opts">${opts.map(([v, t, c]) => `<label class="tool-radio"><input type="radio" name="${name}" value="${v}"${c !== undefined ? ` data-cond="${c}"` : ''}><span>${t}</span></label>`).join('')}</div>`;
+  const conds = CONDITIONS.map(([slug, name, blurb]) => `<template id="sc-${slug}"><a class="card sc-cond" href="${href(`/conditions/${slug}/`)}"><h4>${name}</h4><p>${blurb}</p><span class="tlink">Read the guide</span></a></template>`).join('');
+  return `${hero('Skin check', 'What might this be? A 2-minute skin check', 'Five questions about what you can see and feel. You’ll see the conditions it often turns out to be, how soon to be seen, and which visit fits. Nothing you enter is stored or sent, and this is not a diagnosis. Only an examination can tell.')}
+<section class="s-sec"><div class="wrap">
+  <form class="tool" data-tool="skin-check" novalidate>
+    <fieldset class="tool-q"><legend>Where is it?</legend>${radios('where', where)}</fieldset>
+    <fieldset class="tool-q"><legend>What do you notice most?</legend><p class="tool-note">Pick the closest one.</p>${radios('look', look)}</fieldset>
+    <fieldset class="tool-q"><legend>How long has it been there?</legend>${radios('dur', dur)}</fieldset>
+    <fieldset class="tool-q"><legend>What is it doing? <span class="bk-opt">(tick any)</span></legend>
+      <div class="tool-opts">${acts.map(([v, t]) => `<label class="tool-radio"><input type="checkbox" name="act" value="${v}"><span>${t}</span></label>`).join('')}</div>
+    </fieldset>
+    <fieldset class="tool-q"><legend>Any of these right now? <span class="bk-opt">(tick any)</span></legend>
+      <div class="tool-list">${warn.map(([v, t]) => `<label class="tool-check"><input type="checkbox" name="warn" value="${v}"><span>${t}</span></label>`).join('')}</div>
+    </fieldset>
+    <button type="submit" class="btn btn-ink">Show what this might be</button>
+  </form>
+  <div class="tool-out sc-out" id="scOut" role="status" aria-live="polite" tabindex="-1" hidden></div>
+  ${conds}
+  <p class="tool-fine">A guide, not a diagnosis. Several skin conditions look alike, and some need a test to tell apart. If anything gets worse quickly, come sooner. In an emergency, go to the nearest emergency department.</p>
+  ${cta('Want a diagnosis, not a guess? Book a consultation.', 'Book a consultation')}
 </div></section>`;
 }
 

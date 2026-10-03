@@ -1,0 +1,162 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-03T23:00:00+06:00",
+  "title": "Design System: Dr. Sumya Pervin — Dermatology",
+  "extensions": {
+    "colorMeta": {
+      "nil": { "role": "primary", "displayName": "Nil Indigo", "canonical": "oklch(34.1% 0.100 269)", "tonalRamp": ["oklch(15% 0.073 269)", "oklch(26% 0.089 269)", "oklch(38% 0.094 269)", "oklch(49% 0.078 269)", "oklch(61% 0.062 269)", "oklch(72% 0.046 269)", "oklch(84% 0.031 269)", "oklch(95% 0.025 269)"] },
+      "nil-deep": { "role": "primary", "displayName": "Deep Nil", "canonical": "oklch(29.1% 0.087 269)", "tonalRamp": ["oklch(15% 0.070 269)", "oklch(26% 0.084 269)", "oklch(38% 0.076 269)", "oklch(49% 0.062 269)", "oklch(61% 0.048 269)", "oklch(72% 0.034 269)", "oklch(84% 0.022 269)", "oklch(95% 0.022 269)"] },
+      "nil-tint": { "role": "primary", "displayName": "Nil Wash", "canonical": "oklch(93.1% 0.017 271)", "tonalRamp": ["oklch(15% 0.004 271)", "oklch(26% 0.004 271)", "oklch(38% 0.004 271)", "oklch(49% 0.006 271)", "oklch(61% 0.009 271)", "oklch(72% 0.012 271)", "oklch(84% 0.015 271)", "oklch(95% 0.016 271)"] },
+      "on-nil": { "role": "primary", "displayName": "Indigo Mist", "canonical": "oklch(86.2% 0.036 272)", "tonalRamp": ["oklch(15% 0.009 272)", "oklch(26% 0.009 272)", "oklch(38% 0.012 272)", "oklch(49% 0.017 272)", "oklch(61% 0.023 272)", "oklch(72% 0.029 272)", "oklch(84% 0.034 272)", "oklch(95% 0.031 272)"] },
+      "haldi": { "role": "secondary", "displayName": "Haldi Turmeric", "canonical": "oklch(75.8% 0.147 81)", "tonalRamp": ["oklch(15% 0.037 81)", "oklch(26% 0.045 81)", "oklch(38% 0.069 81)", "oklch(49% 0.092 81)", "oklch(61% 0.116 81)", "oklch(72% 0.139 81)", "oklch(84% 0.131 81)", "oklch(95% 0.108 81)"] },
+      "haldi-ink": { "role": "secondary", "displayName": "Turmeric Ink", "canonical": "oklch(50.8% 0.108 73)", "tonalRamp": ["oklch(15% 0.054 73)", "oklch(26% 0.071 73)", "oklch(38% 0.088 73)", "oklch(49% 0.106 73)", "oklch(61% 0.093 73)", "oklch(72% 0.076 73)", "oklch(84% 0.058 73)", "oklch(95% 0.041 73)"] },
+      "paper": { "role": "neutral", "displayName": "Unbleached Paper", "canonical": "oklch(96.5% 0.013 87)", "tonalRamp": ["oklch(15% 0.003 87)", "oklch(26% 0.003 87)", "oklch(38% 0.003 87)", "oklch(49% 0.004 87)", "oklch(61% 0.006 87)", "oklch(72% 0.008 87)", "oklch(84% 0.010 87)", "oklch(95% 0.012 87)"] },
+      "paper-2": { "role": "neutral", "displayName": "Folded Paper", "canonical": "oklch(93.3% 0.020 85)", "tonalRamp": ["oklch(15% 0.005 85)", "oklch(26% 0.005 85)", "oklch(38% 0.005 85)", "oklch(49% 0.008 85)", "oklch(61% 0.011 85)", "oklch(72% 0.014 85)", "oklch(84% 0.017 85)", "oklch(95% 0.020 85)"] },
+      "surface": { "role": "neutral", "displayName": "Clean Sheet", "canonical": "oklch(99.4% 0.007 89)", "tonalRamp": ["oklch(15% 0.002 89)", "oklch(26% 0.002 89)", "oklch(38% 0.002 89)", "oklch(49% 0.002 89)", "oklch(61% 0.003 89)", "oklch(72% 0.004 89)", "oklch(84% 0.005 89)", "oklch(95% 0.006 89)"] },
+      "ink": { "role": "neutral", "displayName": "Indigo-Black Ink", "canonical": "oklch(25.4% 0.033 269)", "tonalRamp": ["oklch(15% 0.029 269)", "oklch(26% 0.033 269)", "oklch(38% 0.028 269)", "oklch(49% 0.022 269)", "oklch(61% 0.017 269)", "oklch(72% 0.012 269)", "oklch(84% 0.008 269)", "oklch(95% 0.008 269)"] },
+      "ink-2": { "role": "neutral", "displayName": "Faded Ink", "canonical": "oklch(45.2% 0.032 271)", "tonalRamp": ["oklch(15% 0.019 271)", "oklch(26% 0.024 271)", "oklch(38% 0.029 271)", "oklch(49% 0.030 271)", "oklch(61% 0.025 271)", "oklch(72% 0.020 271)", "oklch(84% 0.015 271)", "oklch(95% 0.010 271)"] },
+      "rule": { "role": "neutral", "displayName": "Pencil Rule", "canonical": "oklch(87.5% 0.022 83)", "tonalRamp": ["oklch(15% 0.006 83)", "oklch(26% 0.006 83)", "oklch(38% 0.007 83)", "oklch(49% 0.010 83)", "oklch(61% 0.014 83)", "oklch(72% 0.017 83)", "oklch(84% 0.021 83)", "oklch(95% 0.020 83)"] },
+      "rule-dark": { "role": "neutral", "displayName": "Night Rule", "canonical": "oklch(40.8% 0.084 272)", "tonalRamp": ["oklch(15% 0.053 272)", "oklch(26% 0.067 272)", "oklch(38% 0.080 272)", "oklch(49% 0.074 272)", "oklch(61% 0.060 272)", "oklch(72% 0.047 272)", "oklch(84% 0.034 272)", "oklch(95% 0.021 272)"] },
+      "field-line": { "role": "neutral", "displayName": "Field Line", "canonical": "oklch(61.8% 0.024 86)", "tonalRamp": ["oklch(15% 0.008 86)", "oklch(26% 0.012 86)", "oklch(38% 0.016 86)", "oklch(49% 0.019 86)", "oklch(61% 0.023 86)", "oklch(72% 0.020 86)", "oklch(84% 0.016 86)", "oklch(95% 0.013 86)"] },
+      "ok": { "role": "neutral", "displayName": "Confirmed Green", "canonical": "oklch(47.7% 0.088 154)", "tonalRamp": ["oklch(15% 0.048 154)", "oklch(26% 0.062 154)", "oklch(38% 0.076 154)", "oklch(49% 0.086 154)", "oklch(61% 0.072 154)", "oklch(72% 0.058 154)", "oklch(84% 0.044 154)", "oklch(95% 0.030 154)"] },
+      "err-ink": { "role": "neutral", "displayName": "Error Red", "canonical": "oklch(49.4% 0.155 28)", "tonalRamp": ["oklch(15% 0.081 28)", "oklch(26% 0.105 28)", "oklch(38% 0.130 28)", "oklch(49% 0.155 28)", "oklch(61% 0.131 28)", "oklch(72% 0.106 28)", "oklch(84% 0.081 28)", "oklch(95% 0.056 28)"] },
+      "err-bg": { "role": "neutral", "displayName": "Error Wash", "canonical": "oklch(95.0% 0.019 30)", "tonalRamp": ["oklch(15% 0.005 30)", "oklch(26% 0.005 30)", "oklch(38% 0.005 30)", "oklch(49% 0.007 30)", "oklch(61% 0.010 30)", "oklch(72% 0.013 30)", "oklch(84% 0.016 30)", "oklch(95% 0.019 30)"] },
+      "warn-ink": { "role": "neutral", "displayName": "Notice Brown", "canonical": "oklch(47.1% 0.099 76)", "tonalRamp": ["oklch(15% 0.054 76)", "oklch(26% 0.070 76)", "oklch(38% 0.086 76)", "oklch(49% 0.096 76)", "oklch(61% 0.080 76)", "oklch(72% 0.064 76)", "oklch(84% 0.048 76)", "oklch(95% 0.032 76)"] },
+      "warn-bg": { "role": "neutral", "displayName": "Notice Wash", "canonical": "oklch(95.7% 0.036 88)", "tonalRamp": ["oklch(15% 0.009 88)", "oklch(26% 0.009 88)", "oklch(38% 0.009 88)", "oklch(49% 0.013 88)", "oklch(61% 0.018 88)", "oklch(72% 0.024 88)", "oklch(84% 0.030 88)", "oklch(95% 0.036 88)"] }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "The home hero headline only; inner page heroes step down to clamp(34px, 4.6vw, 54px)." },
+      "headline": { "displayName": "Headline", "purpose": "Section heads, ~26ch measure, balanced wrapping." },
+      "title": { "displayName": "Title", "purpose": "Card, column and fee-tier titles (19–25px)." },
+      "figure": { "displayName": "Figure", "purpose": "Prices and hours in Nil Indigo with tabular numerals; ৳ before the number, lakh grouping." },
+      "body": { "displayName": "Body", "purpose": "Prose at ≤76ch; ledes 17–19px at 62ch." },
+      "body-small": { "displayName": "Body small", "purpose": "Card copy, meta lines and table cells, mostly Faded Ink." },
+      "label": { "displayName": "Label", "purpose": "Uppercase letter-spaced heads: tables, menu groups, sheet sections, the nameplate role." }
+    },
+    "shadows": [
+      { "name": "hover-lift", "value": "0 4px 14px rgba(28, 34, 51, .07)", "purpose": "Cards and fee cards under the pointer, with a 2px rise." },
+      { "name": "recommended", "value": "0 16px 34px -10px rgba(28, 34, 51, .18)", "purpose": "The single recommended fee tier or care plan, at rest." },
+      { "name": "overlay", "value": "0 18px 36px -14px rgba(28, 34, 51, .22)", "purpose": "Mega menu; drawer and package sheet use their own edge shadows over an indigo scrim rgba(26, 39, 86, .42)." },
+      { "name": "nameplate", "value": "0 28px 52px -24px rgba(26, 39, 86, .55)", "purpose": "The hero nameplate arch, the page's one object." }
+    ],
+    "motion": [
+      { "name": "ease-out", "value": "cubic-bezier(.16, 1, .3, 1)", "purpose": "Arrivals: settling like ink into paper." },
+      { "name": "ease-move", "value": "cubic-bezier(.65, 0, .35, 1)", "purpose": "Movement between states; the hero underline draw." },
+      { "name": "ease", "value": "cubic-bezier(.22, .61, .36, 1)", "purpose": "Legacy curve on drawer, chevrons and older transitions." },
+      { "name": "t-press", "value": "160ms", "purpose": "Button press and colour feedback." },
+      { "name": "t-state", "value": "320ms", "purpose": "Panels, sheets, drawer." },
+      { "name": "t-focal", "value": "760ms", "purpose": "The hero headline's ink-settle entrance only." }
+    ],
+    "breakpoints": [
+      { "name": "phone-narrow", "value": "480px" },
+      { "name": "phone", "value": "820px" },
+      { "name": "tablet", "value": "1080px" },
+      { "name": "nav-collapse", "value": "1100px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The main action on every surface: book, check, show.",
+      "html": "<a class=\"ds-btn-primary\" href=\"#\">Book a consultation</a>",
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; gap: 8px; padding: 13px 22px; border-radius: 999px; border: 1.5px solid transparent; background: var(--nil, #23336B); color: #fff; font: 700 15px/1.2 Outfit, ui-sans-serif, system-ui, sans-serif; text-decoration: none; transition: background-color 160ms cubic-bezier(.16,1,.3,1), transform 160ms cubic-bezier(.16,1,.3,1); } .ds-btn-primary:hover { background: var(--nil-deep, #1A2756); } .ds-btn-primary:active { transform: scale(.98); } .ds-btn-primary:focus-visible { outline: 2px solid var(--nil, #23336B); outline-offset: 3px; }"
+    },
+    {
+      "name": "Ghost Button",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "The secondary action beside a primary: see what's included, where she consults.",
+      "html": "<a class=\"ds-btn-ghost\" href=\"#\">Where she consults now</a>",
+      "css": ".ds-btn-ghost { display: inline-flex; align-items: center; gap: 8px; padding: 13px 22px; border-radius: 999px; border: 1.5px solid var(--nil, #23336B); background: transparent; color: var(--nil, #23336B); font: 700 15px/1.2 Outfit, ui-sans-serif, system-ui, sans-serif; text-decoration: none; transition: background-color 160ms cubic-bezier(.16,1,.3,1), transform 160ms cubic-bezier(.16,1,.3,1); } .ds-btn-ghost:hover { background: var(--nil-tint, #E4E8F4); } .ds-btn-ghost:active { transform: scale(.98); } .ds-btn-ghost:focus-visible { outline: 2px solid var(--nil, #23336B); outline-offset: 3px; }"
+    },
+    {
+      "name": "Concern Chip",
+      "kind": "chip",
+      "refersTo": "chip",
+      "description": "Browse-by-concern links under each pillar column.",
+      "html": "<a class=\"ds-chip\" href=\"#\">Eczema</a>",
+      "css": ".ds-chip { display: inline-flex; align-items: center; min-height: 40px; padding: 8px 14px; border-radius: 999px; border: 1px solid var(--rule, #DDD5C6); background: var(--paper-2, #EFE8DA); color: var(--ink, #1C2233); font: 600 14px/1.2 Outfit, ui-sans-serif, system-ui, sans-serif; text-decoration: none; transition: background-color 150ms, border-color 150ms, color 150ms; } .ds-chip:hover { background: var(--surface, #FFFDF8); border-color: var(--nil, #23336B); color: var(--nil, #23336B); } .ds-chip:focus-visible { outline: 2px solid var(--nil, #23336B); outline-offset: 3px; }"
+    },
+    {
+      "name": "Booking Field",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Text, select and textarea fields on /book/ and the tools.",
+      "html": "<label class=\"ds-field\"><span class=\"ds-field-label\">Your name</span><input class=\"ds-input\" type=\"text\" placeholder=\"As on your NID\"></label>",
+      "css": ".ds-field { display: block; font: 600 15px/1.4 Outfit, ui-sans-serif, system-ui, sans-serif; color: var(--ink, #1C2233); } .ds-input { display: block; width: 100%; margin-top: 6px; padding: 12px 14px; border: 1px solid var(--field-line, #8C8576); border-radius: 12px; background: #fff; color: var(--ink, #1C2233); font: 400 16px/1.4 Outfit, ui-sans-serif, system-ui, sans-serif; } .ds-input:focus-visible { outline: 2px solid var(--nil, #23336B); outline-offset: 1px; border-color: var(--ink, #1C2233); } .ds-input[aria-invalid=\"true\"] { border-color: var(--err-ink, #A8322A); box-shadow: inset 0 0 0 1px var(--err-ink, #A8322A); }"
+    },
+    {
+      "name": "Main Navigation",
+      "kind": "nav",
+      "refersTo": "nav",
+      "description": "Sticky paper bar: name and tagline, menu links, Book.",
+      "html": "<nav class=\"ds-nav\"><span class=\"ds-nav-logo\"><b>Dr. Sumya Pervin</b><small>Skin · Hair · Nail · Laser</small></span><span class=\"ds-nav-links\"><a href=\"#\">Conditions</a><a href=\"#\">Prices</a><a href=\"#\">Learn</a></span><a class=\"ds-nav-book\" href=\"#\">Book a consultation</a></nav>",
+      "css": ".ds-nav { display: flex; align-items: center; justify-content: space-between; gap: 20px; height: 78px; padding: 0 24px; background: var(--paper, #F7F3EA); border-bottom: 1px solid var(--rule, #DDD5C6); font-family: Outfit, ui-sans-serif, system-ui, sans-serif; } .ds-nav-logo { display: flex; flex-direction: column; line-height: 1.15; } .ds-nav-logo b { font-size: 22px; font-weight: 700; color: var(--ink, #1C2233); } .ds-nav-logo small { font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: var(--ink-2, #4F5568); } .ds-nav-links { display: flex; gap: 24px; font-size: 14.5px; font-weight: 600; } .ds-nav-links a { color: var(--ink, #1C2233); text-decoration: none; } .ds-nav-links a:hover { color: var(--nil, #23336B); } .ds-nav-book { padding: 10px 18px; border-radius: 999px; background: var(--nil, #23336B); color: #fff; font-size: 14px; font-weight: 700; text-decoration: none; } .ds-nav-book:hover { background: var(--nil-deep, #1A2756); }"
+    },
+    {
+      "name": "Fee Tier (recommended)",
+      "kind": "card",
+      "refersTo": "fee-tier",
+      "description": "A consultation depth: flag, title, Figure price with VAT, ruled inclusions, action. The recommended tier is lifted with a 2px indigo border.",
+      "html": "<article class=\"ds-tier\"><span class=\"ds-tier-flag\">Recommended for long-standing concerns</span><h3>Comprehensive Assessment</h3><p class=\"ds-tier-min\">40 minutes with Dr. Sumya</p><p class=\"ds-tier-p\">৳3,500</p><p class=\"ds-tier-vat\">৳4,025 with 15% VAT</p><ul><li>Everything in Specialist</li><li>Standardised baseline photographs</li><li>One follow-up within 30 days</li></ul></article>",
+      "css": ".ds-tier { position: relative; max-width: 340px; padding: 30px; border: 2px solid var(--nil, #23336B); border-radius: 22px; background: var(--surface, #FFFDF8); box-shadow: 0 16px 34px -10px rgba(28,34,51,.18); font-family: Outfit, ui-sans-serif, system-ui, sans-serif; color: var(--ink, #1C2233); transition: box-shadow 150ms; } .ds-tier:hover { box-shadow: 0 20px 40px -10px rgba(28,34,51,.22); } .ds-tier-flag { position: absolute; top: -14px; left: 26px; padding: 6px 12px; border-radius: 999px; background: var(--nil, #23336B); color: #fff; font-size: 12px; font-weight: 800; } .ds-tier h3 { margin: 0; font-size: 23px; line-height: 1.12; } .ds-tier-min { margin: 2px 0 0; font-size: 14.5px; color: var(--ink-2, #4F5568); } .ds-tier-p { margin: 16px 0 0; font-size: 44px; font-weight: 600; line-height: 1.1; color: var(--nil, #23336B); font-variant-numeric: tabular-nums; } .ds-tier-vat { margin: 4px 0 0; font-size: 14px; color: var(--ink-2, #4F5568); } .ds-tier ul { list-style: none; margin: 16px 0 0; padding: 0; font-size: 15px; } .ds-tier li { padding: 8px 0; border-top: 1px dashed var(--rule, #DDD5C6); }"
+    },
+    {
+      "name": "Ruled Column",
+      "kind": "custom",
+      "refersTo": "ruled-column",
+      "description": "Open information column under a heavy ink rule — the chamber, pillar and room layout. Shown on today's chamber: turmeric rule and flag.",
+      "html": "<article class=\"ds-col\"><p class=\"ds-today\"><span></span>Consulting today</p><h3>Alliance Hospital Limited</h3><p class=\"ds-col-addr\">24/3 Khilji Road (Ring Road), Shyamoli, Dhaka</p><p class=\"ds-col-when\"><b>Saturday – Thursday</b><span>5:00 – 8:00 PM</span></p></article>",
+      "css": ".ds-col { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; max-width: 320px; padding-top: 20px; border-top: 2px solid var(--haldi, #E0A526); font-family: Outfit, ui-sans-serif, system-ui, sans-serif; color: var(--ink, #1C2233); } .ds-col h3 { margin: 0; font-size: 21px; line-height: 1.12; } .ds-col-addr { margin: 0; font-size: 15px; color: var(--ink-2, #4F5568); } .ds-col-when { display: flex; flex-direction: column; margin: 4px 0 0; } .ds-col-when b { font-weight: 600; } .ds-col-when span { font-size: 32px; font-weight: 600; line-height: 1.15; color: var(--nil, #23336B); font-variant-numeric: tabular-nums; } .ds-today { display: inline-flex; align-items: center; gap: 8px; margin: 0; padding: 5px 12px 5px 10px; border-radius: 999px; background: var(--haldi, #E0A526); color: var(--ink, #1C2233); font-size: 13px; font-weight: 700; } .ds-today span { width: 8px; height: 8px; border-radius: 50%; background: var(--nil-deep, #1A2756); }"
+    },
+    {
+      "name": "Nameplate",
+      "kind": "custom",
+      "refersTo": "nameplate",
+      "description": "The hero credential arch standing in for the doctor's portrait: Deep Nil, turmeric ring and arc, credential pills.",
+      "html": "<div class=\"ds-plate\"><span class=\"ds-plate-mark\">SP</span><p class=\"ds-plate-role\">Consultant Dermatologist</p><p class=\"ds-plate-name\">Dr. Sumya Pervin</p><p class=\"ds-plate-line\">Skin, Hair, Nail, Allergy &amp; Venereal Diseases</p><p class=\"ds-plate-creds\"><span>MBBS</span><span>FCPS (Skin &amp; VD)</span><span class=\"bmdc\">BMDC A-59492</span></p></div>",
+      "css": ".ds-plate { position: relative; overflow: hidden; width: 360px; padding: 42px 30px 28px; text-align: center; border-radius: 215px 215px 20px 20px; background: radial-gradient(110% 60% at 50% 0%, #23336B, rgba(35,51,107,0) 72%), var(--nil-deep, #1A2756); color: var(--on-nil, #C9D1EA); box-shadow: 0 28px 52px -24px rgba(26,39,86,.55); font-family: Outfit, ui-sans-serif, system-ui, sans-serif; } .ds-plate::after { content: \"\"; position: absolute; left: 12%; right: 12%; bottom: 0; height: 86%; border: 1px solid var(--haldi, #E0A526); border-bottom: 0; border-radius: 200px 200px 0 0; opacity: .55; pointer-events: none; } .ds-plate-mark { display: inline-flex; align-items: center; justify-content: center; width: 72px; height: 72px; border-radius: 50%; border: 1.5px solid var(--haldi, #E0A526); color: #fff; font-size: 24px; font-weight: 600; } .ds-plate-role { margin: 18px 0 0; font-size: 12px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--haldi, #E0A526); } .ds-plate-name { margin: 8px 0 0; font-size: 28px; font-weight: 600; color: #fff; } .ds-plate-line { margin: 8px 0 0; font-size: 14px; } .ds-plate-creds { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin: 20px 0 0; } .ds-plate-creds span { padding: 5px 11px; border-radius: 999px; border: 1px solid var(--rule-dark, #3A4677); color: #fff; font-size: 12px; font-weight: 700; } .ds-plate-creds .bmdc { background: var(--haldi, #E0A526); border-color: var(--haldi, #E0A526); color: var(--ink, #1C2233); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Written Plan",
+    "overview": "Every visit to this practice ends with a written plan: diagnosis, treatment, timeline and total cost, signed by the doctor. The site is designed as that document. Pages read like paper the patient can take home: unbleached grounds, ruled columns instead of boxes, figures set large and plain, and a byline on every clinical page. Indigo (nil) is the doctor's ink: headings' emphasis, actions, prices, the deep grounds that frame what matters. Turmeric (haldi) is the one mark a doctor makes on a plan to say this, today. It is used rarely, so it is never ignored.\n\nThe palette exists because the subject of the site is skin, most of it brown and warm-leaning. A warm frame (peach, orange, spa beige) shares the skin's hue and muddies it. Indigo is its complement, so the frame recedes and skin reads true. The system rejects the two looks the practice positions against. One is the hospital's clinical teal-and-white. The other is the beauty clinic's gold gradients and glamour.\n\nDensity is calm but not sparse. Sections breathe at clamp(56px, 7vw, 104px), information sits in open ruled columns, and depth is mostly tonal. Motion follows the same metaphor: things settle like ink into paper. They decelerate and never bounce. There is one authored moment, the home hero, and everything else only explains a change of state.",
+    "keyCharacteristics": [
+      "Unbleached paper grounds with indigo ink; turmeric as a rare signal.",
+      "Open columns under a heavy 2px ink rule, not boxed cards, for the information patients scan.",
+      "Large tabular figures for every price and hour.",
+      "Pill-shaped actions; softly rounded containers; one arched silhouette (the nameplate).",
+      "Flat by default; shadows only answer state or mark the one recommended choice.",
+      "No gradient ever sits under text."
+    ],
+    "rules": [
+      { "name": "The One Mark Rule", "body": "Turmeric appears at most once or twice per viewport, and only where it means this one, today. If a second turmeric element competes, one of them becomes indigo.", "section": "colors" },
+      { "name": "The Paper Test Rule", "body": "Every text color is measured against Folded Paper (paper-2), the darkest light ground, before it ships. tests/contrast.test.mjs reads the hexes from site.css and enforces this. Turmeric used as text outside an indigo ground fails the build.", "section": "colors" },
+      { "name": "The Complement Rule", "body": "No warm frame around skin. Photography and skin-tone illustration sit on paper or indigo, never on turmeric, peach or a warm gradient.", "section": "colors" },
+      { "name": "The Plain Figure Rule", "body": "Every price, fee and hour uses tabular numerals at Figure weight, with the Taka sign before the number and lakh grouping (৳1,75,000). No adjectives replace a number.", "section": "typography" },
+      { "name": "The No-Fake-Italic Rule", "body": "Emphasis is color plus a drawn underline, never a browser-slanted <em>.", "section": "typography" },
+      { "name": "The Earned Shadow Rule", "body": "A surface at rest is flat. If a shadow is not answering a touch, an overlay or the single recommendation, delete it.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do set every text color from the measured set (ink, ink-2, nil, haldi-ink on paper; white, on-nil, haldi on Deep Nil) and keep tests/contrast.test.mjs green.",
+      "Do keep turmeric to one or two marks per viewport: today, a saving, a selection, the hero underline.",
+      "Do lay out scannable information as open columns under a 2px ink rule before reaching for a boxed card.",
+      "Do set prices and hours as tabular Figures in Nil Indigo, with VAT shown beside them.",
+      "Do use indigo-tinted shadows only for touch, overlays or the single recommended choice.",
+      "Do give every animation a reduced-motion path, keep content visible without JavaScript, and animate only opacity, transform, filter and clip-path.",
+      "Do keep style.css's :root a verbatim copy of site.css's. The legacy gold names there are aliases for the admin panel only."
+    ],
+    "donts": [
+      "Don't put a gradient under text. The hero is flat paper by rule and by test.",
+      "Don't use turmeric as text on a light ground (2:1). Use Turmeric Ink.",
+      "Don't frame skin or skin-tone imagery in warm color: no peach, orange or turmeric grounds behind it.",
+      "Don't drift toward clinical teal-and-white or beauty-clinic gold glamour, the two looks the practice positions against.",
+      "Don't use thick colored side stripes on cards, notes or alerts. Use a tinted wash or a 2px border.",
+      "Don't add a second display face or fake italics. Outfit carries the whole hierarchy.",
+      "Don't add repeated scroll-reveal entrances. The hero is the one authored moment.",
+      "Don't use the arch silhouette anywhere but the nameplate."
+    ]
+  }
+}

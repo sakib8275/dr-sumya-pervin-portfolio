@@ -4,7 +4,57 @@
 verification, or owner-action state changes. Everything under `docs/` is a dated
 snapshot; if this file and a snapshot disagree, this file wins.
 
-**Updated:** 2026-10-03 — **The multi-page site is CUT OVER in the repo.** `BASE` is
+**Updated:** 2026-10-04 (PR #1 review fixes) — **BUILT AND GREEN (295 node + 49
+e2e), NOT DEPLOYED.** Review fix-now list done: tap targets measured in a
+browser (≥44px at phone width, ≥24px desktop); tool answers reach /book/ via
+sessionStorage, never a URL; the WhatsApp number comes only from
+content/site.mjs (stamped on `<body data-wa>`); site.css font sizes are rem;
+agent.md §2/§4 brought current; "Consulting today" has e2e coverage.
+The reviewer's three skin-check clinical concerns (palms/soles mapping, the
+skin-cancer card on any new mole, "within days" for a fast-changing mole) are
+for Dr. Sumya's review and are unchanged in code.
+
+**Earlier 2026-10-04 — Skin check tool + whole-card fix: BUILT AND GREEN
+(295 node + 44 e2e), NOT DEPLOYED.** New `/tools/skin-check/` (64 pages): a
+five-question symptom guide that shows the conditions a description often
+turns out to be (linking the condition pages), how soon to be seen, and which
+visit fits; never a diagnosis or a procedure, nothing stored, no answers in
+URLs. **Owner action: Dr. Sumya should review its clinical wording** — the
+sign → condition mapping and warning signs in `content/pages/tools.mjs`
+(`skinCheck`) and the urgency copy in `public/js/site.js`. It was published
+before her review at the owner's request. Also fixed: fee and care-plan cards
+are whole-card targets again (a press animation had broken body clicks), and
+clicks during the card ↔ sheet view transition are no longer lost. **2026-10-04:
+Dr. Sumya approved the Nil & Haldi rebrand** — she confirmed the rebrand was
+itself requested, superseding the 2026-10-02 gold-identity decision. Still
+pending her sign-off: the Signature SP mark (not trademark-cleared) and the
+skin-check clinical wording above.
+
+**Earlier 2026-10-03 (later)** — **Design critique round: BUILT AND GREEN, NOT
+COMMITTED, NOT DEPLOYED.** An Impeccable audit (13/20) + critique (21/40) found
+the home hero's small text at 1.8–4.0:1 on the gradient, the doctor's name in
+every footer at 1:1 (ink on ink), a /book/ form that defaulted to a "Morning"
+session no chamber runs, accepted past dates and closed days client-side, and
+silently dropped its pre-ticked reminders box, and Centre fee tiers presented
+without saying hospital-chamber fees differ. Fixed: hero recoloured (now
+4.8–7.4:1 measured), footer brand, site-wide ink `:focus-visible`; /book/
+derives each chamber's session and consulting days from `functions/lib/
+schedule.js`, sets `min`, shows per-field errors, and sends `reminders` — the
+API records an opt-out as `[No reminders]` at the front of the notes (no schema
+change); home leads with the two Shyamoli chambers, ethics band second, Centre
+tiers/rooms labelled "from opening in 2027" with VAT-inclusive totals; nav gains
+Learn + an About menu (chambers, contact, FAQ, Centre), drawer mirrors the mega
+menus, footer carries phone/WhatsApp/email/hours; burger below 1100px; ABCDE
+illustrations on the mole tool (docx §5.40). New shared tokens `--hair-dark`,
+`--field-line`, `--err-*`, `--warn-*` in BOTH :root blocks. **294/294 node +
+31/31 e2e green.** Owner sign-off needed: the nav departs from the docx menu
+(The Centre moved under About; Learn added); `content/bn.mjs` holds unapproved
+Bangla drafts that render only when marked approved; `assets/clinic.jpg` (the
+og:image) and `treatment.jpg` appear AI-generated with non-local subjects and
+the og alt text calls clinic.jpg "the consultation suite at Dr. Sumya Pervin's
+practice" — a claim the owner should replace or retract.
+
+**Earlier 2026-10-03 — The multi-page site is CUT OVER in the repo.** `BASE` is
 now `''` and `npm run build:site` writes the 63-page site to `public/` root, replacing
 the one-pager's `index.html`. The one-pager CMS moved to a standalone **`/admin/`**
 console (`public/admin/index.html` + `public/js/admin.js`); the one-pager-only scripts

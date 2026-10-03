@@ -25,13 +25,13 @@ export const SECTIONS = [
     head: 'Consultations',
     lede: 'All consultations at the Centre are with Dr. Sumya personally. Choose the depth you need — the doctor will tell you honestly if a shorter visit is enough.',
     cards: [
-      { name: 'Specialist Consultation', price: '৳2,000', meta: ['dr', '20–25 min'],
+      { pkg: 'specialist', name: 'Specialist Consultation', price: '৳2,000', meta: ['dr', '20–25 min'],
         incl: ['Dermoscopy', 'Written diagnosis &amp; care plan', 'Report review within 14 days ৳0'] },
-      { name: 'Comprehensive Assessment', price: '৳3,500', meta: ['dr', '40 min'], rec: 'Best for long-standing concerns',
+      { pkg: 'comprehensive', name: 'Comprehensive Assessment', price: '৳3,500', meta: ['dr', '40 min'], rec: 'Best for long-standing concerns',
         incl: ['Everything in Specialist', 'Baseline photographs', 'Costed options, every route', '1 follow-up included'] },
-      { name: 'Signature Skin &amp; Hair Review', price: '৳6,000', meta: ['dr', '60 min'],
+      { pkg: 'signature', name: 'Signature Skin &amp; Hair Review', price: '৳6,000', meta: ['dr', '60 min'],
         incl: ['Mole map or trichoscopy', 'Same-visit lab tests', 'Typed report'] },
-      { name: 'Procedure Assessment', price: '৳1,500', meta: ['dr', '15–20 min'],
+      { pkg: 'procedure', name: 'Procedure Assessment', price: '৳1,500', meta: ['dr', '15–20 min'],
         incl: ['Laser / aesthetic / surgery suitability', 'Patch test if needed', 'Fully adjusted against session 1'] },
     ],
     rows: [
@@ -45,9 +45,9 @@ export const SECTIONS = [
     head: '6-month Care Plans',
     lede: 'For acne, eczema, psoriasis, hives, vitiligo, hair loss and melasma — conditions controlled over months, not one visit. Offered only after diagnosis. Cancel any time; unused value is refunded pro rata.',
     plans: [
-      { name: 'Core Care Plan', price: '৳6,500', was: 'Pay-as-you-go ৳8,400', save: 'You keep ৳1,900',
+      { pkg: 'core', name: 'Core Care Plan', price: '৳6,500', was: 'Pay-as-you-go ৳8,400', save: 'You keep ৳1,900',
         incl: [['4 follow-up visits with Dr. Sumya', '৳4,800'], ['6 monthly WhatsApp photo reviews', '৳3,600'], ['Reminders matched to your prescription', 'Included'], ['Priority serial', 'Included']] },
-      { name: 'Complete Care Plan', price: '৳12,500', was: 'Pay-as-you-go up to ৳20,900', save: 'You keep up to ৳8,400', rec: 'Recommended when procedures are part of the plan',
+      { pkg: 'complete', name: 'Complete Care Plan', price: '৳12,500', was: 'Pay-as-you-go up to ৳20,900', save: 'You keep up to ৳8,400', rec: 'Recommended when procedures are part of the plan',
         incl: [['Everything in Core', '৳8,400'], ['Month-3 Comprehensive re-assessment', '৳3,500'], ['2 in-clinic sessions: peel, extraction, injection or 6 phototherapy', 'up to ৳9,000'], ['Progress photo timeline you keep', 'Included']] },
     ],
   },
@@ -170,4 +170,49 @@ export const ESTIMATOR = {
       sessions: 4, freeSession: false },
     { concern: 'PRP for hair', areas: [['Scalp × 3 sessions', 9000, 24000]], sessions: 3, freeSession: false },
   ],
+};
+
+// Package detail views (owner request 2026-10-03: "clicking on the cards should
+// show what the package offers … in a view"). Copy is docx Part 6.1 / 6.2
+// verbatim, with jargon glossed in brackets (critique clarify pass). Keys are
+// what cards reference via data-pkg-open; content/pages/pkgview.mjs renders
+// each as a <template> so the view is filled by cloning, never by innerHTML.
+export const PACKAGES = {
+  specialist: {
+    kind: 'consult', name: 'Specialist Consultation', tier: 'Specialist Consultation',
+    price: '৳2,000', duration: '20–25 minutes', who: ['dr'], band: 'Standard',
+    get: ['History, examination and dermoscopy (a magnified skin check)', 'Written diagnosis and care plan', 'Report review within 14 days — free', 'One WhatsApp check-in'],
+  },
+  comprehensive: {
+    kind: 'consult', name: 'Comprehensive Assessment', tier: 'Comprehensive Assessment',
+    price: '৳3,500', duration: '40 minutes', who: ['dr'], band: 'Recommended for long-standing or cosmetic concerns',
+    get: ['Everything in the Specialist Consultation', 'Standardised baseline photographs', 'Costed options for every route', 'One follow-up within 30 days — included', 'Two WhatsApp check-ins'],
+  },
+  signature: {
+    kind: 'consult', name: 'Signature Skin &amp; Hair Review', tier: 'Signature Skin & Hair Review',
+    price: '৳6,000', duration: '60 minutes', who: ['dr'], band: 'Premium',
+    get: ['Everything in the Comprehensive Assessment', 'Full-body mole map, or scalp trichoscopy (magnified scalp mapping)', 'Same-visit fungal microscopy (KOH) and Wood’s lamp (UV light) tests', 'Typed report for your records', '3-month review message'],
+  },
+  procedure: {
+    kind: 'consult', name: 'Procedure Assessment', tier: 'Procedure Assessment',
+    price: '৳1,500', duration: '15–20 minutes', who: ['dr'], band: 'Aesthetic, laser or surgery suitability',
+    get: ['Suitability, skin type and current medicines reviewed', 'Patch test if needed', 'Written plan with the total course cost'],
+    note: 'Fully adjusted against session 1 within 30 days.',
+  },
+  core: {
+    kind: 'plan', name: 'Core Care Plan', price: '৳6,500', duration: '6 months', who: ['dr'], band: 'For chronic conditions',
+    value: [['4 follow-up visits with Dr. Sumya', '৳4,800'], ['6 monthly WhatsApp photo reviews', '৳3,600'], ['Reminders matched to your prescription', 'Included'], ['Priority serial', 'Included']],
+    payg: 'Pay-as-you-go ৳8,400', save: 'You keep ৳1,900',
+  },
+  complete: {
+    kind: 'plan', name: 'Complete Care Plan', price: '৳12,500', duration: '6 months', who: ['dr', 'drn'], band: 'When procedures are part of the plan',
+    value: [['Everything in Core', '৳8,400'], ['Month-3 Comprehensive re-assessment', '৳3,500'], ['2 in-clinic sessions: superficial peel, extraction, injection, or 6 phototherapy (NB-UVB) sessions', 'up to ৳9,000'], ['Progress photo timeline you keep', 'Included']],
+    payg: 'Pay-as-you-go up to ৳20,900', save: 'You keep up to ৳8,400',
+  },
+};
+
+export const PLAN_TERMS = {
+  conditions: 'Acne, eczema, psoriasis, hives, vitiligo, hair loss and melasma — conditions controlled over months, not one visit.',
+  offered: 'Offered only after a diagnosis, never at a first visit.',
+  cancel: 'Cancel any time; unused value is refunded pro rata at single prices.',
 };

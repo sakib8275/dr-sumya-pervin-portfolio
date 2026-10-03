@@ -1,32 +1,27 @@
 // Colour-contrast regression guard for the design tokens.
 //
-// Four of the palette's text tokens shipped below WCAG AA (4.5:1) from the
-// beginning, and nothing caught it because contrast is not something that
-// throws. Measured against --butter #FCF7DA, the darkest surface any of them
-// lands on: --grey 2.78:1, --tan 2.33:1, --rust 3.41:1, --orange 3.00:1.
+// History: the original gold palette shipped four text tokens below WCAG AA
+// (4.5:1) and nothing caught it, because contrast is not something that throws.
+// The multi-page site then added two more failures the token checks never saw:
+// hero copy at ~2:1 over an orange gradient, and the doctor's name in every
+// footer at 1:1 (ink on ink).
 //
-// --grey alone carries .svc p, .gallery-body p, .chamber-meta, .modal-header p
-// and every form hint on the site, so a single token was responsible for most
-// of the body copy failing. --orange was worse than a foreground problem: it was
-// the .btn-primary BACKGROUND under white text, which made the site's single
-// most important control -- "Confirm Appointment Request" -- fail AA, while its
-// hover state (--sienna, 5.81:1) passed. The resting state was the inaccessible
-// one.
-//
-// This test reads the real values out of style.css rather than restating them,
-// so lightening a token to "soften" the design fails here instead of silently
-// on a patient's screen.
+// The Nil & Haldi palette (2026-10-03) replaced that palette. This file pins it
+// the same way: it reads the real values out of site.css rather than restating
+// them, so lightening a token to "soften" the design fails here instead of
+// silently on a patient's screen. tests/pages.test.mjs keeps style.css's :root
+// a verbatim copy, so these checks cover the admin panel too.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { repoRoot } from './helpers/harness.mjs';
 
-const css = await readFile(join(repoRoot, 'public', 'css', 'style.css'), 'utf8');
+const siteCss = await readFile(join(repoRoot, 'public', 'css', 'site.css'), 'utf8');
 
 function token(name) {
-  const m = css.match(new RegExp(`^\\s*--${name}:\\s*(#[0-9A-Fa-f]{6});`, 'm'));
-  assert.ok(m, `token --${name} not found in style.css`);
+  const m = siteCss.match(new RegExp(`^\\s*--${name}:\\s*(#[0-9A-Fa-f]{6});`, 'm'));
+  assert.ok(m, `token --${name} not found as a hex primitive in site.css`);
   return m[1];
 }
 
@@ -44,66 +39,95 @@ function contrast(a, b) {
   return (hi + 0.05) / (lo + 0.05);
 }
 
-// Every surface a foreground token can land on. --butter is the darkest, so it
-// is the binding constraint; all three are checked so a future surface change
-// cannot quietly break one combination.
-const SURFACES = { '--surface': '#FFFFFF', '--ivory': '#FDFBEF', '--butter': '#FCF7DA' };
-
-// Tokens used as TEXT on those surfaces.
-const FOREGROUNDS = ['ink', 'grey', 'rust', 'tan', 'sienna', 'orange-ink'];
+// The light grounds text lands on. --paper-2 is the darkest, so it is the
+// binding constraint; all three are checked so a future change to one cannot
+// quietly break a combination.
+const LIGHT = ['paper', 'paper-2', 'surface'];
+// Tokens used as TEXT on those grounds.
+const FOREGROUNDS = ['ink', 'ink-2', 'nil', 'haldi-ink', 'err-ink', 'warn-ink'];
 
 for (const name of FOREGROUNDS) {
-  test(`--${name} meets WCAG AA (4.5:1) on every surface it is used on`, () => {
+  test(`--${name} meets WCAG AA (4.5:1) on every light ground`, () => {
     const value = token(name);
-    for (const [surfaceName, surface] of Object.entries(SURFACES)) {
-      const ratio = contrast(value, surface);
+    for (const ground of LIGHT) {
+      const ratio = contrast(value, token(ground));
       assert.ok(
         ratio >= 4.5,
-        `--${name} (${value}) on ${surfaceName} (${surface}) is ${ratio.toFixed(2)}:1, below the 4.5:1 AA floor for normal text`
+        `--${name} (${value}) on --${ground} (${token(ground)}) is ${ratio.toFixed(2)}:1, below the 4.5:1 AA floor for normal text`
       );
     }
   });
 }
 
-test('white text on --orange-ink and --sienna backgrounds meets AA', () => {
-  // .btn-primary, .fab-book and .cms-tab-btn.active set white text on
-  // --orange-ink; .btn-primary:hover uses --sienna the same way.
-  for (const name of ['orange-ink', 'sienna']) {
-    const value = token(name);
-    const ratio = contrast('#FFFFFF', value);
-    assert.ok(ratio >= 4.5, `white on --${name} (${value}) is ${ratio.toFixed(2)}:1, below 4.5:1`);
+test('text on the indigo grounds meets AA', () => {
+  // --nil-deep: footer, utility bar, limits band, estimator, signature tier,
+  // nameplate. --nil: buttons, flags, the closing CTA band.
+  const pairs = [
+    ['#FFFFFF', 'nil'], ['#FFFFFF', 'nil-deep'],
+    ['on-nil', 'nil'], ['on-nil', 'nil-deep'],
+    ['haldi', 'nil-deep'],
+  ];
+  for (const [fg, bg] of pairs) {
+    const f = fg.startsWith('#') ? fg : token(fg);
+    const ratio = contrast(f, token(bg));
+    assert.ok(ratio >= 4.5, `${fg} on --${bg} is ${ratio.toFixed(2)}:1, below 4.5:1`);
   }
 });
 
-test('--orange stays decorative: it is never used outside a gradient', () => {
-  // The token split is the fix for .btn-primary. It only holds while --orange
-  // has no text-bearing use, so assert that rather than trusting review.
-  const uses = css.split('\n').filter((l) => l.includes('var(--orange)'));
-  assert.ok(uses.length > 0, 'expected --orange to still drive the brand gradients');
-  for (const line of uses) {
-    assert.match(
-      line,
-      /gradient\(/,
-      `--orange is decorative-only (3.00:1) and must not appear outside a gradient; use --orange-ink: ${line.trim()}`
-    );
+test('ink on a turmeric fill meets AA', () => {
+  // The "Consulting today" flag, savings badges and the BMDC pill.
+  const ratio = contrast(token('ink'), token('haldi'));
+  assert.ok(ratio >= 4.5, `ink on --haldi is ${ratio.toFixed(2)}:1, below 4.5:1`);
+  assert.ok(contrast(token('err-ink'), token('err-bg')) >= 4.5, '--err-ink on --err-bg must pass AA');
+  assert.ok(contrast(token('warn-ink'), token('warn-bg')) >= 4.5, '--warn-ink on --warn-bg must pass AA');
+});
+
+test('turmeric is never text on a light ground', () => {
+  // --haldi is 2:1 on paper: a fill, a rule or a mark there, never text. As a
+  // text colour it is allowed only inside the indigo-ground components.
+  const DARK = /\.(nameplate|np-|h-dont|no-mark|pr-est-out|foot|h-tier\.sig|u-bar|m-sticky)/;
+  const rules = siteCss.replace(/\/\*[\s\S]*?\*\//g, '').match(/[^{}]+\{[^}]*\}/g) || [];
+  for (const rule of rules) {
+    if (!/(^|[^-])color:\s*var\(--haldi\)/.test(rule)) continue;
+    const selector = rule.slice(0, rule.indexOf('{')).trim();
+    if (selector.startsWith('--') || selector === ':root') continue;
+    assert.match(selector, DARK, `--haldi used as text outside an indigo ground: ${selector}; use --haldi-ink`);
   }
 });
 
-test('the .w1 / .w2 heading pair stays visually distinguishable', () => {
-  // AA forces both --rust and --tan dark, which removes the lightness axis their
-  // original distinction relied on. They were re-chosen to hold the same
-  // perceptual separation on hue/saturation instead (deltaE 20.0 vs 19.9
-  // before). Collapsing them toward each other would silently kill the two-tone
-  // heading effect while every contrast assertion above still passed.
-  const lab = (hex) => {
-    const [r, g, b] = toRgb(hex).map(channel);
-    const f = (t) => (t > 0.008856 ? Math.cbrt(t) : 7.787 * t + 16 / 116);
-    const x = f((0.4124 * r + 0.3576 * g + 0.1805 * b) / 0.95047);
-    const y = f(0.2126 * r + 0.7152 * g + 0.0722 * b);
-    const z = f((0.0193 * r + 0.1192 * g + 0.9505 * b) / 1.08883);
-    return [116 * y - 16, 500 * (x - y), 200 * (y - z)];
-  };
-  const [a, b] = [lab(token('rust')), lab(token('tan'))];
-  const deltaE = Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
-  assert.ok(deltaE >= 15, `--rust and --tan are only deltaE ${deltaE.toFixed(1)} apart; the .w1/.w2 two-tone heading needs visible separation`);
+test('no gradient sits under the hero copy', () => {
+  const heroRules = [...siteCss.matchAll(/\.h-hero\s*\{([^}]*)\}/g)].map((m) => m[1].replace(/\/\*[\s\S]*?\*\//g, ''));
+  assert.ok(heroRules.length >= 1, '.h-hero rule not found in site.css');
+  for (const rule of heroRules) {
+    if (!/background/.test(rule)) continue;
+    assert.doesNotMatch(rule, /gradient\(/, '.h-hero must be a flat ground under the copy');
+  }
+});
+
+test('the footer is indigo and its brand is light on it', () => {
+  assert.match(siteCss, /\.foot\s*\{[^}]*background:\s*var\(--nil-deep\)/, '.foot must sit on --nil-deep');
+  const m = siteCss.match(/\.foot \.logo-n\s*\{([^}]*)\}/);
+  assert.ok(m, '.foot .logo-n override missing — .logo-n is --ink, which vanishes on indigo');
+  assert.doesNotMatch(m[1], /var\(--(ink|nil|nil-deep)\)/, 'the footer name must not be dark on dark');
+  const s = siteCss.match(/\.foot \.logo-s\s*\{([^}]*)\}/);
+  assert.ok(s && /var\(--on-nil\)|#fff/i.test(s[1]), '.foot .logo-s must be --on-nil or white');
+});
+
+test('form fields and focus rings meet the 3:1 non-text floor', () => {
+  for (const ground of ['paper', 'surface']) {
+    assert.ok(contrast(token('field-line'), token(ground)) >= 3, `--field-line must be ≥3:1 on --${ground} (WCAG 1.4.11)`);
+  }
+  assert.match(siteCss, /:focus-visible\s*\{[^}]*outline:\s*2px solid var\(--nil\)/, 'a site-wide nil focus ring must exist');
+  assert.ok(contrast(token('nil'), token('paper-2')) >= 3, 'the focus ring must be ≥3:1 on the darkest light ground');
+  assert.ok(contrast(token('haldi'), token('nil-deep')) >= 3, 'the turmeric focus ring must be ≥3:1 on --nil-deep');
+});
+
+test('every legacy alias resolves to a defined primitive', () => {
+  // style.css and the admin panel's inline styles still read the old names.
+  const root = siteCss.match(/:root\s*\{([\s\S]*?)\}/)[1];
+  const aliases = [...root.matchAll(/--([a-z0-9-]+):\s*var\(--([a-z0-9-]+)\)/g)];
+  assert.ok(aliases.length >= 10, 'expected the legacy alias block in :root');
+  for (const [, name, target] of aliases) {
+    assert.ok(token(target), `--${name} aliases --${target}, which is not a hex primitive`);
+  }
 });

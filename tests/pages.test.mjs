@@ -3,7 +3,7 @@
 // The one-pager suites pin the one-pager; these pin the new site's build
 // contract: every sitemap page exists on disk, every internal link resolves
 // (the interlinking rulebook made executable), SEO is unique and complete,
-// the gold token block has not drifted from style.css, no inline handler has
+// the token block has not drifted between site.css and style.css, no inline handler has
 // crept into generated markup (F9's rule), and the load-bearing docx price
 // figures are present verbatim (docx-is-truth, made executable).
 import { test } from 'node:test';
@@ -72,7 +72,7 @@ test('every internal link in the built pages resolves', async () => {
   }
 });
 
-test('the gold token block has not drifted from the one-pager', async () => {
+test('the Nil & Haldi token block has not drifted between the two stylesheets', async () => {
   const grab = (css) => {
     const m = css.match(/:root\s*\{([\s\S]*?)\}/);
     assert.ok(m, 'no :root block');
@@ -80,7 +80,7 @@ test('the gold token block has not drifted from the one-pager', async () => {
   };
   const onePager = grab(await readFile(join(repoRoot, 'public', 'css', 'style.css'), 'utf8'));
   const multi = grab(await readFile(join(repoRoot, 'public', 'css', 'site.css'), 'utf8'));
-  assert.equal(multi, onePager, 'site.css :root must stay a verbatim copy of style.css :root — the gold identity is one token set');
+  assert.equal(multi, onePager, 'style.css :root must stay a verbatim copy of site.css :root — the identity is one token set');
 });
 
 test('no inline event handlers in generated pages', async () => {
@@ -231,4 +231,29 @@ test('the 404 is part of the multi-page shell, not the retired one-pager', async
 test('robots.txt keeps crawlers out of the admin console', async () => {
   const txt = await readFile(join(repoRoot, 'public', 'robots.txt'), 'utf8');
   assert.match(txt, /Disallow:\s*\/admin\//, 'robots.txt must disallow /admin/');
+});
+
+test('the booking form offers only real chambers, stamped with the server schedule', async () => {
+  // /book/ derives its chamber options, closed-day check and session from
+  // CHAMBERS_NOW + functions/lib/schedule.js. A key that drifts from the
+  // server's list would make every booking at that chamber a 400.
+  const { CHAMBERS } = await import('../functions/lib/schedule.js');
+  const { CHAMBERS_NOW } = await import('../content/site.mjs');
+  const html = await readFile(join(OUT, 'book', 'index.html'), 'utf8');
+  for (const c of CHAMBERS_NOW) {
+    assert.ok(CHAMBERS[c.key], `${c.key} is not a chamber the booking API accepts`);
+    assert.ok(html.includes(`value="${c.key}" data-days="${CHAMBERS[c.key].days.join(',')}"`), `${c.key}: option missing or not stamped with its consulting days`);
+  }
+  assert.ok(!/value="Morning"/.test(html), 'the form must not offer a session no chamber runs');
+});
+
+test('no unapproved Bangla draft reaches a built page', async () => {
+  // content/bn.mjs holds machine-drafted Bangla awaiting the doctor's review.
+  const { BN } = await import('../content/bn.mjs');
+  for (const page of PAGES) {
+    const html = await readPage(page);
+    for (const [path, entry] of Object.entries(BN)) {
+      if (!entry.approved) assert.ok(!html.includes(entry.text), `${page.path}: unapproved Bangla draft for ${path} is published`);
+    }
+  }
 });

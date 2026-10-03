@@ -39,6 +39,33 @@ export const SITE = {
   credentials: ['MBBS', 'DDV (BSMMU)', 'FCPS (Skin & VD)'],
 };
 
+// Where Dr. Sumya consults until the Centre opens (copy from /chambers/). `key`
+// is the exact chamber string the booking API validates — functions/lib/
+// schedule.js CHAMBERS — and tests/pages.test.mjs fails if the two drift. Each
+// chamber runs one session, so the booking form derives it instead of asking.
+export const CHAMBERS_NOW = [
+  {
+    key: 'Alliance Hospital Limited (Shyamoli)',
+    name: 'Alliance Hospital Limited',
+    short: 'Alliance Hospital',
+    address: '24/3 Khilji Road (Ring Road), Shyamoli, Dhaka',
+    days: 'Saturday – Thursday',
+    daysShort: 'Sat–Thu',
+    hours: '5:00 – 8:00 PM',
+    session: 'Evening',
+  },
+  {
+    key: 'Dhaka Central International Medical College (DCIMCH)',
+    name: 'Dhaka Central International Medical College (DCIMCH)',
+    short: 'DCIMCH',
+    address: '2/1 Ring Road, Shyamoli, Dhaka',
+    days: 'Saturday – Wednesday',
+    daysShort: 'Sat–Wed',
+    hours: '3:00 – 5:00 PM',
+    session: 'Afternoon',
+  },
+];
+
 // Publish gates from docx Part 9. 'staging' renders every section with its
 // gate badge; the cutover config sets the live gate (now | opening | licence
 // | laser) and the build hides anything not yet cleared.
@@ -105,6 +132,7 @@ export const NAV = [
           ],
         },
       ],
+      feature: ['Not sure what it is? Try the skin check', '/tools/skin-check/', 'Five questions: what it often turns out to be, how soon to be seen, and which visit fits.'],
       foot: ['Confidential sexual health', '/conditions/sexual-health/'],
     },
   },
@@ -160,9 +188,41 @@ export const NAV = [
     },
   },
   ['Prices', '/prices/'],
-  ['The Centre', '/the-centre/'],
-  ['About', '/about/'],
+  ['Learn', '/learn/'],
+  {
+    label: 'About',
+    href: '/about/',
+    menu: {
+      cols: [
+        {
+          head: 'Dr. Sumya',
+          links: [
+            ['About Dr. Sumya', '/about/'],
+            ['What we don’t offer', '/what-we-do-not-offer/'],
+            ['Photo &amp; consent policy', '/photo-consent-policy/'],
+          ],
+        },
+        {
+          head: 'Visit',
+          links: [
+            ['Current chambers', '/chambers/'],
+            ['Contact &amp; directions', '/contact/'],
+            ['Questions patients ask', '/faq/'],
+            ['The Centre (opening 2027)', '/the-centre/'],
+          ],
+        },
+      ],
+    },
+  },
 ];
+
+// Hub labels for the drawer's expandable groups (the desktop mega menus
+// reach the hubs through the nav button's own page; the drawer needs a row).
+export const HUB_LABEL = {
+  Conditions: 'All conditions',
+  'Skin Surgery': 'All skin surgery',
+  'Aesthetic &amp; Laser': 'All aesthetic &amp; laser',
+};
 
 export const FOOTER = {
   care: [
@@ -172,10 +232,18 @@ export const FOOTER = {
     ['Prices', '/prices/'],
   ],
   visit: [
-    ['The Centre (opening 2027)', '/the-centre/'],
     ['Current chambers', '/chambers/'],
     ['Book a consultation', '/book/'],
     ['Prepare for your visit', '/consultation-prep/'],
+    ['Contact &amp; directions', '/contact/'],
+    ['The Centre (opening 2027)', '/the-centre/'],
+  ],
+  learn: [
+    ['Articles', '/learn/'],
+    ['Skin check', '/tools/skin-check/'],
+    ['Mole check', '/tools/mole-check/'],
+    ['Skin type guide', '/tools/skin-type-guide/'],
+    ['Questions patients ask', '/faq/'],
   ],
   trust: [
     ['What we don’t offer', '/what-we-do-not-offer/'],

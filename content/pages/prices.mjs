@@ -3,6 +3,7 @@
 // dropped by the build when the live gate says so.
 import { href, gateVisible, SITE, GATE_NOTE as GATE_LABEL } from '../site.mjs';
 import { SECTIONS, WHO, FOLLOW_UPS, ESTIMATOR } from '../prices.mjs';
+import { pkgButton, pkgViews } from './pkgview.mjs';
 
 const whoBadge = (k) => `<span class="who who-${k}" title="${WHO[k].text}">${WHO[k].label}</span>`;
 
@@ -13,6 +14,7 @@ function consultationCards(s) {
       <div class="pr-price">${c.price}</div>
       <p class="pr-meta">${whoBadge(c.meta[0])} ${c.meta[1]}</p>
       <ul>${c.incl.map((i) => `<li>${i}</li>`).join('')}</ul>
+      ${c.pkg ? pkgButton(c.pkg, `${c.rec ? 'btn-ink' : 'btn-ghost'} pr-card-book`) : ''}
     </article>`).join('')}</div>
     <div class="pr-fu">${FOLLOW_UPS.map(([p, t]) => `<div><b>${p}</b>${t}</div>`).join('')}</div>
     ${s.rows ? `<table class="pr-table"><thead><tr><th>Service</th><th>Band</th><th>Price</th><th>What you get</th><th>Who</th></tr></thead>
@@ -25,6 +27,7 @@ function plans(s) {
       <h3>${p.name}</h3>
       <div class="pr-plan-row"><span class="pr-price">${p.price}</span><span class="pr-was">${p.was}</span>${p.save ? `<span class="pr-save">${p.save}</span>` : ''}</div>
       <ul>${p.incl.map(([l, v]) => `<li><span>${l}</span><span>${v}</span></li>`).join('')}</ul>
+      ${p.pkg ? pkgButton(p.pkg, `${p.rec ? 'btn-ink' : 'btn-ghost'} pr-card-book`) : ''}
     </article>`).join('')}</div>`;
 }
 
@@ -46,40 +49,42 @@ function estimator() {
     it.areas.map(([label, per, course], j) => `<option value="${j}" data-i="${i}" data-per="${per}" data-course="${course}">${label}</option>`).join('')
   ).join('');
   return `
+<section class="s-sec pr-est-sec"><div class="wrap">
 <div class="pr-est" id="estimator" data-vat="${SITE.vatRate}">
   <div class="pr-est-in">
-    <p class="eyebrow">Estimate your course cost</p>
-    <h2>Plan it before you commit</h2>
+    <h2>Estimate your course cost</h2>
     <p class="pr-est-note">A planning guide, not a quote. Your doctor confirms the number of sessions after examining you.</p>
     <div class="pr-est-form">
       <label>Treatment<select id="estConcern">${options}</select></label>
       <label>Area / band<select id="estArea">${areas}</select></label>
-      <label>Payment<div class="seg" id="estPay"><button type="button" class="on" data-pay="course">Course</button><button type="button" data-pay="single">Per session</button></div></label>
-      <label>Performed by<div class="seg" id="estWho"><button type="button" class="on" data-who="n">Nurse (N)</button><button type="button" data-who="dr">Dr. Sumya (+25%)</button></div></label>
+      <div><span class="pr-est-lab" id="estPayL">Payment</span><div class="seg" id="estPay" role="group" aria-labelledby="estPayL"><button type="button" class="on" aria-pressed="true" data-pay="course">Course</button><button type="button" aria-pressed="false" data-pay="single">Per session</button></div></div>
+      <div><span class="pr-est-lab" id="estWhoL">Performed by</span><div class="seg" id="estWho" role="group" aria-labelledby="estWhoL"><button type="button" class="on" aria-pressed="true" data-who="n">Nurse (N)</button><button type="button" aria-pressed="false" data-who="dr">Dr. Sumya (+25%)</button></div></div>
     </div>
   </div>
   <div class="pr-est-out">
-    <p class="eyebrow">Your estimate</p>
+    <p class="pr-est-lab">Your estimate</p>
     <div class="pr-est-big" id="estTotal">৳—</div>
     <p id="estSub">for the full course</p>
     <div id="estLines"></div>
     <p class="pr-est-fine">Procedure Assessment fee (৳1,500) is deducted from session 1. EMI options shown at the Centre.</p>
   </div>
-</div>`;
+</div>
+</div></section>`;
 }
 
 // The estimator is laser-only data (laser bands and courses), so it publishes
 // with the laser gate. Until then it is replaced by a note, not a half-built tool.
 function estimatorNote() {
   return `
+<section class="s-sec pr-est-sec"><div class="wrap">
 <div class="pr-est pr-est-gated" id="estimator">
   <div class="pr-est-in">
-    <p class="eyebrow">Estimate your course cost</p>
-    <h2>Publishes when the laser suite opens</h2>
+    <h2>Course-cost estimator: publishes when the laser suite opens</h2>
     <p class="pr-est-note">Course-cost estimates belong to the laser price list, which publishes with the laser gate. Until then, your doctor will cost any course after a diagnosis — and you can always pay session by session.</p>
     <div class="h-ctas"><a class="btn btn-ink" href="${href('/book/')}">Book a consultation</a></div>
   </div>
-</div>`;
+</div>
+</div></section>`;
 }
 
 export default function prices() {
@@ -101,8 +106,9 @@ export default function prices() {
     <p class="crumb"><a href="${href('/')}">Home</a> / Prices</p>
     <h1>Prices — exactly what you get, before you come.</h1>
     <p class="lede">Every fee below lists what it includes, how long the doctor spends with you, and who performs the treatment. Course prices are offered only after a diagnosis, and you can always pay session by session.</p>
+    <p class="pr-now"><b>Consulting now at Alliance Hospital and DCIMCH, Shyamoli:</b> fees there follow each hospital’s own tariff. The prices on this page apply at the Centre, from opening in 2027, and exclude ${Math.round(SITE.vatRate * 100)}% VAT. <a class="tlink" href="${href('/chambers/')}">Chamber days and times</a></p>
     <div class="assure">
-      <span>✓ 12-month price lock on courses</span><span>✓ Unused sessions refunded</span><span>✓ No compulsory products</span><span>✓ Card · bKash · Nagad · 0% EMI</span>
+      <span>12-month price lock on courses</span><span>Unused sessions refunded</span><span>No compulsory products</span><span>Card · bKash · Nagad · 0% EMI</span>
     </div>
   </div>
 </section>
@@ -114,7 +120,9 @@ export default function prices() {
     <span>${whoBadge('n')} Trained nurse under Dr. Sumya’s written protocol, doctor on site</span>
   </div>
 </div></section>
-${gateVisible('laser') ? estimator() : estimatorNote()}
+${gateVisible('laser') ? estimator() : ''}
 ${sectionsHtml}
+${gateVisible('laser') ? '' : estimatorNote()}
+${pkgViews(visible.flatMap((sec) => [...(sec.cards || []), ...(sec.plans || [])]).map((c) => c.pkg).filter(Boolean))}
 <p class="pr-foot">Prices exclude VAT; ${Math.round(SITE.vatRate * 100)}% VAT is added at checkout · Prices reviewed: ${SITE.pricesReviewed} · Hospital-chamber fees follow each hospital’s tariff.</p>`;
 }

@@ -12,19 +12,20 @@
 import { mkdir, rm, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { SITE, BASE, NAV, FOOTER, href } from '../content/site.mjs';
+import { SITE, BASE, NAV, FOOTER, HUB_LABEL, CHAMBERS_NOW, href } from '../content/site.mjs';
 import { PAGES } from '../content/sitemap.mjs';
+import { mark } from '../content/brand.mjs';
 import home from '../content/pages/home.mjs';
 import prices from '../content/pages/prices.mjs';
 import about from '../content/pages/about.mjs';
 import ethics from '../content/pages/ethics.mjs';
 import article from '../content/pages/article.mjs';
-import { moleCheck, skinType, prep } from '../content/pages/tools.mjs';
+import { moleCheck, skinType, skinCheck, prep } from '../content/pages/tools.mjs';
 import book from '../content/pages/book.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const OUT = join(ROOT, 'public');
-const BODIES = { home, prices, about, ethics, moleCheck, skinType, prep, book };
+const BODIES = { home, prices, about, ethics, moleCheck, skinType, skinCheck, prep, book };
 
 // The build now writes into the site root alongside hand-maintained assets
 // (css/, js/, assets/, admin/, favicon, robots). Remove only what this script
@@ -61,46 +62,58 @@ function megaMenu(item) {
   const foot = item.menu.foot
     ? `<a class="mega-foot" href="${href(item.menu.foot[1])}">${item.menu.foot[0]} →</a>`
     : '';
-  return `<div class="mega" id="mega-${item.label.replace(/[^A-Za-z]/g, '')}">${cols}${feature}${foot}</div>`;
+  return `<div class="mega" id="${megaId(item)}">${cols}${feature}${foot}</div>`;
 }
+
+// Drawn icons (one 1.6px stroke family) instead of ▾ / ✕ text glyphs.
+const CHEV = '<svg class="ico-chev" viewBox="0 0 12 12" aria-hidden="true" focusable="false"><path d="M2.5 4.5 6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const CLOSE = '<svg class="ico-x" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M3.5 3.5l9 9m0-9-9 9" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
+const megaId = (item) => `mega-${item.label.replace(/[^A-Za-z]/g, '')}`;
 
 function nav() {
   const items = NAV.map((item) =>
     Array.isArray(item)
       ? `<a href="${href(item[1])}">${item[0]}</a>`
       : `<div class="nav-drop">
-           <button type="button" class="nav-drop-btn" aria-expanded="false" aria-controls="mega-${item.label.replace(/[^A-Za-z]/g, '')}">${item.label} ▾</button>
+           <button type="button" class="nav-drop-btn" aria-expanded="false" aria-controls="${megaId(item)}">${item.label}${CHEV}</button>
            ${megaMenu(item)}
          </div>`
   ).join('');
   return `
 <div class="u-bar"><div class="wrap u-bar-in">
-  <span class="u-bar-full">${SITE.centre.name} · ${SITE.centre.address} · <b>${SITE.centre.opening}</b> — consulting now in Shyamoli</span>
-  <span class="u-bar-full"><b>Call ${SITE.phone}</b> · WhatsApp · ${SITE.bmdc}</span>
-  <span class="u-bar-m"><b>${SITE.centre.opening}</b> — consulting now in Shyamoli</span>
+  <span class="u-bar-full">Consulting now at <b>Alliance Hospital</b> and <b>DCIMCH</b>, Shyamoli · ${SITE.centre.name}, ${SITE.centre.address.replace(', Dhaka', '')}: ${SITE.centre.opening.toLowerCase()}</span>
+  <span class="u-bar-full u-bar-links"><a href="tel:${SITE.phoneTel}"><b>Call ${SITE.phone}</b></a><a href="https://wa.me/${SITE.whatsapp}" rel="noopener">WhatsApp</a><a href="${href('/contact/')}">Directions</a></span>
+  <span class="u-bar-m"><b>Consulting now in Shyamoli</b> · Centre ${SITE.centre.opening.toLowerCase()}</span>
 </div></div>
 <header class="s-nav"><div class="wrap s-nav-in">
-  <a class="logo" href="${href('/')}"><span class="logo-n">${SITE.name}</span><span class="logo-s">${SITE.strapline}</span></a>
+  <a class="logo" href="${href('/')}">${mark('logo-mark', 5)}<span class="logo-t"><span class="logo-n">${SITE.name}</span><span class="logo-s">${SITE.strapline}</span></span></a>
   <nav class="s-menu" aria-label="Main">${items}</nav>
   <a class="btn btn-ink btn-nav" href="${href('/book/')}">Book a consultation</a>
   <button type="button" class="burger" id="burger" aria-expanded="false" aria-controls="drawer">Menu</button>
 </div></header>`;
 }
 
-// The drawer is the ONLY nav ≤820px, so it must carry every top destination:
-// the docx pathway map sends most mobile visitors to Prices and Book first,
-// and About is a main-nav item. Groups mirror the footer columns.
+// The drawer is the ONLY nav below the desktop breakpoint, so it mirrors the
+// mega menus: each clinical group expands (<details>, no script) to its hub and
+// every deep link, then flat Visit / Learn / About rows. The docx pathway map
+// sends most mobile visitors to Prices and Book first; both stay one tap away.
 function drawer() {
   const group = (links) => links.map(([l, h]) => `<a href="${href(h)}">${l}</a>`).join('');
+  const expandable = NAV.filter((item) => !Array.isArray(item) && HUB_LABEL[item.label]).map((item) => {
+    const deep = item.menu.cols.flatMap((c) => c.links);
+    const extra = [item.menu.feature && [item.menu.feature[0], item.menu.feature[1]], item.menu.foot].filter(Boolean);
+    return `<details class="drawer-grp"><summary>${item.label}${CHEV}</summary>
+      <div class="drawer-sub"><a class="drawer-hub" href="${href(item.href)}">${HUB_LABEL[item.label]}</a>${group([...deep, ...extra])}</div></details>`;
+  }).join('');
   return `
 <div class="scrim" id="scrim"></div>
 <div class="drawer" id="drawer" role="dialog" aria-modal="true" aria-label="Site menu">
-  <div class="drawer-head"><span class="logo-n">${SITE.name}</span>
-    <button type="button" id="drawerClose" aria-label="Close menu">✕</button></div>
+  <div class="drawer-head"><span class="logo logo-sm">${mark('logo-mark', 6)}<span class="logo-n">${SITE.name}</span></span>
+    <button type="button" id="drawerClose" aria-label="Close menu">${CLOSE}</button></div>
   <nav class="drawer-links" aria-label="Site menu">
-    <p class="drawer-cat">Care</p>${group(FOOTER.care.slice(0, 3))}
-    <a href="${href('/conditions/sexual-health/')}">Confidential sexual health</a>
+    <p class="drawer-cat">Care</p>${expandable}
     <p class="drawer-cat">Visit</p><a href="${href('/prices/')}">Prices</a>${group(FOOTER.visit.filter(([l]) => l !== 'Book a consultation'))}
+    <p class="drawer-cat">Learn</p>${group(FOOTER.learn)}
     <p class="drawer-cat">About &amp; trust</p><a href="${href('/about/')}">About Dr. Sumya</a>${group(FOOTER.trust)}
   </nav>
   <a class="btn btn-ink drawer-book" href="${href('/book/')}">Book a consultation</a>
@@ -108,13 +121,15 @@ function drawer() {
 }
 
 function footer() {
-  const col = (h, links) => `<div><h4>${h}</h4>${links.map(([l, p]) => `<a href="${href(p)}">${l}</a>`).join('')}</div>`;
+  const col = (h, links) => `<div><h2 class="foot-h">${h}</h2>${links.map(([l, p]) => `<a href="${href(p)}">${l}</a>`).join('')}</div>`;
   return `
 <footer class="foot"><div class="wrap">
   <div class="foot-cols">
-    <div><span class="logo-n">${SITE.name}</span><span class="logo-s">${SITE.centre.name}</span>
-      <p>${SITE.credentials.join(' · ')}<br>${SITE.bmdc}</p></div>
-    ${col('Care', FOOTER.care)}${col('Visit', FOOTER.visit)}${col('Trust', FOOTER.trust)}
+    <div class="foot-brand">${mark('foot-mark', 4.5)}<span class="logo-n">${SITE.name}</span><span class="logo-s">${SITE.centre.name}</span>
+      <p>${SITE.credentials.join(' · ')}<br>${SITE.bmdc}</p>
+      <p class="foot-contact"><a href="tel:${SITE.phoneTel}">Call ${SITE.phone}</a><a href="https://wa.me/${SITE.whatsapp}" rel="noopener">WhatsApp</a><a href="mailto:${SITE.email}">${SITE.email}</a></p>
+      <p class="foot-hours">${CHAMBERS_NOW.map((c) => `<span><b>${c.short}</b> · ${c.daysShort}, <i>${c.hours}</i></span>`).join('')}</p></div>
+    ${col('Care', FOOTER.care)}${col('Visit', FOOTER.visit)}${col('Learn', FOOTER.learn)}${col('Trust', FOOTER.trust)}
   </div>
   <div class="foot-legal"><span>Information on this site is educational and does not replace an examination.</span><span>Prices reviewed: ${SITE.pricesReviewed}</span></div>
 </div></footer>
@@ -152,6 +167,7 @@ function head(page) {
         '@context': 'https://schema.org', '@type': 'Physician', name: SITE.name,
         medicalSpecialty: 'Dermatologic', url: SITE.domain,
         credential: SITE.credentials.join(', '), identifier: SITE.bmdc,
+        logo: `${SITE.domain}/assets/logo-512.png`, image: `${SITE.domain}/assets/og-card.png`,
       }
     : { '@context': 'https://schema.org', '@type': 'WebPage', name: page.title, url };
   return `<!doctype html>
@@ -166,18 +182,22 @@ function head(page) {
 <meta property="og:description" content="${page.desc}">
 <meta property="og:type" content="website">
 <meta property="og:url" content="${url}">
-<meta property="og:image" content="${SITE.domain}/assets/clinic.jpg">
-<meta property="og:image:alt" content="The consultation suite at Dr. Sumya Pervin's dermatology practice">
-<meta name="twitter:card" content="summary">
+<meta property="og:image" content="${SITE.domain}/assets/og-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Signature SP mark of Dr. Sumya Pervin, dermatologist in Dhaka">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<meta name="theme-color" content="#1A2756">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Hind+Siliguri:wght@400;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/css/site.css">
 <script type="application/ld+json">${JSON.stringify(ld)}</script>
 <script src="/js/site.js" defer></script>
 </head>
-<body>
+<body data-page="${page.path}" data-wa="https://wa.me/${SITE.whatsapp}">
 <a class="skip-link" href="#main-content">Skip to content</a>
 ${nav()}
 <main id="main-content" tabindex="-1">
@@ -203,11 +223,11 @@ function notFoundPage() {
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Hind+Siliguri:wght@400;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/css/site.css">
 <script src="/js/site.js" defer></script>
 </head>
-<body>
+<body data-wa="https://wa.me/${SITE.whatsapp}">
 <a class="skip-link" href="#main-content">Skip to content</a>
 ${nav()}
 <main id="main-content" tabindex="-1">

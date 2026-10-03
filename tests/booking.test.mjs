@@ -270,3 +270,23 @@ test('a second booking for the same phone, chamber and date is a 409, not a twin
   assert.match((await retry.json()).error, /already exists/);
   assert.equal(await countRows(), before + 1, 'the retry must not insert');
 });
+
+test('an unticked reminders box is recorded at the front of the notes', async () => {
+  // /book/ pre-ticks "Send me reminders" (owner default). Unticking it must
+  // reach staff, who read the notes before messaging; there is no column.
+  const res = await post(valid({ reminders: false, notes: 'itchy rash' }));
+  assert.equal(res.status, 201);
+  const { id } = await res.json();
+  const row = await h.db.prepare('SELECT notes FROM appointments WHERE id = ?').bind(id).first();
+  assert.equal(row.notes, '[No reminders] itchy rash');
+});
+
+test('reminders left on, or omitted by older clients, leave the notes untouched', async () => {
+  for (const extra of [{ reminders: true }, {}]) {
+    const res = await post(valid({ ...extra, notes: 'plain' }));
+    assert.equal(res.status, 201);
+    const { id } = await res.json();
+    const row = await h.db.prepare('SELECT notes FROM appointments WHERE id = ?').bind(id).first();
+    assert.equal(row.notes, 'plain');
+  }
+});

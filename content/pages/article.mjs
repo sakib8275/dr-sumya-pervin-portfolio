@@ -47,7 +47,17 @@ const cards = (items) => `<div class="cards">${items.map(([name, blurb, path, ta
 
 // Inline publish gate: [[licence: …]] keeps its text only when that gate is
 // visible; otherwise the fragment (an unpublished price) is dropped entirely.
-const applyGate = (s) => String(s ?? '').replace(/\[\[(\w+):([\s\S]*?)\]\]/g, (_, g, t) => (gateVisible(g) ? t : ''));
+const applyGate = (s) => tidy(String(s ?? '').replace(/\[\[(\w+):([\s\S]*?)\]\]/g, (_, g, t) => (gateVisible(g) ? t : '')));
+
+// Dropping a gated fragment can strand its separator: "৳2,500 · ." or
+// "· · ". Collapse repeated separators and any left hanging at the end.
+function tidy(s) {
+  return s
+    .replace(/(\s*·\s*){2,}/g, ' · ')
+    .replace(/\s*·\s*(?=[.)]?\s*$)/, '')
+    .replace(/^\s*·\s*/, '')
+    .trim();
+}
 
 // A positive price figure (৳0 means "no charge" and is never withheld).
 const PRICE = /৳[1-9]/;
@@ -72,11 +82,11 @@ export default function article(page) {
   if (!d) return null;
   const visible = gateVisible(page.gate);
   const crumb = d.crumb || HUB(page.path);
-  const cost = d.cost
-    ? visible
-      ? `<div class="cost-note"><b>What it typically costs here</b><p>${applyGate(d.cost)}</p></div>`
-      : `<div class="cost-note gated"><b>Pricing</b><p>Prices for this treatment publish ${GATE_NOTE[page.gate].toLowerCase()}. Your doctor will give you a written, itemised cost after assessment.</p></div>`
-    : '';
+  const costText = applyGate(d.cost);
+  const cost = !d.cost ? ''
+    : !visible
+      ? `<div class="cost-note gated"><b>Pricing</b><p>Prices for this treatment publish ${GATE_NOTE[page.gate].toLowerCase()}. Your doctor will give you a written, itemised cost after assessment.</p></div>`
+      : costText ? `<div class="cost-note"><b>What it costs at the Centre</b><p>${costText}</p><p class="cost-now">Centre prices apply from opening in 2027 and exclude ${Math.round(SITE.vatRate * 100)}% VAT. At Alliance and DCIMCH today, fees follow each hospital’s own tariff.</p></div>` : '';
   return `
 <section class="pg-hero">
   <div class="wrap">
