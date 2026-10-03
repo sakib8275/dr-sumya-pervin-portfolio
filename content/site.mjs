@@ -1,8 +1,9 @@
 // Site-wide configuration for the multi-page build (Change Request 2026-10-02).
 //
-// The gold identity stays: these constants and the token block at the top of
-// public/css/site.css are copied from the incumbent one-pager, and
-// tests/pages.test.mjs fails if the two token blocks drift apart.
+// The visual identity is Nil & Haldi (adopted 2026-10-03, approved by the
+// owner 2026-10-04 — see PRODUCT.md). The token block at the top of
+// public/css/site.css is mirrored verbatim into style.css for the admin
+// panel, and tests/pages.test.mjs fails if the two drift apart.
 //
 // BASE is the site-root prefix. The multi-page build served from /new/ while
 // the incumbent one-pager was live; the cutover (2026-10-03) flipped it to ''
