@@ -154,6 +154,7 @@ export default function home() {
   <div class="wrap">
     <div class="s-head"><h2>What brings you here?</h2>
       <a class="tlink" href="${href('/medical-dermatology/')}">All conditions &amp; treatments →</a></div>
+    <p class="lede">Not sure which of these it is? <a class="tlink" href="${href('/tools/skin-check/')}">Try the 2-minute skin check</a>: five questions, and it tells you how soon to be seen.</p>
     <div class="h-pillars">
       ${PILLARS.map((p) => `
       <article class="h-pil">

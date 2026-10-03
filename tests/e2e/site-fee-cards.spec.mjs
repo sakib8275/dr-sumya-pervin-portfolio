@@ -36,6 +36,29 @@ for (const [path, cardSel, priceSel] of [['/', '.h-tier', '.h-tier-p'], ['/price
   });
 }
 
+// Regression (2026-10-03): a press effect that transformed the card's own
+// button made it the containing block of its stretched ::after, so the target
+// shrank to the button on mousedown and a slow press on the card body was lost.
+// A real hand holds the press longer than Playwright's click, so hold it.
+test('a slow press anywhere on the card, corners included, still opens it', async ({ page, site }) => {
+  await page.goto(site.baseURL + '/prices/', { waitUntil: 'networkidle' });
+  const view = page.locator('#pkgView');
+  for (const sel of ['.pr-card', '.pr-plan']) {
+    const card = page.locator(sel).first();
+    await card.scrollIntoViewIfNeeded();
+    const c = await card.boundingBox();
+    for (const [x, y] of [[c.x + c.width / 2, c.y + c.height * 0.45], [c.x + 10, c.y + 10]]) {
+      await page.mouse.move(x, y);
+      await page.mouse.down();
+      await page.waitForTimeout(200);
+      await page.mouse.up();
+      await expect(view, `${sel} at (${Math.round(x - c.x)}, ${Math.round(y - c.y)})`).toBeVisible();
+      await page.keyboard.press('Escape');
+      await expect(view).toBeHidden();
+    }
+  }
+});
+
 test('booking from inside the view pre-selects that visit', async ({ page, site }) => {
   await page.goto(site.baseURL + '/prices/', { waitUntil: 'networkidle' });
   await clickCardBody(page, page.locator('.pr-card').filter({ hasText: 'Signature' }).first(), '.pr-price');

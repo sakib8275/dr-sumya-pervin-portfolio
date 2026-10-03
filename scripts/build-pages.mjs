@@ -19,12 +19,12 @@ import prices from '../content/pages/prices.mjs';
 import about from '../content/pages/about.mjs';
 import ethics from '../content/pages/ethics.mjs';
 import article from '../content/pages/article.mjs';
-import { moleCheck, skinType, prep } from '../content/pages/tools.mjs';
+import { moleCheck, skinType, skinCheck, prep } from '../content/pages/tools.mjs';
 import book from '../content/pages/book.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const OUT = join(ROOT, 'public');
-const BODIES = { home, prices, about, ethics, moleCheck, skinType, prep, book };
+const BODIES = { home, prices, about, ethics, moleCheck, skinType, skinCheck, prep, book };
 
 // The build now writes into the site root alongside hand-maintained assets
 // (css/, js/, assets/, admin/, favicon, robots). Remove only what this script

@@ -82,17 +82,35 @@
     let opener = null;
     const calm = window.matchMedia('(prefers-reduced-motion: reduce)');
     const cardOf = (el) => el && el.closest('.h-tier, .pr-card, .pr-plan');
+    let running = null;
     const morph = (from, to, update) => {
       if (!document.startViewTransition || calm.matches || !from || !to) { update(); return; }
       from.style.viewTransitionName = 'pkg';
       view.classList.add('vt');
-      const t = document.startViewTransition(() => {
+      const t = running = document.startViewTransition(() => {
         from.style.viewTransitionName = '';
         update();
         to.style.viewTransitionName = 'pkg';
       });
-      t.finished.finally(() => { to.style.viewTransitionName = ''; view.classList.remove('vt'); });
+      t.finished.finally(() => {
+        to.style.viewTransitionName = '';
+        view.classList.remove('vt');
+        if (running === t) running = null;
+      });
     };
+    // While a transition plays, the browser hit-tests its overlay, so every
+    // click lands on <html> and is lost: close a sheet, tap the next card at
+    // once, and nothing would happen. Finish the transition immediately and
+    // replay the click on whatever is really under the pointer.
+    document.addEventListener('click', (e) => {
+      if (!running || e.target !== document.documentElement) return;
+      const { clientX: x, clientY: y } = e;
+      running.skipTransition();
+      running.finished.finally(() => {
+        const el = document.elementFromPoint(x, y);
+        if (el && el !== document.documentElement) el.click();
+      });
+    }, true);
     const shut = () => { if (view.open) morph(view, cardOf(opener), () => view.close()); };
     document.addEventListener('click', (e) => {
       const trigger = e.target.closest('[data-pkg-open]');
@@ -275,6 +293,78 @@
         <ul>${ROUTINE[type].map((s) => `<li>${s}</li>`).join('')}</ul>
         <p><b>Peels and laser:</b> ${suit}</p>
         <p class="tool-fine">For a diagnosis, book a consultation.</p>`);
+    });
+  }
+
+  // — Skin check (/tools/skin-check/): conditions a description often turns
+  // out to be, how soon to be seen, which visit fits. Never a diagnosis, never
+  // a procedure. Answers stay on the page: book links carry only the visit
+  // type, never a symptom (a URL ends up in history, logs and referrers).
+  // ⚠️ The urgency wording below is clinical copy published before the
+  // doctor's review (owner's choice, 2026-10-03) — see content/pages/tools.mjs.
+  const sc = document.querySelector('form[data-tool="skin-check"]');
+  if (sc) {
+    sc.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const ticked = (name) => [...sc.querySelectorAll(`input[name="${name}"]:checked`)].map((i) => i.value);
+      const warn = ticked('warn');
+      const acts = ticked('act');
+
+      // Emergencies first, and alone: no booking, no reading list.
+      if (warn.includes('airway') || warn.includes('fever')) {
+        show('scOut', `<div class="sc-urgency sc-emergency"><h3>Go to the nearest emergency department now</h3>
+          <p>${warn.includes('airway')
+            ? 'Swelling of the lips, tongue or throat, or trouble breathing, can be a severe allergic reaction.'
+            : 'Fever with a widespread rash, or blistering or peeling skin, needs hospital care the same day.'}
+          Do not wait for a clinic appointment.</p></div>`);
+        return;
+      }
+
+      const where = val(sc, 'where'), dur = val(sc, 'dur');
+      const lookIn = sc.querySelector('input[name="look"]:checked');
+      if (!where || !lookIn || !dur) {
+        show('scOut', `<h3>Almost there</h3><p>Please answer where it is, what you notice most, and how long it has been there.</p>`);
+        return;
+      }
+      const look = lookIn.value;
+      const mole = look === 'mole' || warn.includes('mole-fast');
+      const priv = where === 'private' || look === 'private';
+      const wa = (document.querySelector('a[href^="https://wa.me/"]') || {}).href || 'https://wa.me/8801353787080';
+
+      let urgency;
+      if (warn.includes('hot')) {
+        urgency = ['today', 'See a doctor today',
+          `Red, hot, painful skin that spreads fast can be an infection that needs treatment the same day. If you cannot see a doctor today, go to an emergency department. You can also <a class="tlink" href="${wa}" rel="noopener">WhatsApp us</a>; we reply within 2 working hours.`];
+      } else if (mole || priv || acts.includes('bleed')) {
+        urgency = ['soon', 'Be seen within the next few days',
+          mole ? 'A mole that is new, changing or bleeding should be examined soon. It is usually harmless, but this is the one to check rather than watch.'
+            : priv ? 'Sores, bumps or discharge in the private area are best seen soon. Most causes are very treatable, and partners may need treatment too.'
+            : 'Skin that bleeds or oozes should be examined soon, especially if it does not heal within two weeks.'];
+      } else {
+        urgency = ['routine', 'A routine visit is fine',
+          'Nothing you described sounds urgent. Book when it suits you, and come sooner if it changes quickly, spreads, or stops you sleeping.'];
+      }
+
+      let visit;
+      if (priv) visit = ['Private Consultation', 'A private time slot. No reason is needed when booking, and the invoice wording is discreet.'];
+      else if (dur === 'long' || acts.length >= 2) visit = ['Comprehensive Assessment', '40 minutes. Long-standing or busy problems usually need baseline photographs, costed options and an included follow-up.'];
+      else visit = ['Specialist Consultation', '20–25 minutes. A focused first visit: examination, dermoscopy where it helps, and a written plan.'];
+      const book = mole ? '/book/?reason=mole' : `/book/?tier=${encodeURIComponent(visit[0])}`;
+
+      const slugs = (lookIn.dataset.cond || '').split(',').filter(Boolean);
+      show('scOut', `<div class="sc-urgency sc-${urgency[0]}"><h3>${urgency[1]}</h3><p>${urgency[2]}</p></div>
+        ${slugs.length ? `<h3>Conditions that often look like this</h3>
+        <p>People who describe this are often diagnosed with ${slugs.length > 1 ? 'one of these' : 'this'}. Only an examination can tell: several skin conditions look alike, and some need a quick test.</p>
+        <div class="sc-conds" id="scConds"></div>`
+        : `<h3>What to bring</h3><p>Not every skin problem fits a list. Bring a photo of it at its worst, and any creams you have tried.</p>`}
+        <h3>Which visit fits</h3>
+        <p><b>${visit[0]}.</b> ${visit[1]}${mole ? ' Mention the mole when you book and we will give you a priority slot.' : ''}</p>
+        <p><a class="btn btn-ink" href="${book}">${mole ? 'Book a mole check' : `Book a ${visit[0]}`}</a></p>`);
+      const into = document.getElementById('scConds');
+      for (const slug of slugs) {
+        const tpl = document.getElementById('sc-' + slug);
+        if (into && tpl) into.append(tpl.content.cloneNode(true));
+      }
     });
   }
 

@@ -4,7 +4,20 @@
 verification, or owner-action state changes. Everything under `docs/` is a dated
 snapshot; if this file and a snapshot disagree, this file wins.
 
-**Updated:** 2026-10-03 (later) — **Design critique round: BUILT AND GREEN, NOT
+**Updated:** 2026-10-04 — **Skin check tool + whole-card fix: BUILT AND GREEN
+(295 node + 44 e2e), NOT DEPLOYED.** New `/tools/skin-check/` (64 pages): a
+five-question symptom guide that shows the conditions a description often
+turns out to be (linking the condition pages), how soon to be seen, and which
+visit fits; never a diagnosis or a procedure, nothing stored, no answers in
+URLs. **Owner action: Dr. Sumya should review its clinical wording** — the
+sign → condition mapping and warning signs in `content/pages/tools.mjs`
+(`skinCheck`) and the urgency copy in `public/js/site.js`. It was published
+before her review at the owner's request. Also fixed: fee and care-plan cards
+are whole-card targets again (a press animation had broken body clicks), and
+clicks during the card ↔ sheet view transition are no longer lost. The Nil &
+Haldi palette is still pending her sign-off (PRODUCT.md).
+
+**Earlier 2026-10-03 (later)** — **Design critique round: BUILT AND GREEN, NOT
 COMMITTED, NOT DEPLOYED.** An Impeccable audit (13/20) + critique (21/40) found
 the home hero's small text at 1.8–4.0:1 on the gradient, the doctor's name in
 every footer at 1:1 (ink on ink), a /book/ form that defaulted to a "Morning"

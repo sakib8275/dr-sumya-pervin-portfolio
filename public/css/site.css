@@ -111,7 +111,11 @@ p, li { text-wrap: pretty; }
   transition: background-color var(--t-press) var(--ease-out), border-color var(--t-press) var(--ease-out),
     color var(--t-press) var(--ease-out), transform var(--t-press) var(--ease-out);
 }
-.btn:active { transform: scale(.98); }
+/* Never on a card's own button: a transform makes the button the containing
+   block of its stretched ::after, the whole-card target collapses to the
+   button mid-press, and a click on the card body is lost. The card presses
+   instead (see the whole-card target rules). */
+.btn:not(.card-link):active { transform: scale(.98); }
 .btn:disabled { opacity: .6; cursor: progress; }
 .btn-ink { background: var(--nil); color: #fff; }
 .btn-ink:hover { background: var(--nil-deep); }
@@ -324,6 +328,27 @@ a.chip:hover { background: var(--surface); border-color: var(--nil); color: var(
 .tool-radio { display: inline-flex; align-items: center; gap: 8px; padding: 10px 14px; border: 1px solid var(--rule);
   border-radius: 999px; background: #fff; cursor: pointer; font-size: 14px; }
 .tool-radio input { accent-color: var(--nil); }
+/* A chosen answer reads at a glance on a phone, not only as a radio dot. */
+.tool-radio, .tool-check { transition: border-color var(--t-press) var(--ease-out), background-color var(--t-press) var(--ease-out); }
+.tool-radio:has(input:checked), .tool-check:has(input:checked) { border-color: var(--nil); background: var(--nil-tint); }
+.tool-radio:has(input:focus-visible), .tool-check:has(input:focus-visible) { outline: 2px solid var(--nil); outline-offset: 2px; }
+.tool-q .tool-note { margin: -4px 0 10px; }
+
+/* Skin check result: urgency first, in the state colours (all AA), then the
+   conditions it often turns out to be, then the visit that fits. */
+.sc-out { max-width: 860px; }
+.sc-out > p { margin-bottom: 12px; }
+.sc-out > h3 { margin-top: 22px; }
+.sc-urgency { border-radius: 14px; padding: 16px 18px; }
+.sc-urgency h3 { color: inherit; margin-bottom: 4px; font-size: 19px; }
+.sc-emergency { background: var(--err-bg); color: var(--err-ink); border: 1px solid var(--err-ink); }
+.sc-today, .sc-soon { background: var(--warn-bg); color: var(--warn-ink); }
+.sc-routine { background: var(--surface); border: 1px solid var(--rule); }
+.sc-urgency .tlink { color: inherit; }
+.sc-conds { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin: 4px 0 6px; }
+.sc-cond { margin: 0; }
+.sc-cond h4 { font-size: 18px; line-height: 1.2; margin-bottom: 6px; }
+.sc-cond .tlink { font-size: 14.5px; }
 .tool-out { max-width: 76ch; margin-top: 26px; padding: 24px 26px; border-radius: var(--r-card);
   background: var(--nil-tint); }
 .tool-out:focus { outline: none; }
@@ -520,15 +545,23 @@ a.chip:hover { background: var(--surface); border-color: var(--nil); color: var(
 }
 .h-tier.sig .ticks li::before { background: var(--on-nil); }
 .h-tier-book { margin-top: 22px; align-self: flex-start; }
-/* Whole-card target: the card's own "Book this visit" link stretches over the
-   card, so a tap anywhere on a fee card picks that visit. The link text stays
-   the accessible name; the flag and copy remain selectable underneath. */
-.card-link::after { content: ""; position: absolute; inset: 0; border-radius: inherit; }
-.h-tier:has(.card-link), .pr-card:has(.card-link) { cursor: pointer; transition: border-color .15s var(--ease), box-shadow .15s var(--ease); }
-.h-tier:not(.sig):not(.rec):has(.card-link:hover), .pr-card:not(.rec):has(.card-link:hover) { border-color: var(--nil); box-shadow: var(--shadow-sm); }
-.h-tier.rec:has(.card-link:hover), .pr-card.rec:has(.card-link:hover) { box-shadow: var(--shadow-md); }
+/* Whole-card target: the card's own "See what's included" button stretches
+   over the card (fee tiers, price cards, care plans), so a tap anywhere opens
+   that package. The button text stays the accessible name. The overlay takes
+   the card's radius, not the pill's — inherit would round off the corners. */
+.card-link::after { content: ""; position: absolute; inset: 0; border-radius: 18px; }
+:is(.h-tier, .pr-card, .pr-plan):has(.card-link) { cursor: pointer;
+  transition: border-color .15s var(--ease), box-shadow .15s var(--ease), scale var(--t-press) var(--ease-out); }
+.h-tier:not(.sig):not(.rec):has(.card-link:hover), :is(.pr-card, .pr-plan):not(.rec):has(.card-link:hover) { border-color: var(--nil); box-shadow: var(--shadow-sm); }
+:is(.h-tier, .pr-card, .pr-plan).rec:has(.card-link:hover) { box-shadow: var(--shadow-md); }
 .h-tier.sig:has(.card-link:hover) { box-shadow: var(--shadow-md); }
-.h-tier:has(.card-link:hover) .card-link.btn-ghost, .pr-card:has(.card-link:hover) .card-link.btn-ghost { background: var(--paper-2); }
+:is(.h-tier, .pr-card, .pr-plan):has(.card-link:hover) .card-link.btn-ghost { background: var(--nil-tint); }
+/* The press belongs to the card, which is what the patient touched. `scale`
+   composes with .h-tier.rec's translateY lift instead of replacing it. */
+:is(.h-tier, .pr-card, .pr-plan):has(.card-link:active) { scale: .99; }
+/* Keyboard: tabbing to the button outlines the whole card it stands for. */
+:is(.h-tier, .pr-card, .pr-plan):has(.card-link:focus-visible) { outline: 2px solid var(--nil); outline-offset: 3px; }
+.h-tier.sig:has(.card-link:focus-visible) { outline-color: var(--haldi); }
 .pr-card { display: flex; flex-direction: column; }
 .pr-card ul { flex: 1; }
 .pr-card-book { margin-top: 18px; align-self: flex-start; padding: 11px 18px; font-size: 14px; }
@@ -891,6 +924,7 @@ a.chip:hover { background: var(--surface); border-color: var(--nil); color: var(
   .pkg-view[open] { animation: none; }
   .card:hover, .h-learn-card:hover { transform: none; }
   .btn:active { transform: none; }
+  :is(.h-tier, .pr-card, .pr-plan):has(.card-link:active) { scale: none; }
   .mega { transition: none; }
   .h-hero h1, .h-sub, .h-hero .bn-sum, .h-ctas, .h-alt, .nameplate, .h-ch-today { animation: fade-in 240ms ease-out both; }
   .h-hero h1 em, .nameplate::after { animation: none; }

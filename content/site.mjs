@@ -132,6 +132,7 @@ export const NAV = [
           ],
         },
       ],
+      feature: ['Not sure what it is? Try the skin check', '/tools/skin-check/', 'Five questions: what it often turns out to be, how soon to be seen, and which visit fits.'],
       foot: ['Confidential sexual health', '/conditions/sexual-health/'],
     },
   },
@@ -239,6 +240,7 @@ export const FOOTER = {
   ],
   learn: [
     ['Articles', '/learn/'],
+    ['Skin check', '/tools/skin-check/'],
     ['Mole check', '/tools/mole-check/'],
     ['Skin type guide', '/tools/skin-type-guide/'],
     ['Questions patients ask', '/faq/'],
