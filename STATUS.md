@@ -14,8 +14,11 @@ sign → condition mapping and warning signs in `content/pages/tools.mjs`
 (`skinCheck`) and the urgency copy in `public/js/site.js`. It was published
 before her review at the owner's request. Also fixed: fee and care-plan cards
 are whole-card targets again (a press animation had broken body clicks), and
-clicks during the card ↔ sheet view transition are no longer lost. The Nil &
-Haldi palette is still pending her sign-off (PRODUCT.md).
+clicks during the card ↔ sheet view transition are no longer lost. **2026-10-04:
+Dr. Sumya approved the Nil & Haldi rebrand** — she confirmed the rebrand was
+itself requested, superseding the 2026-10-02 gold-identity decision. Still
+pending her sign-off: the Signature SP mark (not trademark-cleared) and the
+skin-check clinical wording above.
 
 **Earlier 2026-10-03 (later)** — **Design critique round: BUILT AND GREEN, NOT
 COMMITTED, NOT DEPLOYED.** An Impeccable audit (13/20) + critique (21/40) found

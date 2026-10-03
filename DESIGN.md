@@ -141,7 +141,7 @@ components:
 
 # Design System: Dr. Sumya Pervin — Dermatology
 
-> **Status:** these tokens are what the code ships (`public/css/site.css` `:root`). The Nil & Haldi palette is **pending the doctor's sign-off** (PRODUCT.md, Brand Commitments). Until she approves, the 2026-10-02 gold identity is the last owner-approved one, so don't deploy the palette without approval.
+> **Status:** these tokens are what the code ships (`public/css/site.css` `:root`). The Nil & Haldi palette was **approved by Dr. Sumya on 2026-10-04** — she confirmed the rebrand was requested — and supersedes the 2026-10-02 gold identity (PRODUCT.md, Brand Commitments).
 
 ## Overview
 

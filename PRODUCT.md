@@ -68,8 +68,8 @@ The practice is the third option between two flawed ones. The hospital OPD has s
 - **Price display:** prices exclude 15% VAT, which is shown beside them. The Taka sign goes before the number, with lakh grouping (৳1,75,000).
 - **Pending owner sign-off:**
   - The nav departs from the docx menu (The Centre sits under About; Learn was added).
-  - The Nil & Haldi visual identity (see Brand Commitments).
   - The Signature SP mark (see Brand Commitments).
+  - The skin-check clinical wording (`content/pages/tools.mjs` `skinCheck`, urgency copy in `public/js/site.js`).
 - **Not deployed:** the live `drsumyapervin.com` is untouched until the owner deploys.
 
 ## Brand Commitments
@@ -91,10 +91,9 @@ The practice is the third option between two flawed ones. The hospital OPD has s
   - Selling packages at the first visit.
   - Advertising a service before its licence gate.
   - The test for every nudge: would we be comfortable if the patient saw exactly why it is there?
-- **Visual identity, OPEN DECISION.**
+- **Visual identity, APPROVED 2026-10-04.**
   - The owner's 2026-10-02 decision kept "the current gold/Outfit design system". Outfit remains the typeface.
-  - On 2026-10-03 the repo moved to the **Nil & Haldi** palette (indigo + turmeric). It is built and tested but **pending the doctor's sign-off**. It is not binding until she approves it.
-  - Until then, the gold decision is the last owner-approved identity, so do not deploy the palette change without approval.
+  - On 2026-10-03 the repo moved to the **Nil & Haldi** palette (indigo + turmeric). On 2026-10-04 Dr. Sumya approved it — she confirmed the rebrand was requested — so it **supersedes the 2026-10-02 gold decision** and is the owner-approved identity. The palette may deploy with the rest of the branch.
 - **Logo, OPEN DECISION.** Since 2026-10-04 the site uses the **Signature SP** mark, concept 01 of the logo study in `design/clinic-logo/` (one definition in `content/brand.mjs`). It appears in the header, drawer, footer, hero nameplate, favicon, phone icon and share card (`public/assets/og-card.png`, which replaced the AI-looking `clinic.jpg` as the share image). Like the palette, it is **pending the doctor's sign-off**, and the study notes it is not trademark-cleared.
 - **Language:** English is primary. Bangla summaries (`content/bn.mjs`) publish only after Dr. Sumya reads and approves each one. Machine-drafted Bangla never reaches a page unapproved.
 
