@@ -3,7 +3,7 @@
 // The one-pager suites pin the one-pager; these pin the new site's build
 // contract: every sitemap page exists on disk, every internal link resolves
 // (the interlinking rulebook made executable), SEO is unique and complete,
-// the gold token block has not drifted from style.css, no inline handler has
+// the token block has not drifted between site.css and style.css, no inline handler has
 // crept into generated markup (F9's rule), and the load-bearing docx price
 // figures are present verbatim (docx-is-truth, made executable).
 import { test } from 'node:test';
@@ -72,7 +72,7 @@ test('every internal link in the built pages resolves', async () => {
   }
 });
 
-test('the gold token block has not drifted from the one-pager', async () => {
+test('the Nil & Haldi token block has not drifted between the two stylesheets', async () => {
   const grab = (css) => {
     const m = css.match(/:root\s*\{([\s\S]*?)\}/);
     assert.ok(m, 'no :root block');
@@ -80,7 +80,7 @@ test('the gold token block has not drifted from the one-pager', async () => {
   };
   const onePager = grab(await readFile(join(repoRoot, 'public', 'css', 'style.css'), 'utf8'));
   const multi = grab(await readFile(join(repoRoot, 'public', 'css', 'site.css'), 'utf8'));
-  assert.equal(multi, onePager, 'site.css :root must stay a verbatim copy of style.css :root — the gold identity is one token set');
+  assert.equal(multi, onePager, 'style.css :root must stay a verbatim copy of site.css :root — the identity is one token set');
 });
 
 test('no inline event handlers in generated pages', async () => {

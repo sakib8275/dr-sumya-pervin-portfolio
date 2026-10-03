@@ -73,32 +73,64 @@
   // on it lands here. The detail is a build-time <template>; it is cloned into
   // the native <dialog>, whose showModal() supplies focus containment and Esc.
   // Focus returns to the card's button on every close path.
+  // Where the browser has View Transitions, the sheet grows out of the tapped
+  // card and shrinks back into it: card and sheet trade the name "pkg" across
+  // the DOM change. Without them, or under reduced motion, it opens as before.
   const view = document.getElementById('pkgView');
   if (view && typeof view.showModal === 'function') {
     const body = document.getElementById('pkgBody');
     let opener = null;
+    const calm = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const cardOf = (el) => el && el.closest('.h-tier, .pr-card, .pr-plan');
+    const morph = (from, to, update) => {
+      if (!document.startViewTransition || calm.matches || !from || !to) { update(); return; }
+      from.style.viewTransitionName = 'pkg';
+      view.classList.add('vt');
+      const t = document.startViewTransition(() => {
+        from.style.viewTransitionName = '';
+        update();
+        to.style.viewTransitionName = 'pkg';
+      });
+      t.finished.finally(() => { to.style.viewTransitionName = ''; view.classList.remove('vt'); });
+    };
+    const shut = () => { if (view.open) morph(view, cardOf(opener), () => view.close()); };
     document.addEventListener('click', (e) => {
       const trigger = e.target.closest('[data-pkg-open]');
       if (trigger) {
         const tpl = document.getElementById('pkg-' + trigger.dataset.pkgOpen);
         if (!tpl) return;
         opener = trigger;
-        body.replaceChildren(tpl.content.cloneNode(true));
-        view.showModal();
-        document.body.classList.add('no-scroll');
-        view.scrollTop = 0;
-        const title = view.querySelector('#pkgTitle');
-        if (title) title.focus({ preventScroll: true });
+        morph(cardOf(trigger), view, () => {
+          body.replaceChildren(tpl.content.cloneNode(true));
+          view.showModal();
+          document.body.classList.add('no-scroll');
+          view.scrollTop = 0;
+          const title = view.querySelector('#pkgTitle');
+          if (title) title.focus({ preventScroll: true });
+        });
         return;
       }
-      if (e.target.closest('[data-pkg-close]')) view.close();
+      if (e.target.closest('[data-pkg-close]')) shut();
     });
+    // Esc closes through the same path, so it shrinks back into the card too.
+    view.addEventListener('cancel', (e) => { e.preventDefault(); shut(); });
     // A click on the backdrop targets the <dialog> itself (the panel fills it).
-    view.addEventListener('click', (e) => { if (e.target === view) view.close(); });
+    view.addEventListener('click', (e) => { if (e.target === view) shut(); });
     view.addEventListener('close', () => {
       document.body.classList.remove('no-scroll');
       if (opener) opener.focus({ preventScroll: true });
     });
+  }
+
+  // — "Consulting today" on the home chamber columns. Weekdays are stamped at
+  // build time from functions/lib/schedule.js; Dhaka is UTC+6 all year, so
+  // today is Dhaka's today wherever the phone is (same rule as /book/).
+  const dhakaDay = new Date(Date.now() + 6 * 3600 * 1000).getUTCDay();
+  for (const ch of document.querySelectorAll('.h-ch[data-days]')) {
+    if (!ch.dataset.days.split(',').map(Number).includes(dhakaDay)) continue;
+    ch.classList.add('is-today');
+    const flag = ch.querySelector('.h-ch-today');
+    if (flag) flag.hidden = false;
   }
 
   // — Course-cost estimator (docx 5.37): a planning guide, not a quote.

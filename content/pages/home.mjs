@@ -1,4 +1,4 @@
-// Home body — docx §5.1 copy, laid out in the incumbent gold design.
+// Home body — docx §5.1 copy, laid out in the Nil & Haldi design (site.css).
 // Owner 2026-10-02: the doctor does not want her photograph published, so the
 // hero carries a credential nameplate (no face) instead of the wireframe's
 // portrait. The arched crown keeps the silhouette the image occupied.
@@ -8,7 +8,10 @@
 // section no competitor could copy, moves up to second. Everything that
 // belongs to the 2027 Centre (its fee tiers and its rooms) is labelled as such,
 // with VAT shown, so "published prices" stays true for the visitor booking now.
+// Each chamber column carries its consulting weekdays (from the server's own
+// schedule); site.js marks the chambers consulting today in Dhaka.
 import { SITE, CHAMBERS_NOW, href } from '../site.mjs';
+import { CHAMBERS } from '../../functions/lib/schedule.js';
 import { bnSummary } from '../bn.mjs';
 import { pkgButton, pkgViews } from './pkgview.mjs';
 
@@ -117,7 +120,8 @@ export default function home() {
     <p class="lede">Until the Centre opens in 2027, Dr. Sumya consults at two chambers in Shyamoli. Fees at these chambers follow each hospital’s own tariff; the published prices on this website apply to the Centre.</p>
     <div class="h-now-grid">
       ${CHAMBERS_NOW.map((c) => `
-      <article class="h-ch">
+      <article class="h-ch" data-days="${CHAMBERS[c.key].days.join(',')}">
+        <p class="h-ch-today" hidden><span class="h-ch-dot" aria-hidden="true"></span>Consulting today</p>
         <h3>${c.name}</h3>
         <p class="h-ch-addr">${c.address}</p>
         <p class="h-ch-when"><b>${c.days}</b><span>${c.hours}</span></p>
