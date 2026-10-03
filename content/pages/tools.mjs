@@ -83,10 +83,12 @@ export function skinType() {
 // out to be (linking her own condition pages), how soon to be seen, and which
 // visit fits.
 //
-// ⚠️ CLINICAL COPY PUBLISHED BEFORE THE DOCTOR'S REVIEW (owner's choice): the
-// sign → condition mapping (data-cond) and the warning signs below, and the
-// urgency wording in public/js/site.js. Dr. Sumya should read both; see
-// STATUS.md. The emergency wording follows the docx urticaria page (§5.12).
+// Reviewed and approved by Dr. Sumya on 2026-10-04, with three amendments:
+// palms/soles scaly spots lead with the common causes (eczema, fungal,
+// psoriasis) before precancerous; a new or changing mole pairs the
+// skin-cancer card with its benign look-alike; and a bleeding or
+// fast-changing mole is "Be seen in the next day or two" (public/js/site.js).
+// The emergency wording follows the docx urticaria page (§5.12).
 //
 // Condition cards are build-time <template>s cloned by site.js, with name and
 // blurb from CONDITIONS (content/sitemap.mjs), the same text as each page's
@@ -102,9 +104,9 @@ export function skinCheck() {
     ['light', 'White or lighter patches', 'vitiligo,fungal-infection'],
     ['welts', 'Raised itchy welts that come and go', 'urticaria-allergy'],
     ['hair', 'Hair falling, thinning or bald patches', 'hair-loss'],
-    ['mole', 'A mole or dark spot that is new or changing', 'skin-cancer'],
+    ['mole', 'A mole or dark spot that is new or changing', 'skin-cancer,seborrhoeic-keratosis-dpn'],
     ['bumps', 'Small raised brown or dark bumps', 'seborrhoeic-keratosis-dpn'],
-    ['palms', 'Rough scaly spots on the palms or soles', 'precancerous-skin-lesions'],
+    ['palms', 'Rough scaly spots on the palms or soles', 'eczema,fungal-infection,psoriasis,precancerous-skin-lesions'],
     ['nail-change', 'Thick, discoloured or crumbling nails', 'fungal-infection,psoriasis'],
     ['private', 'Sores, bumps or discharge in the private area', 'sexual-health'],
     ['other', 'Something else', ''],
