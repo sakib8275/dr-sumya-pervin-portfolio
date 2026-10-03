@@ -91,7 +91,7 @@ for (const path of mustNotBePublished) {
     assert.equal(res.status, 404, `${path} is being served`);
     // A 404 is not enough on its own -- assert it is the custom page, not an
     // index fallback that happens to carry a 404 status.
-    assert.ok(body.includes('<!DOCTYPE html>'), `${path} did not return the 404 page`);
+    assert.match(body, /Page not found/i, `${path} did not return the custom 404 page`);
 
     for (const marker of secretMarkers) {
       assert.ok(!body.includes(marker), `${path} response contains "${marker}"`);

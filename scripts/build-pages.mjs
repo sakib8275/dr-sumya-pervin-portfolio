@@ -32,6 +32,7 @@ const BODIES = { home, prices, about, ethics, moleCheck, skinType, prep, book };
 // retired /new/ staging tree. Never rm OUT itself.
 async function clean() {
   await rm(join(OUT, 'index.html'), { force: true });
+  await rm(join(OUT, '404.html'), { force: true });
   await rm(join(OUT, 'sitemap.xml'), { force: true });
   for (const page of PAGES) {
     if (page.path !== '/') await rm(join(OUT, page.path), { recursive: true, force: true });
@@ -188,6 +189,47 @@ ${drawer()}
 </html>`;
 }
 
+// The 404 is part of the site, not the one-pager: same shell, nav and footer so
+// a lost visitor can still get anywhere. noindex, and no canonical (a 404 has no
+// canonical URL). Pages serves this for any unmatched route.
+function notFoundPage() {
+  return `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Page not found | ${SITE.name}</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/site.css">
+<script src="/js/site.js" defer></script>
+</head>
+<body>
+<a class="skip-link" href="#main-content">Skip to content</a>
+${nav()}
+<main id="main-content" tabindex="-1">
+<section class="pg-hero"><div class="wrap">
+  <p class="crumb"><a href="${href('/')}">Home</a> / Not found</p>
+  <h1>That page isn’t here</h1>
+  <p class="lede">The link may be old, or the page may have moved. Here’s where most people go next.</p>
+</div></section>
+<section class="s-sec"><div class="wrap">
+  <div class="h-ctas">
+    <a class="btn btn-ink" href="${href('/book/')}">Book a consultation</a>
+    <a class="btn btn-ghost" href="${href('/prices/')}">See prices</a>
+    <a class="btn btn-ghost" href="${href('/contact/')}">Contact &amp; directions</a>
+  </div>
+</div></section>
+</main>
+${footer()}
+${drawer()}
+</body>
+</html>`;
+}
+
 async function main() {
   await clean();
   let count = 0;
@@ -197,6 +239,7 @@ async function main() {
     await writeFile(file, head(page));
     count += 1;
   }
+  await writeFile(join(OUT, '404.html'), notFoundPage());
   const today = new Date().toISOString().slice(0, 10);
   const sm = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${PAGES.map(
     (p) => `  <url><loc>${SITE.domain}${BASE}${p.path}</loc><lastmod>${today}</lastmod></url>`

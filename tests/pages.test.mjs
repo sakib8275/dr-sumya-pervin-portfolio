@@ -130,3 +130,17 @@ test('the mobile shell contract: drawer destinations, slim u-bar, labelled cells
   const cells = prices.match(/<td(?![^>]*data-th)[^>]*>/g) || [];
   assert.equal(cells.length, 0, `price tables have ${cells.length} unlabelled cells — the stacked-card layout has no labels for them`);
 });
+
+test('the 404 is part of the multi-page shell, not the retired one-pager', async () => {
+  const html = await readFile(join(OUT, '404.html'), 'utf8');
+  assert.match(html, /name="robots" content="noindex"/, 'the 404 must not be indexed');
+  assert.ok(html.includes('/css/site.css'), 'the 404 must use the site stylesheet');
+  assert.ok(!html.includes('css/style.css'), 'the 404 must not fall back to the one-pager stylesheet');
+  assert.ok(html.includes('id="main-content"'), 'the 404 must carry the skip-link target');
+  assert.ok(html.includes('id="drawer"'), 'the 404 must carry the mobile drawer');
+});
+
+test('robots.txt keeps crawlers out of the admin console', async () => {
+  const txt = await readFile(join(repoRoot, 'public', 'robots.txt'), 'utf8');
+  assert.match(txt, /Disallow:\s*\/admin\//, 'robots.txt must disallow /admin/');
+});
