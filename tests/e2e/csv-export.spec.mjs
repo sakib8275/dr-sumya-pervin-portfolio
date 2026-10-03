@@ -17,40 +17,35 @@
 // This drives the real button and reads the real downloaded bytes, because all
 // three defects lived in the serialisation, not in anything the API could catch.
 import { readFile } from 'node:fs/promises';
-import { test, expect, stubTurnstile, openBookingModal } from './helpers/site.mjs';
+import { test, expect, stubTurnstile } from './helpers/site.mjs';
+import { nextOpenDate, addDays, dhakaParts } from '../../functions/lib/schedule.js';
 
-function nextOpenDate(offset = 3) {
-  const d = new Date();
-  d.setUTCDate(d.getUTCDate() + offset);
-  while (d.getUTCDay() === 5) d.setUTCDate(d.getUTCDate() + 1);
-  return d.toISOString().slice(0, 10);
-}
+const CHAMBER = 'Alliance Hospital Limited (Shyamoli)';
 
 // One patient, three attacks, plus a Bengali name for the encoding check.
 const HOSTILE_NAME = '=HYPERLINK("http://evil.test","Click")';
 const HOSTILE_NOTES = 'Rash on back #2 area, "itchy" at night, +1 week';
 const BENGALI_NAME = 'নুসরাত জাহান';
 
-async function book(page, { name, phone, notes, date }) {
-  await openBookingModal(page);
-  await page.locator('#patientName').fill(name);
-  await page.locator('#patientPhone').fill(phone);
-  await page.locator('#chamberSelect').selectOption('Alliance Hospital Limited (Shyamoli)');
-  await page.locator('#appointmentDate').fill(date);
-  if (notes) await page.locator('#patientMessage').fill(notes);
-  await page.locator('#bookingForm button[type="submit"]').click();
-  await expect(page.locator('#bookingStatus')).toContainText('Appointment Request Submitted');
-  await page.locator('#bookingModal .modal-close').click();
+async function book(page, baseURL, { name, phone, notes, date }) {
+  await page.goto(baseURL + '/book/', { waitUntil: 'networkidle' });
+  await page.fill('#sbName', name);
+  await page.fill('#sbPhone', phone);
+  await page.selectOption('#sbTier', 'Specialist Consultation');
+  await page.selectOption('#sbChamber', CHAMBER);
+  await page.fill('#sbDate', date);
+  if (notes) await page.fill('#sbNotes', notes);
+  await page.click('#sbSubmit');
+  await expect(page.locator('#sbConfirm')).toContainText('Request received');
 }
 
 test('the CSV export survives quotes, hashes, formulas and non-ASCII names', async ({ page, site }) => {
   await stubTurnstile(page);
-  await page.goto(site.baseURL);
 
-  await book(page, { name: HOSTILE_NAME, phone: '01711000001', notes: HOSTILE_NOTES, date: nextOpenDate(3) });
-  await book(page, { name: BENGALI_NAME, phone: '01711000002', notes: 'Follow-up', date: nextOpenDate(4) });
+  await book(page, site.baseURL, { name: HOSTILE_NAME, phone: '01711000001', notes: HOSTILE_NOTES, date: nextOpenDate(CHAMBER, addDays(dhakaParts().dateStr, 1)) });
+  await book(page, site.baseURL, { name: BENGALI_NAME, phone: '01711000002', notes: 'Follow-up', date: nextOpenDate(CHAMBER, addDays(dhakaParts().dateStr, 2)) });
 
-  await page.locator('.open-cms:visible').first().click();
+  await page.goto(site.baseURL + '/admin/', { waitUntil: 'networkidle' });
   await page.locator('#cmsPinInput').fill(site.pin);
   await page.locator('#submitPin').click();
   await page.locator('#cmsMainSection').waitFor({ state: 'visible' });

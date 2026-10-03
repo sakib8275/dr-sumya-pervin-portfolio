@@ -4,11 +4,12 @@
 // public/css/site.css are copied from the incumbent one-pager, and
 // tests/pages.test.mjs fails if the two token blocks drift apart.
 //
-// BASE is the staging prefix. Phase 1 builds under /new/ so the incumbent
-// one-pager and its test suite stay intact until the cutover commit flips
-// BASE to '' and migrates the suites in the same change.
+// BASE is the site-root prefix. The multi-page build served from /new/ while
+// the incumbent one-pager was live; the cutover (2026-10-03) flipped it to ''
+// and moved the build to public/ root, so links, canonicals and sitemap URLs
+// now match the live domain exactly.
 
-export const BASE = '/new';
+export const BASE = '';
 
 export const SITE = {
   name: 'Dr. Sumya Pervin',

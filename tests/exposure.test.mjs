@@ -113,7 +113,7 @@ test('the site itself is served, so a green sweep is not just a dead site', asyn
   const body = await res.text();
 
   assert.equal(res.status, 200);
-  assert.ok(body.includes('<!DOCTYPE html>'));
+  assert.match(body, /<!doctype html>/i);
   assert.ok(body.length > 10000, 'the index page looks truncated');
 
   for (const marker of secretMarkers) {
@@ -122,7 +122,7 @@ test('the site itself is served, so a green sweep is not just a dead site', asyn
 });
 
 test('the published assets carry no secrets either', async () => {
-  for (const path of ['/js/main.js', '/404.html']) {
+  for (const path of ['/js/site.js', '/404.html']) {
     const res = await h.anon('GET', path);
     assert.equal(res.status, 200, path);
 

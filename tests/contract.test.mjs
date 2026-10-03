@@ -25,7 +25,7 @@ const OPEN_DATE = nextOpenDate(CHAMBER, addDays(dhakaParts().dateStr, 1));
 
 // Every script that talks to the API. Adding one here is the only step needed to
 // bring it under this contract.
-const CLIENT_SCRIPTS = ['main.js', 'cms.js'];
+const CLIENT_SCRIPTS = ['admin.js', 'cms.js'];
 
 let h;
 let callSites;

@@ -60,7 +60,9 @@ export async function onRequestPost(context) {
     .bind(hashed)
     .run();
 
-  const resetUrl = `${new URL(context.request.url).origin}/#reset?token=${token}`;
+  // The reset modal now lives on the standalone admin console, not the site
+  // root (which is the patient multi-page site after the cutover).
+  const resetUrl = `${new URL(context.request.url).origin}/admin/#reset?token=${token}`;
 
   // Send via MAILER service binding if available
   if (context.env.MAILER && typeof context.env.MAILER.fetch === 'function') {

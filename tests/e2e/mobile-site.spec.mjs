@@ -18,7 +18,7 @@ test.describe('mobile 375×667', () => {
   test.use({ viewport: { width: 375, height: 667 } });
 
   test('home and prices render without horizontal overflow', async ({ page, site }) => {
-    for (const path of ['/new/', '/new/prices/']) {
+    for (const path of ['/', '/prices/']) {
       await page.goto(site.baseURL + path, { waitUntil: 'networkidle' });
       const overflow = await page.evaluate(
         () => document.documentElement.scrollWidth - document.documentElement.clientWidth
@@ -28,7 +28,7 @@ test.describe('mobile 375×667', () => {
   });
 
   test('drawer: Prices + About present, 44px rows, scrim, Esc returns focus', async ({ page, site }) => {
-    await page.goto(site.baseURL + '/new/', { waitUntil: 'networkidle' });
+    await page.goto(site.baseURL + '/', { waitUntil: 'networkidle' });
     await page.locator('#burger').click();
     await expect(page.locator('#drawer')).toHaveClass(/\bactive\b/);
     await expect(page.locator('#scrim')).toHaveClass(/\bactive\b/);
@@ -48,7 +48,7 @@ test.describe('mobile 375×667', () => {
   });
 
   test('price tabs stay pinned below the sticky header, not under it', async ({ page, site }) => {
-    await page.goto(site.baseURL + '/new/prices/', { waitUntil: 'networkidle' });
+    await page.goto(site.baseURL + '/prices/', { waitUntil: 'networkidle' });
     await page.evaluate(() => window.scrollTo(0, 1500));
     const gap = await page.evaluate(() => {
       const header = document.querySelector('.s-nav').getBoundingClientRect();
@@ -60,7 +60,7 @@ test.describe('mobile 375×667', () => {
   });
 
   test('recommended tier card renders first on phones (§7.3)', async ({ page, site }) => {
-    await page.goto(site.baseURL + '/new/', { waitUntil: 'networkidle' });
+    await page.goto(site.baseURL + '/', { waitUntil: 'networkidle' });
     const ys = await page.evaluate(() => ({
       rec: document.querySelector('.h-tier.rec').getBoundingClientRect().top,
       others: [...document.querySelectorAll('.h-tier:not(.rec)')].map((t) => t.getBoundingClientRect().top),
@@ -69,7 +69,7 @@ test.describe('mobile 375×667', () => {
   });
 
   test('price tables become stacked cards with data-th labels (§7.3)', async ({ page, site }) => {
-    await page.goto(site.baseURL + '/new/prices/', { waitUntil: 'networkidle' });
+    await page.goto(site.baseURL + '/prices/', { waitUntil: 'networkidle' });
     const table = page.locator('.pr-table').first();
     await expect(table).toBeVisible();
     expect(await table.evaluate((el) => getComputedStyle(el).display), 'rows must collapse to cards ≤820px').toBe('block');
@@ -78,7 +78,7 @@ test.describe('mobile 375×667', () => {
   });
 
   test('hero plate is a compact strip and both CTAs fit the first screen', async ({ page, site }) => {
-    await page.goto(site.baseURL + '/new/', { waitUntil: 'networkidle' });
+    await page.goto(site.baseURL + '/', { waitUntil: 'networkidle' });
     const strip = await page.evaluate(() => document.querySelector('.nameplate').getBoundingClientRect().height);
     expect(strip, 'the phone hero collapses the credential plate (~100px, not ~400px)').toBeLessThan(180);
     await expect(page.locator('.h-ctas .btn-ink')).toBeInViewport();

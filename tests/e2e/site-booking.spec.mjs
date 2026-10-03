@@ -9,7 +9,7 @@ const OPEN_DATE = nextOpenDate(CHAMBER, addDays(dhakaParts().dateStr, 1));
 
 test('the /book/ form books a tiered appointment end to end', async ({ page, site }) => {
   await stubTurnstile(page);
-  await page.goto(site.baseURL + '/new/book/', { waitUntil: 'networkidle' });
+  await page.goto(site.baseURL + '/book/', { waitUntil: 'networkidle' });
 
   await page.fill('#sbName', 'E2E Patient');
   await page.fill('#sbPhone', '01700000099');
@@ -33,7 +33,7 @@ test('the /book/ form books a tiered appointment end to end', async ({ page, sit
 
 test('a missing date is refused client-side, before any request', async ({ page, site }) => {
   await stubTurnstile(page);
-  await page.goto(site.baseURL + '/new/book/', { waitUntil: 'networkidle' });
+  await page.goto(site.baseURL + '/book/', { waitUntil: 'networkidle' });
   await page.fill('#sbName', 'No Date');
   await page.fill('#sbPhone', '01700000098');
   await page.click('#sbSubmit');

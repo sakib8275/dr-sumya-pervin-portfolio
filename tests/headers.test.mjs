@@ -218,17 +218,24 @@ test('no javascript: URL survives anywhere in public/', async () => {
   assert.deepEqual(offenders, [], 'javascript: URLs are blocked by script-src too');
 });
 
-test('the pre-hydration submit guard is loaded from the document head', async () => {
-  // This replaced onsubmit="return false" on the booking form. If the tag is
-  // dropped, a submit before main.js hydrates goes back to a native GET on "/?"
-  // and the patient's booking vanishes with no message.
-  const html = await readFile(join(repoRoot, 'public', 'index.html'), 'utf8');
-  const head = html.slice(0, html.indexOf('</head>'));
-  assert.match(head, /<script src="js\/formguard\.js"><\/script>/, 'formguard.js must load, blocking, from <head>');
+test('the /book/ form ships a pre-hydration submit guard', async () => {
+  // The one-pager guarded its modal with formguard.js in <head>. The multi-page
+  // /book/ form is a full page whose submit button starts disabled in the markup
+  // and is enabled by site.js once wired; before hydration a native submit must
+  // do nothing, not reload and throw the booking away.
+  const html = await readFile(join(repoRoot, 'public', 'book', 'index.html'), 'utf8');
+  const btn = html.match(/<button[^>]*id="sbSubmit"[^>]*>/);
+  assert.ok(btn, 'the /book/ submit button is missing');
+  assert.match(btn[0], /\bdisabled\b/, 'the submit button must start disabled until hydration');
+  assert.match(btn[0], /aria-busy="true"/, 'the submit button must advertise its busy state');
 
-  const guard = await readFile(join(repoRoot, 'public', 'js', 'formguard.js'), 'utf8');
-  assert.match(guard, /addEventListener\(\s*'submit'/, 'formguard.js must still cancel submits');
-  assert.match(guard, /preventDefault/);
+  const js = await readFile(join(repoRoot, 'public', 'js', 'site.js'), 'utf8');
+  assert.match(js, /sbSubmit/, 'site.js never touches the submit button');
+  assert.match(
+    js,
+    /submitBtn\.disabled\s*=\s*false/,
+    'site.js must clear the disabled guard after hydration'
+  );
 });
 
 test('the CMS row buttons carry data- actions that cms.js delegates on', async () => {
@@ -249,41 +256,31 @@ test('the CMS row buttons carry data- actions that cms.js delegates on', async (
   );
 });
 
-test('cms.js is loaded on demand, never shipped to a patient', async () => {
-  // The whole point of the split. A <script src="js/cms.js"> creeping back into
-  // the markup would silently undo it while every other test stayed green.
-  const html = await readFile(join(repoRoot, 'public', 'index.html'), 'utf8');
-  assert.ok(!/<script[^>]+js\/cms\.js/.test(html), 'cms.js is eagerly loaded from index.html');
-  assert.ok(!/<script[^>]+qrcode\.min\.js/.test(html), 'qrcode.min.js is eagerly loaded from index.html');
+test('the admin panel is loaded on demand, never shipped to a patient', async () => {
+  // The whole point of the split, now split further: the patient pages ship
+  // neither cms.js nor admin.js, and the /admin/ console pulls cms.js in at
+  // runtime through admin.js rather than a static <script> tag.
+  for (const page of ['index.html', 'book/index.html', 'prices/index.html']) {
+    const html = await readFile(join(repoRoot, 'public', page), 'utf8');
+    assert.ok(!/<script[^>]+js\/cms\.js/.test(html), `cms.js is eagerly loaded from ${page}`);
+    assert.ok(!/<script[^>]+js\/admin\.js/.test(html), `admin.js is eagerly loaded from ${page}`);
+  }
 
-  const main = await readFile(join(repoRoot, 'public', 'js', 'main.js'), 'utf8');
-  assert.match(main, /s\.src = 'js\/cms\.js'/, 'main.js has no on-demand loader for cms.js');
-  assert.match(
-    main,
-    /startsWith\('#reset\?token='\)/,
-    'nothing pulls cms.js in for a #reset?token= deep link, so the PIN reset mail would land on a dead page'
-  );
+  const adminHtml = await readFile(join(repoRoot, 'public', 'admin', 'index.html'), 'utf8');
+  assert.ok(!/<script[^>]+js\/cms\.js/.test(adminHtml), 'cms.js must be fetched by admin.js, not tagged in the markup');
+
+  const admin = await readFile(join(repoRoot, 'public', 'js', 'admin.js'), 'utf8');
+  assert.match(admin, /s\.src = '\/js\/cms\.js'/, 'admin.js has no on-demand loader for cms.js');
+  assert.match(admin, /initCMS/, 'admin.js never boots the panel');
 });
 
-test('the sticky nav wrapper sits outside the hero', async () => {
-  // A11: position:sticky only works within the parent's box, and the hero is
-  // one viewport tall, so a wrapper inside it meant the stuck bar detached
-  // below the first screen and every deep anchor landed navless. The e2e suite
-  // (sticky-nav.spec.mjs) pins the runtime geometry; this pins the markup cause.
-  const html = await readFile(join(repoRoot, 'public', 'index.html'), 'utf8');
-  const open = html.indexOf('<div class="nav-sticky-wrapper">');
-  const close = html.indexOf('</nav></div>', open);
-  const hero = html.indexOf('<header class="hero"');
-  assert.ok(open !== -1, 'the nav-sticky wrapper is missing from the markup');
-  assert.ok(
-    open < hero && close < hero,
-    'the nav-sticky wrapper must be a sibling of the hero, not a child: sticky is confined to the parent box'
-  );
-
-  const css = await readFile(join(repoRoot, 'public', 'css', 'style.css'), 'utf8');
+test('the PIN reset mail lands on the admin console, not the site root', async () => {
+  // The reset modal lives in cms.js, which only the /admin/ page loads. A link
+  // to /#reset?token= would land on the patient home with no handler.
+  const forgot = await readFile(join(repoRoot, 'functions', 'api', 'auth', 'forgot-password.js'), 'utf8');
   assert.match(
-    css,
-    /scroll-margin-top/,
-    'sections lost their scroll-margin-top: anchor jumps tuck headings under the stuck bar'
+    forgot,
+    /origin\}\/admin\/#reset\?token=/,
+    'the reset URL must point at /admin/#reset?token='
   );
 });

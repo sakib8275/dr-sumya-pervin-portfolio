@@ -45,7 +45,7 @@ test('forgot-password sends reset link if email matches admin_email', async () =
   // Verify email was captured in harness mails array
   assert.equal(h.mails.length, 1);
   assert.equal(h.mails[0].to, email);
-  assert.ok(h.mails[0].body.includes('/#reset?token='));
+  assert.ok(h.mails[0].body.includes('/admin/#reset?token='));
 });
 
 test('forgot-password does not send email if address does not match', async () => {

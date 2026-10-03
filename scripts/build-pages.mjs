@@ -4,9 +4,8 @@
 //   node scripts/build-pages.mjs     (npm run build:site)
 //
 // Reads content/ (site config, sitemap, price data, bespoke page bodies) and
-// writes public/new/**/index.html — staging under BASE=/new so the incumbent
-// one-pager and its suites stay intact until the cutover commit flips BASE
-// to '' and migrates the tests in the same change.
+// writes public/**/index.html — the site root, after the cutover flipped BASE
+// to '' and moved the build off the /new/ staging prefix.
 //
 // No dependencies: node built-ins only. CSP-safe output: zero inline event
 // handlers, one external stylesheet, one deferred script.
@@ -24,8 +23,21 @@ import { moleCheck, skinType, prep } from '../content/pages/tools.mjs';
 import book from '../content/pages/book.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
-const OUT = join(ROOT, 'public', 'new');
+const OUT = join(ROOT, 'public');
 const BODIES = { home, prices, about, ethics, moleCheck, skinType, prep, book };
+
+// The build now writes into the site root alongside hand-maintained assets
+// (css/, js/, assets/, admin/, favicon, robots). Remove only what this script
+// owns — each page directory, the root index and the sitemap — plus the
+// retired /new/ staging tree. Never rm OUT itself.
+async function clean() {
+  await rm(join(OUT, 'index.html'), { force: true });
+  await rm(join(OUT, 'sitemap.xml'), { force: true });
+  for (const page of PAGES) {
+    if (page.path !== '/') await rm(join(OUT, page.path), { recursive: true, force: true });
+  }
+  await rm(join(OUT, 'new'), { recursive: true, force: true });
+}
 
 // A page renders its bespoke body if named, else the generic article renderer
 // when Phase 3 content exists for its path, else the honest stub.
@@ -167,7 +179,7 @@ function head(page) {
 <body>
 <a class="skip-link" href="#main-content">Skip to content</a>
 ${nav()}
-<main id="main-content">
+<main id="main-content" tabindex="-1">
 ${bodyFor(page)}
 </main>
 ${footer()}
@@ -177,7 +189,7 @@ ${drawer()}
 }
 
 async function main() {
-  await rm(OUT, { recursive: true, force: true });
+  await clean();
   let count = 0;
   for (const page of PAGES) {
     const file = page.path === '/' ? join(OUT, 'index.html') : join(OUT, page.path, 'index.html');
@@ -190,7 +202,7 @@ async function main() {
     (p) => `  <url><loc>${SITE.domain}${BASE}${p.path}</loc><lastmod>${today}</lastmod></url>`
   ).join('\n')}\n</urlset>\n`;
   await writeFile(join(OUT, 'sitemap.xml'), sm);
-  console.log(`built ${count} pages + sitemap under public${BASE}/ (staging; cutover flips BASE)`);
+  console.log(`built ${count} pages + sitemap at public/ root (BASE=${JSON.stringify(BASE)})`);
 }
 
 main();

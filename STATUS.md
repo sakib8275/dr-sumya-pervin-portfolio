@@ -4,12 +4,14 @@
 verification, or owner-action state changes. Everything under `docs/` is a dated
 snapshot; if this file and a snapshot disagree, this file wins.
 
-**Updated:** 2026-10-03 — **Multi-page Phase 1 + the M1 mobile pass are BUILT,
-COMMITTED and PUSHED (`2c1dd87`), and STAGED UNDER `/new/` — not cut over; the
-one-pager still serves.** The hero portrait was removed at the doctor's request
-on **both** surfaces (one-pager `37f41f6` + staged site `691bb2e`) — an arched
-credential plate now stands in for the photo — and `og:image` moved to
-`assets/clinic.jpg`. The live `drsumyapervin.com` is untouched by any of this.
+**Updated:** 2026-10-03 — **The multi-page site is CUT OVER in the repo.** `BASE` is
+now `''` and `npm run build:site` writes the 57-page site to `public/` root, replacing
+the one-pager's `index.html`. The one-pager CMS moved to a standalone **`/admin/`**
+console (`public/admin/index.html` + `public/js/admin.js`); the one-pager-only scripts
+(`main.js`, `richtext.js`, `formguard.js`) and their suites were retired. The hero
+portrait was removed at the doctor's request on both surfaces — an arched credential
+plate now stands in for the photo — and `og:image` is `assets/clinic.jpg`. The live
+`drsumyapervin.com` is untouched until the owner deploys.
 **Audit round 5 is BUILT AND GREEN BUT NOT DEPLOYED.**
 The serving deployment is still **`a5077cb3`**; everything below in this paragraph
 is in the working tree only. A full read of the frontend, all 18 Functions and the
@@ -82,7 +84,7 @@ Logs on the digest.
 
 ---
 
-## Multi-page rebuild programme (started 2026-10-02) — Phase 1 BUILT, STAGED UNDER `/new/`
+## Multi-page rebuild programme (started 2026-10-02) — CUT OVER to the site root
 
 Owner change request (`Change Request/` + `docs/CHANGE-REQUEST-2026-10-02.md`): the one-pager
 becomes a ~57-page site — concern-first hubs, published prices, tiered consultations, the 2027
@@ -90,7 +92,9 @@ Centre — **in the existing gold/Outfit identity** (the mockups' teal look was 
 Baseline: round-5 batch committed and pushed as `c5552b9`.
 
 - **Pipeline**: `content/` (site config, sitemap, price data, page bodies) → `scripts/build-pages.mjs`
-  (`npm run build:site`) → `public/new/**` (57 pages + sitemap). Zero deps, CSP-safe output.
+  (`npm run build:site`) → `public/**` (57 pages + sitemap) at the site root. Zero deps, CSP-safe
+  output. The builder cleans only the page directories, root `index.html`, `sitemap.xml` and the
+  retired `/new/` tree — never the hand-maintained `css/`, `js/`, `assets/`, `admin/`.
   `tests/pages.test.mjs` (8 tests) pins: every sitemap page built, **every internal link resolves**
   (the interlinking rulebook made executable), unique titles/descriptions/canonicals, `site.css`
   `:root` is a verbatim copy of `style.css`'s (gold identity = one token set), no inline handlers,
@@ -131,8 +135,17 @@ Baseline: round-5 batch committed and pushed as `c5552b9`.
   reset). It reuses the one-pager `style.css` for the CMS component styles and `<base href="/">`
   so `cms.js`'s on-demand qrcode path resolves. Pinned by `tests/e2e/admin-console.spec.mjs`
   (2 specs: login reaches the panel; a wrong PIN is refused).
-- **Verified**: 288/288 node + 49/49 e2e (one-pager untouched); live at `wrangler pages dev`
-  `http://localhost:8788/new/` — desktop nav mega-menus, estimator arithmetic (৳3,000 × 1.25 =
+- **Cutover (2026-10-03)** — `BASE=''` and the build writes to `public/` root. The one-pager
+  suites were migrated, not merely deleted: `booking-submit`/`booking-failure` fold into the new
+  `site-booking`; `cms-xss`, `csv-export`, `lazy-admin` now drive the `/admin/` console;
+  `a11y-dialogs` moved to the admin dialogs + the site skip link; `formguard` became the /book/
+  disabled-button guard; `whatsapp-gating`, `service-modal`, `scrollspy`, `sticky-nav`,
+  `richtext-render`, `hero-reveal` and the `services`/`schedule-mirror` node tests retired with the
+  surfaces they pinned. `forgot-password.js` now mails `/admin/#reset?token=`. Dead one-pager
+  scripts (`main.js`, `richtext.js`, `formguard.js`) removed; `style.css`/`cms.js` stay (the admin
+  console uses them).
+- **Verified**: 276/276 node + 26/26 e2e at the cut-over root; served at `wrangler pages dev`
+  `http://localhost:8788/` — desktop nav mega-menus, estimator arithmetic (৳3,000 × 1.25 =
   ৳3,750), mobile drawer + sticky Call/WhatsApp/Book bar, no horizontal overflow at 375px.
 - **M1 mobile pass (2026-10-03)** — the owner rejected the first phone layout, and docx §7.3
   (mobile rules) is now executable: the drawer was missing **Prices and About** entirely and its
@@ -154,10 +167,11 @@ Baseline: round-5 batch committed and pushed as `c5552b9`.
   reference her photo. `public/assets/hero_portrait.{jpg,webp,-400.jpg}` deleted
   (recoverable from git history). No `hero_portrait` reference remains outside
   dated `docs/**` snapshots.
-- **Next**: the **cutover** — flip `BASE` to '' so the multi-page build serves from the site root,
-  and migrate the one-pager suites in the same change. This is the one remaining step; it is
-  owner-gated (it replaces the live-serving artifact), and the live site is untouched until the
-  owner deploys.
+- **Next (owner inputs, before deploy)**: replace the D-12 placeholders (`phone` in
+  `content/site.mjs`, the prices-reviewed `[date]`), decide the live `ACTIVE_GATE` (currently
+  `staging`, which shows every gated section with its badge), and confirm the `/admin/` URL for
+  the doctor. Deploy is owner-gated; the live site is untouched until then. Optional follow-ups:
+  point `public/404.html` at the multi-page shell, and add `Disallow: /admin/` to `robots.txt`.
 
 ---
 

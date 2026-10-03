@@ -162,8 +162,25 @@ It reuses the one-pager `style.css` for the CMS component styles and
 `<base href="/">` so cms.js's on-demand qrcode path resolves. Pinned by
 `tests/e2e/admin-console.spec.mjs`.
 
-- **Still open in this programme:** the **cutover** — flip `BASE` to '' so the
-  multi-page build serves from the site root, and migrate/retire the one-pager
-  suites in the same change (owner-gated; the live site is untouched until deploy).
-- **Verified:** `npm run build:site` → 57 pages; `npm test` → 288/288;
-  `npm run test:e2e` → 49/49.
+## Cutover (2026-10-03) — the multi-page site now serves from the root
+
+`BASE` is `''` and `npm run build:site` writes the 57-page site to `public/` root,
+replacing the one-pager's `index.html`. The builder cleans only its own outputs
+(page directories, root `index.html`, `sitemap.xml`, the retired `/new/` tree) and
+never the hand-maintained `css/`, `js/`, `assets/`, `admin/`.
+
+The one-pager suites were **migrated, not just dropped**: `booking-submit`/
+`booking-failure` fold into `site-booking`; `cms-xss`, `csv-export`, `lazy-admin`
+now drive `/admin/`; `a11y-dialogs` moved to the admin dialogs + the site skip
+link; `formguard` became the /book/ disabled-button guard. `whatsapp-gating`,
+`service-modal`, `scrollspy`, `sticky-nav`, `richtext-render`, `hero-reveal`, and
+the `services`/`schedule-mirror` node tests retired with the surfaces they pinned.
+`forgot-password.js` now mails `/admin/#reset?token=`, and the dead one-pager
+scripts (`main.js`, `richtext.js`, `formguard.js`) were removed (`style.css` and
+`cms.js` stay — the admin console uses them).
+
+- **Still open (owner inputs, before deploy):** the D-12 phone/prices-date
+  placeholders, the live `ACTIVE_GATE` decision, and the `/admin/` URL hand-off.
+  Deploy is owner-gated; the live site is untouched until then.
+- **Verified:** `npm run build:site` → 57 pages; `npm test` → 276/276;
+  `npm run test:e2e` → 26/26.

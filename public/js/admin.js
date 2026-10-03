@@ -94,6 +94,75 @@
     if (window.turnstile && turnstileIds[key] !== null) window.turnstile.reset(turnstileIds[key]);
   };
 
+  // — Dialog accessibility (ported from the one-pager main.js) —
+  // cms.js owns the panel logic but none of the modal behaviour: focus trap,
+  // Escape-to-close, focus-in/restore and body scroll lock all lived in main.js,
+  // which the multi-page site no longer ships. Without this the admin dialogs
+  // would be keyboard-inaccessible. The one-pager implementation is reproduced
+  // here rather than shared, so main.js can be retired independently.
+  const DIALOG_SELECTOR = '.modal-overlay';
+  const DIALOG_CLOSE_SELECTOR = '.modal-close, [data-dialog-close]';
+  const FOCUSABLE_SELECTOR =
+    'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
+  // checkVisibility with visibilityProperty only: a closed .modal-overlay is
+  // visibility:hidden (still tabbable), and the CMS panel swaps sections with
+  // display:none. offsetParent misses the former, opacity misses both.
+  function dialogFocusables(root) {
+    return [...root.querySelectorAll(FOCUSABLE_SELECTOR)].filter((el) =>
+      el.checkVisibility ? el.checkVisibility({ visibilityProperty: true }) : el.offsetParent !== null
+    );
+  }
+
+  document.addEventListener('keydown', (e) => {
+    const open = document.querySelector('.modal-overlay.active');
+    if (!open) return;
+    if (e.key === 'Escape') {
+      const closeBtn = open.querySelector(DIALOG_CLOSE_SELECTOR);
+      if (closeBtn) closeBtn.click();
+      else open.classList.remove('active');
+      return;
+    }
+    if (e.key !== 'Tab') return;
+    const focusables = dialogFocusables(open);
+    if (focusables.length === 0) return;
+    const first = focusables[0];
+    const last = focusables[focusables.length - 1];
+    if (e.shiftKey && (document.activeElement === first || !open.contains(document.activeElement))) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && (document.activeElement === last || !open.contains(document.activeElement))) {
+      e.preventDefault();
+      first.focus();
+    }
+  });
+
+  const dialogOpener = new WeakMap();
+  const dialogObserver = new MutationObserver((records) => {
+    for (const record of records) {
+      const dialog = record.target;
+      const isOpen = dialog.classList.contains('active');
+      const wasOpen = (record.oldValue || '').split(/\s+/).includes('active');
+      if (isOpen === wasOpen) continue;
+      if (isOpen) {
+        const opener = document.activeElement;
+        if (opener && opener !== document.body && !dialog.contains(opener)) dialogOpener.set(dialog, opener);
+        document.body.classList.add('modal-open');
+        const targets = dialogFocusables(dialog);
+        const landing = targets.find((el) => !el.matches(DIALOG_CLOSE_SELECTOR)) || targets[0];
+        if (landing && !dialog.contains(document.activeElement)) landing.focus();
+      } else {
+        if (!document.querySelector('.modal-overlay.active')) document.body.classList.remove('modal-open');
+        const opener = dialogOpener.get(dialog);
+        dialogOpener.delete(dialog);
+        if (opener && document.contains(opener) && opener.offsetParent !== null) opener.focus();
+      }
+    }
+  });
+  document.querySelectorAll(DIALOG_SELECTOR).forEach((dialog) => {
+    dialogObserver.observe(dialog, { attributes: true, attributeFilter: ['class'], attributeOldValue: true });
+  });
+
   // Boot the panel once cms.js has defined window.initCMS.
   const s = document.createElement('script');
   s.src = '/js/cms.js';

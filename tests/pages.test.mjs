@@ -17,7 +17,7 @@ import { repoRoot } from './helpers/harness.mjs';
 import { PAGES } from '../content/sitemap.mjs';
 import { BASE } from '../content/site.mjs';
 
-const OUT = join(repoRoot, 'public', 'new');
+const OUT = join(repoRoot, 'public');
 
 test('the site builds from content', () => {
   const out = execFileSync('node', [join(repoRoot, 'scripts', 'build-pages.mjs')], { encoding: 'utf8' });

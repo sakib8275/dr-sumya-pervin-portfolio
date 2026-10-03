@@ -20,7 +20,7 @@ const dhaka = (hm, date = '2026-08-02') => {
 
 test('the chamber keys match the exact option values the booking form posts', async () => {
   const { readFile } = await import('node:fs/promises');
-  const html = await readFile(new URL('../public/index.html', import.meta.url), 'utf8');
+  const html = await readFile(new URL('../public/book/index.html', import.meta.url), 'utf8');
   const values = [...html.matchAll(/<option value="([^"]+)"[^>]*>(?:Alliance|DCIMCH)/g)].map((m) => m[1]);
   assert.deepEqual(Object.keys(CHAMBERS).sort(), values.sort());
 });
