@@ -1,13 +1,15 @@
 import { requireAuth, readJson, json } from '../../lib/auth.js';
 import { verifyTurnstile } from '../../lib/turnstile.js';
-import { validateSlot } from '../../lib/schedule.js';
+import { validateSlot, CHAMBERS } from '../../lib/schedule.js';
 import { loggedWrite, logWrite } from '../../lib/log.js';
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 const LIMITS = { patient_name: 120, patient_phone: 40, chamber: 120, service: 120, notes: 2000 };
 // Phase 2 booking tiers (migrations/004). Optional: the one-pager omits them.
 const TIERS = ['Specialist Consultation', 'Comprehensive Assessment', 'Signature Skin & Hair Review', 'Procedure Assessment', 'Private Consultation'];
-const SESSIONS = ['Morning', 'Afternoon', 'Evening'];
+// Each chamber runs exactly one session (functions/lib/schedule.js), so the
+// whitelist is the set of those — a session exists only when a chamber does.
+const SESSIONS = Object.values(CHAMBERS).map((c) => c.session);
 
 export async function onRequestGet(context) {
   const auth = await requireAuth(context.request, context.env);
