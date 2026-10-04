@@ -206,7 +206,10 @@ import { writePrefill, takePrefill } from './prefill.mjs';
         to.style.viewTransitionName = '';
         view.classList.remove('vt');
         running = null;
-      });
+      }).catch((e) => { if (e && e.name !== 'AbortError') throw e; });
+      // A skipped transition rejects `finished` with AbortError — the replay's
+      // skipTransition below, or a newer transition superseding this one.
+      // That is the routine path, not an error; anything else still throws.
     };
     // While a transition plays, the browser hit-tests its overlay, so every
     // click lands on <html> and is lost: close a sheet, tap the next card at
@@ -228,7 +231,7 @@ import { writePrefill, takePrefill } from './prefill.mjs';
       (t ? t.finished : Promise.resolve()).finally(() => {
         const el = document.elementFromPoint(x, y);
         if (el && el !== document.documentElement) el.click();
-      });
+      }).catch((e) => { if (e && e.name !== 'AbortError') throw e; }); // same skip-abort swallow
     }, true);
     const shut = () => { if (view.open) morph(view, cardOf(opener), () => view.close()); };
     document.addEventListener('click', (e) => {

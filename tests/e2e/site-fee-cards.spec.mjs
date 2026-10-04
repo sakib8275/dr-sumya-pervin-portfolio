@@ -68,6 +68,8 @@ test('a slow press anywhere on the card, corners included, still opens it', asyn
 // slowed so the press straddles its end every time.
 test('a press that starts while the sheet is closing still opens the card it ends on', async ({ page, site }) => {
   await page.goto(site.baseURL + '/prices/', { waitUntil: 'networkidle' });
+  const pageErrors = [];
+  page.on('pageerror', (e) => pageErrors.push(e));
   const view = page.locator('#pkgView');
   const card = page.locator('.pr-card').first();
   await card.scrollIntoViewIfNeeded();
@@ -88,6 +90,9 @@ test('a press that starts while the sheet is closing still opens the card it end
   await cdp.send('Animation.setPlaybackRate', { playbackRate: 1 });
   await page.mouse.up();
   await expect(view, 'the press that straddled the transition opens the card').toBeVisible();
+  // The replay's skipTransition rejects the skipped transition's `finished`;
+  // site.js swallows that AbortError, so no unhandled rejection reaches the page.
+  expect(pageErrors, 'no unhandled rejection from the skipped transition').toEqual([]);
 });
 
 // Regression (2026-10-05, review of this PR): starting a transition over a
@@ -98,6 +103,8 @@ test('a press that starts while the sheet is closing still opens the card it end
 // (the overlay replay is pointer-only), so two transitions really overlap.
 test('a transition that supersedes a live one keeps the overlay and retires the old name', async ({ page, site }) => {
   await page.goto(site.baseURL + '/prices/', { waitUntil: 'networkidle' });
+  const pageErrors = [];
+  page.on('pageerror', (e) => pageErrors.push(e));
   const view = page.locator('#pkgView');
   const card = page.locator('.pr-card').first();
   await card.scrollIntoViewIfNeeded();
@@ -123,6 +130,7 @@ test('a transition that supersedes a live one keeps the overlay and retires the 
   await expect(view.locator('#pkgTitle')).not.toHaveText(firstTitle);
   await page.keyboard.press('Escape');
   await expect(view).toBeHidden();
+  expect(pageErrors, 'a superseded transition rejects finished with AbortError, which is swallowed').toEqual([]);
 });
 
 test('booking from inside the view pre-selects that visit', async ({ page, site }) => {
