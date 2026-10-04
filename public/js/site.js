@@ -91,19 +91,28 @@ import { writePrefill, takePrefill } from './prefill.mjs';
     const calm = window.matchMedia('(prefers-reduced-motion: reduce)');
     const cardOf = (el) => el && el.closest('.h-tier, .pr-card, .pr-plan');
     let running = null;
+    let runningTo = null;
     const morph = (from, to, update) => {
       if (!document.startViewTransition || calm.matches || !from || !to) { update(); return; }
       from.style.viewTransitionName = 'pkg';
       view.classList.add('vt');
+      // Starting over a live transition aborts it. Its `to` would keep the
+      // "pkg" name, and two elements named "pkg" make the browser skip every
+      // later transition on the page, so retire it before the new capture.
+      if (runningTo && runningTo !== from && runningTo !== to) runningTo.style.viewTransitionName = '';
       const t = running = document.startViewTransition(() => {
         from.style.viewTransitionName = '';
         update();
         to.style.viewTransitionName = 'pkg';
       });
+      runningTo = to;
       t.finished.finally(() => {
+        // A newer transition owns .vt and the name now; undoing here would
+        // strip them while it plays and lose its snapshot.
+        if (running !== t) return;
         to.style.viewTransitionName = '';
         view.classList.remove('vt');
-        if (running === t) running = null;
+        running = null;
       });
     };
     // While a transition plays, the browser hit-tests its overlay, so every
@@ -114,7 +123,9 @@ import { writePrefill, takePrefill } from './prefill.mjs';
     // and comes up on the card, so the click lands on their common ancestor,
     // <html>, after the transition is over. Remember where the press began.
     let pressedOnRoot = false;
-    document.addEventListener('pointerdown', (e) => { pressedOnRoot = e.target === document.documentElement; }, true);
+    // Multi-touch: a second finger is not a press on the page, and must not
+    // clobber the flag tracking the primary one.
+    document.addEventListener('pointerdown', (e) => { if (!e.isPrimary) return; pressedOnRoot = e.target === document.documentElement; }, true);
     document.addEventListener('click', (e) => {
       if (e.target !== document.documentElement || !(running || pressedOnRoot)) return;
       pressedOnRoot = false;

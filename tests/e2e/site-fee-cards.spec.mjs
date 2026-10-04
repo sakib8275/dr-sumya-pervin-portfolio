@@ -90,6 +90,41 @@ test('a press that starts while the sheet is closing still opens the card it end
   await expect(view, 'the press that straddled the transition opens the card').toBeVisible();
 });
 
+// Regression (2026-10-05, review of this PR): starting a transition over a
+// live one aborts the live one. The aborted cleanup must not strip .vt or the
+// "pkg" name under the survivor, and the survivor must not be left with a
+// second element named "pkg" — a duplicate name makes the browser skip every
+// later transition on the page. A keyboard Enter reaches the trigger directly
+// (the overlay replay is pointer-only), so two transitions really overlap.
+test('a transition that supersedes a live one keeps the overlay and retires the old name', async ({ page, site }) => {
+  await page.goto(site.baseURL + '/prices/', { waitUntil: 'networkidle' });
+  const view = page.locator('#pkgView');
+  const card = page.locator('.pr-card').first();
+  await card.scrollIntoViewIfNeeded();
+  await card.click();
+  await expect(view).toBeVisible();
+  await expect(view, 'the opening transition has finished').not.toHaveClass(/\bvt\b/);
+  const firstTitle = await view.locator('#pkgTitle').textContent();
+
+  const cdp = await page.context().newCDPSession(page);
+  await cdp.send('Animation.enable');
+  await cdp.send('Animation.setPlaybackRate', { playbackRate: 0.2 });
+  await page.keyboard.press('Escape');
+  await expect(view, 'the closing transition is still playing').toHaveClass(/\bvt\b/);
+
+  await page.locator('.pr-card [data-pkg-open]').nth(1).focus();
+  await page.keyboard.press('Enter');
+  await expect(view, 'the superseding open transition is playing, not stripped by the abort').toHaveClass(/\bvt\b/);
+
+  await cdp.send('Animation.setPlaybackRate', { playbackRate: 1 });
+  await expect(view, 'the superseding open ran to its end').not.toHaveClass(/\bvt\b/, { timeout: 10_000 });
+  expect(await card.evaluate((el) => el.style.viewTransitionName),
+    'the superseded close left no stray "pkg" name on its card').toBe('');
+  await expect(view.locator('#pkgTitle')).not.toHaveText(firstTitle);
+  await page.keyboard.press('Escape');
+  await expect(view).toBeHidden();
+});
+
 test('booking from inside the view pre-selects that visit', async ({ page, site }) => {
   await page.goto(site.baseURL + '/prices/', { waitUntil: 'networkidle' });
   await clickCardBody(page, page.locator('.pr-card').filter({ hasText: 'Signature' }).first(), '.pr-price');
