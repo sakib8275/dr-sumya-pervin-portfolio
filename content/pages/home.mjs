@@ -96,7 +96,7 @@ export default function home() {
       <p class="h-alt">Not sure what you need? <a class="tlink" href="${href('/consultation-prep/')}">See what your first visit will involve</a> (2-minute check)</p>
     </div>
     <div class="h-hero-figure">
-      <div class="nameplate" data-journey role="group" aria-roledescription="carousel" aria-label="Your first visit, in five steps">
+      <div class="nameplate" data-journey role="group" aria-label="Your first visit, in five steps">
         <p class="jn-eyebrow">Your first visit</p>
         <ol class="jn-steps">${JOURNEY.map(([t, d], i) => `
           <li class="jn-step"><span class="jn-num" aria-hidden="true">0${i + 1}</span><b>${t}</b><p>${d}</p></li>`).join('')}

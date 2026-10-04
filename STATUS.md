@@ -28,18 +28,24 @@ Desktop plays one pass (~5s a step), pausing on hover, focus, the Pause button
 or a dot; phones show a step at a time with 44px dots and no auto-advance;
 without JS or under reduced motion it is a plain five-item list. The review
 round on the PR is answered in full — blocking: dots are 44×44 (the visible bar
-stays 3px), the phone height bound is tightened to <430px with a 360×640
-reduced-motion and a 375×667 no-JS e2e test pinning the CTAs in view, and the
+stays 3px), the phone height bound is tightened to <430px, a 360×640
+reduced-motion test pins the primary CTA and a 375×667 no-JS test pins both
+CTAs in view over the full five-step list, and the
 approved specialty line is back in the panel (hidden ≤820px, as it was on
 master). Recommendations: `tests/pages.test.mjs` fails if the hero panel and the
 timeline step copy drift apart, Play/Pause is hidden where nothing
-auto-advances, the panel is a labelled carousel group with `"Step n of 5: …"` dot
+auto-advances, the panel is a labelled group that `site.js` announces as a
+carousel only while it behaves as one (the no-JS and reduced-motion list is
+not one), with `"Step n of 5: …"` dot
 names and an `aria-live` that goes polite only once the visitor drives it — and
 is dropped again when reduced motion returns the list, so the five steps that
 appear at once are not all read out — the slides stack in a `min-height` grid so
 zoom grows the box instead of clipping, and turning reduced motion on mid-visit
 falls back to the list, pinned by a spec that toggles the preference after load.
-**324 node + 55 e2e green locally and in CI.** The apex still serves the arched
+**324 node + 55 e2e green locally and in CI**; each new assertion was proven
+red against a mutation. `site-fee-cards` "slow press" is flaky on this branch
+and on its base alike (9 of 45 runs failed at `02ccc95`, on `/prices/`, which
+has no journey panel): a separate fix. The apex still serves the arched
 nameplate (deployment `34cadcbe`); merging and the gated deploy are owner
 actions.
 

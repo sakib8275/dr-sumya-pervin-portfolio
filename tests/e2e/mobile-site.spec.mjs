@@ -96,6 +96,7 @@ test.describe('mobile 375×667', () => {
     await page.goto(site.baseURL + '/', { waitUntil: 'networkidle' });
     const boxes = await page.$$eval('.jn-dot', (els) => els.map((e) => { const r = e.getBoundingClientRect(); return [r.width, r.height]; }));
     expect(boxes.length, 'one dot per consultation step').toBe(5);
+    expect(await page.locator('.nameplate').getAttribute('aria-roledescription'), 'the enhanced panel announces as a carousel').toBe('carousel');
     for (const [w, h] of boxes) { expect(w).toBeGreaterThanOrEqual(44); expect(h).toBeGreaterThanOrEqual(44); }
     await expect(page.locator('.jn-pause')).toBeHidden();
   });
@@ -111,6 +112,7 @@ test.describe('mobile 360×640, reduced motion', () => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.goto(site.baseURL + '/', { waitUntil: 'networkidle' });
     expect(await page.locator('.jn-live').count(), 'reduced motion leaves the static list').toBe(0);
+    expect(await page.locator('.nameplate').getAttribute('aria-roledescription'), 'a plain list is not announced as a carousel').toBeNull();
     await expect(page.locator('.jn-step')).toHaveCount(5);
     await expect(page.locator('.h-ctas .btn-ink')).toBeInViewport();
     const { overflow, ctaBottom, panelTop } = await page.evaluate(() => ({
@@ -140,6 +142,9 @@ test.describe('mobile 360×640, reduced motion', () => {
     await expect.poll(() => page.locator('.jn-steps').getAttribute('aria-live'),
       { message: 'no live region: all five steps appear at once, and the unenhanced markup has none' })
       .toBeNull();
+    await expect.poll(() => page.locator('.nameplate').getAttribute('aria-roledescription'),
+      { message: 'the plain list is no longer announced as a carousel' })
+      .toBeNull();
   });
 });
 
@@ -157,6 +162,7 @@ test.describe('mobile 375×667, no JavaScript', () => {
 
     expect(await page.locator('.jn-live').count(), 'no enhancement without JS').toBe(0);
     expect(await page.locator('.jn-nav').count(), 'no dots or Play/Pause without JS').toBe(0);
+    expect(await page.locator('.nameplate').getAttribute('aria-roledescription'), 'without JS the list is not announced as a carousel').toBeNull();
     await expect(page.locator('.jn-step')).toHaveCount(5);
     for (let n = 1; n <= 5; n += 1) {
       await expect(page.locator(`.jn-step:nth-child(${n}) b`), `step ${n} is visible`).toBeVisible();

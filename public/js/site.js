@@ -63,6 +63,9 @@ import { writePrefill, takePrefill } from './prefill.mjs';
     const list = journey.querySelector('.jn-steps');
     list.after(nav);
     journey.classList.add('jn-live');
+    // A carousel only once it behaves as one: without JS or under reduced
+    // motion the same group is a plain list, and must not be announced as one.
+    journey.setAttribute('aria-roledescription', 'carousel');
     list.setAttribute('aria-live', 'off');
     let current = -1, timer = null, held = false, stopped = false;
     const phone = window.matchMedia('(max-width: 820px)');
@@ -107,6 +110,7 @@ import { writePrefill, takePrefill } from './prefill.mjs';
       // The five steps appear at once; a live region would read all of them.
       // The markup carries no aria-live, so drop it back to that baseline.
       list.removeAttribute('aria-live');
+      journey.removeAttribute('aria-roledescription');
     });
     stopped = phone.matches;
     if (stopped) list.setAttribute('aria-live', 'polite');
