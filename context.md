@@ -107,9 +107,11 @@ The single-page web app (`public/index.html`) is structured into distinct intera
 
 - **Backend Integration**: No longer a client-side-only application. Bookings, contact messages, and
   gallery items persist to Cloudflare D1 via Pages Functions in `functions/`, with images in R2.
-  Still outstanding: nothing notifies the doctor when a booking arrives — she must check the CMS.
-  The planned fix (FIXPLAN-2026-08-02.md, F8) is a scheduled worker emailing a per-chamber daily
-  digest after each chamber's 30-minute booking cutoff; it needs the practice's email address.
+  Booking notifications: since 2026-10-04 every successful booking emails the practice inbox
+  (`appointments@drsumyapervin.com`) through the mailer Worker (`workers/mailer`, reached via the
+  Pages `MAILER` service binding — see `functions/lib/mailer-client.js`), and the per-chamber daily
+  digest still emails after each chamber's 30-minute booking cutoff. Password-reset mail travels
+  the same mailer path.
 - **Dynamic Content**: Chamber schedules live in `public/index.html`. Contact numbers are **not**
   hardcoded any more; they come from `/api/config/public` and are edited in CMS Settings.
 - **Localization**: Prepared for future bilingual support (English & Bengali).

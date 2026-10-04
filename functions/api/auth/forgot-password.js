@@ -2,6 +2,7 @@ import { readJson, json } from '../../lib/auth.js';
 import { verifyTurnstile } from '../../lib/turnstile.js';
 import { newResetToken, hashToken } from '../../lib/reset.js';
 import { loggedWrite } from '../../lib/log.js';
+import { sendViaMailer } from '../../lib/mailer-client.js';
 
 export async function onRequestPost(context) {
   const body = await readJson(context.request);
@@ -64,29 +65,19 @@ export async function onRequestPost(context) {
   // root (which is the patient multi-page site after the cutover).
   const resetUrl = `${new URL(context.request.url).origin}/admin/#reset?token=${token}`;
 
-  // Send via MAILER service binding if available
-  if (context.env.MAILER && typeof context.env.MAILER.fetch === 'function') {
-    try {
-      const mailRes = await context.env.MAILER.fetch('https://mailer.internal/send', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Mail-Secret': context.env.MAIL_SECRET || ''
-        },
-        body: JSON.stringify({
-          to: adminEmail,
-          subject: 'Reset your CMS password',
-          body: `A password reset was requested for your Dr. Sumya Pervin CMS account.\n\n` +
-            `Click the link below to set a new password:\n${resetUrl}\n\n` +
-            `This link is single-use and valid for 30 minutes. If you did not request this, you can ignore this email.`
-        })
-      });
-      if (!mailRes.ok) {
-        await loggedWrite('auth.reset_send_failure', { status: mailRes.status }, () => Promise.resolve());
-      }
-    } catch (err) {
-      await loggedWrite('auth.reset_send_failure', { error: err.message }, () => Promise.resolve());
-    }
+  // Send via the mailer service binding (functions/lib/mailer-client.js). A
+  // missing binding or a failed send is logged but never changes the response:
+  // the generic message must not reveal whether the address matched, and the
+  // token is already minted above.
+  const mail = await sendViaMailer(context.env, {
+    to: adminEmail,
+    subject: 'Reset your CMS password',
+    body: `A password reset was requested for your Dr. Sumya Pervin CMS account.\n\n` +
+      `Click the link below to set a new password:\n${resetUrl}\n\n` +
+      `This link is single-use and valid for 30 minutes. If you did not request this, you can ignore this email.`
+  });
+  if (!mail.ok && mail.reason !== 'unbound') {
+    await loggedWrite('auth.reset_send_failure', { status: mail.status, error: mail.error }, () => Promise.resolve());
   }
 
   await loggedWrite('auth.forgot_request', { minted: true }, () => Promise.resolve());

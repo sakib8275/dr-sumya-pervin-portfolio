@@ -290,3 +290,57 @@ test('reminders left on, or omitted by older clients, leave the notes untouched'
     assert.equal(row.notes, 'plain');
   }
 });
+
+// Booking-arrival notifications: a successful booking emails the practice
+// inbox through the MAILER service binding, and mail trouble must never fail
+// the booking. The harness stub captures sends in h.mails and ignores the
+// secret header, so these specs pin the payload and the failure semantics;
+// the allowlist side is pinned in tests/mailer.test.mjs.
+test('a successful booking notifies the practice inbox with the patient details', async () => {
+  const before = h.mails.length;
+  const body = valid({
+    patient_name: 'Notify Me',
+    consultation_type: 'Comprehensive Assessment',
+    preferred_session: 'Evening',
+    notes: 'flaking scalp'
+  });
+  const res = await post(body);
+  assert.equal(res.status, 201);
+  const { id } = await res.json();
+
+  assert.equal(h.mails.length, before + 1);
+  const mail = h.mails.at(-1);
+  // The recipient is admin_settings.admin_email — migration 005 seeds the
+  // practice inbox, which is also the mailer's allowlisted address.
+  assert.equal(mail.to, 'appointments@drsumyapervin.com');
+  assert.ok(mail.subject.startsWith(`New booking ${id}`));
+  assert.ok(mail.body.includes(body.patient_name));
+  assert.ok(mail.body.includes(body.patient_phone));
+  assert.ok(mail.body.includes(body.chamber));
+  assert.ok(mail.body.includes(body.appointment_date));
+  assert.ok(mail.body.includes('Comprehensive Assessment'));
+  assert.ok(mail.body.includes('flaking scalp'));
+  assert.ok(mail.body.includes(id));
+  assert.ok(mail.body.includes('/admin/'));
+});
+
+test('a rejected booking sends no notification', async () => {
+  const before = h.mails.length;
+  const res = await post(valid({ patient_name: '' }));
+  assert.equal(res.status, 400);
+  assert.equal(h.mails.length, before);
+});
+
+test('a mailer failure never fails the booking', async () => {
+  const broken = await createHarness({
+    serviceBindings: { MAILER: async () => { throw new Error('binding down'); } }
+  });
+  try {
+    const res = await broken.anon('POST', '/api/appointments', { body: valid() });
+    assert.equal(res.status, 201);
+    const { count } = await broken.db.prepare('SELECT COUNT(*) AS count FROM appointments').first();
+    assert.equal(count, 1);
+  } finally {
+    await broken.dispose();
+  }
+});

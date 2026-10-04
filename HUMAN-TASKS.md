@@ -12,15 +12,57 @@ Do them in order — later tasks assume earlier ones are done.
 
 ---
 
+## Task +2 — Make the practice inbox deliverable and verified (10 min · 🖥️ · dashboard)
+
+**Why:** The site publishes `appointments@drsumyapervin.com` in every footer,
+and since 2026-10-04 it is also the destination for password-reset mail,
+booking-arrival notifications, the daily digest and the uptime alerts. Two
+dashboard pieces make that work: inbound mail must be **forwarded** (until
+2026-10-04 the zone had no rule for this address, so patient email to it was
+silently dropped), and the address must be **Cloudflare-verified** as an
+outbound destination (until it is, every Worker send fails with
+`2054: destination address is not verified`).
+
+**Do this before Task +1 step 1** — the password-reset verification cannot
+pass until both steps here are done. The mailer Worker / Pages binding deploy
+waits on it too.
+
+1. **Forward the address** — dashboard → **Email → Email Routing → Routing rules**:
+   - Create a rule: custom address `appointments@drsumyapervin.com` →
+     action **Send to an email** → `dr.enamtalha@gmail.com` → Save (enabled).
+     Leave the catch-all drop as it is.
+   - If a rule for the address already exists, leave it alone.
+   - Verify: send a test email from any account to
+     `appointments@drsumyapervin.com`; it must arrive at
+     `dr.enamtalha@gmail.com` within a couple of minutes.
+2. **Verify the outbound destination** — same dashboard → **Destination addresses**:
+   - **Add destination address** → `appointments@drsumyapervin.com` → Create.
+   - Cloudflare emails that address; because of the rule above, the
+     verification mail lands at `dr.enamtalha@gmail.com`. Open it and click
+     **Verify email address**.
+   - Verify: the address shows status **Verified** in the list.
+3. Tell the agent the address is verified — the deploy (mailer Worker, Pages
+   `MAILER` binding, digest/probe repoint) proceeds from there.
+
+**If it goes wrong:** if Cloudflare refuses to add an address on your own zone
+as a destination, say so — the documented fallback is to keep the Workers
+sending to `dr.enamtalha@gmail.com` and point `admin_email` back there; the
+routing rule from step 1 still fixes inbound patient mail on its own.
+
+---
+
 ## Task +1 — Verify Password Reset, 2FA Enrollment & Site Content Editing (15 min · 👩‍⚕️ · browser)
 
 **Why:** Self-service CMS improvements (PIN reset via email, TOTP 2FA, and live site-content editing) are built and deployed with complete test coverage.
 
-1. **Verify Password Reset**:
-   - On the CMS login form, click **Forgot Password?**.
-   - Enter `dr.enamtalha@gmail.com` and submit.
-   - Confirm a password reset email arrives at `dr.enamtalha@gmail.com`.
-   - Open the reset link (`/#reset?token=...`), enter a new 8+ character PIN, and submit.
+1. **Verify Password Reset** (needs **Task +2** done first):
+   - On the CMS login form (`/admin/`), click **Forgot Password?**.
+   - Enter `appointments@drsumyapervin.com` and submit.
+   - Confirm a password reset email arrives at `dr.enamtalha@gmail.com`
+     (the practice inbox forwards there).
+   - Open the reset link (`/admin/#reset?token=...`), enter a new 8+ character
+     PIN, and submit. **This is the rotation the 2026-08-03 transcript leak
+     asked for — do not skip it.**
    - Confirm PIN updates and returns to login.
 
 2. **Verify TOTP 2FA Enrollment**:
@@ -38,14 +80,15 @@ Do them in order — later tasks assume earlier ones are done.
 4. **Verify Settings save (F13 smoke)**:
    - CMS → **Settings** tab.
    - The **Admin Reset Destination Email** field must already show the stored
-     `dr.enamtalha@gmail.com` — do **not** clear it.
+     `appointments@drsumyapervin.com` (migration 005) — do **not** clear it.
    - Change nothing about the email, just change e.g. the WhatsApp number, and
-     click **Save Settings**. It must save **without** forcing you to retype the
-     email (previously the required-but-empty field blocked every save).
-   - Reload Settings → the email still shows `dr.enamtalha@gmail.com`.
-   - Tip: leave the email as-is. Changing it to anything other than a Cloudflare
-     Email Routing **verified** recipient makes password-reset mail silently not
-     send (the mailer only delivers to `dr.enamtalha@gmail.com` today).
+     click **Save Settings**. It must save **without** forcing you to retype
+     the email (previously the required-but-empty field blocked every save).
+   - Reload Settings → the email still shows `appointments@drsumyapervin.com`.
+   - Tip: leave the email as-is. It is the mailer Worker's one allowlisted
+     recipient; changing it to anything that is not a Cloudflare Email Routing
+     **verified** destination makes password-reset AND booking-notification
+     mail silently fail to send.
 
 ---
 

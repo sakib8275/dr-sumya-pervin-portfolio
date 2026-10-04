@@ -2,6 +2,7 @@ import { requireAuth, readJson, json } from '../../lib/auth.js';
 import { verifyTurnstile } from '../../lib/turnstile.js';
 import { validateSlot, CHAMBERS } from '../../lib/schedule.js';
 import { loggedWrite, logWrite } from '../../lib/log.js';
+import { sendViaMailer, isMailerBound } from '../../lib/mailer-client.js';
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 const LIMITS = { patient_name: 120, patient_phone: 40, chamber: 120, service: 120, notes: 2000 };
@@ -119,6 +120,45 @@ export async function onRequestPost(context) {
         'INSERT INTO appointments (id, patient_name, patient_phone, chamber, appointment_date, service, notes, consultation_type, preferred_session) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)'
       ).bind(id, f.patient_name, f.patient_phone, f.chamber, appointment_date, f.service, f.notes, consultation_type, preferred_session).run()
   );
+
+  // Booking-arrival notification (context.md §6: nobody should have to open
+  // the CMS to learn a booking exists). Fire-and-forget: this mail is,
+  // deliberately, one of the two places patient details leave the system (the
+  // other is the digest) — it goes to the single allowlisted, Cloudflare-
+  // verified practice inbox. The recipient is admin_settings.admin_email, the
+  // same source the forgot-password path uses. A failure is logged with the
+  // booking id only; the booking itself is already committed, so mail trouble
+  // must never turn this 201 into an error.
+  try {
+    if (isMailerBound(context.env)) {
+      const settings = await context.env.DB
+        .prepare('SELECT admin_email FROM admin_settings WHERE id = 1')
+        .first();
+      const notifyTo = settings ? (settings.admin_email || '').trim() : '';
+      if (notifyTo) {
+        const mail = await sendViaMailer(context.env, {
+          to: notifyTo,
+          subject: `New booking ${id} — ${CHAMBERS[f.chamber]?.short || f.chamber}, ${appointment_date}`,
+          body:
+            `Reference: ${id}\n` +
+            `Patient: ${f.patient_name}\n` +
+            `Phone: ${f.patient_phone}\n` +
+            `Chamber: ${f.chamber}\n` +
+            `Date: ${appointment_date}\n` +
+            `Consultation: ${consultation_type || '—'}\n` +
+            `Session: ${preferred_session || '—'}\n` +
+            `Service: ${f.service}\n` +
+            `Notes: ${f.notes || '(none)'}\n\n` +
+            `Manage bookings in the CMS: ${new URL(context.request.url).origin}/admin/`
+        });
+        if (!mail.ok && mail.reason !== 'unbound') {
+          logWrite('appointment.notify_failure', { id, status: mail.status, error: mail.error });
+        }
+      }
+    }
+  } catch (err) {
+    logWrite('appointment.notify_failure', { id, error: err && err.message });
+  }
 
   return json({ id, message: 'Appointment created successfully' }, 201);
 }
