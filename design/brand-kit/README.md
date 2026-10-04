@@ -54,7 +54,7 @@ Dr. Sumya delegated these decisions on 2026-10-04.
 
 ## Owner answers (2026-10-05)
 
-- **Assistant Professor and BCS (Health) are not current.** Neither prints. PRODUCT.md, context.md and agent.md now record them as past roles.
+- **Assistant Professor and BCS (Health) are not current.** Neither prints. context.md and agent.md now record them as past roles; the matching PRODUCT.md line is on #10, which already edits the line beside it.
 - **No "MD".** She holds no MD degree. The unused `title` field in `content/site.mjs` dropped it; the rendered site title never carried it.
 - **The qualifications line prints in the short form,** "MBBS (SSMC) · DDV (BSMMU) · FCPS (Skin & VD)", decided for the owner. It matches the website, so a patient sees the same line on the card as on the site. The years and "(BCPS)" would lengthen a line that already sits at the print floor on the cards, and FCPS is only ever awarded by BCPS, so naming it adds nothing. The long form stays in `content/source/website-content.md` for anywhere that wants the full history.
 
