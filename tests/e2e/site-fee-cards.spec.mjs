@@ -59,6 +59,37 @@ test('a slow press anywhere on the card, corners included, still opens it', asyn
   }
 });
 
+// Regression (2026-10-05): closing the sheet plays a ~440ms view transition,
+// during which the browser hit-tests its overlay, so a press that starts then
+// goes down on <html>. If it is released after the transition ends, it comes
+// up on the card, and the click goes to the two targets' common ancestor,
+// <html>, with no transition left running, so the press was dropped. The
+// slow-press test above lost ~1 run in 5 to this. Here the transition is
+// slowed so the press straddles its end every time.
+test('a press that starts while the sheet is closing still opens the card it ends on', async ({ page, site }) => {
+  await page.goto(site.baseURL + '/prices/', { waitUntil: 'networkidle' });
+  const view = page.locator('#pkgView');
+  const card = page.locator('.pr-card').first();
+  await card.scrollIntoViewIfNeeded();
+  const c = await card.boundingBox();
+  const [x, y] = [c.x + c.width / 2, c.y + c.height * 0.45];
+  await page.mouse.click(x, y);
+  await expect(view).toBeVisible();
+  await expect(view, 'the opening transition has finished').not.toHaveClass(/\bvt\b/);
+
+  const cdp = await page.context().newCDPSession(page);
+  await cdp.send('Animation.enable');
+  await cdp.send('Animation.setPlaybackRate', { playbackRate: 0.2 });
+  await page.keyboard.press('Escape');
+  await expect(view, 'the closing transition is still playing').toHaveClass(/\bvt\b/);
+  await page.mouse.move(x, y);
+  await page.mouse.down();
+  await expect(view, 'the transition has finished').not.toHaveClass(/\bvt\b/, { timeout: 10_000 });
+  await cdp.send('Animation.setPlaybackRate', { playbackRate: 1 });
+  await page.mouse.up();
+  await expect(view, 'the press that straddled the transition opens the card').toBeVisible();
+});
+
 test('booking from inside the view pre-selects that visit', async ({ page, site }) => {
   await page.goto(site.baseURL + '/prices/', { waitUntil: 'networkidle' });
   await clickCardBody(page, page.locator('.pr-card').filter({ hasText: 'Signature' }).first(), '.pr-price');

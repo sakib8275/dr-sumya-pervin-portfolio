@@ -110,11 +110,18 @@ import { writePrefill, takePrefill } from './prefill.mjs';
     // click lands on <html> and is lost: close a sheet, tap the next card at
     // once, and nothing would happen. Finish the transition immediately and
     // replay the click on whatever is really under the pointer.
+    // A press can also straddle the transition's end: it goes down on <html>
+    // and comes up on the card, so the click lands on their common ancestor,
+    // <html>, after the transition is over. Remember where the press began.
+    let pressedOnRoot = false;
+    document.addEventListener('pointerdown', (e) => { pressedOnRoot = e.target === document.documentElement; }, true);
     document.addEventListener('click', (e) => {
-      if (!running || e.target !== document.documentElement) return;
+      if (e.target !== document.documentElement || !(running || pressedOnRoot)) return;
+      pressedOnRoot = false;
       const { clientX: x, clientY: y } = e;
-      running.skipTransition();
-      running.finished.finally(() => {
+      const t = running;
+      if (t) t.skipTransition();
+      (t ? t.finished : Promise.resolve()).finally(() => {
         const el = document.elementFromPoint(x, y);
         if (el && el !== document.documentElement) el.click();
       });
