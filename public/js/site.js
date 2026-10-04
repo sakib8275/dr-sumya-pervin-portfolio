@@ -38,8 +38,9 @@ import { writePrefill, takePrefill } from './prefill.mjs';
 
   // — Hero journey panel: the five consultation steps as slides. Without JS
   // (or under reduced motion) the panel stays a plain five-item list. It plays
-  // one pass, ~5s a step, then rests on the last step; hover, focus, the Pause
-  // button or a tap on a dot stops it. Phones never auto-advance.
+  // one pass, 3.5s a step (time to read the longest, 14 words), then rests on
+  // the last step; hover, focus, the Pause button or a tap on a dot stops it.
+  // Phones never auto-advance.
   const journey = document.querySelector('[data-journey]');
   const calmMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
   if (journey && !calmMotion.matches) {
@@ -67,6 +68,7 @@ import { writePrefill, takePrefill } from './prefill.mjs';
     // motion the same group is a plain list, and must not be announced as one.
     journey.setAttribute('aria-roledescription', 'carousel');
     list.setAttribute('aria-live', 'off');
+    const STEP_MS = 3500;
     let current = -1, timer = null, held = false, stopped = false;
     const phone = window.matchMedia('(max-width: 820px)');
     function show(i) {
@@ -84,7 +86,7 @@ import { writePrefill, takePrefill } from './prefill.mjs';
     function tick() {
       clearTimeout(timer);
       if (stopped || held || phone.matches || current >= steps.length - 1) return;
-      timer = setTimeout(() => { show(current + 1); tick(); }, 5000);
+      timer = setTimeout(() => { show(current + 1); tick(); }, STEP_MS);
     }
     // Screen readers hear a step change only once the visitor drives it; the
     // automatic pass stays silent (aria-live off).
@@ -124,7 +126,7 @@ import { writePrefill, takePrefill } from './prefill.mjs';
     stopped = phone.matches;
     if (stopped) list.setAttribute('aria-live', 'polite');
     show(0);
-    setTimeout(tick, 1400);
+    setTimeout(tick, 920); // after the panel's entrance: 120ms delay + 800ms fill
   }
 
   // — Mobile drawer — light panel over a scrim; Tab is trapped inside while

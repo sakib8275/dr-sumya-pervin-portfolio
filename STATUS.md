@@ -24,7 +24,7 @@ NOT DEPLOYED.** The owner disliked the dome, so the arch silhouette is retired
 (`DESIGN.md` now says *don't bring it back*) and the hero's indigo object is the
 **journey panel**: the five published consultation steps, from one `JOURNEY`
 source in `content/pages/home.mjs` shared with the timeline section below.
-Desktop plays one pass (~5s a step), pausing on hover, focus, the Pause button
+Desktop plays one pass (3.5s a step), pausing on hover, focus, the Pause button
 or a dot; phones show a step at a time with 44px dots and no auto-advance;
 without JS or under reduced motion it is a plain five-item list. The review
 round on the PR is answered in full — blocking: dots are 44×44 (the visible bar
