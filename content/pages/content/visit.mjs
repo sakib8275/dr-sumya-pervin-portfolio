@@ -10,7 +10,7 @@ export const visit = {
     h1: 'Articles written and reviewed by Dr. Sumya',
     lede: 'Bylined, referenced explanations of the conditions we treat. Every article is written or reviewed by Dr. Sumya Pervin, FCPS (Skin &amp; VD), and links back to the page where you can act on it.',
     sections: [
-      { h2: 'Pigmentation &amp; pigment', cards: [
+      { h2: 'Pigmentation', cards: [
         ['Melasma is manageable, not curable', 'What triggers it, why sun and visible light are the whole game, and which treatments help.', '/learn/melasma-manageable-not-curable/', '6 min'],
         ['Arsenic and your skin', 'The rough spots long-term arsenic leaves on the palms and soles, and why they matter here.', '/learn/arsenic-and-skin/', '7 min'],
       ] },
@@ -48,7 +48,7 @@ export const visit = {
       // Centre's opening pages go live.
       { h2: 'Getting here', body: `Ring Road / Tajmahal Road corridor, Mohammadpur, Dhaka. Rickshaw and CNG drop-off at the gate. The Centre opens in 2027; until then Dr. Sumya consults at the chambers in Shyamoli.` },
     ],
-    links: [['Prices', '/prices/'], ['Laser hair removal', '/treatments/laser-hair-removal/'], ['Skin surgery', '/skin-surgery/'], ['Light therapy', '/treatments/light-therapy/']],
+    links: [['Prices', '/prices/'], ['Laser hair removal', '/treatments/laser-hair-removal/'], ['Skin surgery', '/skin-surgery/'], ['Light therapy', '/treatments/light-therapy/'], ['Skin care products', '/skin-care-products/']],
   },
 
   '/chambers/': {

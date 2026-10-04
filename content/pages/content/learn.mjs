@@ -95,7 +95,7 @@ export const learn = {
       { h2: 'Safety on brown skin', body: 'Diode and long-pulsed Nd:YAG lasers are the preferred types for brown skin. We do not use IPL for hair removal on darker skin. Settings are test-patched and recorded every session.' },
       { h2: 'Before and after', body: 'Shave the evening before. No sun exposure or waxing between sessions, and sunscreen on treated areas. Female patients are treated by female staff.' },
     ],
-    links: [['Unwanted hair', '/concerns/unwanted-hair/'], ['Skin type guide', '/tools/skin-type-guide/'], ['Book a consultation', '/book/']],
+    links: [['Laser hair removal', '/treatments/laser-hair-removal/'], ['Unwanted hair', '/concerns/unwanted-hair/'], ['Skin type guide', '/tools/skin-type-guide/'], ['Book a consultation', '/book/']],
   },
 
   '/learn/hair-fall-after-illness/': {

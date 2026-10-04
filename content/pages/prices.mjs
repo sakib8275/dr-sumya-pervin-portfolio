@@ -106,7 +106,7 @@ export default function prices() {
     <p class="crumb"><a href="${href('/')}">Home</a> / Prices</p>
     <h1>Prices — exactly what you get, before you come.</h1>
     <p class="lede">Every fee below lists what it includes, how long the doctor spends with you, and who performs the treatment. Course prices are offered only after a diagnosis, and you can always pay session by session.</p>
-    <p class="pr-now"><b>Consulting now at Alliance Hospital and DCIMCH, Shyamoli:</b> fees there follow each hospital’s own tariff. The prices on this page apply at the Centre, from opening in 2027, and exclude ${Math.round(SITE.vatRate * 100)}% VAT. <a class="tlink" href="${href('/chambers/')}">Chamber days and times</a></p>
+    <p class="pr-now"><b>Consulting at Alliance Hospital and DCIMCH, Shyamoli:</b> fees there follow each hospital’s own tariff. The prices on this page apply at the Centre, from opening in 2027, and exclude ${Math.round(SITE.vatRate * 100)}% VAT. <a class="tlink" href="${href('/chambers/')}">Chamber days and times</a></p>
     <div class="assure">
       <span>12-month price lock on courses</span><span>Unused sessions refunded</span><span>No compulsory products</span><span>Card · bKash · Nagad · 0% EMI</span>
     </div>

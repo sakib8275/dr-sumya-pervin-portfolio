@@ -159,6 +159,16 @@ import { writePrefill, takePrefill } from './prefill.mjs';
     if (flag) flag.hidden = false;
   }
 
+  // The utility bar's build-time copy is always true ("Consulting at …, with
+  // each chamber's days"). On a consulting day it names today's open chambers
+  // instead, from the same schedule the booking API validates. A closed day
+  // keeps the static line — still true, unlike the old "Consulting now".
+  const uWhen = document.querySelector('.u-when');
+  if (uWhen) {
+    const openToday = Object.values(CHAMBERS).filter((c) => c.days.includes(dhakaDay)).map((c) => c.short);
+    if (openToday.length) uWhen.textContent = `Consulting today: ${openToday.join(' · ')}, Shyamoli`;
+  }
+
   // — Course-cost estimator (docx 5.37): a planning guide, not a quote.
   // Prices arrive as data attributes from content/prices.mjs; the arithmetic
   // mirrors the docx course rules (fixed course prices, +25% doctor-performed
@@ -295,13 +305,15 @@ import { writePrefill, takePrefill } from './prefill.mjs';
         acts: ticked('act'), warn: ticked('warn')
       });
 
-      // Emergencies first, and alone: no booking, no reading list.
+      // Emergencies first, and alone: no booking, no reading list. The hidden
+      // h2 keeps the heading outline intact under the page h1 (results render
+      // h3 panels and h4 condition names).
       if (t.stage === 'emergency') {
-        show('scOut', `<div class="sc-urgency sc-emergency"><h3>${EMERGENCY.heading}</h3><p>${EMERGENCY[t.emergency]} ${EMERGENCY.tail}</p></div>`);
+        show('scOut', `<h2 class="vh">Your skin check result</h2><div class="sc-urgency sc-emergency"><h3>${EMERGENCY.heading}</h3><p>${EMERGENCY[t.emergency]} ${EMERGENCY.tail}</p></div>`);
         return;
       }
       if (t.stage === 'incomplete') {
-        show('scOut', `<h3>Almost there</h3><p>Please answer where it is, what you notice most, and how long it has been there.</p>`);
+        show('scOut', `<h2 class="vh">Your skin check result</h2><h3>Almost there</h3><p>Please answer where it is, what you notice most, and how long it has been there.</p>`);
         return;
       }
 
@@ -313,7 +325,7 @@ import { writePrefill, takePrefill } from './prefill.mjs';
       // Condition cards are build-time <template>s keyed by the look answer's
       // data-cond slugs (content/pages/tools.mjs).
       const slugs = (lookIn.dataset.cond || '').split(',').filter(Boolean);
-      show('scOut', `<div class="sc-urgency sc-${t.urgency.key}"><h3>${t.urgency.heading}</h3><p>${body}</p></div>
+      show('scOut', `<h2 class="vh">Your skin check result</h2><div class="sc-urgency sc-${t.urgency.key}"><h3>${t.urgency.heading}</h3><p>${body}</p></div>
         ${slugs.length ? `<h3>Conditions that often look like this</h3>
         <p>People who describe this are often diagnosed with ${slugs.length > 1 ? 'one of these' : 'this'}. Only an examination can tell: several skin conditions look alike, and some need a quick test.</p>
         <div class="sc-conds" id="scConds"></div>`
