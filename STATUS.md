@@ -4,23 +4,35 @@
 verification, or owner-action state changes. Everything under `docs/` is a dated
 snapshot; if this file and a snapshot disagree, this file wins.
 
-**Updated:** 2026-10-04 (DEPLOYED) — **The multi-page site is LIVE on
-drsumyapervin.com.** Owner-gated deploy executed per agent.md §2: D1 backed up
-first (backups/d1-20261003T223337Z.sql — contains patient data, move somewhere
-private per RUNBOOK-BACKUP.md); migrations 003 (self-service CMS tables), 004
-(consultation tiers) and 005 (admin contact) applied to remote D1 — prod had
-none of them; then `npx wrangler pages deploy` (deployment 34cadcbe). Verified
-on the live apex: the new home (Nil & Haldi hero, SP mark, 64-URL sitemap), all
-F9 security headers with a per-request CSP nonce, leak checks 404
-(/migrations, /wrangler.toml, /agent.md), /book/ runs the schedule module
-(Dhaka min-date, chamber hint) and **Turnstile minted a live token under the
-apex CSP**; /api/config/public serves the WhatsApp number; og:image is the new
-og-card.png. **Still open:** rotate the admin PIN (audit round 5, owner
-action), the owner's real-phone pass (package sheet, skin check, drawer) and
-the WhatsApp share-card preview.
+**Updated:** 2026-10-05 (DEPLOYED) — **PRs #12, #11, #10 (then #13, review
+records) are merged and the merge result is LIVE on drsumyapervin.com.** Gates
+on merged master first: 325 node + 58 e2e. `npx wrangler pages deploy`
+(deployments `559b7fa6` → `fae94bfb` — the two redeploys ship a console fix
+found by the live check, below; the 2026-10-04 deploy this supersedes was
+`34cadcbe`). Verified on the live apex: the hero is the journey panel (5 dots,
+enhanced, one pass at 3.5s a step) and the arched nameplate is gone; package
+views open on `/` and `/prices/` including the #12 straddle press; leak checks
+404 with the 404 page (no catch-all); HSTS, the per-request CSP nonce and
+`nosniff` all present; the browser run ends with **zero console errors**. That
+live check found one real defect, fixed on master and redeployed (`1b8b807`,
+`8897b91`): a sheet transition skipped or cancelled mid-flight (the replay's
+skipTransition, a superseding transition, or navigating away) rejected
+`finished`/`ready` with an unhandled AbortError pageerror — now swallowed,
+with the fee-card specs asserting no pageerror across their runs.
 
-**Later 2026-10-04 (hero journey panel, PR #10) — BUILT AND GREEN, NOT MERGED,
-NOT DEPLOYED.** The owner disliked the dome, so the arch silhouette is retired
+**Still open (owner):** rotate the admin PIN (audit round 5, owner action); the
+owner's real-phone pass (package sheet, skin check, drawer) and the WhatsApp
+share-card preview; the brand kit's printer proof on the chosen stock; the
+five `design/brand-kit/README.md` questions for Dr. Sumya (the canonical
+credentials line, "MD" in the site title, Bangla wording, the Centre).
+
+**2026-10-04 (deploy the supersedes, kept for the record):** D1 backed up first
+(`backups/d1-20261003T223337Z.sql`); migrations 003 (self-service CMS tables),
+004 (consultation tiers) and 005 (admin contact) applied to remote D1 — prod
+had none of them; Turnstile minted a live token under the apex CSP;
+`/api/config/public` serves the WhatsApp number; og:image is the flat og-card.
+
+**2026-10-04 (hero journey panel, PR #10) — MERGED AND DEPLOYED 2026-10-05.** The owner disliked the dome, so the arch silhouette is retired
 (`DESIGN.md` now says *don't bring it back*) and the hero's indigo object is the
 **journey panel**: the five published consultation steps, from one `JOURNEY`
 source in `content/pages/home.mjs` shared with the timeline section below.
@@ -55,13 +67,12 @@ motion back off does not re-animate). Not changed, on purpose: the dots keep
 `aria-current` (not APG's `aria-disabled`) and Pause stays after them in tab
 order, because moving it first would change the panel layout; slides have no
 own group role.
-**325 node + 56 e2e green locally and in CI**; each new assertion was proven
-red against a mutation. `site-fee-cards` "slow press" is flaky on this branch
-and on its base alike (9 of 45 runs failed at `02ccc95`, on `/prices/`, which
-has no journey panel): the root cause is diagnosed and fixed on #12, which
-should merge first. The apex still serves the arched
-nameplate (deployment `34cadcbe`); merging and the gated deploy are owner
-actions.
+**325 node + 56 e2e green locally and in CI at review close**; each new
+assertion was proven red against a mutation. `site-fee-cards` "slow press" was
+flaky on this branch and its base alike (9 of 45 runs failed at `02ccc95`, on
+`/prices/`, which has no journey panel): #12 diagnosed the root cause and fixed
+it, and merged first, per the recommended order #12 → #11 → #10. The apex
+served the arched nameplate until the 2026-10-05 deploy above.
 
 **Earlier 2026-10-04 (skin-check wording + SP mark approved)** — built and
 green (295 node + 51 e2e, later 320 node after the architecture refactors).
