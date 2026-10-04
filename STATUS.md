@@ -19,6 +19,28 @@ og-card.png. **Still open:** rotate the admin PIN (audit round 5, owner
 action), the owner's real-phone pass (package sheet, skin check, drawer) and
 the WhatsApp share-card preview.
 
+**Later 2026-10-04 (hero journey panel, PR #10) — BUILT AND GREEN, NOT MERGED,
+NOT DEPLOYED.** The owner disliked the dome, so the arch silhouette is retired
+(`DESIGN.md` now says *don't bring it back*) and the hero's indigo object is the
+**journey panel**: the five published consultation steps, from one `JOURNEY`
+source in `content/pages/home.mjs` shared with the timeline section below.
+Desktop plays one pass (~5s a step), pausing on hover, focus, the Pause button
+or a dot; phones show a step at a time with 44px dots and no auto-advance;
+without JS or under reduced motion it is a plain five-item list. The review
+round on the PR is answered in full — blocking: dots are 44×44 (the visible bar
+stays 3px), the phone height bound is tightened to <430px with a 360×640
+reduced-motion and a 375×667 no-JS e2e test pinning the CTAs in view, and the
+approved specialty line is back in the panel (hidden ≤820px, as it was on
+master). Recommendations: `tests/pages.test.mjs` fails if the hero panel and the
+timeline step copy drift apart, Play/Pause is hidden where nothing
+auto-advances, the panel is a labelled carousel group with `"Step n of 5: …"` dot
+names and an `aria-live` that goes polite only once the visitor drives it, the
+slides stack in a `min-height` grid so zoom grows the box instead of clipping,
+and turning reduced motion on mid-visit falls back to the list.
+**324 node + 54 e2e green locally and in CI.** The apex still serves the arched
+nameplate (deployment `34cadcbe`); merging and the gated deploy are owner
+actions.
+
 **Earlier 2026-10-04 (skin-check wording + SP mark approved)** — built and
 green (295 node + 51 e2e, later 320 node after the architecture refactors).
 Review fix-now list done: tap
