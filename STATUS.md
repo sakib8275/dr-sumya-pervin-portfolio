@@ -19,6 +19,50 @@ og-card.png. **Still open:** rotate the admin PIN (audit round 5, owner
 action), the owner's real-phone pass (package sheet, skin check, drawer) and
 the WhatsApp share-card preview.
 
+**Later 2026-10-04 (hero journey panel, PR #10) — BUILT AND GREEN, NOT MERGED,
+NOT DEPLOYED.** The owner disliked the dome, so the arch silhouette is retired
+(`DESIGN.md` now says *don't bring it back*) and the hero's indigo object is the
+**journey panel**: the five published consultation steps, from one `JOURNEY`
+source in `content/pages/home.mjs` shared with the timeline section below.
+Desktop plays one pass (3.5s a step), pausing on hover, focus, the Pause button
+or a dot; phones show a step at a time with 44px dots and no auto-advance;
+without JS or under reduced motion it is a plain five-item list. The review
+round on the PR is answered in full — blocking: dots are 44×44 (the visible bar
+stays 3px), the phone height bound is tightened to <430px, a 360×640
+reduced-motion test pins the primary CTA and a 375×667 no-JS test pins both
+CTAs in view over the full five-step list, and the
+approved specialty line is back in the panel (hidden ≤820px, as it was on
+master). Recommendations: `tests/pages.test.mjs` rebuilds the site and then fails
+if the hero panel and the timeline disagree on any step (it checks the build
+agrees with `JOURNEY`; it does not detect a stale `public/` — the file heals
+itself), Play/Pause is hidden where nothing
+auto-advances, the panel is a labelled group that `site.js` announces as a
+carousel only while it behaves as one (the no-JS and reduced-motion list is
+not one), with `"Step n of 5: …"` dot
+names and an `aria-live` that goes polite only once the visitor drives it — and
+is dropped again when reduced motion returns the list, so the five steps that
+appear at once are not all read out — the slides stack in a `min-height` grid so
+zoom grows the box instead of clipping, and turning reduced motion on mid-visit
+falls back to the list, pinned by a spec that toggles the preference after load.
+The step copy is the timeline copy already on master (not new, and not verbatim
+§5.1: it adds "We ask what you have tried." and "a magnified skin check").
+Second review round: the journey panel's keyboard focus ring is turmeric
+(it was indigo on indigo, 1.2:1; pinned in `tests/contrast.test.mjs`), inactive
+step bars are 3.7:1, `aria-current` is set only on the current dot, and when
+reduced motion turns on while a dot has focus, focus moves to the panel instead
+of `<body>`. The mid-visit fallback is one-way for the visit (turning reduced
+motion back off does not re-animate). Not changed, on purpose: the dots keep
+`aria-current` (not APG's `aria-disabled`) and Pause stays after them in tab
+order, because moving it first would change the panel layout; slides have no
+own group role.
+**325 node + 56 e2e green locally and in CI**; each new assertion was proven
+red against a mutation. `site-fee-cards` "slow press" is flaky on this branch
+and on its base alike (9 of 45 runs failed at `02ccc95`, on `/prices/`, which
+has no journey panel): the root cause is diagnosed and fixed on #12, which
+should merge first. The apex still serves the arched
+nameplate (deployment `34cadcbe`); merging and the gated deploy are owner
+actions.
+
 **Earlier 2026-10-04 (skin-check wording + SP mark approved)** — built and
 green (295 node + 51 e2e, later 320 node after the architecture refactors).
 Review fix-now list done: tap

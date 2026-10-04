@@ -77,7 +77,7 @@ a { color: inherit; text-decoration: none; }
 ::selection { background: var(--haldi); color: var(--ink); }
 :focus-visible { outline: 2px solid var(--nil); outline-offset: 3px; border-radius: 6px; }
 .u-bar :focus-visible, .foot :focus-visible, .h-dont :focus-visible, .h-final :focus-visible,
-.m-sticky :focus-visible, .pr-est-out :focus-visible, .h-tier.sig :focus-visible { outline-color: var(--haldi); }
+.m-sticky :focus-visible, .pr-est-out :focus-visible, .h-tier.sig :focus-visible, .nameplate :focus-visible { outline-color: var(--haldi); }
 .bk-field :is(input, select, textarea):focus-visible, .pr-est-form select:focus-visible { outline-offset: 1px; border-color: var(--ink); }
 .btn:focus-visible { outline-offset: 3px; border-radius: 999px; }
 img { max-width: 100%; display: block; }
@@ -429,7 +429,7 @@ a.chip:hover { background: var(--surface); border-color: var(--nil); color: var(
 /* — Home — */
 .h-hero {
   /* Flat paper under the copy: no gradient sits under text anywhere on the
-     site. The indigo lives in one object, the nameplate arch. */
+     site. The indigo lives in one object, the journey panel. */
   background: var(--paper);
 }
 .h-hero .wrap { display: grid; grid-template-columns: 1.12fr .88fr; gap: 56px; align-items: center; padding-block: 72px 80px; }
@@ -446,63 +446,77 @@ a.chip:hover { background: var(--surface); border-color: var(--nil); color: var(
 .h-ctas { display: flex; gap: 14px; margin: 30px 0 16px; flex-wrap: wrap; }
 .h-alt { font-size: 0.9375rem; color: var(--ink); }
 .h-hero .tlink { color: var(--nil); }
-/* Hero identity nameplate — the owner asked that the doctor's photograph not
-   be published, so the image slot carries a credential plate instead. The
-   arched crown keeps the silhouette the portrait occupied; it is the page's
-   one indigo object, with a single turmeric arc inside it. */
+/* Hero journey panel — the owner asked that the doctor's photograph not be
+   published, so the image slot is a flat indigo panel that walks through the
+   five published consultation steps (the same copy as the timeline below).
+   Without JS, or under reduced motion, all five steps sit in a plain list;
+   site.js adds .jn-live to turn them into one-at-a-time slides. */
 .h-hero-figure { position: relative; display: flex; justify-content: center; }
 .nameplate {
-  position: relative; width: min(100%, 430px); overflow: hidden;
-  padding: 46px 34px 30px; text-align: center;
+  position: relative; width: min(100%, 470px); overflow: hidden;
+  padding: 30px 34px 26px;
   background: var(--nil-deep); color: var(--on-nil);
-  border-radius: 215px 215px var(--r-card) var(--r-card);
+  border-radius: var(--r-card);
   box-shadow: 0 28px 52px -24px rgba(26, 39, 86, .55);
 }
-.nameplate::before {
-  content: ""; position: absolute; inset: 0 0 auto; height: 60%; pointer-events: none;
-  background: radial-gradient(110% 100% at 50% 0%, rgb(35 51 107 / .95), rgb(35 51 107 / 0) 72%);
+.jn-eyebrow { font-size: 0.75rem; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--on-nil); }
+.jn-steps { list-style: none; margin: 14px 0 0; padding: 0; border-top: 1px solid var(--rule-dark); }
+.jn-step { display: grid; grid-template-columns: 44px 1fr; column-gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--rule-dark); }
+.jn-num { grid-row: span 2; font-size: 0.8125rem; font-weight: 700; letter-spacing: .08em; color: var(--on-nil); padding-top: 3px; }
+.jn-step b { color: #fff; font-weight: 600; }
+.jn-step p { font-size: 0.875rem; color: var(--on-nil); }
+/* Live slides: one step at a time, a clip-path wipe in from the right while
+   the numeral rises. The outgoing slide stays put underneath until the wipe
+   ends (.is-leaving), so there is never an empty frame. */
+.jn-live .jn-steps { display: grid; min-height: 212px; align-content: start; }
+.jn-live .jn-step { grid-area: 1 / 1; display: block; padding: 12px 0 0; border: 0; background: var(--nil-deep); visibility: hidden; }
+.jn-live .jn-step.is-active, .jn-live .jn-step.is-leaving { visibility: visible; }
+.jn-live .jn-step.is-active { z-index: 2; animation: jn-wipe var(--t-focal) var(--ease-out) both; }
+.jn-live .jn-num {
+  display: block; padding: 0; font-size: clamp(5.5rem, 9vw, 8rem); line-height: .85; letter-spacing: -.04em;
+  color: transparent; -webkit-text-stroke: 1.5px var(--on-nil);
 }
-.nameplate::after {
-  content: ""; position: absolute; left: 50%; bottom: 0; transform: translateX(-50%);
-  width: 76%; height: 86%; pointer-events: none; opacity: .55;
-  border: 1px solid var(--haldi); border-bottom: 0; border-radius: 200px 200px 0 0;
-}
-.np-mark {
-  position: relative; display: inline-flex; align-items: center; justify-content: center;
-  width: 76px; height: 76px; border-radius: 50%;
-  border: 1.5px solid var(--haldi); color: #fff;
-}
-.np-mark svg { width: 100%; height: 100%; }
-.np-role {
-  position: relative; margin-top: 20px; font-size: 0.75rem; font-weight: 700;
-  letter-spacing: .16em; text-transform: uppercase; color: var(--haldi);
-}
-.np-name { position: relative; margin-top: 8px; font-size: clamp(1.625rem, 2.6vw, 2rem); font-weight: 600; color: #fff; }
-.np-line { position: relative; margin: 8px auto 0; max-width: 30ch; font-size: 0.90625rem; color: var(--on-nil); }
-.np-creds { position: relative; list-style: none; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 22px; }
+.jn-live .is-active .jn-num { animation: jn-rise var(--t-focal) var(--ease-out) both; }
+.jn-live .jn-step b { display: block; margin-top: 14px; font-size: 1.5rem; line-height: 1.15; }
+.jn-live .jn-step p { margin-top: 6px; max-width: 34ch; font-size: 1rem; }
+.jn-nav { display: none; align-items: center; gap: 0; }
+.jn-live .jn-nav { display: flex; }
+/* Inactive bars are #7480B4 (3.7:1 on --nil-deep; --rule-dark was 1.6:1). 44x44 hit area (WCAG 2.5.8 / the site's tap-target rule); the visible bar stays 3px. */
+.jn-dot { position: relative; width: 44px; height: 44px; padding: 0; background: none; border: 0; cursor: pointer; }
+.jn-dot::before { content: ""; position: absolute; left: 4px; right: 4px; top: 50%; margin-top: -1.5px; height: 3px; border-radius: 2px; background: #7480B4; transition: background var(--t-state) var(--ease); }
+.jn-dot[aria-current="true"]::before { background: var(--haldi); }
+.jn-dot:hover::before { background: var(--on-nil); }
+.jn-dot[aria-current="true"]:hover::before { background: var(--haldi); }
+.jn-pause { margin-left: auto; min-height: 44px; min-width: 44px; padding: 0 4px; background: none; border: 0; cursor: pointer; font: inherit; font-size: 0.8125rem; color: var(--on-nil); text-decoration: underline; text-underline-offset: 3px; }
+.jn-pause:hover { color: #fff; }
+.np-body { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--rule-dark); }
+.np-role { font-size: 0.75rem; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--on-nil); }
+.np-name { margin-top: 4px; font-size: 1.375rem; font-weight: 600; color: #fff; }
+.np-line { margin-top: 4px; font-size: 0.90625rem; color: var(--on-nil); }
+.np-creds { list-style: none; display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
 .np-creds .pill { background: transparent; color: #fff; border-color: var(--rule-dark); }
 .np-creds .pill.gold { background: var(--haldi); color: var(--ink); border-color: var(--haldi); }
-.np-note { position: relative; margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--rule-dark); font-size: 0.8125rem; color: var(--on-nil); }
+.np-note { margin-top: 16px; font-size: 0.8125rem; color: var(--on-nil); }
 .np-note b { color: #fff; font-weight: 600; }
+@keyframes jn-wipe { from { clip-path: inset(0 0 0 100%); } to { clip-path: inset(0 0 0 0); } }
+@keyframes jn-rise { from { opacity: 0; translate: 0 28px; } }
 
 /* The hero entrance — the site's one authored moment, played once on load.
-   The headline settles out of a blur the way ink takes to paper; the arch
+   The headline settles out of a blur the way ink takes to paper; the panel
    fills with indigo from its base; then the turmeric underline is drawn under
    "diagnosis", the word the whole practice is built on. Content is visible in
    every frame's end state with or without JS (pure CSS, `both` fill), and the
    headline never starts fully transparent so it still paints for LCP. */
 @keyframes ink-settle { from { opacity: .2; filter: blur(10px); translate: 0 6px; } }
 @keyframes rise-in { from { opacity: 0; translate: 0 8px; } }
-@keyframes arch-fill { from { clip-path: inset(100% 0 0 0); } to { clip-path: inset(0 0 0 0); } }
-@keyframes arc-draw { from { opacity: 0; scale: .94; } }
+@keyframes panel-fill { from { clip-path: inset(100% 0 0 0); } to { clip-path: inset(0 0 0 0); } }
 @keyframes underline-draw { from { background-size: 0% .1em; } }
 .h-hero h1 { animation: ink-settle var(--t-focal) var(--ease-out) both; }
 .h-hero h1 em { animation: underline-draw 520ms var(--ease-move) 620ms both; }
 .h-sub, .h-hero .bn-sum { animation: rise-in 600ms var(--ease-out) 160ms both; }
 .h-ctas { animation: rise-in 600ms var(--ease-out) 240ms both; }
 .h-alt { animation: rise-in 600ms var(--ease-out) 300ms both; }
-.nameplate { animation: arch-fill 800ms var(--ease-out) 120ms both; }
-.nameplate::after { animation: arc-draw 700ms var(--ease-out) 640ms both; }
+.nameplate { animation: panel-fill 800ms var(--ease-out) 120ms both; }
 
 .h-promises { border-bottom: 1px solid var(--rule); background: var(--surface); }
 .h-promises .wrap { display: grid; grid-template-columns: repeat(4, 1fr); }
@@ -884,21 +898,20 @@ a.chip:hover { background: var(--surface); border-color: var(--nil); color: var(
   .m-sticky .m-book { background: var(--nil); color: #fff; }
   .h-final .wrap { flex-direction: column; align-items: flex-start; }
 
-  /* Hero on phones: the arched credential plate collapses to a compact strip
-     so the headline, sub-copy and Book all fit the first screen (docx §7.3). */
+  /* Hero on phones: the journey panel is shorter (smaller numeral, no name or
+     note: the name is in the header 100px above) and does not auto-advance;
+     the dots step it. The headline, sub-copy and Book still fit the first screen. */
   .h-hero .wrap { padding-block: 48px 56px; }
   .h-sub { font-size: 1.0625rem; }
-  .nameplate {
-    width: 100%; display: flex; align-items: center; gap: 16px; text-align: left;
-    padding: 18px 20px; border-radius: var(--r-card);
-  }
-  .nameplate::before, .nameplate::after { display: none; }
-  .np-mark { width: 52px; height: 52px; flex: none; margin: 0; }
-  .np-role { margin-top: 0; font-size: 0.75rem; letter-spacing: .1em; }
-  /* The name is already in the header 100px above; the strip carries the
-     credentials instead of repeating it. */
+  .nameplate { width: 100%; padding: 22px 20px 18px; }
+  .jn-live .jn-steps { min-height: 176px; }
+  .jn-pause { display: none; }
+  .jn-live .jn-num { font-size: 4.5rem; }
+  .jn-live .jn-step b { margin-top: 10px; font-size: 1.25rem; }
+  .jn-live .jn-step p { font-size: 0.9375rem; }
+  .np-body { margin-top: 12px; padding-top: 12px; }
   .np-name, .np-line, .np-note { display: none; }
-  .np-creds { margin: 8px 0 0; justify-content: flex-start; gap: 6px; }
+  .np-creds { margin-top: 8px; gap: 6px; }
   .np-creds .pill { font-size: 0.75rem; padding: 3px 9px; }
 
   /* Tiers: recommended card first on phones (docx §7.3); the flag becomes an
@@ -957,5 +970,6 @@ a.chip:hover { background: var(--surface); border-color: var(--nil); color: var(
   :is(.h-tier, .pr-card, .pr-plan):has(.card-link:active) { scale: none; }
   .mega { transition: none; }
   .h-hero h1, .h-sub, .h-hero .bn-sum, .h-ctas, .h-alt, .nameplate, .h-ch-today { animation: fade-in 240ms ease-out both; }
-  .h-hero h1 em, .nameplate::after { animation: none; }
+  .h-hero h1 em { animation: none; }
+  .jn-live .jn-step.is-active, .jn-live .is-active .jn-num { animation: none; }
 }

@@ -36,6 +36,99 @@ import { writePrefill, takePrefill } from './prefill.mjs';
     }
   });
 
+  // — Hero journey panel: the five consultation steps as slides. Without JS
+  // (or under reduced motion) the panel stays a plain five-item list. It plays
+  // one pass, 3.5s a step (time to read the longest, 14 words), then rests on
+  // the last step; hover, focus, the Pause button or a tap on a dot stops it.
+  // Phones never auto-advance.
+  const journey = document.querySelector('[data-journey]');
+  const calmMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  if (journey && !calmMotion.matches) {
+    const steps = [...journey.querySelectorAll('.jn-step')];
+    const nav = document.createElement('div');
+    nav.className = 'jn-nav';
+    const dots = steps.map((step, i) => {
+      const dot = document.createElement('button');
+      dot.type = 'button';
+      dot.className = 'jn-dot';
+      dot.setAttribute('aria-label', `Step ${i + 1} of ${steps.length}: ${step.querySelector('b').textContent}`);
+      dot.addEventListener('click', () => { halt(); show(i); });
+      nav.append(dot);
+      return dot;
+    });
+    const pause = document.createElement('button');
+    pause.type = 'button';
+    pause.className = 'jn-pause';
+    pause.textContent = 'Pause';
+    nav.append(pause);
+    const list = journey.querySelector('.jn-steps');
+    list.after(nav);
+    journey.classList.add('jn-live');
+    // A carousel only once it behaves as one: without JS or under reduced
+    // motion the same group is a plain list, and must not be announced as one.
+    journey.setAttribute('aria-roledescription', 'carousel');
+    list.setAttribute('aria-live', 'off');
+    const STEP_MS = 3500;
+    let current = -1, timer = null, held = false, stopped = false;
+    const phone = window.matchMedia('(max-width: 820px)');
+    function show(i) {
+      if (i === current) return;
+      const prev = steps[current];
+      if (prev) {
+        prev.classList.remove('is-active');
+        prev.classList.add('is-leaving');
+        setTimeout(() => prev.classList.remove('is-leaving'), 760);
+      }
+      steps[i].classList.add('is-active');
+      dots.forEach((d, k) => { if (k === i) d.setAttribute('aria-current', 'true'); else d.removeAttribute('aria-current'); });
+      current = i;
+    }
+    function tick() {
+      clearTimeout(timer);
+      if (stopped || held || phone.matches || current >= steps.length - 1) return;
+      timer = setTimeout(() => { show(current + 1); tick(); }, STEP_MS);
+    }
+    // Screen readers hear a step change only once the visitor drives it; the
+    // automatic pass stays silent (aria-live off).
+    function halt() { stopped = true; clearTimeout(timer); pause.textContent = 'Play'; list.setAttribute('aria-live', 'polite'); }
+    pause.addEventListener('click', () => {
+      if (stopped) {
+        stopped = false; pause.textContent = 'Pause'; list.setAttribute('aria-live', 'off');
+        if (current >= steps.length - 1) show(0);
+        tick();
+      } else halt();
+    });
+    journey.addEventListener('pointerenter', () => { held = true; clearTimeout(timer); });
+    journey.addEventListener('pointerleave', () => { held = false; tick(); });
+    journey.addEventListener('focusin', () => { held = true; clearTimeout(timer); });
+    journey.addEventListener('focusout', () => { held = false; tick(); });
+    // Reduced motion turned on mid-visit: stop, and fall back to the plain list.
+    // One-way for the rest of the visit: turning it back off does not re-animate
+    // a page the visitor already asked to keep still.
+    calmMotion.addEventListener('change', () => {
+      if (!calmMotion.matches) return;
+      stopped = true; clearTimeout(timer);
+      // The dots are about to leave the DOM; park focus on the panel, not <body>.
+      const hadFocus = nav.contains(document.activeElement);
+      journey.classList.remove('jn-live');
+      steps.forEach((st) => st.classList.remove('is-active', 'is-leaving'));
+      nav.remove();
+      // The five steps appear at once; a live region would read all of them.
+      // The markup carries no aria-live, so drop it back to that baseline.
+      list.removeAttribute('aria-live');
+      journey.removeAttribute('aria-roledescription');
+      if (hadFocus) {
+        journey.setAttribute('tabindex', '-1');
+        journey.focus({ preventScroll: true });
+        journey.addEventListener('blur', () => journey.removeAttribute('tabindex'), { once: true });
+      }
+    });
+    stopped = phone.matches;
+    if (stopped) list.setAttribute('aria-live', 'polite');
+    show(0);
+    setTimeout(tick, 920); // after the panel's entrance: 120ms delay + 800ms fill
+  }
+
   // — Mobile drawer — light panel over a scrim; Tab is trapped inside while
   // open (the markup already claims aria-modal) and focus returns to the
   // burger on every close path: ✕ button, scrim tap, link tap, Escape.
@@ -91,33 +184,60 @@ import { writePrefill, takePrefill } from './prefill.mjs';
     const calm = window.matchMedia('(prefers-reduced-motion: reduce)');
     const cardOf = (el) => el && el.closest('.h-tier, .pr-card, .pr-plan');
     let running = null;
+    let runningTo = null;
     const morph = (from, to, update) => {
       if (!document.startViewTransition || calm.matches || !from || !to) { update(); return; }
       from.style.viewTransitionName = 'pkg';
       view.classList.add('vt');
+      // Starting over a live transition aborts it. Its `to` would keep the
+      // "pkg" name, and two elements named "pkg" make the browser skip every
+      // later transition on the page, so retire it before the new capture.
+      if (runningTo && runningTo !== from && runningTo !== to) runningTo.style.viewTransitionName = '';
       const t = running = document.startViewTransition(() => {
         from.style.viewTransitionName = '';
         update();
         to.style.viewTransitionName = 'pkg';
       });
+      runningTo = to;
       t.finished.finally(() => {
+        // A newer transition owns .vt and the name now; undoing here would
+        // strip them while it plays and lose its snapshot.
+        if (running !== t) return;
         to.style.viewTransitionName = '';
         view.classList.remove('vt');
-        if (running === t) running = null;
-      });
+        running = null;
+      }).catch((e) => { if (e && e.name !== 'AbortError') throw e; });
+      // A skipped transition rejects `finished` with AbortError — the replay's
+      // skipTransition below, or a newer transition superseding this one.
+      // That is the routine path, not an error; anything else still throws.
+      // `ready` rejects the same way (skip, supersede, or the page navigating
+      // away mid-transition) and nothing here observes it, so keep it out of
+      // the console for the same reason. A capture failure skips with that
+      // same AbortError; the supersede spec pins the mechanism (stray name,
+      // stripped .vt) that would cause one.
+      t.ready.catch((e) => { if (e && e.name !== 'AbortError') throw e; });
     };
     // While a transition plays, the browser hit-tests its overlay, so every
     // click lands on <html> and is lost: close a sheet, tap the next card at
     // once, and nothing would happen. Finish the transition immediately and
     // replay the click on whatever is really under the pointer.
+    // A press can also straddle the transition's end: it goes down on <html>
+    // and comes up on the card, so the click lands on their common ancestor,
+    // <html>, after the transition is over. Remember where the press began.
+    let pressedOnRoot = false;
+    // Multi-touch: a second finger is not a press on the page, and must not
+    // clobber the flag tracking the primary one.
+    document.addEventListener('pointerdown', (e) => { if (!e.isPrimary) return; pressedOnRoot = e.target === document.documentElement; }, true);
     document.addEventListener('click', (e) => {
-      if (!running || e.target !== document.documentElement) return;
+      if (e.target !== document.documentElement || !(running || pressedOnRoot)) return;
+      pressedOnRoot = false;
       const { clientX: x, clientY: y } = e;
-      running.skipTransition();
-      running.finished.finally(() => {
+      const t = running;
+      if (t) t.skipTransition();
+      (t ? t.finished : Promise.resolve()).finally(() => {
         const el = document.elementFromPoint(x, y);
         if (el && el !== document.documentElement) el.click();
-      });
+      }).catch((e) => { if (e && e.name !== 'AbortError') throw e; }); // same skip-abort swallow
     }, true);
     const shut = () => { if (view.open) morph(view, cardOf(opener), () => view.close()); };
     document.addEventListener('click', (e) => {

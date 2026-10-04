@@ -59,6 +59,85 @@ test('a slow press anywhere on the card, corners included, still opens it', asyn
   }
 });
 
+// Regression (2026-10-05): closing the sheet plays a ~440ms view transition,
+// during which the browser hit-tests its overlay, so a press that starts then
+// goes down on <html>. If it is released after the transition ends, it comes
+// up on the card, and the click goes to the two targets' common ancestor,
+// <html>, with no transition left running, so the press was dropped. The
+// slow-press test above lost ~1 run in 5 to this. Here the transition is
+// slowed so the press straddles its end every time.
+test('a press that starts while the sheet is closing still opens the card it ends on', async ({ page, site }) => {
+  await page.goto(site.baseURL + '/prices/', { waitUntil: 'networkidle' });
+  const pageErrors = [];
+  page.on('pageerror', (e) => pageErrors.push(e));
+  const view = page.locator('#pkgView');
+  const card = page.locator('.pr-card').first();
+  await card.scrollIntoViewIfNeeded();
+  const c = await card.boundingBox();
+  const [x, y] = [c.x + c.width / 2, c.y + c.height * 0.45];
+  await page.mouse.click(x, y);
+  await expect(view).toBeVisible();
+  await expect(view, 'the opening transition has finished').not.toHaveClass(/\bvt\b/);
+
+  const cdp = await page.context().newCDPSession(page);
+  await cdp.send('Animation.enable');
+  await cdp.send('Animation.setPlaybackRate', { playbackRate: 0.2 });
+  await page.keyboard.press('Escape');
+  await expect(view, 'the closing transition is still playing').toHaveClass(/\bvt\b/);
+  await page.mouse.move(x, y);
+  await page.mouse.down();
+  await expect(view, 'the transition has finished').not.toHaveClass(/\bvt\b/, { timeout: 10_000 });
+  await cdp.send('Animation.setPlaybackRate', { playbackRate: 1 });
+  await page.mouse.up();
+  await expect(view, 'the press that straddled the transition opens the card').toBeVisible();
+  // The replay's skipTransition rejects the skipped transition's `finished`;
+  // site.js swallows that AbortError, so no unhandled rejection reaches the page.
+  expect(pageErrors, 'no unhandled rejection from the skipped transition').toEqual([]);
+});
+
+// Regression (2026-10-05, review of this PR): starting a transition over a
+// live one aborts the live one. The aborted cleanup must not strip .vt or the
+// "pkg" name under the survivor, and the survivor must not be left with a
+// second element named "pkg" — a duplicate name makes the browser skip every
+// later transition on the page. A keyboard Enter reaches the trigger directly
+// (the overlay replay is pointer-only), so two transitions really overlap.
+test('a transition that supersedes a live one keeps the overlay and retires the old name', async ({ page, site }) => {
+  await page.goto(site.baseURL + '/prices/', { waitUntil: 'networkidle' });
+  const pageErrors = [];
+  page.on('pageerror', (e) => pageErrors.push(e));
+  const view = page.locator('#pkgView');
+  const card = page.locator('.pr-card').first();
+  await card.scrollIntoViewIfNeeded();
+  await card.click();
+  await expect(view).toBeVisible();
+  await expect(view, 'the opening transition has finished').not.toHaveClass(/\bvt\b/);
+  const firstTitle = await view.locator('#pkgTitle').textContent();
+
+  const cdp = await page.context().newCDPSession(page);
+  await cdp.send('Animation.enable');
+  await cdp.send('Animation.setPlaybackRate', { playbackRate: 0.2 });
+  await page.keyboard.press('Escape');
+  await expect(view, 'the closing transition is still playing').toHaveClass(/\bvt\b/);
+  // The close's update (which fires the dialog `close` event and refocuses the
+  // original trigger) must have run before we move focus, or it races the
+  // Enter below and re-opens the first package.
+  await page.waitForFunction(() => !document.getElementById('pkgView').open, null, { timeout: 5000 });
+  const second = page.locator('.pr-card [data-pkg-open]').nth(1);
+  await second.focus();
+  await expect(second).toBeFocused();
+  await page.keyboard.press('Enter');
+  await expect(view, 'the superseding open transition is playing, not stripped by the abort').toHaveClass(/\bvt\b/);
+
+  await cdp.send('Animation.setPlaybackRate', { playbackRate: 1 });
+  await expect(view, 'the superseding open ran to its end').not.toHaveClass(/\bvt\b/, { timeout: 10_000 });
+  expect(await card.evaluate((el) => el.style.viewTransitionName),
+    'the superseded close left no stray "pkg" name on its card').toBe('');
+  await expect(view.locator('#pkgTitle')).not.toHaveText(firstTitle);
+  await page.keyboard.press('Escape');
+  await expect(view).toBeHidden();
+  expect(pageErrors, 'a superseded transition rejects finished with AbortError, which is swallowed').toEqual([]);
+});
+
 test('booking from inside the view pre-selects that visit', async ({ page, site }) => {
   await page.goto(site.baseURL + '/prices/', { waitUntil: 'networkidle' });
   await clickCardBody(page, page.locator('.pr-card').filter({ hasText: 'Signature' }).first(), '.pr-price');

@@ -7,9 +7,9 @@ This document details the background, medical practitioner profile, chamber info
 ## 1. Practitioner Profile & Credentials
 
 ### Subject Overview
-- **Name**: Dr. Sumya Pervin, MD
+- **Name**: Dr. Sumya Pervin (no MD degree; never add "MD" after her name)
 - **Specialty**: Dermatology, Venereology, Dermatosurgery & Aesthetic Medicine
-- **Current Position**: Assistant Professor, Department of Skin & VD, Sir Salimullah Medical College & Mitford Hospital, Dhaka, Bangladesh.
+- **Current Position**: Consultant Dermatologist in private chamber practice. She formerly served as Assistant Professor, Department of Skin & VD, Sir Salimullah Medical College & Mitford Hospital, Dhaka; that post is not current (owner, 2026-10-05).
 - **Experience** (owner-supplied 2026-10-02, shown as the About stat row): **15+ years in
   medical practice**, including **10+ years in government service** (BCS Health) and **7+ years
   as a dermatology specialist**. (Previously rendered as "14+ years of specialized clinical
@@ -20,7 +20,7 @@ This document details the background, medical practitioner profile, chamber info
 
 ### Academic & Professional Qualifications
 - **MBBS**: Sir Salimullah Medical College (SSMC)
-- **BCS (Health)**: Bangladesh Civil Service (Health Cadre)
+- **BCS (Health)**: Bangladesh Civil Service (Health Cadre) — past service, not current (owner, 2026-10-05); it is not listed among her present credentials
 - **DDV**: Diploma in Dermatology & Venereology, Bangabandhu Sheikh Mujib Medical University (BSMMU)
 - **FCPS**: Fellow of the College of Physicians and Surgeons (Skin & VD)
 

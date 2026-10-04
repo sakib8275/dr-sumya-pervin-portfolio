@@ -18,7 +18,7 @@ export const SITE = {
   name: 'Dr. Sumya Pervin',
   strapline: 'Skin · Hair · Nail · Laser',
   domain: 'https://drsumyapervin.com',
-  title: 'Dr. Sumya Pervin, MD — Dermatologist in Dhaka',
+  title: 'Dr. Sumya Pervin — Dermatologist in Dhaka',
   bmdc: 'BMDC Reg. A-59492',
   // Owner-supplied contact details. phone is the display form; phoneTel is the
   // dialable E.164 form for tel: links. The prices-reviewed date is still a
