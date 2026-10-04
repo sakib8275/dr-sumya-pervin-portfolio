@@ -118,8 +118,13 @@ test('a transition that supersedes a live one keeps the overlay and retires the 
   await cdp.send('Animation.setPlaybackRate', { playbackRate: 0.2 });
   await page.keyboard.press('Escape');
   await expect(view, 'the closing transition is still playing').toHaveClass(/\bvt\b/);
-
-  await page.locator('.pr-card [data-pkg-open]').nth(1).focus();
+  // The close's update (which fires the dialog `close` event and refocuses the
+  // original trigger) must have run before we move focus, or it races the
+  // Enter below and re-opens the first package.
+  await page.waitForFunction(() => !document.getElementById('pkgView').open, null, { timeout: 5000 });
+  const second = page.locator('.pr-card [data-pkg-open]').nth(1);
+  await second.focus();
+  await expect(second).toBeFocused();
   await page.keyboard.press('Enter');
   await expect(view, 'the superseding open transition is playing, not stripped by the abort').toHaveClass(/\bvt\b/);
 
