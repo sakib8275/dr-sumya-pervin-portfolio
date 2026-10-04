@@ -91,30 +91,48 @@ import { writePrefill, takePrefill } from './prefill.mjs';
     const calm = window.matchMedia('(prefers-reduced-motion: reduce)');
     const cardOf = (el) => el && el.closest('.h-tier, .pr-card, .pr-plan');
     let running = null;
+    let runningTo = null;
     const morph = (from, to, update) => {
       if (!document.startViewTransition || calm.matches || !from || !to) { update(); return; }
       from.style.viewTransitionName = 'pkg';
       view.classList.add('vt');
+      // Starting over a live transition aborts it. Its `to` would keep the
+      // "pkg" name, and two elements named "pkg" make the browser skip every
+      // later transition on the page, so retire it before the new capture.
+      if (runningTo && runningTo !== from && runningTo !== to) runningTo.style.viewTransitionName = '';
       const t = running = document.startViewTransition(() => {
         from.style.viewTransitionName = '';
         update();
         to.style.viewTransitionName = 'pkg';
       });
+      runningTo = to;
       t.finished.finally(() => {
+        // A newer transition owns .vt and the name now; undoing here would
+        // strip them while it plays and lose its snapshot.
+        if (running !== t) return;
         to.style.viewTransitionName = '';
         view.classList.remove('vt');
-        if (running === t) running = null;
+        running = null;
       });
     };
     // While a transition plays, the browser hit-tests its overlay, so every
     // click lands on <html> and is lost: close a sheet, tap the next card at
     // once, and nothing would happen. Finish the transition immediately and
     // replay the click on whatever is really under the pointer.
+    // A press can also straddle the transition's end: it goes down on <html>
+    // and comes up on the card, so the click lands on their common ancestor,
+    // <html>, after the transition is over. Remember where the press began.
+    let pressedOnRoot = false;
+    // Multi-touch: a second finger is not a press on the page, and must not
+    // clobber the flag tracking the primary one.
+    document.addEventListener('pointerdown', (e) => { if (!e.isPrimary) return; pressedOnRoot = e.target === document.documentElement; }, true);
     document.addEventListener('click', (e) => {
-      if (!running || e.target !== document.documentElement) return;
+      if (e.target !== document.documentElement || !(running || pressedOnRoot)) return;
+      pressedOnRoot = false;
       const { clientX: x, clientY: y } = e;
-      running.skipTransition();
-      running.finished.finally(() => {
+      const t = running;
+      if (t) t.skipTransition();
+      (t ? t.finished : Promise.resolve()).finally(() => {
         const el = document.elementFromPoint(x, y);
         if (el && el !== document.documentElement) el.click();
       });
