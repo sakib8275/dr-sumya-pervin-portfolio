@@ -103,9 +103,11 @@ test.describe('mobile 375×667', () => {
 // The no-motion fallback lists all five steps, so the panel is tall; it must
 // sit BELOW the CTAs and never push them off the first screen or sideways.
 test.describe('mobile 360×640, reduced motion', () => {
-  test.use({ viewport: { width: 360, height: 640 }, reducedMotion: 'reduce' });
+  test.use({ viewport: { width: 360, height: 640 } });
 
   test('the plain five-step list keeps the primary CTA in view and does not overflow', async ({ page, site }) => {
+    // emulateMedia, not a context option: it is applied before site.js runs.
+    await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.goto(site.baseURL + '/', { waitUntil: 'networkidle' });
     expect(await page.locator('.jn-live').count(), 'reduced motion leaves the static list').toBe(0);
     await expect(page.locator('.jn-step')).toHaveCount(5);
