@@ -45,9 +45,9 @@ const C = {
 };
 
 // Print facts. Title, specialty and qualifications are the confirmed wording in
-// content/source/website-content.md (docx "Facts already confirmed"). The
-// Assistant Professor post and BCS (Health) in PRODUCT.md are not on the kit
-// until the owner confirms they are current (see design/brand-kit/README.md).
+// content/source/website-content.md (docx "Facts already confirmed"), in the
+// short form the site uses. The Assistant Professor post and BCS (Health) are
+// past roles (owner, 2026-10-05), so neither prints.
 const F = {
   name: SITE.name,
   title: 'Consultant Dermatologist',

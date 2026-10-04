@@ -52,10 +52,15 @@ Dr. Sumya delegated these decisions on 2026-10-04.
 - **Lockup type is Outfit 500,** one step lighter than the site header, so the name weighs the same as the monoline mark.
 - **The share card (`public/assets/og-card.png`) is flat Deep Nil,** with the radial glow removed, following DESIGN.md's "no gradient under text".
 
-## Open: needs the owner
+## Owner answers (2026-10-05)
 
-1. **The current post and BCS (Health).** PRODUCT.md lists "Assistant Professor, Department of Skin & VD, Sir Salimullah Medical College & Mitford Hospital" and "BCS (Health)". The confirmed content says she *served* in that department. If both are current, add them to `F` in the script and rerun.
-2. **"MD" in the site title.** `content/site.mjs` titles her "Dr. Sumya Pervin, MD", but no MD degree appears in her qualifications. The kit leaves it out. The website title should be checked too.
-3. **Bangla.** The follow-up card and nameboards would serve more patients with a Bangla line. Bangla needs her approval of the exact wording and the spelling of her name, so none is printed yet.
-4. **The Centre (2027).** The kit has no Centre lockup or signage. These come once the Centre is real.
-5. **The canonical qualifications line.** The kit prints the site's credential line — "MBBS (SSMC) · DDV (BSMMU) · FCPS (Skin & VD)" — but the confirmed source also carries the years and the granting body: "MBBS (SSMC, 2011) · DDV (BSMMU, 2019) · FCPS — Skin & VD (BCPS, 2025)". Confirm which form prints before a full run.
+- **Assistant Professor and BCS (Health) are not current.** Neither prints. PRODUCT.md, context.md and agent.md now record them as past roles.
+- **No "MD".** She holds no MD degree. The unused `title` field in `content/site.mjs` dropped it; the rendered site title never carried it.
+- **The qualifications line prints in the short form,** "MBBS (SSMC) · DDV (BSMMU) · FCPS (Skin & VD)", decided for the owner. It matches the website, so a patient sees the same line on the card as on the site. The years and "(BCPS)" would lengthen a line that already sits at the print floor on the cards, and FCPS is only ever awarded by BCPS, so naming it adds nothing. The long form stays in `content/source/website-content.md` for anywhere that wants the full history.
+
+## Later
+
+Not needed now, kept here so they are not forgotten.
+
+1. **Bangla.** The follow-up card and nameboards would serve more patients with a Bangla line: name, "Consultant Dermatologist", the chamber days and hours. Needs her approval of the exact wording and the spelling of her name. Hind Siliguri is already in the kit for the Taka sign, so the Bangla face is ready.
+2. **The Centre (2027).** Once the Centre has a name and an address: a Centre lockup (the SP mark with the Centre's name, or the Centre's own mark endorsed by hers), door and fascia signage, and a Centre version of the letterhead and cards. Not drawn now because the name, the signage size and the relationship between her name and the Centre's are not decided.
