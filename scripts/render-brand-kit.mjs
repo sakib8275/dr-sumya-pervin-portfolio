@@ -68,7 +68,9 @@ const CH = CHAMBERS_NOW.map((c) => ({
   slug: c.short.toLowerCase().replace(/[^a-z]+/g, '-').replace(/-$/, ''),
   hours: c.hours.replace(' – ', '–'),
   cutoff: fmtTime(CHAMBERS[c.key].startMin - CUTOFF_MIN),
-  area: 'Shyamoli',
+  // The neighbourhood, read from the address itself (the part before the
+  // city), so a future chamber outside Shyamoli cannot be mislabelled.
+  area: c.address.split(',').slice(-2, -1)[0].trim(),
 }));
 
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
@@ -240,7 +242,7 @@ ${css}</style></head><body>${body}</body></html>`;
     .ft b{font-size:28px;font-weight:600;color:${C.nil}}
     .ft span{font-size:21px;color:${C.ink2}}`,
     `<div class="top">${markSvg(C.nil, 5)}<div><b>${esc(F.name)}</b><span>${esc(F.title)}</span></div></div>
-     <h1>Where to see<br>Dr. Sumya this week</h1>
+     <h1>Where to see<br>Dr. Sumya</h1>
      ${CH.map((c) => `<div class="ch"><h2>${esc(c.name.replace(/ \(.*\)$/, ''))}</h2><p class="ad">${esc(c.address)}</p><p class="d">${esc(c.days)}</p>
        <p class="h tnum">${esc(c.hours)}<small>Same-day serials close ${esc(c.cutoff)}</small></p></div>`).join('')}
      <div class="ft"><b>Serial by WhatsApp ${esc(F.phone)}</b><span>${esc(F.web)}</span></div>`));
@@ -267,6 +269,13 @@ ${css}</style></head><body>${body}</body></html>`;
   // type keeps at least 4 mm inside the trim. Previews are clipped to the trim.
   const B = 3;
   const PX = 96 / 25.4;
+  // Chromium stamps the wall-clock build time into every PDF. Overwrite both
+  // date stamps with a fixed one of the same length — the xref offsets stay
+  // valid — so regenerating the kit does not dirty the tree byte for byte.
+  const zeroDates = async (file) => {
+    const buf = await readFile(file);
+    await writeFile(file, Buffer.from(buf.toString('latin1').replace(/D:\d{14}/g, 'D:20000101000000'), 'latin1'));
+  };
   const printDoc = async (name, tw, th, css, pages) => {
     const sheetCss = `@page{size:${tw + 2 * B}mm ${th + 2 * B}mm;margin:0}
       .sheet{position:relative;width:${tw + 2 * B}mm;height:${th + 2 * B}mm;padding:${B}mm;overflow:hidden;background:#fff;break-after:page}
@@ -278,6 +287,7 @@ ${css}</style></head><body>${body}</body></html>`;
     await pdfPage.evaluate(() => document.fonts.ready);
     await mkdir(join(KIT, 'print'), { recursive: true });
     await pdfPage.pdf({ path: join(KIT, `print/${name}.pdf`), preferCSSPageSize: true, printBackground: true });
+    await zeroDates(join(KIT, `print/${name}.pdf`));
     await pdfPage.close();
     out.push(`print/${name}.pdf`);
     for (const p of pages) {

@@ -24,6 +24,8 @@ python design/brand-kit/tools/outline-type.py
 
 The fonts, Outfit and Hind Siliguri (both OFL), are downloaded once into `.cache/`, which git ignores.
 
+A regeneration is reproducible: the PDFs carry a fixed date stamp (the build overwrites Chromium's wall-clock one), so a rerun that changes nothing leaves the tree clean. The preview PNGs can still differ by a few pixels of sub-pixel anti-aliasing with no visible change — such a diff can be discarded.
+
 ## Contents
 
 | Folder | Files | Use |
@@ -39,7 +41,7 @@ The fonts, Outfit and Hind Siliguri (both OFL), are downloaded once into `.cache
 | | `follow-up-card-89x51.pdf` | The next-visit card, filled in by hand at the desk. |
 | | `nameboard-<chamber>-a3.pdf` | A3 landscape board for each chamber door. |
 
-The print PDFs are trim size plus **3 mm bleed** on every side, with no crop marks. Tell the printer the trim size from the table, and ask for a printed proof on the chosen stock before the full run. The PDFs are RGB, so deep indigo shifts between presses.
+The print PDFs are trim size plus **3 mm bleed** on every side, with no crop marks. Tell the printer the trim size from the table, and ask for a printed proof on the chosen stock before the full run. The PDFs are RGB, so deep indigo shifts between presses. The smallest card labels sit at 5.4–6.6 pt, at the practical print floor — check them first on the proof.
 
 ## Decisions taken for the owner
 
@@ -56,3 +58,4 @@ Dr. Sumya delegated these decisions on 2026-10-04.
 2. **"MD" in the site title.** `content/site.mjs` titles her "Dr. Sumya Pervin, MD", but no MD degree appears in her qualifications. The kit leaves it out. The website title should be checked too.
 3. **Bangla.** The follow-up card and nameboards would serve more patients with a Bangla line. Bangla needs her approval of the exact wording and the spelling of her name, so none is printed yet.
 4. **The Centre (2027).** The kit has no Centre lockup or signage. These come once the Centre is real.
+5. **The canonical qualifications line.** The kit prints the site's credential line — "MBBS (SSMC) · DDV (BSMMU) · FCPS (Skin & VD)" — but the confirmed source also carries the years and the granting body: "MBBS (SSMC, 2011) · DDV (BSMMU, 2019) · FCPS — Skin & VD (BCPS, 2025)". Confirm which form prints before a full run.
