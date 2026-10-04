@@ -83,10 +83,10 @@ test.describe('mobile 375×667', () => {
     expect(labelled, 'every cell carries its column label for the card layout').toBeGreaterThan(20);
   });
 
-  test('hero plate is a compact strip and both CTAs fit the first screen', async ({ page, site }) => {
+  test('hero journey panel is compact and both CTAs fit the first screen', async ({ page, site }) => {
     await page.goto(site.baseURL + '/', { waitUntil: 'networkidle' });
     const strip = await page.evaluate(() => document.querySelector('.nameplate').getBoundingClientRect().height);
-    expect(strip, 'the phone hero collapses the credential plate (~100px, not ~400px)').toBeLessThan(180);
+    expect(strip, 'the phone journey panel stays short (one step, creds; not the 5-item list)').toBeLessThan(440);
     await expect(page.locator('.h-ctas .btn-ink')).toBeInViewport();
     await expect(page.locator('.h-ctas .btn-ghost')).toBeInViewport();
   });

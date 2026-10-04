@@ -157,7 +157,7 @@ Density is calm but not sparse. Sections breathe at `clamp(56px, 7vw, 104px)`, i
 - Unbleached paper grounds with indigo ink; turmeric as a rare signal.
 - Open columns under a heavy 2px ink rule, not boxed cards, for the information patients scan.
 - Large tabular figures for every price and hour.
-- Pill-shaped actions; softly rounded containers; one arched silhouette (the nameplate).
+- Pill-shaped actions; softly rounded containers. The hero's dome/arch was retired on 2026-10-04.
 - Flat by default; shadows only answer state or mark the one recommended choice.
 - No gradient ever sits under text.
 
@@ -172,7 +172,7 @@ A two-dye palette on paper: deep Bengal indigo carries structure and action, and
 - **Indigo Mist** (`on-nil`): secondary text on Deep Nil (9.4:1). Never used on paper.
 
 ### Secondary
-- **Haldi Turmeric** (`haldi`): the signal. It appears as a fill, a rule or a mark: "Consulting today" flags, savings badges, the BMDC credential pill, text selection, the hero underline under "diagnosis", the nameplate's monogram ring and inner arc, the "no" marks in the limits band, and focus rings on indigo grounds. On paper it is 2:1, so it is **never text on a light ground**. On Deep Nil it may be text (6.5:1): the nameplate role line and the estimator's checkout total.
+- **Haldi Turmeric** (`haldi`): the signal. It appears as a fill, a rule or a mark: "Consulting today" flags, savings badges, the BMDC credential pill, text selection, the hero underline under "diagnosis", the journey panel's active step bar, the "no" marks in the limits band, and focus rings on indigo grounds. On paper it is 2:1, so it is **never text on a light ground**. On Deep Nil it may be text (6.5:1): the estimator's checkout total.
 - **Turmeric Ink** (`haldi-ink`): turmeric for when it must be text on paper (4.86:1 on the darkest paper). It also fills the nurse-operator badge (white on it 5.9:1).
 
 ### Neutral
@@ -222,7 +222,7 @@ A single centered container (max 1240px) with a fluid gutter (`clamp(18px, 3.4vw
 
 - **Ruled columns:** the main structure for scannable information. Chambers, the three "What brings you here?" pillars and the Centre's rooms sit as open columns. Each has a 2px ink top rule and no box, laid out in 3-column grids that become 2 and then 1.
 - **Fee tiers:** a three-up row with the recommended tier lifted 10px. On phones they stack, with the recommended tier moved first.
-- **Breakpoints:** 1100px (top nav gives way to the drawer), 1080px (four- and three-column grids halve, hero stacks), 820px (phone layout: sticky bottom bar of Call / WhatsApp / Book, price tables become stacked cards, the package view becomes a bottom sheet, the nameplate collapses to a strip), 480px (single column, full-width CTAs).
+- **Breakpoints:** 1100px (top nav gives way to the drawer), 1080px (four- and three-column grids halve, hero stacks), 820px (phone layout: sticky bottom bar of Call / WhatsApp / Book, price tables become stacked cards, the package view becomes a bottom sheet, the journey panel shortens, shows a numeral per step, and does not auto-advance), 480px (single column, full-width CTAs).
 - **Tap targets:** at least 44px everywhere (48px drawer rows). This is a product requirement, not a preference.
 
 ## Elevation & Depth
@@ -242,7 +242,7 @@ Flat by default. Depth comes from tone first: Folded Paper bands sink, Clean She
 
 Actions are pills (999px): buttons, chips, flags and savings badges. Containers are softly rounded: 20px cards, 22px fee tiers, 18px price cards and tables, 14px insets and notes, 12px fields and status boxes, 7px operator badges. Borders are 1px Pencil Rule hairlines, and dashed hairlines divide list rows inside tiers. Emphasis comes from a 2px border (recommended tier) or a 2px top rule (columns), never a thick side stripe.
 
-The signature silhouette is the **arch**: the hero nameplate's crown (`215px 215px 20px 20px`), with a thin turmeric arc inset inside it. It takes the place of the portrait the doctor chose not to publish, and it is used nowhere else.
+The arch silhouette was retired on 2026-10-04 (the owner disliked the dome). The hero panel is a plain `--r-card` rectangle.
 
 ## Components
 
@@ -287,8 +287,8 @@ The practice's logo: a custom S beside a rounded P, grounded by one curved skin 
 - **Placements:** header and drawer beside the name, footer above it, the nameplate's turmeric ring (in place of typed initials), the favicon (paper on a Deep Nil tile), the phone icon, and the share card.
 - **Raster assets** come from `npm run build:brand` (`scripts/render-brand-assets.mjs`). Rerun it when the mark or the name changes.
 
-### The Nameplate (signature)
-The doctor's credential plate in the hero, standing in for the portrait she chose not to publish. It is a Deep Nil arch with a lighter indigo bloom at the crown. Inside: the Signature SP mark in a turmeric ring, the role in turmeric label type, the name in white, credential pills outlined in Night Rule, and the BMDC pill in solid turmeric. On phones it collapses to a compact horizontal strip. It is the page's only indigo object above the fold.
+### The Journey Panel (signature)
+The hero's credential panel, standing in for the portrait the doctor chose not to publish. A Deep Nil `--r-card` rectangle titled "Your first visit" that shows the five published consultation steps one at a time (outlined numeral, title, one line; copy shared with the timeline section via `JOURNEY` in `content/pages/home.mjs`), with step bars, a Pause control, then the role, name and credential pills (BMDC pill in solid turmeric). Without JS or under reduced motion all five steps show as a plain list. It is the page's only indigo object above the fold.
 
 ### Package Sheet
 The detail view for a visit or plan: a native dialog, as a 540px side sheet on desktop and a bottom sheet (90dvh, 22px top corners) on phones. Clean Sheet, a large Figure price between rules, label-type section heads, and actions pinned to the bottom. Where View Transitions exist, it grows out of the tapped fee card and shrinks back into it (440ms ease-out). Otherwise it slides 36px in over 320ms.
@@ -299,7 +299,7 @@ A turmeric pill with a Deep Nil dot and ink text, shown on the chamber columns w
 ### Motion
 - **Curves:** `--ease-out` `cubic-bezier(.16, 1, .3, 1)` for arrivals and `--ease-move` `cubic-bezier(.65, 0, .35, 1)` for movement between states.
 - **Durations:** `--t-press` 160ms, `--t-state` 320ms, `--t-focal` 760ms.
-- **The hero entrance** is the only authored sequence. The headline settles out of a 10px blur. The nameplate fills with indigo from its base (clip-path, 800ms). Then the turmeric underline is drawn under "diagnosis".
+- **The hero entrance** is the only authored sequence. The headline settles out of a 10px blur. The journey panel fills with indigo from its base (clip-path, 800ms) and starts stepping through the five consultation steps (clip-path wipe, one pass, then rests; paused by hover, focus or the Pause button; static list under reduced motion). Then the turmeric underline is drawn under "diagnosis".
 - Everything else explains state. Under `prefers-reduced-motion`, movement is removed and short plain fades remain.
 
 ## Do's and Don'ts
@@ -321,4 +321,4 @@ A turmeric pill with a Deep Nil dot and ink text, shown on the chamber columns w
 - **Don't** use thick colored side stripes on cards, notes or alerts. Use a tinted wash or a 2px border.
 - **Don't** add a second display face or fake italics. Outfit carries the whole hierarchy.
 - **Don't** add repeated scroll-reveal entrances. The hero is the one authored moment.
-- **Don't** use the arch silhouette anywhere but the nameplate.
+- **Don't** bring back the arch or dome silhouette.

@@ -36,6 +36,68 @@ import { writePrefill, takePrefill } from './prefill.mjs';
     }
   });
 
+  // — Hero journey panel: the five consultation steps as slides. Without JS
+  // (or under reduced motion) the panel stays a plain five-item list. It plays
+  // one pass, ~5s a step, then rests on the last step; hover, focus, the Pause
+  // button or a tap on a dot stops it. Phones never auto-advance.
+  const journey = document.querySelector('[data-journey]');
+  const calmMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  if (journey && !calmMotion.matches) {
+    const steps = [...journey.querySelectorAll('.jn-step')];
+    const nav = document.createElement('div');
+    nav.className = 'jn-nav';
+    const dots = steps.map((step, i) => {
+      const dot = document.createElement('button');
+      dot.type = 'button';
+      dot.className = 'jn-dot';
+      dot.setAttribute('aria-label', `Step ${i + 1}: ${step.querySelector('b').textContent}`);
+      dot.addEventListener('click', () => { halt(); show(i); });
+      nav.append(dot);
+      return dot;
+    });
+    const pause = document.createElement('button');
+    pause.type = 'button';
+    pause.className = 'jn-pause';
+    nav.append(pause);
+    journey.querySelector('.jn-steps').after(nav);
+    journey.classList.add('jn-live');
+    let current = -1, timer = null, held = false, stopped = false;
+    const phone = window.matchMedia('(max-width: 820px)');
+    function show(i) {
+      if (i === current) return;
+      const prev = steps[current];
+      if (prev) {
+        prev.classList.remove('is-active');
+        prev.classList.add('is-leaving');
+        setTimeout(() => prev.classList.remove('is-leaving'), 760);
+      }
+      steps[i].classList.add('is-active');
+      dots.forEach((d, k) => d.setAttribute('aria-current', String(k === i)));
+      current = i;
+    }
+    function tick() {
+      clearTimeout(timer);
+      if (stopped || held || phone.matches || current >= steps.length - 1) return;
+      timer = setTimeout(() => { show(current + 1); tick(); }, 5000);
+    }
+    function halt() { stopped = true; clearTimeout(timer); pause.textContent = 'Play'; }
+    pause.addEventListener('click', () => {
+      if (stopped) {
+        stopped = false; pause.textContent = 'Pause';
+        if (current >= steps.length - 1) show(0);
+        tick();
+      } else halt();
+    });
+    journey.addEventListener('pointerenter', () => { held = true; clearTimeout(timer); });
+    journey.addEventListener('pointerleave', () => { held = false; tick(); });
+    journey.addEventListener('focusin', () => { held = true; clearTimeout(timer); });
+    journey.addEventListener('focusout', () => { held = false; tick(); });
+    pause.textContent = phone.matches ? 'Play' : 'Pause';
+    stopped = phone.matches;
+    show(0);
+    setTimeout(tick, 1400);
+  }
+
   // — Mobile drawer — light panel over a scrim; Tab is trapped inside while
   // open (the markup already claims aria-modal) and focus returns to the
   // burger on every close path: ✕ button, scrim tap, link tap, Escape.

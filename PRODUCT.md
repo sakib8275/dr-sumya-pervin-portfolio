@@ -73,7 +73,7 @@ The practice is the third option between two flawed ones. The hospital OPD has s
 ## Brand Commitments
 
 - **Name and credentials:** Dr. Sumya Pervin, MD. MBBS (SSMC), BCS (Health), DDV (BSMMU), FCPS (Skin & VD), BMDC A-59492. Assistant Professor, Department of Skin & VD, Sir Salimullah Medical College & Mitford Hospital.
-- **The doctor's photograph is not published** (her request). A credential nameplate stands in for it.
+- **The doctor's photograph is not published** (her request). A credential panel that walks through the five consultation steps stands in for it.
 - **Voice** (docx 1.4):
   - Plain English and short sentences; medical terms explained once, in brackets.
   - Numbers over adjectives.

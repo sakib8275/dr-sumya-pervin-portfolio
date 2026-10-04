@@ -1,7 +1,8 @@
 // Home body — docx §5.1 copy, laid out in the Nil & Haldi design (site.css).
 // Owner 2026-10-02: the doctor does not want her photograph published, so the
-// hero carries a credential nameplate (no face) instead of the wireframe's
-// portrait. The arched crown keeps the silhouette the image occupied.
+// hero carries a credential panel (no face) instead of the wireframe's
+// portrait. 2026-10-04: the arch is gone; the panel steps through the five
+// published consultation steps (JOURNEY), the same copy as the timeline below.
 //
 // 2026-10-03 (critique round): the page leads with what a patient can book
 // today — the two Shyamoli chambers — and the ethical-limits band, the one
@@ -69,6 +70,15 @@ const NO_LIST = [
   ['Guaranteed results', 'Honest ranges, not promises'],
 ];
 
+// The five consultation steps: one source for the hero panel and the timeline.
+const JOURNEY = [
+  ['History', 'Bring your creams and old prescriptions. We ask what you have tried.'],
+  ['Examination', 'A proper look, with dermoscopy — a magnified skin check — where it helps.'],
+  ['Tests — only if useful', 'Explained and priced before anything is done.'],
+  ['Written plan', 'Diagnosis, options, timeline and total cost.'],
+  ['Follow-up', 'We message you to check progress.'],
+];
+
 const NO_MARK = '<svg class="no-mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9.2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M5.6 5.6l12.8 12.8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
 
 export default function home() {
@@ -86,12 +96,14 @@ export default function home() {
       <p class="h-alt">Not sure what you need? <a class="tlink" href="${href('/consultation-prep/')}">See what your first visit will involve</a> (2-minute check)</p>
     </div>
     <div class="h-hero-figure">
-      <div class="nameplate">
-        <span class="np-mark" aria-hidden="true">${mark('', 4.5)}</span>
+      <div class="nameplate" data-journey>
+        <p class="jn-eyebrow">Your first visit</p>
+        <ol class="jn-steps">${JOURNEY.map(([t, d], i) => `
+          <li class="jn-step"><span class="jn-num" aria-hidden="true">0${i + 1}</span><b>${t}</b><p>${d}</p></li>`).join('')}
+        </ol>
         <div class="np-body">
           <p class="np-role">Consultant Dermatologist</p>
           <p class="np-name">${SITE.name}</p>
-          <p class="np-line">Skin, Hair, Nail, Allergy &amp; Venereal Diseases</p>
           <ul class="np-creds">
             <li class="pill">MBBS</li>
             <li class="pill">DDV (BSMMU)</li>
@@ -172,11 +184,7 @@ export default function home() {
   <div class="wrap">
     <div class="s-head"><h2>From first visit to a plan you can follow</h2></div>
     <ol class="h-steps">
-      <li><b>History</b><p>Bring your creams and old prescriptions. We ask what you have tried.</p></li>
-      <li><b>Examination</b><p>A proper look, with dermoscopy — a magnified skin check — where it helps.</p></li>
-      <li><b>Tests — only if useful</b><p>Explained and priced before anything is done.</p></li>
-      <li><b>Written plan</b><p>Diagnosis, options, timeline and total cost.</p></li>
-      <li><b>Follow-up</b><p>We message you to check progress.</p></li>
+      ${JOURNEY.map(([t, d]) => `<li><b>${t}</b><p>${d}</p></li>`).join('\n      ')}
     </ol>
   </div>
 </section>
