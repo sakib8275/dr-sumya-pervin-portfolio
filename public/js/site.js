@@ -104,6 +104,9 @@ import { writePrefill, takePrefill } from './prefill.mjs';
       journey.classList.remove('jn-live');
       steps.forEach((st) => st.classList.remove('is-active', 'is-leaving'));
       nav.remove();
+      // The five steps appear at once; a live region would read all of them.
+      // The markup carries no aria-live, so drop it back to that baseline.
+      list.removeAttribute('aria-live');
     });
     stopped = phone.matches;
     if (stopped) list.setAttribute('aria-live', 'polite');

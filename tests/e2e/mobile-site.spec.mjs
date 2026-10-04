@@ -121,6 +121,26 @@ test.describe('mobile 360×640, reduced motion', () => {
     expect(overflow).toBeLessThanOrEqual(0);
     expect(panelTop, 'the panel starts below the CTAs').toBeGreaterThanOrEqual(ctaBottom);
   });
+
+  // site.js reads the preference once at init AND listens for the change, so a
+  // visitor who turns reduced motion on mid-visit is not left in the slides.
+  test('turning reduced motion on mid-visit falls back to the plain list', async ({ page, site }) => {
+    await page.goto(site.baseURL + '/', { waitUntil: 'networkidle' });
+    expect(await page.locator('.jn-live').count(), 'enhanced before the toggle').toBe(1);
+    expect(await page.locator('.jn-dot').count()).toBe(5);
+    expect(await page.locator('.jn-steps').getAttribute('aria-live'), 'phones rest on polite, not the silent auto-pass').toBe('polite');
+
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+
+    // The change event is async, so every assertion here must retry: a bare
+    // count() reads the panel before site.js has reacted.
+    await expect(page.locator('.jn-live'), 'the slide layout is dropped').toHaveCount(0);
+    await expect(page.locator('.jn-nav'), 'the dots and Play/Pause go with it').toHaveCount(0);
+    await expect(page.locator('.jn-step')).toHaveCount(5);
+    await expect.poll(() => page.locator('.jn-steps').getAttribute('aria-live'),
+      { message: 'no live region: all five steps appear at once, and the unenhanced markup has none' })
+      .toBeNull();
+  });
 });
 
 // A visitor whose browser runs no scripts gets the same five-item list, and the
