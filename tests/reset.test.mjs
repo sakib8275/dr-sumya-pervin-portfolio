@@ -23,7 +23,9 @@ test('reset helper functions format and hash tokens correctly', async () => {
 });
 
 test('forgot-password sends reset link if email matches admin_email', async () => {
-  const email = 'dr.enamtalha@gmail.com';
+  // The practice inbox — the value migration 005 sets in production and the
+  // mailer Worker's allowlist now pins. Any other address must not match.
+  const email = 'appointments@drsumyapervin.com';
   // Seed admin_email in database
   await h.db
     .prepare('UPDATE admin_settings SET admin_email = ? WHERE id = 1')

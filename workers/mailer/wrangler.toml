@@ -1,3 +1,8 @@
+# The outbound mail relay for the Pages project. Deployed with
+# `cd workers/mailer && npx wrangler deploy` from THIS directory, never the
+# repo root: the root wrangler.toml is the Pages project and the two must
+# never be merged. No public route — its only caller is the Pages Function's
+# MAILER service binding, authenticated with the MAIL_SECRET shared secret.
 name = "dr-sumya-mailer"
 main = "index.js"
 compatibility_date = "2026-07-29"
@@ -5,7 +10,19 @@ workers_dev = false
 
 [[send_email]]
 name = "EMAIL"
-destination_address = "dr.enamtalha@gmail.com"
+# The practice inbox — Email Routing forwards it to the doctor's mailbox. It
+# must be a Cloudflare-VERIFIED destination address before this Worker's first
+# deploy: an unverified address fails every send with "2054: destination
+# address is not verified", which the caller logs as
+# auth.reset_send_failure / appointment.notify_failure.
+destination_address = "appointments@drsumyapervin.com"
 
 [vars]
 MAIL_FROM = "digest@drsumyapervin.com"
+
+# Workers Logs. The only caller is a service binding, so from the Pages side a
+# refused send is just a 4xx — the mailer's own reason (a 2054 bounce, a
+# secret mismatch) is visible only here. Volume is trivial; sample everything.
+[observability]
+enabled = true
+head_sampling_rate = 1

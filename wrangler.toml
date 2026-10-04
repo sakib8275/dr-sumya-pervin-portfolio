@@ -25,6 +25,17 @@ database_id = "d2ce7968-38ce-4329-86a9-b60d3b48f414"  # created 2026-07-30, regi
 binding = "GALLERY_BUCKET"
 bucket_name = "dr-sumya-gallery"
 
+# Outbound email relay. Pages Functions cannot hold send_email bindings, so
+# password-reset and booking-notification mail goes through the dr-sumya-mailer
+# Worker (workers/mailer) over this binding; that Worker owns the send_email
+# binding and the recipient allowlist. MAIL_SECRET (the shared X-Mail-Secret)
+# is a secret on BOTH sides, never a [var] — set the same value each time:
+#   cd workers/mailer && npx wrangler secret put MAIL_SECRET
+#   npx wrangler pages secret put MAIL_SECRET
+[[services]]
+binding = "MAILER"
+service = "dr-sumya-mailer"
+
 # JWT_SECRET and SITE_SECRET are secrets and must NOT be declared here — values in
 # [vars] ship as plaintext and overwrite the dashboard on every deploy. Set them with:
 #   npx wrangler pages secret put JWT_SECRET

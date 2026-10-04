@@ -31,15 +31,16 @@ database_name = "dr-sumya-pervin-db"
 database_id = "d2ce7968-38ce-4329-86a9-b60d3b48f414"  # created 2026-07-30, region APAC
 
 # Outbound email. The zone's Email Routing (enabled 2026-08-03) authorises this
-# binding; delivery depends on PROBE_TO being a verified destination — it is the
-# same verified recipient the digest uses (dr.enamtalha@gmail.com, verified
-# 2026-08-03 16:13 UTC).
+# binding; delivery depends on PROBE_TO being a verified destination — the
+# practice inbox, the same address the digest and mailer send to (moved off
+# the personal gmail 2026-10-04; must be Cloudflare-verified before this
+# redeploys).
 [[send_email]]
 name = "EMAIL"
 
 [vars]
 PROBE_FROM = "digest@drsumyapervin.com"
-PROBE_TO = "dr.enamtalha@gmail.com"
+PROBE_TO = "appointments@drsumyapervin.com"
 PROBE_URL = "https://drsumyapervin.com/api/config/public"
 
 # Workers Logs. The only output of a healthy run is a log line and the only

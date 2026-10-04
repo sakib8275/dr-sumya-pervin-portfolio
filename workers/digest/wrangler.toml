@@ -46,14 +46,15 @@ name = "EMAIL"
 #
 #   DIGEST_FROM — an address on the zone. Email Routing is enabled here, which is
 #                 what authorises the send_email binding to use it.
-#   DIGEST_TO   — must be a VERIFIED destination. Added 2026-08-03 and VERIFIED
-#                 the same day at 16:13 UTC, so the send path is open. If this
-#                 ever changes to a fresh address, the new one starts
-#                 unverified and every send fails with a "not verified" error,
-#                 which runDigest logs as `send-failed`.
+#   DIGEST_TO   — must be a VERIFIED destination. Was dr.enamtalha@gmail.com
+#                 (verified 2026-08-03); moved 2026-10-04 to the practice
+#                 inbox, which Email Routing forwards to the doctor's mailbox.
+#                 The new address must be verified BEFORE this redeploys, else
+#                 every send fails with a "not verified" error, which runDigest
+#                 logs as `send-failed`.
 [vars]
 DIGEST_FROM = "digest@drsumyapervin.com"
-DIGEST_TO = "dr.enamtalha@gmail.com"
+DIGEST_TO = "appointments@drsumyapervin.com"
 
 # Workers Logs. This Worker's only trigger is cron and its only output is an
 # email nobody in this repo can read, so without logs a failed run is invisible:

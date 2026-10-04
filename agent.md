@@ -70,10 +70,15 @@ Portfolio Sumya Pervin/
 │       │   └── public.js         # GET: WhatsApp/Telegram only, no auth
 │       └── contact.js            # POST: submit, GET (with secret): list
 ├── workers/                      # Standalone Workers — deployed separately, NOT part of Pages
-│   └── digest/                   # F8: daily per-chamber digest email (cron-only, no fetch handler)
-│       ├── index.js              # scheduled() + the send_email transport
-│       ├── digest.js             # All logic; pure, imports functions/lib/schedule.js
-│       └── wrangler.toml         # Own config: D1 (read-only in practice) + send_email
+│   ├── mailer/                   # Outbound mail relay for the Pages project (fetch, service-binding only)
+│   │   ├── index.js              # Entry: X-Mail-Secret check → send_email transport
+│   │   ├── mailer.js             # Pure handler + the single-recipient allowlist (node-tested)
+│   │   └── wrangler.toml         # Own config: send_email pinned to the verified practice inbox
+│   ├── digest/                   # F8: daily per-chamber digest email (cron-only, no fetch handler)
+│   │   ├── index.js              # scheduled() + the send_email transport
+│   │   ├── digest.js             # All logic; pure, imports functions/lib/schedule.js
+│   │   └── wrangler.toml         # Own config: D1 (read-only in practice) + send_email
+│   └── probe/                    # F11: uptime probe every 30 min (cron-only) — emails on transitions
 ├── migrations/
 │   └── 001_schema.sql            # D1: 4 tables + seeded admin credential
 ├── tests/                        # `npm test` (node + Miniflare, 295) · tests/e2e/ `npm run test:e2e` (Playwright, 44+)
@@ -238,6 +243,7 @@ Set with `npx wrangler pages secret put <NAME>` (Pages), or `.dev.vars` locally.
 | `JWT_SECRET` | secret | Strong random string for signing JWT tokens. No fallback — unset means login 500s. |
 | `SITE_SECRET` | secret | Access code for viewing contact messages via API. No fallback. |
 | `ALLOWED_ORIGIN` | var | Site origin allowed through CORS. Safe to keep in `wrangler.toml`. |
+| `MAIL_SECRET` | secret | Shared `X-Mail-Secret` for the dr-sumya-mailer Worker (password resets, booking notifications). The SAME value must also live on the Worker itself: `cd workers/mailer && npx wrangler secret put MAIL_SECRET`. |
 
 ### Deploy to Production
 ```bash
@@ -258,8 +264,16 @@ npx wrangler d1 execute dr-sumya-pervin-db --remote --file=migrations/001_schema
 # Set secrets — "pages secret", not "secret"
 npx wrangler pages secret put JWT_SECRET
 npx wrangler pages secret put SITE_SECRET
+npx wrangler pages secret put MAIL_SECRET        # same value as the mailer Worker's, below
 
-# Deploy — publishes public/ per wrangler.toml
+# Deploy the mailer Worker (first time + whenever workers/mailer changes).
+# Its recipient must already be a Cloudflare-VERIFIED Email Routing
+# destination, or every send fails 2054 and callers log
+# auth.reset_send_failure / appointment.notify_failure.
+cd workers/mailer && npx wrangler secret put MAIL_SECRET && npx wrangler deploy && cd ../..
+
+# Deploy — publishes public/ per wrangler.toml and binds MAILER →
+# dr-sumya-mailer via [[services]]
 npx wrangler pages deploy
 
 # Then confirm the repo root is NOT reachable:
@@ -338,11 +352,16 @@ and copy the crons it demands.
 
 Email is gated on human dashboard work (HUMAN-TASKS Task 13): Email Routing
 enabled on the zone, a **verified** destination inbox, and the `digest@` sender.
-All three were completed on 2026-08-03. Until `DIGEST_TO` is set in its
-`wrangler.toml`, the Worker logs "not configured" at each cutoff and sends
-nothing; if it points at an *unverified* address, every send fails with
-`2054: destination address is not verified`, which `runDigest` logs as
-`send-failed`.
+The verified destination moved 2026-10-04 from `dr.enamtalha@gmail.com` to the
+practice inbox `appointments@drsumyapervin.com` (Email Routing forwards it to
+the doctor's mailbox) — the same address the mailer Worker allowlists and
+`admin_settings.admin_email` holds. With `DIGEST_TO` unset the Worker logs
+"not configured" at each cutoff and sends nothing; pointed at an *unverified*
+address, every send fails with `2054: destination address is not verified`,
+which `runDigest` logs as `send-failed`. The same constraint applies to the
+mailer Worker (`workers/mailer`): password-reset and booking-notification mail
+reach it over the Pages project's `MAILER` service binding, and it delivers to
+that one allowlisted address only.
 
 > [!IMPORTANT]
 > **Keep `[observability]` enabled on this Worker.** It has no fetch handler and

@@ -1,7 +1,12 @@
 // Pure mailer handler logic. Testable in Node without workerd or network bindings.
 import { buildMimeMessage } from '../lib/email.js';
 
-export const ALLOWED_RECIPIENT = 'dr.enamtalha@gmail.com';
+// The single address this Worker will deliver to — the practice inbox, which
+// Email Routing forwards to the doctor's real mailbox. It must stay a
+// Cloudflare-verified destination (wrangler.toml pins the same address on the
+// send_email binding), and admin_settings.admin_email on the Pages side must
+// hold it too, or every send is refused here with a 400.
+export const ALLOWED_RECIPIENT = 'appointments@drsumyapervin.com';
 
 function safeEqual(a, b) {
   if (typeof a !== 'string' || typeof b !== 'string') return false;

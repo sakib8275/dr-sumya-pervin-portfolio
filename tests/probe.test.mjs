@@ -269,5 +269,5 @@ test('the probe wrangler.toml carries a 30-min cron and no public URL', async ()
   assert.match(toml, /binding = "DB"/);
   assert.match(toml, /name = "EMAIL"/);
   assert.match(toml, /PROBE_FROM = "digest@drsumyapervin.com"/);
-  assert.match(toml, /PROBE_TO = "dr\.enamtalha@gmail\.com"/);
+  assert.match(toml, /PROBE_TO = "appointments@drsumyapervin\.com"/);
 });
