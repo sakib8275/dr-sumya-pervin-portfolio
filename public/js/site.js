@@ -210,6 +210,12 @@ import { writePrefill, takePrefill } from './prefill.mjs';
       // A skipped transition rejects `finished` with AbortError — the replay's
       // skipTransition below, or a newer transition superseding this one.
       // That is the routine path, not an error; anything else still throws.
+      // `ready` rejects the same way (skip, supersede, or the page navigating
+      // away mid-transition) and nothing here observes it, so keep it out of
+      // the console for the same reason. A capture failure skips with that
+      // same AbortError; the supersede spec pins the mechanism (stray name,
+      // stripped .vt) that would cause one.
+      t.ready.catch((e) => { if (e && e.name !== 'AbortError') throw e; });
     };
     // While a transition plays, the browser hit-tests its overlay, so every
     // click lands on <html> and is lost: close a sheet, tap the next card at
