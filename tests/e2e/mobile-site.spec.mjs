@@ -12,7 +12,8 @@
 //   4. the recommended tier card renders first (§7.3 "recommended card first"),
 //   5. price tables collapse to stacked cards driven by the builder's data-th,
 //   6. the hero journey panel is compact, its dots are 44px, and both CTAs fit
-//      the first screen (also in the no-motion list at 360×640).
+//      the first screen — in the JS-enhanced panel, in the no-motion list at
+//      360×640, and with site.js never loaded at all.
 import { test, expect } from './helpers/site.mjs';
 
 test.describe('mobile 375×667', () => {
@@ -119,5 +120,35 @@ test.describe('mobile 360×640, reduced motion', () => {
     }));
     expect(overflow).toBeLessThanOrEqual(0);
     expect(panelTop, 'the panel starts below the CTAs').toBeGreaterThanOrEqual(ctaBottom);
+  });
+});
+
+// A visitor whose browser runs no scripts gets the same five-item list, and the
+// panel is taller than the 430px bound that pins the JS-enhanced phone layout.
+// site.js is the page's only script; blocking it is the honest no-JS state.
+// (javaScriptEnabled: false instead would leave the panel in the same shape but
+// also disables the measurement this test needs.)
+test.describe('mobile 375×667, no JavaScript', () => {
+  test.use({ viewport: { width: 375, height: 667 } });
+
+  test('all five steps render as a plain list and both CTAs stay in view', async ({ page, site }) => {
+    await page.route('**/js/site.js', (route) => route.abort());
+    await page.goto(site.baseURL + '/', { waitUntil: 'domcontentloaded' });
+
+    expect(await page.locator('.jn-live').count(), 'no enhancement without JS').toBe(0);
+    expect(await page.locator('.jn-nav').count(), 'no dots or Play/Pause without JS').toBe(0);
+    await expect(page.locator('.jn-step')).toHaveCount(5);
+    for (let n = 1; n <= 5; n += 1) {
+      await expect(page.locator(`.jn-step:nth-child(${n}) b`), `step ${n} is visible`).toBeVisible();
+    }
+
+    await expect(page.locator('.h-ctas .btn-ink')).toBeInViewport();
+    await expect(page.locator('.h-ctas .btn-ghost')).toBeInViewport();
+    const { overflow, panelRight } = await page.evaluate(() => ({
+      overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+      panelRight: document.querySelector('.nameplate').getBoundingClientRect().right,
+    }));
+    expect(overflow).toBeLessThanOrEqual(0);
+    expect(panelRight, 'the tall list stays inside the 375px viewport').toBeLessThanOrEqual(375);
   });
 });
