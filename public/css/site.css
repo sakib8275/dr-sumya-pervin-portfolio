@@ -468,8 +468,8 @@ a.chip:hover { background: var(--surface); border-color: var(--nil); color: var(
 /* Live slides: one step at a time, a clip-path wipe in from the right while
    the numeral rises. The outgoing slide stays put underneath until the wipe
    ends (.is-leaving), so there is never an empty frame. */
-.jn-live .jn-steps { position: relative; height: 212px; }
-.jn-live .jn-step { position: absolute; inset: 0; display: block; padding: 12px 0 0; border: 0; background: var(--nil-deep); visibility: hidden; }
+.jn-live .jn-steps { display: grid; min-height: 212px; align-content: start; }
+.jn-live .jn-step { grid-area: 1 / 1; display: block; padding: 12px 0 0; border: 0; background: var(--nil-deep); visibility: hidden; }
 .jn-live .jn-step.is-active, .jn-live .jn-step.is-leaving { visibility: visible; }
 .jn-live .jn-step.is-active { z-index: 2; animation: jn-wipe var(--t-focal) var(--ease-out) both; }
 .jn-live .jn-num {
@@ -479,18 +479,20 @@ a.chip:hover { background: var(--surface); border-color: var(--nil); color: var(
 .jn-live .is-active .jn-num { animation: jn-rise var(--t-focal) var(--ease-out) both; }
 .jn-live .jn-step b { display: block; margin-top: 14px; font-size: 1.5rem; line-height: 1.15; }
 .jn-live .jn-step p { margin-top: 6px; max-width: 34ch; font-size: 1rem; }
-.jn-nav { display: none; align-items: center; gap: 4px; margin-top: 4px; }
+.jn-nav { display: none; align-items: center; gap: 0; }
 .jn-live .jn-nav { display: flex; }
-.jn-dot { width: 40px; height: 28px; padding: 12px 4px; background: none; border: 0; cursor: pointer; }
-.jn-dot::before { content: ""; display: block; height: 3px; border-radius: 2px; background: var(--rule-dark); transition: background var(--t-state) var(--ease); }
+/* 44x44 hit area (WCAG 2.5.8 / the site's tap-target rule); the visible bar stays 3px. */
+.jn-dot { position: relative; width: 44px; height: 44px; padding: 0; background: none; border: 0; cursor: pointer; }
+.jn-dot::before { content: ""; position: absolute; left: 4px; right: 4px; top: 50%; margin-top: -1.5px; height: 3px; border-radius: 2px; background: var(--rule-dark); transition: background var(--t-state) var(--ease); }
 .jn-dot[aria-current="true"]::before { background: var(--haldi); }
 .jn-dot:hover::before { background: var(--on-nil); }
 .jn-dot[aria-current="true"]:hover::before { background: var(--haldi); }
-.jn-pause { margin-left: auto; min-height: 28px; padding: 0 4px; background: none; border: 0; cursor: pointer; font: inherit; font-size: 0.8125rem; color: var(--on-nil); text-decoration: underline; text-underline-offset: 3px; }
+.jn-pause { margin-left: auto; min-height: 44px; min-width: 44px; padding: 0 4px; background: none; border: 0; cursor: pointer; font: inherit; font-size: 0.8125rem; color: var(--on-nil); text-decoration: underline; text-underline-offset: 3px; }
 .jn-pause:hover { color: #fff; }
 .np-body { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--rule-dark); }
 .np-role { font-size: 0.75rem; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--on-nil); }
 .np-name { margin-top: 4px; font-size: 1.375rem; font-weight: 600; color: #fff; }
+.np-line { margin-top: 4px; font-size: 0.90625rem; color: var(--on-nil); }
 .np-creds { list-style: none; display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
 .np-creds .pill { background: transparent; color: #fff; border-color: var(--rule-dark); }
 .np-creds .pill.gold { background: var(--haldi); color: var(--ink); border-color: var(--haldi); }
@@ -902,12 +904,13 @@ a.chip:hover { background: var(--surface); border-color: var(--nil); color: var(
   .h-hero .wrap { padding-block: 48px 56px; }
   .h-sub { font-size: 1.0625rem; }
   .nameplate { width: 100%; padding: 22px 20px 18px; }
-  .jn-live .jn-steps { height: 190px; }
+  .jn-live .jn-steps { min-height: 176px; }
+  .jn-pause { display: none; }
   .jn-live .jn-num { font-size: 4.5rem; }
   .jn-live .jn-step b { margin-top: 10px; font-size: 1.25rem; }
   .jn-live .jn-step p { font-size: 0.9375rem; }
   .np-body { margin-top: 12px; padding-top: 12px; }
-  .np-name, .np-note { display: none; }
+  .np-name, .np-line, .np-note { display: none; }
   .np-creds { margin-top: 8px; gap: 6px; }
   .np-creds .pill { font-size: 0.75rem; padding: 3px 9px; }
 

@@ -50,7 +50,7 @@ import { writePrefill, takePrefill } from './prefill.mjs';
       const dot = document.createElement('button');
       dot.type = 'button';
       dot.className = 'jn-dot';
-      dot.setAttribute('aria-label', `Step ${i + 1}: ${step.querySelector('b').textContent}`);
+      dot.setAttribute('aria-label', `Step ${i + 1} of ${steps.length}: ${step.querySelector('b').textContent}`);
       dot.addEventListener('click', () => { halt(); show(i); });
       nav.append(dot);
       return dot;
@@ -58,9 +58,12 @@ import { writePrefill, takePrefill } from './prefill.mjs';
     const pause = document.createElement('button');
     pause.type = 'button';
     pause.className = 'jn-pause';
+    pause.textContent = 'Pause';
     nav.append(pause);
-    journey.querySelector('.jn-steps').after(nav);
+    const list = journey.querySelector('.jn-steps');
+    list.after(nav);
     journey.classList.add('jn-live');
+    list.setAttribute('aria-live', 'off');
     let current = -1, timer = null, held = false, stopped = false;
     const phone = window.matchMedia('(max-width: 820px)');
     function show(i) {
@@ -80,10 +83,12 @@ import { writePrefill, takePrefill } from './prefill.mjs';
       if (stopped || held || phone.matches || current >= steps.length - 1) return;
       timer = setTimeout(() => { show(current + 1); tick(); }, 5000);
     }
-    function halt() { stopped = true; clearTimeout(timer); pause.textContent = 'Play'; }
+    // Screen readers hear a step change only once the visitor drives it; the
+    // automatic pass stays silent (aria-live off).
+    function halt() { stopped = true; clearTimeout(timer); pause.textContent = 'Play'; list.setAttribute('aria-live', 'polite'); }
     pause.addEventListener('click', () => {
       if (stopped) {
-        stopped = false; pause.textContent = 'Pause';
+        stopped = false; pause.textContent = 'Pause'; list.setAttribute('aria-live', 'off');
         if (current >= steps.length - 1) show(0);
         tick();
       } else halt();
@@ -92,8 +97,16 @@ import { writePrefill, takePrefill } from './prefill.mjs';
     journey.addEventListener('pointerleave', () => { held = false; tick(); });
     journey.addEventListener('focusin', () => { held = true; clearTimeout(timer); });
     journey.addEventListener('focusout', () => { held = false; tick(); });
-    pause.textContent = phone.matches ? 'Play' : 'Pause';
+    // Reduced motion turned on mid-visit: stop, and fall back to the plain list.
+    calmMotion.addEventListener('change', () => {
+      if (!calmMotion.matches) return;
+      stopped = true; clearTimeout(timer);
+      journey.classList.remove('jn-live');
+      steps.forEach((st) => st.classList.remove('is-active', 'is-leaving'));
+      nav.remove();
+    });
     stopped = phone.matches;
+    if (stopped) list.setAttribute('aria-live', 'polite');
     show(0);
     setTimeout(tick, 1400);
   }

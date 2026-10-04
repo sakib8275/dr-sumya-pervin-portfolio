@@ -16,6 +16,7 @@ import { fileURLToPath } from 'node:url';
 import { repoRoot } from './helpers/harness.mjs';
 import { PAGES } from '../content/sitemap.mjs';
 import { BASE, SITE } from '../content/site.mjs';
+import { JOURNEY } from '../content/pages/home.mjs';
 
 const OUT = join(repoRoot, 'public');
 
@@ -265,4 +266,16 @@ test('no unapproved Bangla draft reaches a built page', async () => {
       if (!entry.approved) assert.ok(!html.includes(entry.text), `${page.path}: unapproved Bangla draft for ${path} is published`);
     }
   }
+});
+
+test('the hero journey panel and the timeline publish the same five step titles', async () => {
+  const html = await readFile(join(OUT, 'index.html'), 'utf8');
+  const panel = html.slice(html.indexOf('data-journey'), html.indexOf('np-note'));
+  const timeline = html.slice(html.indexOf('h-steps'));
+  assert.equal(JOURNEY.length, 5);
+  for (const [title, line] of JOURNEY) {
+    assert.ok(panel.includes(`<b>${title}</b>`) && panel.includes(line), `hero panel is missing step "${title}"`);
+    assert.ok(timeline.includes(`<b>${title}</b>`) && timeline.includes(line), `timeline is missing step "${title}"`);
+  }
+  assert.match(panel, /Skin, Hair, Nail, Allergy &amp; Venereal Diseases/, 'the approved specialty line stays in the hero panel');
 });

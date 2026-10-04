@@ -11,8 +11,8 @@
 //      CSS pinned them at top:0 where they slid underneath it and vanished,
 //   4. the recommended tier card renders first (§7.3 "recommended card first"),
 //   5. price tables collapse to stacked cards driven by the builder's data-th,
-//   6. the hero credential plate is a compact strip and both CTAs fit the
-//      first screen.
+//   6. the hero journey panel is compact, its dots are 44px, and both CTAs fit
+//      the first screen (also in the no-motion list at 360×640).
 import { test, expect } from './helpers/site.mjs';
 
 test.describe('mobile 375×667', () => {
@@ -86,8 +86,36 @@ test.describe('mobile 375×667', () => {
   test('hero journey panel is compact and both CTAs fit the first screen', async ({ page, site }) => {
     await page.goto(site.baseURL + '/', { waitUntil: 'networkidle' });
     const strip = await page.evaluate(() => document.querySelector('.nameplate').getBoundingClientRect().height);
-    expect(strip, 'the phone journey panel stays short (one step, creds; not the 5-item list)').toBeLessThan(440);
+    expect(strip, 'the phone journey panel shows one step + credentials (~410px), not the 5-item list').toBeLessThan(430);
     await expect(page.locator('.h-ctas .btn-ink')).toBeInViewport();
     await expect(page.locator('.h-ctas .btn-ghost')).toBeInViewport();
+  });
+
+  test('journey step dots are 44px tap targets and the Play/Pause no-op is hidden on phones', async ({ page, site }) => {
+    await page.goto(site.baseURL + '/', { waitUntil: 'networkidle' });
+    const boxes = await page.$$eval('.jn-dot', (els) => els.map((e) => { const r = e.getBoundingClientRect(); return [r.width, r.height]; }));
+    expect(boxes.length, 'one dot per consultation step').toBe(5);
+    for (const [w, h] of boxes) { expect(w).toBeGreaterThanOrEqual(44); expect(h).toBeGreaterThanOrEqual(44); }
+    await expect(page.locator('.jn-pause')).toBeHidden();
+  });
+});
+
+// The no-motion fallback lists all five steps, so the panel is tall; it must
+// sit BELOW the CTAs and never push them off the first screen or sideways.
+test.describe('mobile 360×640, reduced motion', () => {
+  test.use({ viewport: { width: 360, height: 640 }, reducedMotion: 'reduce' });
+
+  test('the plain five-step list keeps the primary CTA in view and does not overflow', async ({ page, site }) => {
+    await page.goto(site.baseURL + '/', { waitUntil: 'networkidle' });
+    expect(await page.locator('.jn-live').count(), 'reduced motion leaves the static list').toBe(0);
+    await expect(page.locator('.jn-step')).toHaveCount(5);
+    await expect(page.locator('.h-ctas .btn-ink')).toBeInViewport();
+    const { overflow, ctaBottom, panelTop } = await page.evaluate(() => ({
+      overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+      ctaBottom: document.querySelector('.h-ctas').getBoundingClientRect().bottom,
+      panelTop: document.querySelector('.nameplate').getBoundingClientRect().top,
+    }));
+    expect(overflow).toBeLessThanOrEqual(0);
+    expect(panelTop, 'the panel starts below the CTAs').toBeGreaterThanOrEqual(ctaBottom);
   });
 });

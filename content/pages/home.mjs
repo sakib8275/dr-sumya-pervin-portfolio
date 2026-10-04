@@ -71,7 +71,7 @@ const NO_LIST = [
 ];
 
 // The five consultation steps: one source for the hero panel and the timeline.
-const JOURNEY = [
+export const JOURNEY = [
   ['History', 'Bring your creams and old prescriptions. We ask what you have tried.'],
   ['Examination', 'A proper look, with dermoscopy — a magnified skin check — where it helps.'],
   ['Tests — only if useful', 'Explained and priced before anything is done.'],
@@ -96,7 +96,7 @@ export default function home() {
       <p class="h-alt">Not sure what you need? <a class="tlink" href="${href('/consultation-prep/')}">See what your first visit will involve</a> (2-minute check)</p>
     </div>
     <div class="h-hero-figure">
-      <div class="nameplate" data-journey>
+      <div class="nameplate" data-journey role="group" aria-roledescription="carousel" aria-label="Your first visit, in five steps">
         <p class="jn-eyebrow">Your first visit</p>
         <ol class="jn-steps">${JOURNEY.map(([t, d], i) => `
           <li class="jn-step"><span class="jn-num" aria-hidden="true">0${i + 1}</span><b>${t}</b><p>${d}</p></li>`).join('')}
@@ -104,6 +104,7 @@ export default function home() {
         <div class="np-body">
           <p class="np-role">Consultant Dermatologist</p>
           <p class="np-name">${SITE.name}</p>
+          <p class="np-line">Skin, Hair, Nail, Allergy &amp; Venereal Diseases</p>
           <ul class="np-creds">
             <li class="pill">MBBS</li>
             <li class="pill">DDV (BSMMU)</li>
