@@ -78,7 +78,7 @@ import { writePrefill, takePrefill } from './prefill.mjs';
         setTimeout(() => prev.classList.remove('is-leaving'), 760);
       }
       steps[i].classList.add('is-active');
-      dots.forEach((d, k) => d.setAttribute('aria-current', String(k === i)));
+      dots.forEach((d, k) => { if (k === i) d.setAttribute('aria-current', 'true'); else d.removeAttribute('aria-current'); });
       current = i;
     }
     function tick() {
@@ -101,9 +101,13 @@ import { writePrefill, takePrefill } from './prefill.mjs';
     journey.addEventListener('focusin', () => { held = true; clearTimeout(timer); });
     journey.addEventListener('focusout', () => { held = false; tick(); });
     // Reduced motion turned on mid-visit: stop, and fall back to the plain list.
+    // One-way for the rest of the visit: turning it back off does not re-animate
+    // a page the visitor already asked to keep still.
     calmMotion.addEventListener('change', () => {
       if (!calmMotion.matches) return;
       stopped = true; clearTimeout(timer);
+      // The dots are about to leave the DOM; park focus on the panel, not <body>.
+      const hadFocus = nav.contains(document.activeElement);
       journey.classList.remove('jn-live');
       steps.forEach((st) => st.classList.remove('is-active', 'is-leaving'));
       nav.remove();
@@ -111,6 +115,11 @@ import { writePrefill, takePrefill } from './prefill.mjs';
       // The markup carries no aria-live, so drop it back to that baseline.
       list.removeAttribute('aria-live');
       journey.removeAttribute('aria-roledescription');
+      if (hadFocus) {
+        journey.setAttribute('tabindex', '-1');
+        journey.focus({ preventScroll: true });
+        journey.addEventListener('blur', () => journey.removeAttribute('tabindex'), { once: true });
+      }
     });
     stopped = phone.matches;
     if (stopped) list.setAttribute('aria-live', 'polite');

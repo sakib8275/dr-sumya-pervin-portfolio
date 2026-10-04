@@ -70,7 +70,6 @@ rounded:
   card: "20px"
   tier: "22px"
   pill: "999px"
-  arch: "215px 215px 20px 20px"
 spacing:
   xs: "8px"
   sm: "14px"

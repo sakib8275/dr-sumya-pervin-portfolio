@@ -124,6 +124,14 @@ test.describe('mobile 360×640, reduced motion', () => {
     expect(panelTop, 'the panel starts below the CTAs').toBeGreaterThanOrEqual(ctaBottom);
   });
 
+  test('reduced motion turning on while a dot has focus parks focus on the panel, not <body>', async ({ page, site }) => {
+    await page.goto(site.baseURL + '/', { waitUntil: 'networkidle' });
+    await page.locator('.jn-dot').nth(2).focus();
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await expect(page.locator('.jn-nav')).toHaveCount(0);
+    await expect.poll(() => page.evaluate(() => document.activeElement && document.activeElement.hasAttribute('data-journey'))).toBe(true);
+  });
+
   // site.js reads the preference once at init AND listens for the change, so a
   // visitor who turns reduced motion on mid-visit is not left in the slides.
   test('turning reduced motion on mid-visit falls back to the plain list', async ({ page, site }) => {
