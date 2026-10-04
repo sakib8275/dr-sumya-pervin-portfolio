@@ -1,0 +1,58 @@
+# Brand kit
+
+Everything the practice needs around the approved **Signature SP** mark: logo files, social images, the written-plan pad, letterhead, cards and chamber nameboards. Open `index.html` in a browser to see every piece with its download links and usage rules.
+
+Every file here is generated. Do not edit the files directly: edit the source and rerun the build.
+
+```sh
+npm run build:brand-kit
+```
+
+| Source | What it controls |
+|---|---|
+| `content/brand.mjs` | The mark (the same paths the website draws) |
+| `content/site.mjs` | Name, phone, domain, BMDC number, chambers |
+| `functions/lib/schedule.js` | Days, hours and the same-day serial cutoff |
+| `scripts/render-brand-kit.mjs` | Layout of every piece, and the printed title, specialty and qualifications |
+| `type-paths.json` | The outlined name and descriptor in the logo SVGs |
+
+When the name or the descriptor wording changes, regenerate `type-paths.json` first. This needs Python with `fonttools` and `uharfbuzz`:
+
+```sh
+python design/brand-kit/tools/outline-type.py
+```
+
+The fonts, Outfit and Hind Siliguri (both OFL), are downloaded once into `.cache/`, which git ignores.
+
+## Contents
+
+| Folder | Files | Use |
+|---|---|---|
+| `logo/` | `mark`, `horizontal`, `stacked` × `indigo`, `reverse`, `black`, as SVG and PNG | The SVG type is outlined, so it prints correctly without Outfit installed. `reverse` is white, for Deep Nil or dark grounds. |
+| `digital/` | `profile-1080.png` | WhatsApp Business, Facebook, Google Business Profile and Instagram. Drawn for the circle crop. |
+| | `cover-facebook-1640x624.png` | Facebook page cover. The text stays inside the area phones keep. |
+| | `post-chamber-hours-1080.png` | WhatsApp status or a pinned post. Rerender it when the hours change. |
+| | `email-signature.html` | Open it in a browser, copy the rendered signature and paste it into the mail client's settings. |
+| `print/` | `written-plan-a4.pdf` | The prescription and plan pad, in pads of 50 or 100 sheets. |
+| | `letterhead-a4.pdf` | Referral letters and medical certificates. |
+| | `visiting-card-89x51.pdf` | 3.5 × 2 in visiting card, front and back. |
+| | `follow-up-card-89x51.pdf` | The next-visit card, filled in by hand at the desk. |
+| | `nameboard-<chamber>-a3.pdf` | A3 landscape board for each chamber door. |
+
+The print PDFs are trim size plus **3 mm bleed** on every side, with no crop marks. Tell the printer the trim size from the table, and ask for a printed proof on the chosen stock before the full run. The PDFs are RGB, so deep indigo shifts between presses.
+
+## Decisions taken for the owner
+
+Dr. Sumya delegated these decisions on 2026-10-04.
+
+- **The mark is unchanged.** The curved skin contour was discussed and kept.
+- **Printed credentials use only the confirmed wording:** Consultant Dermatologist; Skin, Hair, Nail, Allergy & Venereal Diseases; MBBS (SSMC) · DDV (BSMMU) · FCPS (Skin & VD); BMDC Reg. A-59492.
+- **Lockup type is Outfit 500,** one step lighter than the site header, so the name weighs the same as the monoline mark.
+- **The share card (`public/assets/og-card.png`) is flat Deep Nil,** with the radial glow removed, following DESIGN.md's "no gradient under text".
+
+## Open: needs the owner
+
+1. **The current post and BCS (Health).** PRODUCT.md lists "Assistant Professor, Department of Skin & VD, Sir Salimullah Medical College & Mitford Hospital" and "BCS (Health)". The confirmed content says she *served* in that department. If both are current, add them to `F` in the script and rerun.
+2. **"MD" in the site title.** `content/site.mjs` titles her "Dr. Sumya Pervin, MD", but no MD degree appears in her qualifications. The kit leaves it out. The website title should be checked too.
+3. **Bangla.** The follow-up card and nameboards would serve more patients with a Bangla line. Bangla needs her approval of the exact wording and the spelling of her name, so none is printed yet.
+4. **The Centre (2027).** The kit has no Centre lockup or signage. These come once the Centre is real.

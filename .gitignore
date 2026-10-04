@@ -38,3 +38,6 @@ logs_*/
 
 # LibreOffice in-edit lock files inside Change Request/.
 .~lock*
+
+# Impeccable finish-review screenshots. Regenerated per review round.
+.impeccable/review/
