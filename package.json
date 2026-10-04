@@ -9,7 +9,7 @@
     "build:brand": "node scripts/render-brand-assets.mjs",
     "seed-pin": "node scripts/generate-pin-seed.mjs",
     "pretest": "node scripts/build-test-worker.mjs",
-    "test": "node --test tests/*.test.mjs",
+    "test": "node --test --test-concurrency=1 tests/*.test.mjs",
     "pretest:e2e": "node scripts/build-test-worker.mjs",
     "test:e2e": "playwright test",
     "backup:d1": "node scripts/backup-d1.mjs"
