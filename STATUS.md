@@ -34,10 +34,12 @@ approved specialty line is back in the panel (hidden ≤820px, as it was on
 master). Recommendations: `tests/pages.test.mjs` fails if the hero panel and the
 timeline step copy drift apart, Play/Pause is hidden where nothing
 auto-advances, the panel is a labelled carousel group with `"Step n of 5: …"` dot
-names and an `aria-live` that goes polite only once the visitor drives it, the
-slides stack in a `min-height` grid so zoom grows the box instead of clipping,
-and turning reduced motion on mid-visit falls back to the list.
-**324 node + 54 e2e green locally and in CI.** The apex still serves the arched
+names and an `aria-live` that goes polite only once the visitor drives it — and
+is dropped again when reduced motion returns the list, so the five steps that
+appear at once are not all read out — the slides stack in a `min-height` grid so
+zoom grows the box instead of clipping, and turning reduced motion on mid-visit
+falls back to the list, pinned by a spec that toggles the preference after load.
+**324 node + 55 e2e green locally and in CI.** The apex still serves the arched
 nameplate (deployment `34cadcbe`); merging and the gated deploy are owner
 actions.
 
