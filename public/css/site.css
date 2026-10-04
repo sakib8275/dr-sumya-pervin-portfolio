@@ -91,6 +91,8 @@ p, li { text-wrap: pretty; }
   border-radius: 0 0 12px 12px; transition: top .2s var(--ease);
 }
 .skip-link:focus { top: 0; }
+/* Visually hidden, still read by screen readers and the heading outline. */
+.vh { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 
 .eyebrow {
   font-size: 0.75rem; font-weight: 700; letter-spacing: .14em;
@@ -182,6 +184,12 @@ a.chip:hover { background: var(--surface); border-color: var(--nil); color: var(
   color: var(--ink); min-height: 44px; padding: 8px 2px; cursor: pointer;
 }
 .nav-drop-btn:hover, .nav-drop-btn[aria-expanded="true"] { color: var(--nil); }
+/* Where you are: the build stamps aria-current on the nav item whose family
+   the page belongs to (sectionOf in content/site.mjs) and on drawer rows that
+   are the page itself. Emphasis follows the site idiom: indigo plus the
+   drawn underline, never a box. */
+.s-menu > a[aria-current], .nav-drop-btn[aria-current], .drawer-links a[aria-current] { color: var(--nil); }
+.s-menu > a[aria-current] { text-decoration: underline; text-decoration-thickness: 1.5px; text-underline-offset: .28em; }
 .ico-chev { width: 12px; height: 12px; flex: none; transition: transform .2s var(--ease); }
 .nav-drop-btn[aria-expanded="true"] .ico-chev { transform: rotate(180deg); }
 .mega {
@@ -203,16 +211,18 @@ a.chip:hover { background: var(--surface); border-color: var(--nil); color: var(
   font-size: 0.6875rem; font-weight: 700; letter-spacing: .12em;
   text-transform: uppercase; color: var(--ink-2); margin-bottom: 10px;
 }
-.mega a { display: block; padding: 4px 0; font-weight: 500; color: var(--ink); font-size: 0.875rem; }
-.mega a:hover { color: var(--nil); }
+.mega > div a { display: block; padding: 6px 0; font-weight: 500; color: var(--ink); font-size: 0.875rem; }
+.mega > div a:hover { color: var(--nil); }
 .mega-feature {
   grid-column: 1 / -1; border: 1px solid var(--rule); background: var(--paper-2);
   border-radius: 14px; padding: 14px 16px; display: block;
 }
 .mega-feature b { display: block; color: var(--ink); }
 .mega-feature span { font-size: 0.8125rem; color: var(--ink-2); }
-.mega-foot { margin-top: 4px; font-weight: 700; color: var(--nil) !important; }
-.burger { display: none; background: none; border: 1.5px solid var(--ink); border-radius: 10px;
+/* Full width, like the feature band: as a bare grid child it used to land in
+   one narrow column track and wrap its arrow onto its own line. */
+.mega-foot { grid-column: 1 / -1; margin-top: 4px; font-weight: 700; color: var(--nil) !important; }
+.burger { display: none; background: none; border: 1.5px solid var(--ink); border-radius: 999px;
   min-height: 44px; padding: 8px 14px; font: inherit; font-weight: 600; cursor: pointer; }
 
 /* — Drawer (light editorial panel over a scrim) + mobile sticky bar — */
@@ -321,6 +331,9 @@ a.chip:hover { background: var(--surface); border-color: var(--nil); color: var(
 .card p { color: var(--ink-2); font-size: 0.9375rem; margin-bottom: 12px; }
 .card-tag { position: absolute; top: 16px; right: 16px; font-size: 0.75rem; font-weight: 800;
   letter-spacing: .06em; text-transform: uppercase; color: var(--nil); }
+/* The tag hangs top-right; titles keep clear of it instead of running under
+   the badge (read-time chips, PROCEDURE·LASER, FROM YEAR 2). */
+.card:has(.card-tag) h3 { padding-right: 90px; }
 /* — Interactive tools — */
 .tool { background: var(--surface); border: 1px solid var(--rule); border-radius: var(--r-card); padding: 26px; max-width: 76ch; }
 .tool-note { color: var(--ink-2); font-size: 0.875rem; margin-bottom: 18px; }
@@ -754,7 +767,7 @@ a.chip:hover { background: var(--surface); border-color: var(--nil); color: var(
 .pr-prom div { background: var(--paper-2); border-radius: 16px; padding: 20px; }
 .pr-prom b { display: block; margin-bottom: 4px; }
 .pr-prom p { font-size: 0.90625rem; color: var(--ink-2); }
-.pr-foot { text-align: center; font-size: 0.90625rem; color: var(--ink-2); padding-block: 28px; }
+.pr-foot { text-align: center; font-size: 0.90625rem; color: var(--ink-2); padding-block: 28px; max-width: 70ch; margin-inline: auto; }
 
 /* Estimator */
 .pr-est-sec { padding-top: 0; }
@@ -763,7 +776,7 @@ a.chip:hover { background: var(--surface); border-color: var(--nil); color: var(
 .pr-est-gated { grid-template-columns: 1fr; }
 .pr-est-in { padding: 30px; background: var(--surface); }
 .pr-est-in h2 { font-size: 1.875rem; margin: 8px 0 6px; }
-.pr-est-note { font-size: 0.875rem; color: var(--ink-2); margin-bottom: 20px; }
+.pr-est-note { font-size: 0.875rem; color: var(--ink-2); margin-bottom: 20px; max-width: 70ch; }
 .pr-est-form { display: grid; gap: 16px; }
 .pr-est-form label, .pr-est-lab { display: block; font-size: 0.78125rem; font-weight: 700; color: var(--ink-2);
   text-transform: uppercase; letter-spacing: .08em; }

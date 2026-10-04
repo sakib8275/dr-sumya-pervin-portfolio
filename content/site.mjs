@@ -201,6 +201,7 @@ export const NAV = [
           links: [
             ['About Dr. Sumya', '/about/'],
             ['What we don’t offer', '/what-we-do-not-offer/'],
+            ['Community work', '/community/'],
             ['Photo &amp; consent policy', '/photo-consent-policy/'],
           ],
         },
@@ -226,6 +227,43 @@ export const HUB_LABEL = {
   'Aesthetic &amp; Laser': 'All aesthetic &amp; laser',
 };
 
+// Which nav family a page belongs to. One source for three consumers: the
+// breadcrumb hub fallback (article.mjs), the stub page's hub link
+// (build-pages.mjs) and the current-section state in the nav and drawer.
+// A page whose content entry carries an explicit `crumb` overrides the hub
+// this maps to (see content/pages/content/treatments.mjs).
+const SURGICAL_TREATMENTS = new Set([
+  '/treatments/skin-biopsy/',
+  '/treatments/excision-surgery/',
+  '/treatments/electrosurgery/',
+  '/treatments/cryotherapy/',
+  '/treatments/intralesional-injection/',
+  '/treatments/skin-cancer-treatment/',
+]);
+const ABOUT_PAGES = new Set([
+  '/about/', '/what-we-do-not-offer/', '/photo-consent-policy/', '/chambers/',
+  '/contact/', '/faq/', '/the-centre/', '/community/',
+]);
+export function sectionOf(path) {
+  if (!path) return null;
+  if (path.startsWith('/conditions/') || path === '/medical-dermatology/'
+    || path === '/tools/mole-check/' || path === '/tools/skin-check/') return 'conditions';
+  if (path.startsWith('/concerns/') || path === '/aesthetic-and-laser/' || path === '/bridal-and-groom/') return 'aesthetic';
+  if (path === '/skin-surgery/' || path === '/your-procedure/' || SURGICAL_TREATMENTS.has(path)) return 'surgery';
+  if (path.startsWith('/treatments/')) return 'aesthetic';
+  if (path.startsWith('/learn/') || path === '/tools/skin-type-guide/') return 'learn';
+  if (path === '/prices/') return 'prices';
+  if (ABOUT_PAGES.has(path)) return 'about';
+  return null;
+}
+
+// The hub page each family's leaf pages breadcrumb back to.
+export const SECTION_HUB = {
+  conditions: ['Medical dermatology', '/medical-dermatology/'],
+  surgery: ['Skin Surgery', '/skin-surgery/'],
+  aesthetic: ['Aesthetic &amp; laser', '/aesthetic-and-laser/'],
+};
+
 export const FOOTER = {
   care: [
     ['Medical dermatology', '/medical-dermatology/'],
@@ -239,6 +277,7 @@ export const FOOTER = {
     ['Prepare for your visit', '/consultation-prep/'],
     ['Contact &amp; directions', '/contact/'],
     ['The Centre (opening 2027)', '/the-centre/'],
+    ['Skin care products', '/skin-care-products/'],
   ],
   learn: [
     ['Articles', '/learn/'],
@@ -250,6 +289,7 @@ export const FOOTER = {
   trust: [
     ['What we don’t offer', '/what-we-do-not-offer/'],
     ['Photo &amp; consent policy', '/photo-consent-policy/'],
+    ['Community work', '/community/'],
     ['Privacy', '/privacy/'],
     ['Terms · Disclaimer', '/terms/'],
   ],

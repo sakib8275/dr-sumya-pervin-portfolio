@@ -25,7 +25,7 @@
 //
 // CSP-safe by construction: only generated tags, no inline handlers, and every
 // internal link is a sitemap path (tests/pages.test.mjs asserts they resolve).
-import { href, gateVisible, GATE_NOTE, SITE } from '../site.mjs';
+import { href, gateVisible, GATE_NOTE, SITE, sectionOf, SECTION_HUB } from '../site.mjs';
 import { CONTENT } from './content.mjs';
 import { REFERENCES } from '../references.mjs';
 
@@ -33,11 +33,7 @@ import { REFERENCES } from '../references.mjs';
 // condition, concern, treatment and Learn-article pages (not hubs or legal).
 const CLINICAL = (path) => /^\/(conditions|concerns|treatments)\//.test(path) || /^\/learn\/.+\//.test(path);
 
-const HUB = (path) => {
-  if (path.startsWith('/conditions/')) return ['Medical dermatology', '/medical-dermatology/'];
-  if (path.startsWith('/concerns/') || path.startsWith('/treatments/')) return ['Aesthetic &amp; laser', '/aesthetic-and-laser/'];
-  return null;
-};
+const HUB = (path) => SECTION_HUB[sectionOf(path)] || null;
 
 const list = (items) => `<ul>${items.map((i) => `<li>${i}</li>`).join('')}</ul>`;
 const defs = (items) => `<ul class="defs">${items.map(([b, t]) => `<li><b>${b}</b> ${t}</li>`).join('')}</ul>`;

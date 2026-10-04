@@ -226,7 +226,7 @@ export const aesthetic = {
       { h2: 'Possible side effects', body: 'Temporary redness and bumps, rarely blistering or colour change. Every setting is logged and reviewed.' },
     ],
     cost: 'XS ৳3,000 · S ৳5,000 · M ৳9,000 · L ৳14,000 · Full body ৳35,000 per session; 6 sessions for the price of 5.',
-    links: [['Unwanted hair', '/concerns/unwanted-hair/'], ['Prices', '/prices/']],
+    links: [['Unwanted hair', '/concerns/unwanted-hair/'], ['Prices', '/prices/'], ['What “permanent” really means', '/learn/laser-hair-removal-permanent/']],
   },
 
   '/treatments/pigment-laser/': {

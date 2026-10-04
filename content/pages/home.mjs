@@ -99,7 +99,7 @@ export default function home() {
             <li class="pill gold">${SITE.bmdc.replace('BMDC Reg. ', 'BMDC ')}</li>
           </ul>
         </div>
-        <p class="np-note"><b>Consulting now</b> in Shyamoli · Dermatology Centre opening 2027</p>
+        <p class="np-note"><b>Consulting in Shyamoli</b> · Dermatology Centre opening 2027</p>
       </div>
     </div>
   </div>

@@ -12,7 +12,7 @@
 import { mkdir, rm, writeFile, readFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { SITE, BASE, NAV, FOOTER, HUB_LABEL, CHAMBERS_NOW, href } from '../content/site.mjs';
+import { SITE, BASE, NAV, FOOTER, HUB_LABEL, CHAMBERS_NOW, href, sectionOf, SECTION_HUB } from '../content/site.mjs';
 import { PAGES } from '../content/sitemap.mjs';
 import { mark } from '../content/brand.mjs';
 import home from '../content/pages/home.mjs';
@@ -26,6 +26,16 @@ import book from '../content/pages/book.mjs';
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const OUT = join(ROOT, 'public');
 const BODIES = { home, prices, about, ethics, moleCheck, skinType, skinCheck, prep, book };
+
+// Which sectionOf family each top-level nav item stands for (content/site.mjs).
+const ITEM_SECTION = {
+  Conditions: 'conditions',
+  'Skin Surgery': 'surgery',
+  'Aesthetic &amp; Laser': 'aesthetic',
+  Prices: 'prices',
+  Learn: 'learn',
+  About: 'about',
+};
 
 // The build now writes into the site root alongside hand-maintained assets
 // (css/, js/, assets/, admin/, favicon, robots). Remove only what this script
@@ -70,20 +80,22 @@ const CHEV = '<svg class="ico-chev" viewBox="0 0 12 12" aria-hidden="true" focus
 const CLOSE = '<svg class="ico-x" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M3.5 3.5l9 9m0-9-9 9" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
 const megaId = (item) => `mega-${item.label.replace(/[^A-Za-z]/g, '')}`;
 
-function nav() {
+function nav(path) {
+  const here = sectionOf(path);
+  const cur = (key) => (key && key === here ? ' aria-current="true"' : '');
   const items = NAV.map((item) =>
     Array.isArray(item)
-      ? `<a href="${href(item[1])}">${item[0]}</a>`
+      ? `<a href="${href(item[1])}"${cur(ITEM_SECTION[item[0]])}>${item[0]}</a>`
       : `<div class="nav-drop">
-           <button type="button" class="nav-drop-btn" aria-expanded="false" aria-controls="${megaId(item)}">${item.label}${CHEV}</button>
+           <button type="button" class="nav-drop-btn" aria-expanded="false" aria-controls="${megaId(item)}"${cur(ITEM_SECTION[item.label])}>${item.label}${CHEV}</button>
            ${megaMenu(item)}
          </div>`
   ).join('');
   return `
 <div class="u-bar"><div class="wrap u-bar-in">
-  <span class="u-bar-full">Consulting now at <b>Alliance Hospital</b> and <b>DCIMCH</b>, Shyamoli · ${SITE.centre.name}, ${SITE.centre.address.replace(', Dhaka', '')}: ${SITE.centre.opening.toLowerCase()}</span>
+  <span class="u-bar-full"><span class="u-when">Consulting at ${CHAMBERS_NOW.map((c) => `<b>${c.short}</b> (${c.daysShort})`).join(' and ')}, Shyamoli</span> · ${SITE.centre.name}, ${SITE.centre.address.replace(', Dhaka', '')}: ${SITE.centre.opening.toLowerCase()}</span>
   <span class="u-bar-full u-bar-links"><a href="tel:${SITE.phoneTel}"><b>Call ${SITE.phone}</b></a><a href="https://wa.me/${SITE.whatsapp}" rel="noopener">WhatsApp</a><a href="${href('/contact/')}">Directions</a></span>
-  <span class="u-bar-m"><b>Consulting now in Shyamoli</b> · Centre ${SITE.centre.opening.toLowerCase()}</span>
+  <span class="u-bar-m"><b>Consulting in Shyamoli</b> · Centre ${SITE.centre.opening.toLowerCase()}</span>
 </div></div>
 <header class="s-nav"><div class="wrap s-nav-in">
   <a class="logo" href="${href('/')}">${mark('logo-mark', 5)}<span class="logo-t"><span class="logo-n">${SITE.name}</span><span class="logo-s">${SITE.strapline}</span></span></a>
@@ -97,13 +109,13 @@ function nav() {
 // mega menus: each clinical group expands (<details>, no script) to its hub and
 // every deep link, then flat Visit / Learn / About rows. The docx pathway map
 // sends most mobile visitors to Prices and Book first; both stay one tap away.
-function drawer() {
-  const group = (links) => links.map(([l, h]) => `<a href="${href(h)}">${l}</a>`).join('');
+function drawer(path) {
+  const group = (links) => links.map(([l, h]) => `<a href="${href(h)}"${h === path ? ' aria-current="page"' : ''}>${l}</a>`).join('');
   const expandable = NAV.filter((item) => !Array.isArray(item) && HUB_LABEL[item.label]).map((item) => {
     const deep = item.menu.cols.flatMap((c) => c.links);
     const extra = [item.menu.feature && [item.menu.feature[0], item.menu.feature[1]], item.menu.foot].filter(Boolean);
     return `<details class="drawer-grp"><summary>${item.label}${CHEV}</summary>
-      <div class="drawer-sub"><a class="drawer-hub" href="${href(item.href)}">${HUB_LABEL[item.label]}</a>${group([...deep, ...extra])}</div></details>`;
+      <div class="drawer-sub"><a class="drawer-hub" href="${href(item.href)}"${item.href === path ? ' aria-current="page"' : ''}>${HUB_LABEL[item.label]}</a>${group([...deep, ...extra])}</div></details>`;
   }).join('');
   return `
 <div class="scrim" id="scrim"></div>
@@ -112,9 +124,9 @@ function drawer() {
     <button type="button" id="drawerClose" aria-label="Close menu">${CLOSE}</button></div>
   <nav class="drawer-links" aria-label="Site menu">
     <p class="drawer-cat">Care</p>${expandable}
-    <p class="drawer-cat">Visit</p><a href="${href('/prices/')}">Prices</a>${group(FOOTER.visit.filter(([l]) => l !== 'Book a consultation'))}
+    <p class="drawer-cat">Visit</p><a href="${href('/prices/')}"${path === '/prices/' ? ' aria-current="page"' : ''}>Prices</a>${group(FOOTER.visit.filter(([l]) => l !== 'Book a consultation'))}
     <p class="drawer-cat">Learn</p>${group(FOOTER.learn)}
-    <p class="drawer-cat">About &amp; trust</p><a href="${href('/about/')}">About Dr. Sumya</a>${group(FOOTER.trust)}
+    <p class="drawer-cat">About &amp; trust</p><a href="${href('/about/')}"${path === '/about/' ? ' aria-current="page"' : ''}>About Dr. Sumya</a>${group(FOOTER.trust)}
   </nav>
   <a class="btn btn-ink drawer-book" href="${href('/book/')}">Book a consultation</a>
 </div>`;
@@ -137,9 +149,7 @@ function footer() {
 }
 
 function stubBody(page) {
-  const hub = page.path.startsWith('/conditions/') ? ['Medical dermatology', '/medical-dermatology/']
-    : page.path.startsWith('/concerns/') || page.path.startsWith('/treatments/') ? ['Aesthetic &amp; laser', '/aesthetic-and-laser/']
-    : null;
+  const hub = SECTION_HUB[sectionOf(page.path)] || null;
   return `
 <section class="pg-hero"><div class="wrap">
   <p class="crumb"><a href="${href('/')}">Home</a> / ${esc(page.title.split('|')[0].trim().replace('Dr. Sumya Pervin, Dermatologist in Dhaka', '').trim() || 'Page')}</p>
@@ -199,12 +209,12 @@ function head(page) {
 </head>
 <body data-page="${page.path}" data-wa="https://wa.me/${SITE.whatsapp}">
 <a class="skip-link" href="#main-content">Skip to content</a>
-${nav()}
+${nav(page.path)}
 <main id="main-content" tabindex="-1">
 ${bodyFor(page)}
 </main>
 ${footer()}
-${drawer()}
+${drawer(page.path)}
 </body>
 </html>`;
 }
@@ -229,7 +239,7 @@ function notFoundPage() {
 </head>
 <body data-wa="https://wa.me/${SITE.whatsapp}">
 <a class="skip-link" href="#main-content">Skip to content</a>
-${nav()}
+${nav('/404')}
 <main id="main-content" tabindex="-1">
 <section class="pg-hero"><div class="wrap">
   <p class="crumb"><a href="${href('/')}">Home</a> / Not found</p>
@@ -245,7 +255,7 @@ ${nav()}
 </div></section>
 </main>
 ${footer()}
-${drawer()}
+${drawer('/404')}
 </body>
 </html>`;
 }
