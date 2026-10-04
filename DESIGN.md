@@ -282,10 +282,14 @@ The three consultation depths. The middle one is recommended: 2px Nil Indigo bor
 
 ### The Mark (Signature SP)
 The practice's logo: a custom S beside a rounded P, grounded by one curved skin contour. It is concept 01 of `design/clinic-logo/`, defined once in `content/brand.mjs` (`mark(cls, weight)`).
-- **Colour:** one colour only, drawn in `currentColor`. Nil Indigo on paper, white or paper on Deep Nil. Turmeric may surround it but never fills it.
+- **Colour:** one colour only, drawn in `currentColor`. Nil Indigo on paper, white or paper on Deep Nil, black when only one ink is available. Turmeric may surround it but never fills it.
 - **Weight:** the study's 4-unit stroke is right from about 40px up. Smaller placements pass a heavier weight (header 5, drawer 6, favicon 7.5 on its 64-unit tile) so it never thins below about 1.4px.
-- **Placements:** header and drawer beside the name, footer above it, the nameplate's turmeric ring (in place of typed initials), the favicon (paper on a Deep Nil tile), the phone icon, and the share card.
+- **Lockups:** horizontal (the mark, then two lines of type centred on the P's stem) and stacked (type centred under the mark). The name is outlined Outfit 500, one step lighter than the site header so it weighs the same as the monoline stroke. The descriptor is outlined Outfit 500 in caps tracked 0.14em, like the site's label type. Each comes in three colourways: indigo, reverse (white, for Deep Nil and dark grounds) and black.
+- **Clear space:** the height of the P's bowl on every side. Nothing else enters that zone, not even the edge of a card.
+- **Minimum sizes:** horizontal lockup 160px / 40mm, stacked lockup 96px / 24mm, the mark alone 40px / 10mm at the drawn weight. Below 40px the mark takes the heavier weights above, down to 24px; the favicon tile goes to 16px. Below the horizontal minimum, set the mark beside live text instead.
+- **Placements:** header and drawer beside the name, footer above it, the nameplate's turmeric ring (in place of typed initials), the favicon (paper on a Deep Nil tile), the phone icon, and the share card (flat Deep Nil, with no glow behind the name, by the gradient rule).
 - **Raster assets** come from `npm run build:brand` (`scripts/render-brand-assets.mjs`). Rerun it when the mark or the name changes.
+- **Print and social applications** (logo files, profile and cover images, the written-plan pad, letterhead, cards and chamber nameboards) come from `npm run build:brand-kit` (`scripts/render-brand-kit.mjs`) into `design/brand-kit/`, which also holds the guidelines page. They are generated, never hand-edited.
 
 ### The Nameplate (signature)
 The doctor's credential plate in the hero, standing in for the portrait she chose not to publish. It is a Deep Nil arch with a lighter indigo bloom at the crown. Inside: the Signature SP mark in a turmeric ring, the role in turmeric label type, the name in white, credential pills outlined in Night Rule, and the BMDC pill in solid turmeric. On phones it collapses to a compact horizontal strip. It is the page's only indigo object above the fold.

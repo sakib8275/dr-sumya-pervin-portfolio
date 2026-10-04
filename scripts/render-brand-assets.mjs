@@ -37,8 +37,6 @@ body{font-family:Outfit,sans-serif;-webkit-font-smoothing:antialiased}${css}</st
 
 const ogCard = page(1200, 630, `
   body { background: ${C.deep}; color: #fff; display: grid; grid-template-columns: 400px 1fr; align-items: center; }
-  body::before { content: ""; position: absolute; inset: 0;
-    background: radial-gradient(70% 90% at 18% 30%, ${C.nil}, rgba(35,51,107,0) 70%); }
   .m { position: relative; width: 400px; height: 400px; margin-left: 48px; }
   .t { position: relative; padding: 0 84px 0 40px; }
   .n { font-size: 72px; font-weight: 600; line-height: 1.02; letter-spacing: -.02em; }
