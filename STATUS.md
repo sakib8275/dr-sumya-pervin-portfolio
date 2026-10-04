@@ -58,7 +58,8 @@ own group role.
 **325 node + 56 e2e green locally and in CI**; each new assertion was proven
 red against a mutation. `site-fee-cards` "slow press" is flaky on this branch
 and on its base alike (9 of 45 runs failed at `02ccc95`, on `/prices/`, which
-has no journey panel): a separate fix. The apex still serves the arched
+has no journey panel): the root cause is diagnosed and fixed on #12, which
+should merge first. The apex still serves the arched
 nameplate (deployment `34cadcbe`); merging and the gated deploy are owner
 actions.
 
