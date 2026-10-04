@@ -122,6 +122,15 @@ test('form fields and focus rings meet the 3:1 non-text floor', () => {
   assert.ok(contrast(token('haldi'), token('nil-deep')) >= 3, 'the turmeric focus ring must be ≥3:1 on --nil-deep');
 });
 
+test('focus rings on every Deep Nil ground, the hero journey panel included, are turmeric', () => {
+  // The site-wide ring is --nil, 1.2:1 on --nil-deep: invisible on an indigo ground.
+  const m = siteCss.match(/([^{}]*:focus-visible[^{}]*)\{\s*outline-color:\s*var\(--haldi\)\s*;?\s*\}/);
+  assert.ok(m, 'the turmeric focus-ring override list is missing');
+  for (const sel of ['.u-bar', '.foot', '.h-dont', '.h-final', '.m-sticky', '.pr-est-out', '.h-tier.sig', '.nameplate']) {
+    assert.ok(m[1].includes(`${sel} :focus-visible`), `${sel} sits on Deep Nil and needs the turmeric focus ring`);
+  }
+});
+
 test('every legacy alias resolves to a defined primitive', () => {
   // style.css and the admin panel's inline styles still read the old names.
   const root = siteCss.match(/:root\s*\{([\s\S]*?)\}/)[1];

@@ -36,6 +36,99 @@ import { writePrefill, takePrefill } from './prefill.mjs';
     }
   });
 
+  // — Hero journey panel: the five consultation steps as slides. Without JS
+  // (or under reduced motion) the panel stays a plain five-item list. It plays
+  // one pass, 3.5s a step (time to read the longest, 14 words), then rests on
+  // the last step; hover, focus, the Pause button or a tap on a dot stops it.
+  // Phones never auto-advance.
+  const journey = document.querySelector('[data-journey]');
+  const calmMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  if (journey && !calmMotion.matches) {
+    const steps = [...journey.querySelectorAll('.jn-step')];
+    const nav = document.createElement('div');
+    nav.className = 'jn-nav';
+    const dots = steps.map((step, i) => {
+      const dot = document.createElement('button');
+      dot.type = 'button';
+      dot.className = 'jn-dot';
+      dot.setAttribute('aria-label', `Step ${i + 1} of ${steps.length}: ${step.querySelector('b').textContent}`);
+      dot.addEventListener('click', () => { halt(); show(i); });
+      nav.append(dot);
+      return dot;
+    });
+    const pause = document.createElement('button');
+    pause.type = 'button';
+    pause.className = 'jn-pause';
+    pause.textContent = 'Pause';
+    nav.append(pause);
+    const list = journey.querySelector('.jn-steps');
+    list.after(nav);
+    journey.classList.add('jn-live');
+    // A carousel only once it behaves as one: without JS or under reduced
+    // motion the same group is a plain list, and must not be announced as one.
+    journey.setAttribute('aria-roledescription', 'carousel');
+    list.setAttribute('aria-live', 'off');
+    const STEP_MS = 3500;
+    let current = -1, timer = null, held = false, stopped = false;
+    const phone = window.matchMedia('(max-width: 820px)');
+    function show(i) {
+      if (i === current) return;
+      const prev = steps[current];
+      if (prev) {
+        prev.classList.remove('is-active');
+        prev.classList.add('is-leaving');
+        setTimeout(() => prev.classList.remove('is-leaving'), 760);
+      }
+      steps[i].classList.add('is-active');
+      dots.forEach((d, k) => { if (k === i) d.setAttribute('aria-current', 'true'); else d.removeAttribute('aria-current'); });
+      current = i;
+    }
+    function tick() {
+      clearTimeout(timer);
+      if (stopped || held || phone.matches || current >= steps.length - 1) return;
+      timer = setTimeout(() => { show(current + 1); tick(); }, STEP_MS);
+    }
+    // Screen readers hear a step change only once the visitor drives it; the
+    // automatic pass stays silent (aria-live off).
+    function halt() { stopped = true; clearTimeout(timer); pause.textContent = 'Play'; list.setAttribute('aria-live', 'polite'); }
+    pause.addEventListener('click', () => {
+      if (stopped) {
+        stopped = false; pause.textContent = 'Pause'; list.setAttribute('aria-live', 'off');
+        if (current >= steps.length - 1) show(0);
+        tick();
+      } else halt();
+    });
+    journey.addEventListener('pointerenter', () => { held = true; clearTimeout(timer); });
+    journey.addEventListener('pointerleave', () => { held = false; tick(); });
+    journey.addEventListener('focusin', () => { held = true; clearTimeout(timer); });
+    journey.addEventListener('focusout', () => { held = false; tick(); });
+    // Reduced motion turned on mid-visit: stop, and fall back to the plain list.
+    // One-way for the rest of the visit: turning it back off does not re-animate
+    // a page the visitor already asked to keep still.
+    calmMotion.addEventListener('change', () => {
+      if (!calmMotion.matches) return;
+      stopped = true; clearTimeout(timer);
+      // The dots are about to leave the DOM; park focus on the panel, not <body>.
+      const hadFocus = nav.contains(document.activeElement);
+      journey.classList.remove('jn-live');
+      steps.forEach((st) => st.classList.remove('is-active', 'is-leaving'));
+      nav.remove();
+      // The five steps appear at once; a live region would read all of them.
+      // The markup carries no aria-live, so drop it back to that baseline.
+      list.removeAttribute('aria-live');
+      journey.removeAttribute('aria-roledescription');
+      if (hadFocus) {
+        journey.setAttribute('tabindex', '-1');
+        journey.focus({ preventScroll: true });
+        journey.addEventListener('blur', () => journey.removeAttribute('tabindex'), { once: true });
+      }
+    });
+    stopped = phone.matches;
+    if (stopped) list.setAttribute('aria-live', 'polite');
+    show(0);
+    setTimeout(tick, 920); // after the panel's entrance: 120ms delay + 800ms fill
+  }
+
   // — Mobile drawer — light panel over a scrim; Tab is trapped inside while
   // open (the markup already claims aria-modal) and focus returns to the
   // burger on every close path: ✕ button, scrim tap, link tap, Escape.
