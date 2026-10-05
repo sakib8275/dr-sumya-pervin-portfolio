@@ -24,7 +24,39 @@ with the fee-card specs asserting no pageerror across their runs.
 owner's real-phone pass (package sheet, skin check, drawer) and the WhatsApp
 share-card preview; the brand kit's printer proof on the chosen stock; the
 five `design/brand-kit/README.md` questions for Dr. Sumya (the canonical
-credentials line, "MD" in the site title, Bangla wording, the Centre).
+credentials line, "MD" in the site title, Bangla wording, the Centre). **New:**
+Dr. Sumya's sign-off on the hero reel's new wording (below) before it deploys.
+
+**2026-10-05 (hero reel "Plain Truths", branch `feat/hero-plain-truths`) — NOT
+MERGED, NOT DEPLOYED.** Dr. Sumya compared the shipped journey panel (A) with
+the "Plain Truths" reel (B) in a local A/B demo and **picked B**. The hero's
+indigo object becomes a reel of six conditions she treats — acne, melasma,
+fungal infection, psoriasis, vitiligo, hair fall — each a lowercase display
+word, one sentence copied verbatim from that condition page's published
+`CONDITIONS` blurb (the build throws if one drifts), and a link to the page,
+above the same credential plate. `REEL` in `content/pages/home.mjs`; `JOURNEY`
+stays as the timeline's source. Desktop: one pass at 3.2s a slide, then it
+wipes back to 01 and rests with "Play again"; hover, focus, a panel under 40%
+on screen and a hidden tab hold it (fixing the journey panel's off-screen pass
+at 1024×768); Pause is first in tab order; slides are labelled groups and the
+inactive ones inert; the outgoing slide clears before the wipe ends, so words
+never splice. Phones: a native scroll-snap row under both CTAs, no autoplay,
+44px bars. No JS: a linked index of all six. The progress bar fills white (the
+journey panel's turmeric bar was a third turmeric mark, against the One Mark
+Rule) and its inactive colour is a token, `--bar-on-nil` (3.7:1, pinned in
+`contrast.test.mjs`). DESIGN.md, PRODUCT.md, agent.md and
+`.impeccable/design.json` (still describing the arch until now) are updated.
+**328 node + 63 e2e green** locally; three new assertions were proven red
+against mutations (turmeric bar, no clear before the wipe, resting on 06), and a
+real specificity bug (the pause rule lost to the bar's `animation` shorthand, so
+hover and off-screen held nothing) was caught by the new desktop spec and fixed.
+**DRAFT copy, needs Dr. Sumya's approval before deploy:** the panel label
+"Conditions she treats"; the six display words (notably "hair fall" for the
+"Hair Loss (Alopecia)" page, the site's existing chip label); "Read about …"
+links; and two edits to quoted blurbs — slide 06 capitalises "Hair loss has
+distinct causes…", and slides 02 and 04 end on a full stop the blurb continues
+past ("Melasma is manageable, not curable." / "Psoriasis is controlled, not
+cured.").
 
 **2026-10-04 (deploy the supersedes, kept for the record):** D1 backed up first
 (`backups/d1-20261003T223337Z.sql`); migrations 003 (self-service CMS tables),

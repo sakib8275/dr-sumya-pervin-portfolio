@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-03T23:00:00+06:00",
+  "generatedAt": "2026-10-05T12:00:00+06:00",
   "title": "Design System: Dr. Sumya Pervin — Dermatology",
   "extensions": {
     "colorMeta": {
@@ -17,6 +17,7 @@
       "ink-2": { "role": "neutral", "displayName": "Faded Ink", "canonical": "oklch(45.2% 0.032 271)", "tonalRamp": ["oklch(15% 0.019 271)", "oklch(26% 0.024 271)", "oklch(38% 0.029 271)", "oklch(49% 0.030 271)", "oklch(61% 0.025 271)", "oklch(72% 0.020 271)", "oklch(84% 0.015 271)", "oklch(95% 0.010 271)"] },
       "rule": { "role": "neutral", "displayName": "Pencil Rule", "canonical": "oklch(87.5% 0.022 83)", "tonalRamp": ["oklch(15% 0.006 83)", "oklch(26% 0.006 83)", "oklch(38% 0.007 83)", "oklch(49% 0.010 83)", "oklch(61% 0.014 83)", "oklch(72% 0.017 83)", "oklch(84% 0.021 83)", "oklch(95% 0.020 83)"] },
       "rule-dark": { "role": "neutral", "displayName": "Night Rule", "canonical": "oklch(40.8% 0.084 272)", "tonalRamp": ["oklch(15% 0.053 272)", "oklch(26% 0.067 272)", "oklch(38% 0.080 272)", "oklch(49% 0.074 272)", "oklch(61% 0.060 272)", "oklch(72% 0.047 272)", "oklch(84% 0.034 272)", "oklch(95% 0.021 272)"] },
+      "bar-on-nil": { "role": "neutral", "displayName": "Night Bar", "canonical": "oklch(61.1% 0.080 274)", "tonalRamp": ["oklch(15% 0.050 274)", "oklch(26% 0.064 274)", "oklch(38% 0.076 274)", "oklch(49% 0.070 274)", "oklch(61% 0.057 274)", "oklch(72% 0.045 274)", "oklch(84% 0.032 274)", "oklch(95% 0.020 274)"] },
       "field-line": { "role": "neutral", "displayName": "Field Line", "canonical": "oklch(61.8% 0.024 86)", "tonalRamp": ["oklch(15% 0.008 86)", "oklch(26% 0.012 86)", "oklch(38% 0.016 86)", "oklch(49% 0.019 86)", "oklch(61% 0.023 86)", "oklch(72% 0.020 86)", "oklch(84% 0.016 86)", "oklch(95% 0.013 86)"] },
       "ok": { "role": "neutral", "displayName": "Confirmed Green", "canonical": "oklch(47.7% 0.088 154)", "tonalRamp": ["oklch(15% 0.048 154)", "oklch(26% 0.062 154)", "oklch(38% 0.076 154)", "oklch(49% 0.086 154)", "oklch(61% 0.072 154)", "oklch(72% 0.058 154)", "oklch(84% 0.044 154)", "oklch(95% 0.030 154)"] },
       "err-ink": { "role": "neutral", "displayName": "Error Red", "canonical": "oklch(49.4% 0.155 28)", "tonalRamp": ["oklch(15% 0.081 28)", "oklch(26% 0.105 28)", "oklch(38% 0.130 28)", "oklch(49% 0.155 28)", "oklch(61% 0.131 28)", "oklch(72% 0.106 28)", "oklch(84% 0.081 28)", "oklch(95% 0.056 28)"] },
@@ -31,13 +32,13 @@
       "figure": { "displayName": "Figure", "purpose": "Prices and hours in Nil Indigo with tabular numerals; ৳ before the number, lakh grouping." },
       "body": { "displayName": "Body", "purpose": "Prose at ≤76ch; ledes 17–19px at 62ch." },
       "body-small": { "displayName": "Body small", "purpose": "Card copy, meta lines and table cells, mostly Faded Ink." },
-      "label": { "displayName": "Label", "purpose": "Uppercase letter-spaced heads: tables, menu groups, sheet sections, the nameplate role." }
+      "label": { "displayName": "Label", "purpose": "Uppercase letter-spaced heads: tables, menu groups, sheet sections, the hero reel label and role line." }
     },
     "shadows": [
       { "name": "hover-lift", "value": "0 4px 14px rgba(28, 34, 51, .07)", "purpose": "Cards and fee cards under the pointer, with a 2px rise." },
       { "name": "recommended", "value": "0 16px 34px -10px rgba(28, 34, 51, .18)", "purpose": "The single recommended fee tier or care plan, at rest." },
       { "name": "overlay", "value": "0 18px 36px -14px rgba(28, 34, 51, .22)", "purpose": "Mega menu; drawer and package sheet use their own edge shadows over an indigo scrim rgba(26, 39, 86, .42)." },
-      { "name": "nameplate", "value": "0 28px 52px -24px rgba(26, 39, 86, .55)", "purpose": "The hero nameplate arch, the page's one object." }
+      { "name": "hero-reel", "value": "0 28px 52px -24px rgba(26, 39, 86, .55)", "purpose": "The hero reel, the page's one object." }
     ],
     "motion": [
       { "name": "ease-out", "value": "cubic-bezier(.16, 1, .3, 1)", "purpose": "Arrivals: settling like ink into paper." },
@@ -112,12 +113,12 @@
       "css": ".ds-col { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; max-width: 320px; padding-top: 20px; border-top: 2px solid var(--haldi, #E0A526); font-family: Outfit, ui-sans-serif, system-ui, sans-serif; color: var(--ink, #1C2233); } .ds-col h3 { margin: 0; font-size: 21px; line-height: 1.12; } .ds-col-addr { margin: 0; font-size: 15px; color: var(--ink-2, #4F5568); } .ds-col-when { display: flex; flex-direction: column; margin: 4px 0 0; } .ds-col-when b { font-weight: 600; } .ds-col-when span { font-size: 32px; font-weight: 600; line-height: 1.15; color: var(--nil, #23336B); font-variant-numeric: tabular-nums; } .ds-today { display: inline-flex; align-items: center; gap: 8px; margin: 0; padding: 5px 12px 5px 10px; border-radius: 999px; background: var(--haldi, #E0A526); color: var(--ink, #1C2233); font-size: 13px; font-weight: 700; } .ds-today span { width: 8px; height: 8px; border-radius: 50%; background: var(--nil-deep, #1A2756); }"
     },
     {
-      "name": "Nameplate",
+      "name": "Hero reel",
       "kind": "custom",
-      "refersTo": "nameplate",
-      "description": "The hero credential arch standing in for the doctor's portrait: Deep Nil, turmeric ring and arc, credential pills.",
-      "html": "<div class=\"ds-plate\"><span class=\"ds-plate-mark\">SP</span><p class=\"ds-plate-role\">Consultant Dermatologist</p><p class=\"ds-plate-name\">Dr. Sumya Pervin</p><p class=\"ds-plate-line\">Skin, Hair, Nail, Allergy &amp; Venereal Diseases</p><p class=\"ds-plate-creds\"><span>MBBS</span><span>FCPS (Skin &amp; VD)</span><span class=\"bmdc\">BMDC A-59492</span></p></div>",
-      "css": ".ds-plate { position: relative; overflow: hidden; width: 360px; padding: 42px 30px 28px; text-align: center; border-radius: 215px 215px 20px 20px; background: radial-gradient(110% 60% at 50% 0%, #23336B, rgba(35,51,107,0) 72%), var(--nil-deep, #1A2756); color: var(--on-nil, #C9D1EA); box-shadow: 0 28px 52px -24px rgba(26,39,86,.55); font-family: Outfit, ui-sans-serif, system-ui, sans-serif; } .ds-plate::after { content: \"\"; position: absolute; left: 12%; right: 12%; bottom: 0; height: 86%; border: 1px solid var(--haldi, #E0A526); border-bottom: 0; border-radius: 200px 200px 0 0; opacity: .55; pointer-events: none; } .ds-plate-mark { display: inline-flex; align-items: center; justify-content: center; width: 72px; height: 72px; border-radius: 50%; border: 1.5px solid var(--haldi, #E0A526); color: #fff; font-size: 24px; font-weight: 600; } .ds-plate-role { margin: 18px 0 0; font-size: 12px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--haldi, #E0A526); } .ds-plate-name { margin: 8px 0 0; font-size: 28px; font-weight: 600; color: #fff; } .ds-plate-line { margin: 8px 0 0; font-size: 14px; } .ds-plate-creds { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin: 20px 0 0; } .ds-plate-creds span { padding: 5px 11px; border-radius: 999px; border: 1px solid var(--rule-dark, #3A4677); color: #fff; font-size: 12px; font-weight: 700; } .ds-plate-creds .bmdc { background: var(--haldi, #E0A526); border-color: var(--haldi, #E0A526); color: var(--ink, #1C2233); }"
+      "refersTo": "hero-reel",
+      "description": "The hero's typographic reel standing in for the doctor's portrait: Deep Nil, six conditions as lowercase display words with one published sentence each, named progress bars (Night Bar, filling white), and a fixed credential plate with the BMDC pill in turmeric.",
+      "html": "<section class=\"ds-reel\"><div class=\"ds-reel-head\"><span>Conditions she treats</span><b>01</b> / 06</div><p class=\"ds-reel-word\">melasma</p><p class=\"ds-reel-line\">Melasma is manageable, not curable.</p><a class=\"ds-reel-link\">Read about melasma →</a><div class=\"ds-reel-bars\"><i class=\"on\"></i><i></i><i></i><i></i><i></i><i></i></div><div class=\"ds-reel-plate\"><p>Consultant Dermatologist</p><span>MBBS</span><span>DDV (BSMMU)</span><span>FCPS (Skin &amp; VD)</span><span class=\"gold\">BMDC A-59492</span></div></section>",
+      "css": ".ds-reel { width: 420px; padding: 24px 28px 20px; border-radius: 20px; background: var(--nil-deep, #1A2756); color: var(--on-nil, #C9D1EA); font-family: Outfit, system-ui, sans-serif; box-shadow: 0 28px 52px -24px rgba(26, 39, 86, .55); } .ds-reel-head { display: flex; gap: 6px; font-size: 13px; font-weight: 600; } .ds-reel-head span { flex: 1; font-size: 12px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; } .ds-reel-head b { color: #fff; } .ds-reel-word { margin: 56px 0 0; font-size: 64px; font-weight: 700; line-height: .95; letter-spacing: -.035em; color: #fff; } .ds-reel-line { margin: 14px 0 0; font-size: 17px; } .ds-reel-link { display: inline-block; margin-top: 8px; color: #fff; font-weight: 600; text-decoration: underline; text-underline-offset: .28em; } .ds-reel-bars { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; margin-top: 20px; } .ds-reel-bars i { height: 3px; border-radius: 2px; background: var(--bar-on-nil, #7480B4); } .ds-reel-bars i.on { background: #fff; } .ds-reel-plate { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--rule-dark, #3A4677); } .ds-reel-plate p { width: 100%; margin: 0 0 4px; font-size: 12px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; } .ds-reel-plate span { padding: 4px 10px; border: 1px solid var(--rule-dark, #3A4677); border-radius: 999px; color: #fff; font-size: 12px; font-weight: 700; } .ds-reel-plate span.gold { background: var(--haldi, #E0A526); border-color: var(--haldi, #E0A526); color: var(--ink, #1C2233); }"
     }
   ],
   "narrative": {
@@ -127,7 +128,7 @@
       "Unbleached paper grounds with indigo ink; turmeric as a rare signal.",
       "Open columns under a heavy 2px ink rule, not boxed cards, for the information patients scan.",
       "Large tabular figures for every price and hour.",
-      "Pill-shaped actions; softly rounded containers; one arched silhouette (the nameplate).",
+      "Pill-shaped actions; softly rounded containers. The hero's dome/arch was retired on 2026-10-04.",
       "Flat by default; shadows only answer state or mark the one recommended choice.",
       "No gradient ever sits under text."
     ],
@@ -156,7 +157,7 @@
       "Don't use thick colored side stripes on cards, notes or alerts. Use a tinted wash or a 2px border.",
       "Don't add a second display face or fake italics. Outfit carries the whole hierarchy.",
       "Don't add repeated scroll-reveal entrances. The hero is the one authored moment.",
-      "Don't use the arch silhouette anywhere but the nameplate."
+      "Don't bring back the arch or dome silhouette."
     ]
   }
 }

@@ -36,97 +36,124 @@ import { writePrefill, takePrefill } from './prefill.mjs';
     }
   });
 
-  // — Hero journey panel: the five consultation steps as slides. Without JS
-  // (or under reduced motion) the panel stays a plain five-item list. It plays
-  // one pass, 3.5s a step (time to read the longest, 14 words), then rests on
-  // the last step; hover, focus, the Pause button or a tap on a dot stops it.
-  // Phones never auto-advance.
-  const journey = document.querySelector('[data-journey]');
-  const calmMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-  if (journey && !calmMotion.matches) {
-    const steps = [...journey.querySelectorAll('.jn-step')];
-    const nav = document.createElement('div');
-    nav.className = 'jn-nav';
-    const dots = steps.map((step, i) => {
-      const dot = document.createElement('button');
-      dot.type = 'button';
-      dot.className = 'jn-dot';
-      dot.setAttribute('aria-label', `Step ${i + 1} of ${steps.length}: ${step.querySelector('b').textContent}`);
-      dot.addEventListener('click', () => { halt(); show(i); });
-      nav.append(dot);
-      return dot;
-    });
-    const pause = document.createElement('button');
-    pause.type = 'button';
-    pause.className = 'jn-pause';
-    pause.textContent = 'Pause';
-    nav.append(pause);
-    const list = journey.querySelector('.jn-steps');
-    list.after(nav);
-    journey.classList.add('jn-live');
-    // A carousel only once it behaves as one: without JS or under reduced
-    // motion the same group is a plain list, and must not be announced as one.
-    journey.setAttribute('aria-roledescription', 'carousel');
-    list.setAttribute('aria-live', 'off');
-    const STEP_MS = 3500;
-    let current = -1, timer = null, held = false, stopped = false;
+  // — Hero reel: six conditions as slides. Without JS it is a static index
+  // (a swipeable row on phones). Desktop plays one pass, 3.2s a slide, then
+  // wipes back to the first and rests; CSS owns the timing (the active bar's
+  // animationend advances), so hover, focus, an off-screen panel and a hidden
+  // tab pause it through animation-play-state. Any manual step stops it.
+  // Phones and reduced motion never autoplay; phones swipe a scroll-snap row.
+  const reel = document.querySelector('[data-reel]');
+  if (reel) {
+    const slides = [...reel.querySelectorAll('.reel-slide')];
+    const names = [...reel.querySelectorAll('.reel-name')];
+    const list = reel.querySelector('.reel-slides');
+    const cur = reel.querySelector('.reel-cur');
+    const live = reel.querySelector('.reel-live');
+    const pauseBtn = reel.querySelector('.reel-pause');
+    const nav = reel.querySelector('.reel-nav');
+    const calm = window.matchMedia('(prefers-reduced-motion: reduce)');
     const phone = window.matchMedia('(max-width: 820px)');
-    function show(i) {
-      if (i === current) return;
-      const prev = steps[current];
-      if (prev) {
-        prev.classList.remove('is-active');
+    const pad = (n) => String(n).padStart(2, '0');
+    const last = slides.length - 1;
+    let i = -1;
+    let auto = false;
+    let played = false;
+    let touched = false; // a visitor has stepped it: autoplay never starts after that
+
+    // A carousel only once it behaves as one: the no-JS index is a plain list.
+    reel.classList.add('is-live', 'is-intro');
+    reel.setAttribute('aria-roledescription', 'carousel');
+    slides.forEach((s, k) => {
+      s.setAttribute('role', 'group');
+      s.setAttribute('aria-roledescription', 'slide');
+      s.setAttribute('aria-label', `${k + 1} of ${slides.length}: ${s.querySelector('.reel-word').textContent}`);
+    });
+    live.setAttribute('aria-live', 'polite');
+    nav.hidden = false;
+    reel.querySelector('.reel-count').hidden = false;
+    pauseBtn.hidden = false;
+
+    function go(n, { user = false, fromScroll = false } = {}) {
+      n = (n + slides.length) % slides.length;
+      if (n === i) return;
+      const prev = slides[i];
+      if (prev && !phone.matches) {
         prev.classList.add('is-leaving');
-        setTimeout(() => prev.classList.remove('is-leaving'), 760);
+        setTimeout(() => prev.classList.remove('is-leaving'), 700);
       }
-      steps[i].classList.add('is-active');
-      dots.forEach((d, k) => { if (k === i) d.setAttribute('aria-current', 'true'); else d.removeAttribute('aria-current'); });
-      current = i;
+      slides.forEach((s, k) => {
+        s.classList.toggle('is-active', k === n);
+        s.inert = !phone.matches && k !== n;
+      });
+      names.forEach((b, k) => {
+        if (k === n) b.setAttribute('aria-current', 'true'); else b.removeAttribute('aria-current');
+        b.classList.toggle('is-done', k < n);
+      });
+      cur.textContent = pad(n + 1);
+      cur.classList.remove('is-swap'); void cur.offsetWidth; cur.classList.add('is-swap');
+      // The automatic pass stays silent; only a visitor's own step is read out.
+      if (user) live.textContent = `${n + 1} of ${slides.length}: ${slides[n].querySelector('.reel-word').textContent}. ${slides[n].querySelector('.reel-line').textContent}`;
+      if (phone.matches && !fromScroll) list.scrollTo({ left: slides[n].offsetLeft, behavior: calm.matches ? 'auto' : 'smooth' });
+      i = n;
     }
-    function tick() {
-      clearTimeout(timer);
-      if (stopped || held || phone.matches || current >= steps.length - 1) return;
-      timer = setTimeout(() => { show(current + 1); tick(); }, STEP_MS);
+    function setAuto(on) {
+      auto = on;
+      reel.classList.toggle('is-auto', on);
+      pauseBtn.textContent = on ? 'Pause' : (played ? 'Play again' : 'Play');
     }
-    // Screen readers hear a step change only once the visitor drives it; the
-    // automatic pass stays silent (aria-live off).
-    function halt() { stopped = true; clearTimeout(timer); pause.textContent = 'Play'; list.setAttribute('aria-live', 'polite'); }
-    pause.addEventListener('click', () => {
-      if (stopped) {
-        stopped = false; pause.textContent = 'Pause'; list.setAttribute('aria-live', 'off');
-        if (current >= steps.length - 1) show(0);
-        tick();
-      } else halt();
+    function stop() { touched = true; setAuto(false); }
+
+    reel.addEventListener('animationend', (e) => {
+      if (!auto || !e.target.classList.contains('reel-fill')) return;
+      if (i < last) { go(i + 1); return; }
+      // End of the pass: rest on the first slide, not the last one seen.
+      played = true;
+      setAuto(false);
+      go(0);
     });
-    journey.addEventListener('pointerenter', () => { held = true; clearTimeout(timer); });
-    journey.addEventListener('pointerleave', () => { held = false; tick(); });
-    journey.addEventListener('focusin', () => { held = true; clearTimeout(timer); });
-    journey.addEventListener('focusout', () => { held = false; tick(); });
-    // Reduced motion turned on mid-visit: stop, and fall back to the plain list.
-    // One-way for the rest of the visit: turning it back off does not re-animate
-    // a page the visitor already asked to keep still.
-    calmMotion.addEventListener('change', () => {
-      if (!calmMotion.matches) return;
-      stopped = true; clearTimeout(timer);
-      // The dots are about to leave the DOM; park focus on the panel, not <body>.
-      const hadFocus = nav.contains(document.activeElement);
-      journey.classList.remove('jn-live');
-      steps.forEach((st) => st.classList.remove('is-active', 'is-leaving'));
-      nav.remove();
-      // The five steps appear at once; a live region would read all of them.
-      // The markup carries no aria-live, so drop it back to that baseline.
-      list.removeAttribute('aria-live');
-      journey.removeAttribute('aria-roledescription');
-      if (hadFocus) {
-        journey.setAttribute('tabindex', '-1');
-        journey.focus({ preventScroll: true });
-        journey.addEventListener('blur', () => journey.removeAttribute('tabindex'), { once: true });
-      }
+    pauseBtn.addEventListener('click', () => {
+      touched = true;
+      if (auto) { setAuto(false); return; }
+      if (played && i !== 0) go(0);
+      played = false;
+      setAuto(true);
     });
-    stopped = phone.matches;
-    if (stopped) list.setAttribute('aria-live', 'polite');
-    show(0);
-    setTimeout(tick, 920); // after the panel's entrance: 120ms delay + 800ms fill
+    names.forEach((b, k) => b.addEventListener('click', () => { stop(); go(k, { user: true }); }));
+    reel.querySelectorAll('.reel-arrow').forEach((b) => b.addEventListener('click', () => { stop(); go(i + Number(b.dataset.step), { user: true }); }));
+    nav.addEventListener('keydown', (e) => {
+      if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+      e.preventDefault();
+      stop();
+      go(i + (e.key === 'ArrowRight' ? 1 : -1), { user: true });
+      if (names.includes(document.activeElement)) names[i].focus();
+    });
+    reel.addEventListener('pointerenter', () => reel.classList.add('is-held'));
+    reel.addEventListener('pointerleave', () => reel.classList.remove('is-held'));
+    reel.addEventListener('focusin', () => reel.classList.add('is-held'));
+    reel.addEventListener('focusout', (e) => { if (!reel.contains(e.relatedTarget)) reel.classList.remove('is-held'); });
+    // Never play to an empty room: under 40% of the panel on screen, or a
+    // hidden tab, holds the bar where it is.
+    let offscreen = false;
+    const holdOff = () => reel.classList.toggle('is-off', offscreen || document.hidden);
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(([en]) => { offscreen = !en.isIntersecting; holdOff(); }, { threshold: 0.4 }).observe(reel);
+    }
+    document.addEventListener('visibilitychange', holdOff);
+    // Phones: the row is swiped natively; keep the counter and bars in step.
+    let scrollT;
+    list.addEventListener('scroll', () => {
+      if (!phone.matches) return;
+      clearTimeout(scrollT);
+      scrollT = setTimeout(() => go(Math.round(list.scrollLeft / list.clientWidth), { user: true, fromScroll: true }), 120);
+    }, { passive: true });
+    // Reduced motion turned on mid-visit: stop. The slides already swap without
+    // movement under the media query, so the layout and focus stay put.
+    calm.addEventListener('change', () => { if (calm.matches) stop(); });
+
+    go(0);
+    setTimeout(() => reel.classList.remove('is-intro'), 1500);
+    setAuto(false);
+    if (!calm.matches && !phone.matches) setTimeout(() => { if (!touched && !calm.matches) setAuto(true); }, 900);
   }
 
   // — Mobile drawer — light panel over a scrim; Tab is trapped inside while
