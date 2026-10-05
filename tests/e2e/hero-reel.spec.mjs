@@ -4,7 +4,7 @@
 //
 //   1. one autoplay pass, 01 → 06, then it wipes back to 01 and rests,
 //      with the button saying "Play again" (not "Pause" while nothing moves),
-//   2. Pause, hover and an off-screen panel each hold it,
+//   2. Pause, hover, an off-screen panel and a hidden tab each hold it,
 //   3. Pause is first in tab order, the ring is turmeric, inactive slides are
 //      inert, and a visitor's own step is announced while autoplay is silent,
 //   4. the outgoing slide has cleared before the wipe finishes, so old and new
@@ -71,6 +71,26 @@ test('it never plays to an empty room: scrolled away, the reel holds', async ({ 
   await expect(page.locator('.reel-pause'), 'the pass has not run off-screen').toHaveText('Pause');
   // Back on screen, it carries on from where it was.
   await page.evaluate(() => window.scrollTo(0, 0));
+  await expect(page.locator('.reel')).not.toHaveClass(/is-off/);
+  await expect(page.locator('.reel-cur')).not.toHaveText(left);
+});
+
+test('a hidden tab holds the reel, and it carries on when the tab returns', async ({ page, site }) => {
+  await page.goto(site.baseURL + '/');
+  await page.addStyleTag({ content: FAST });
+  await expect(page.locator('.reel')).toHaveClass(/is-auto/);
+  const setHidden = (hidden) => page.evaluate((h) => {
+    Object.defineProperty(document, 'hidden', { configurable: true, get: () => h });
+    Object.defineProperty(document, 'visibilityState', { configurable: true, get: () => (h ? 'hidden' : 'visible') });
+    document.dispatchEvent(new Event('visibilitychange'));
+  }, hidden);
+  await setHidden(true);
+  await expect(page.locator('.reel')).toHaveClass(/is-off/);
+  const left = await page.locator('.reel-cur').textContent();
+  await page.waitForTimeout(1500); // a full pass at 200ms a slide is ~1.2s
+  await expect(page.locator('.reel-cur'), 'nothing advances in a hidden tab').toHaveText(left);
+  await expect(page.locator('.reel-pause')).toHaveText('Pause');
+  await setHidden(false);
   await expect(page.locator('.reel')).not.toHaveClass(/is-off/);
   await expect(page.locator('.reel-cur')).not.toHaveText(left);
 });

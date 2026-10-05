@@ -56,7 +56,12 @@ hover and off-screen held nothing) was caught by the new desktop spec and fixed.
 links; and two edits to quoted blurbs — slide 06 capitalises "Hair loss has
 distinct causes…", and slides 02 and 04 end on a full stop the blurb continues
 past ("Melasma is manageable, not curable." / "Psoriasis is controlled, not
-cured.").
+cured."). For her eye too (not copy): the Signature SP mark returns to the hero
+in a new treatment — white on the credential plate, without the old turmeric
+ring. Independent review on the PR: safe to merge, four non-blocking notes, all
+closed in a follow-up commit (hidden-tab hold now tested; the `aria-current`
+choice over `aria-disabled` documented in `site.js`; the PR body lists the
+arrows, counter, arrow keys and mark placement; the sitemap rebuilt).
 
 **2026-10-04 (deploy the supersedes, kept for the record):** D1 backed up first
 (`backups/d1-20261003T223337Z.sql`); migrations 003 (self-service CMS tables),

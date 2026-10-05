@@ -85,6 +85,9 @@ import { writePrefill, takePrefill } from './prefill.mjs';
         s.classList.toggle('is-active', k === n);
         s.inert = !phone.matches && k !== n;
       });
+      // The current name is marked aria-current, not aria-disabled: it stays an
+      // operable button (pressing it is a harmless no-op), and "current" is
+      // what a screen reader should say about it — not "unavailable".
       names.forEach((b, k) => {
         if (k === n) b.setAttribute('aria-current', 'true'); else b.removeAttribute('aria-current');
         b.classList.toggle('is-done', k < n);
