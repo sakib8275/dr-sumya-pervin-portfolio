@@ -29,6 +29,9 @@
   --haldi-ink: #8A5A00;
   --rule: #DDD5C6;
   --rule-dark: #3A4677;
+  /* Inactive progress bars on --nil-deep: 3.7:1, past the 3:1 non-text floor
+     (--rule-dark is 1.6:1 there, too faint for a control's state). */
+  --bar-on-nil: #7480B4;
   --field-line: #8C8576;
   --ok: #2F6B45;
   --err-ink: #A8322A;
@@ -77,7 +80,7 @@ a { color: inherit; text-decoration: none; }
 ::selection { background: var(--haldi); color: var(--ink); }
 :focus-visible { outline: 2px solid var(--nil); outline-offset: 3px; border-radius: 6px; }
 .u-bar :focus-visible, .foot :focus-visible, .h-dont :focus-visible, .h-final :focus-visible,
-.m-sticky :focus-visible, .pr-est-out :focus-visible, .h-tier.sig :focus-visible, .nameplate :focus-visible { outline-color: var(--haldi); }
+.m-sticky :focus-visible, .pr-est-out :focus-visible, .h-tier.sig :focus-visible, .reel :focus-visible { outline-color: var(--haldi); }
 .bk-field :is(input, select, textarea):focus-visible, .pr-est-form select:focus-visible { outline-offset: 1px; border-color: var(--ink); }
 .btn:focus-visible { outline-offset: 3px; border-radius: 999px; }
 img { max-width: 100%; display: block; }
@@ -429,7 +432,7 @@ a.chip:hover { background: var(--surface); border-color: var(--nil); color: var(
 /* — Home — */
 .h-hero {
   /* Flat paper under the copy: no gradient sits under text anywhere on the
-     site. The indigo lives in one object, the journey panel. */
+     site. The indigo lives in one object, the hero reel. */
   background: var(--paper);
 }
 .h-hero .wrap { display: grid; grid-template-columns: 1.12fr .88fr; gap: 56px; align-items: center; padding-block: 72px 80px; }
@@ -446,77 +449,121 @@ a.chip:hover { background: var(--surface); border-color: var(--nil); color: var(
 .h-ctas { display: flex; gap: 14px; margin: 30px 0 16px; flex-wrap: wrap; }
 .h-alt { font-size: 0.9375rem; color: var(--ink); }
 .h-hero .tlink { color: var(--nil); }
-/* Hero journey panel — the owner asked that the doctor's photograph not be
-   published, so the image slot is a flat indigo panel that walks through the
-   five published consultation steps (the same copy as the timeline below).
-   Without JS, or under reduced motion, all five steps sit in a plain list;
-   site.js adds .jn-live to turn them into one-at-a-time slides. */
+/* Hero reel ("Plain Truths", owner's pick 2026-10-05) — the owner asked that
+   the doctor's photograph not be published, so the image slot is a flat indigo
+   panel: six conditions she treats, each a lowercase display word, one
+   sentence from that condition's page, and a link to it, above a fixed
+   credential plate. Without JS it is a static index (two columns here, a
+   swipeable scroll-snap row on phones); site.js adds .is-live. */
 .h-hero-figure { position: relative; display: flex; justify-content: center; }
-.nameplate {
-  position: relative; width: min(100%, 470px); overflow: hidden;
-  padding: 30px 34px 26px;
+/* Grid and flex children default to min-width:auto; the phone swipe row would
+   otherwise widen the whole page by six slides. */
+.h-hero-figure, .reel, .reel-slides { min-width: 0; }
+.reel {
+  --reel-dwell: 3200ms;
+  position: relative; width: min(100%, 540px); overflow: hidden;
+  padding: 26px 32px 24px;
   background: var(--nil-deep); color: var(--on-nil);
   border-radius: var(--r-card);
   box-shadow: 0 28px 52px -24px rgba(26, 39, 86, .55);
 }
-.jn-eyebrow { font-size: 0.75rem; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--on-nil); }
-.jn-steps { list-style: none; margin: 14px 0 0; padding: 0; border-top: 1px solid var(--rule-dark); }
-.jn-step { display: grid; grid-template-columns: 44px 1fr; column-gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--rule-dark); }
-.jn-num { grid-row: span 2; font-size: 0.8125rem; font-weight: 700; letter-spacing: .08em; color: var(--on-nil); padding-top: 3px; }
-.jn-step b { color: #fff; font-weight: 600; }
-.jn-step p { font-size: 0.875rem; color: var(--on-nil); }
-/* Live slides: one step at a time, a clip-path wipe in from the right while
-   the numeral rises. The outgoing slide stays put underneath until the wipe
-   ends (.is-leaving), so there is never an empty frame. */
-.jn-live .jn-steps { display: grid; min-height: 212px; align-content: start; }
-.jn-live .jn-step { grid-area: 1 / 1; display: block; padding: 12px 0 0; border: 0; background: var(--nil-deep); visibility: hidden; }
-.jn-live .jn-step.is-active, .jn-live .jn-step.is-leaving { visibility: visible; }
-.jn-live .jn-step.is-active { z-index: 2; animation: jn-wipe var(--t-focal) var(--ease-out) both; }
-.jn-live .jn-num {
-  display: block; padding: 0; font-size: clamp(5.5rem, 9vw, 8rem); line-height: .85; letter-spacing: -.04em;
-  color: transparent; -webkit-text-stroke: 1.5px var(--on-nil);
+.reel-head { display: flex; align-items: center; gap: 14px; min-height: 44px; }
+.reel-label { font-size: 0.75rem; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--on-nil); }
+.reel-count { margin-left: auto; font-size: 0.8125rem; font-weight: 600; letter-spacing: .06em; font-variant-numeric: tabular-nums; color: var(--on-nil); overflow: hidden; }
+.reel-cur { display: inline-block; color: #fff; }
+.reel-pause {
+  min-height: 44px; min-width: 44px; padding: 0 2px; background: none; border: 0; cursor: pointer;
+  font: inherit; font-size: 0.8125rem; color: var(--on-nil); text-decoration: underline; text-underline-offset: 3px;
 }
-.jn-live .is-active .jn-num { animation: jn-rise var(--t-focal) var(--ease-out) both; }
-.jn-live .jn-step b { display: block; margin-top: 14px; font-size: 1.5rem; line-height: 1.15; }
-.jn-live .jn-step p { margin-top: 6px; max-width: 34ch; font-size: 1rem; }
-.jn-nav { display: none; align-items: center; gap: 0; }
-.jn-live .jn-nav { display: flex; }
-/* Inactive bars are #7480B4 (3.7:1 on --nil-deep; --rule-dark was 1.6:1). 44x44 hit area (WCAG 2.5.8 / the site's tap-target rule); the visible bar stays 3px. */
-.jn-dot { position: relative; width: 44px; height: 44px; padding: 0; background: none; border: 0; cursor: pointer; }
-.jn-dot::before { content: ""; position: absolute; left: 4px; right: 4px; top: 50%; margin-top: -1.5px; height: 3px; border-radius: 2px; background: #7480B4; transition: background var(--t-state) var(--ease); }
-.jn-dot[aria-current="true"]::before { background: var(--haldi); }
-.jn-dot:hover::before { background: var(--on-nil); }
-.jn-dot[aria-current="true"]:hover::before { background: var(--haldi); }
-.jn-pause { margin-left: auto; min-height: 44px; min-width: 44px; padding: 0 4px; background: none; border: 0; cursor: pointer; font: inherit; font-size: 0.8125rem; color: var(--on-nil); text-decoration: underline; text-underline-offset: 3px; }
-.jn-pause:hover { color: #fff; }
-.np-body { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--rule-dark); }
+.reel-pause:hover { color: #fff; }
+.reel-slides { list-style: none; margin: 12px 0 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 0 24px; }
+.reel-slide { position: relative; padding: 14px 0; border-top: 1px solid var(--rule-dark); }
+.reel-ghost { display: none; }
+.reel-word { font-size: 1.375rem; font-weight: 700; line-height: 1.1; letter-spacing: -.01em; color: #fff; }
+.reel-line { margin-top: 6px; font-size: 0.875rem; color: var(--on-nil); }
+/* 44px hit area from padding; the negative margins keep the visual spacing. */
+.reel .reel-link { display: inline-block; padding-block: 13px; margin: -5px 0 -13px; font-size: 0.875rem; color: #fff; }
+.reel-nav { align-items: center; gap: 6px; margin-top: 14px; }
+.reel-nav:not([hidden]) { display: flex; }
+.reel-arrow {
+  flex: none; width: 44px; height: 44px; display: grid; place-items: center; padding: 0;
+  background: none; border: 1px solid var(--rule-dark); border-radius: 999px; color: #fff; cursor: pointer;
+  transition: background-color var(--t-press) var(--ease-out), border-color var(--t-press) var(--ease-out);
+}
+.reel-arrow:hover { background: rgb(255 255 255 / .08); border-color: var(--on-nil); }
+.reel-arrow svg { width: 18px; height: 18px; }
+.reel-names { flex: 1; display: grid; grid-template-columns: repeat(6, 1fr); }
+.reel-name {
+  position: relative; min-height: 44px; padding: 4px 1px 12px; background: none; border: 0; cursor: pointer;
+  font: inherit; font-size: 0.75rem; font-weight: 600; line-height: 1.15; color: var(--on-nil);
+}
+.reel-name:hover, .reel-name[aria-current="true"] { color: #fff; }
+/* The progress bar fills in white, not turmeric: the hero already carries its
+   two turmeric marks (the underline and the BMDC pill), per the One Mark Rule. */
+.reel-bar { position: absolute; left: 3px; right: 3px; bottom: 6px; height: 3px; border-radius: 2px; background: var(--bar-on-nil); overflow: hidden; }
+.reel-fill { position: absolute; inset: 0; background: #fff; transform: scaleX(0); transform-origin: left; }
+.reel-name.is-done .reel-fill, .reel:not(.is-auto) .reel-name[aria-current="true"] .reel-fill { transform: scaleX(1); }
+/* site.js advances on this animation's end, so CSS owns the timing and
+   animation-play-state is the pause: hover, focus, off-screen, hidden tab. */
+.reel.is-auto .reel-name[aria-current="true"] .reel-fill { animation: reel-bar var(--reel-dwell) linear both; }
+/* As specific as the rule above: its `animation` shorthand resets play-state. */
+.reel.is-auto:is(.is-held, .is-off) .reel-name[aria-current="true"] .reel-fill { animation-play-state: paused; }
+.reel-plate { display: flex; align-items: center; gap: 16px; margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--rule-dark); }
+.reel-mark { flex: none; width: 52px; height: 52px; color: #fff; }
+.reel-mark svg { width: 100%; height: 100%; }
 .np-role { font-size: 0.75rem; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--on-nil); }
-.np-name { margin-top: 4px; font-size: 1.375rem; font-weight: 600; color: #fff; }
-.np-line { margin-top: 4px; font-size: 0.90625rem; color: var(--on-nil); }
-.np-creds { list-style: none; display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.np-name { margin-top: 2px; font-size: 1.25rem; font-weight: 600; color: #fff; }
+.np-line { margin-top: 2px; font-size: 0.84375rem; color: var(--on-nil); }
+.np-creds { list-style: none; display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
 .np-creds .pill { background: transparent; color: #fff; border-color: var(--rule-dark); }
 .np-creds .pill.gold { background: var(--haldi); color: var(--ink); border-color: var(--haldi); }
-.np-note { margin-top: 16px; font-size: 0.8125rem; color: var(--on-nil); }
+.np-note { margin-top: 12px; font-size: 0.8125rem; color: var(--on-nil); }
 .np-note b { color: #fff; font-weight: 600; }
-@keyframes jn-wipe { from { clip-path: inset(0 0 0 100%); } to { clip-path: inset(0 0 0 0); } }
-@keyframes jn-rise { from { opacity: 0; translate: 0 28px; } }
+/* Live stage, desktop and tablet: the slides stack in one grid cell (so the
+   panel is as tall as the tallest slide and never jumps). The incoming slide
+   wipes in behind one hard vertical edge; the outgoing one clears first, so
+   old and new words are never spliced mid-wipe. */
+@media (min-width: 821px) {
+  .reel.is-live .reel-slides { grid-template-columns: 1fr; margin-top: 4px; overflow: hidden; padding-bottom: 4px; }
+  .reel.is-live .reel-slide {
+    grid-area: 1 / 1; padding: 0; border: 0;
+    display: flex; flex-direction: column; justify-content: flex-end; min-height: 300px; visibility: hidden;
+  }
+  .reel.is-live .reel-slide.is-active, .reel.is-live .reel-slide.is-leaving { visibility: visible; }
+  .reel.is-live .reel-slide.is-active { z-index: 2; animation: reel-wipe 640ms var(--ease-move) both; }
+  .reel.is-intro .reel-slide.is-active { animation-delay: 760ms; }
+  .reel.is-live .reel-slide.is-leaving { animation: reel-clear 160ms linear both; }
+  .reel.is-live .reel-ghost {
+    display: block; position: absolute; top: 0; right: .08em; font-size: 9rem; font-weight: 700; line-height: .8;
+    letter-spacing: -.05em; color: transparent; -webkit-text-stroke: 1.5px var(--rule-dark);
+  }
+  .reel.is-live .reel-word { font-size: clamp(3rem, 5.4vw, 5rem); line-height: .95; letter-spacing: -.035em; text-wrap: balance; max-width: 9ch; }
+  .reel.is-live .reel-line { margin-top: 16px; font-size: 1.0625rem; max-width: 32ch; }
+  .reel.is-live .reel-link { align-self: flex-start; margin-top: -3px; font-size: 0.9375rem; }
+  .reel.is-live .reel-cur.is-swap { animation: reel-count 420ms var(--ease-out) both; }
+}
+@keyframes reel-wipe { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+@keyframes reel-clear { to { opacity: 0; } }
+@keyframes reel-bar { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes reel-count { from { transform: translateY(12px); opacity: 0; } }
 
 /* The hero entrance — the site's one authored moment, played once on load.
-   The headline settles out of a blur the way ink takes to paper; the panel
-   fills with indigo from its base; then the turmeric underline is drawn under
-   "diagnosis", the word the whole practice is built on. Content is visible in
+   The headline settles out of a blur the way ink takes to paper; the reel
+   fills with indigo from its left edge and its first word wipes in behind the
+   same edge; then the turmeric underline is drawn under "diagnosis", the word
+   the whole practice is built on. The reel then plays its one pass. Content is visible in
    every frame's end state with or without JS (pure CSS, `both` fill), and the
    headline never starts fully transparent so it still paints for LCP. */
 @keyframes ink-settle { from { opacity: .2; filter: blur(10px); translate: 0 6px; } }
 @keyframes rise-in { from { opacity: 0; translate: 0 8px; } }
-@keyframes panel-fill { from { clip-path: inset(100% 0 0 0); } to { clip-path: inset(0 0 0 0); } }
+@keyframes reel-fill { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
 @keyframes underline-draw { from { background-size: 0% .1em; } }
 .h-hero h1 { animation: ink-settle var(--t-focal) var(--ease-out) both; }
 .h-hero h1 em { animation: underline-draw 520ms var(--ease-move) 620ms both; }
 .h-sub, .h-hero .bn-sum { animation: rise-in 600ms var(--ease-out) 160ms both; }
 .h-ctas { animation: rise-in 600ms var(--ease-out) 240ms both; }
 .h-alt { animation: rise-in 600ms var(--ease-out) 300ms both; }
-.nameplate { animation: panel-fill 800ms var(--ease-out) 120ms both; }
+.reel { animation: reel-fill 800ms var(--ease-out) 120ms both; }
 
 .h-promises { border-bottom: 1px solid var(--rule); background: var(--surface); }
 .h-promises .wrap { display: grid; grid-template-columns: repeat(4, 1fr); }
@@ -898,20 +945,32 @@ a.chip:hover { background: var(--surface); border-color: var(--nil); color: var(
   .m-sticky .m-book { background: var(--nil); color: #fff; }
   .h-final .wrap { flex-direction: column; align-items: flex-start; }
 
-  /* Hero on phones: the journey panel is shorter (smaller numeral, no name or
-     note: the name is in the header 100px above) and does not auto-advance;
-     the dots step it. The headline, sub-copy and Book still fit the first screen. */
+  /* Hero on phones: the reel sits below the CTAs (both stay on the first
+     screen) as a swipeable scroll-snap row — native, and working without JS.
+     It never auto-advances; the bars step it, so the arrows and Pause go.
+     The plate drops the name (it is in the header 100px above) and the note. */
   .h-hero .wrap { padding-block: 48px 56px; }
   .h-sub { font-size: 1.0625rem; }
-  .nameplate { width: 100%; padding: 22px 20px 18px; }
-  .jn-live .jn-steps { min-height: 176px; }
-  .jn-pause { display: none; }
-  .jn-live .jn-num { font-size: 4.5rem; }
-  .jn-live .jn-step b { margin-top: 10px; font-size: 1.25rem; }
-  .jn-live .jn-step p { font-size: 0.9375rem; }
-  .np-body { margin-top: 12px; padding-top: 12px; }
+  .reel { width: 100%; padding: 20px 20px 16px; }
+  .reel-pause, .reel-arrow { display: none; }
+  .reel-slides {
+    grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: 100%; gap: 20px;
+    position: relative; overflow-x: auto; scroll-snap-type: x mandatory; overscroll-behavior-x: contain;
+    scrollbar-width: none; margin-top: 4px;
+  }
+  .reel-slides::-webkit-scrollbar { display: none; }
+  .reel-slide { scroll-snap-align: start; border: 0; padding: 6px 0 0; }
+  .reel-word { font-size: 2.5rem; line-height: 1; letter-spacing: -.03em; }
+  .reel-line { font-size: 0.9375rem; margin-top: 10px; }
+  .reel-name { padding: 0; }
+  .reel-name-t { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .reel-bar { bottom: auto; top: 50%; margin-top: -1.5px; }
+  .reel-name[aria-current="true"] .reel-bar { background: #fff; }
+  .reel-plate { margin-top: 14px; padding-top: 12px; gap: 12px; }
+  .reel-mark { width: 40px; height: 40px; }
   .np-name, .np-line, .np-note { display: none; }
-  .np-creds { margin-top: 8px; gap: 6px; }
+  .np-role { font-size: 0.75rem; letter-spacing: .1em; }
+  .np-creds { margin-top: 8px; }
   .np-creds .pill { font-size: 0.75rem; padding: 3px 9px; }
 
   /* Tiers: recommended card first on phones (docx §7.3); the flag becomes an
@@ -969,7 +1028,10 @@ a.chip:hover { background: var(--surface); border-color: var(--nil); color: var(
   .btn:active { transform: none; }
   :is(.h-tier, .pr-card, .pr-plan):has(.card-link:active) { scale: none; }
   .mega { transition: none; }
-  .h-hero h1, .h-sub, .h-hero .bn-sum, .h-ctas, .h-alt, .nameplate, .h-ch-today { animation: fade-in 240ms ease-out both; }
+  .h-hero h1, .h-sub, .h-hero .bn-sum, .h-ctas, .h-alt, .reel, .h-ch-today { animation: fade-in 240ms ease-out both; }
   .h-hero h1 em { animation: none; }
-  .jn-live .jn-step.is-active, .jn-live .is-active .jn-num { animation: none; }
+  /* The reel never autoplays here (site.js); a visitor's step swaps at once. */
+  .reel.is-live .reel-slide.is-active, .reel.is-live .reel-slide.is-leaving, .reel.is-live .reel-cur.is-swap { animation: none; }
+  .reel.is-live .reel-slide.is-leaving { visibility: hidden; }
+  .reel-slides { scroll-behavior: auto; }
 }

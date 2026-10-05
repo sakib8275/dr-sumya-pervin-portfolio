@@ -85,7 +85,7 @@ test('ink on a turmeric fill meets AA', () => {
 test('turmeric is never text on a light ground', () => {
   // --haldi is 2:1 on paper: a fill, a rule or a mark there, never text. As a
   // text colour it is allowed only inside the indigo-ground components.
-  const DARK = /\.(nameplate|np-|h-dont|no-mark|pr-est-out|foot|h-tier\.sig|u-bar|m-sticky)/;
+  const DARK = /\.(reel|np-|h-dont|no-mark|pr-est-out|foot|h-tier\.sig|u-bar|m-sticky)/;
   const rules = siteCss.replace(/\/\*[\s\S]*?\*\//g, '').match(/[^{}]+\{[^}]*\}/g) || [];
   for (const rule of rules) {
     if (!/(^|[^-])color:\s*var\(--haldi\)/.test(rule)) continue;
@@ -120,15 +120,25 @@ test('form fields and focus rings meet the 3:1 non-text floor', () => {
   assert.match(siteCss, /:focus-visible\s*\{[^}]*outline:\s*2px solid var\(--nil\)/, 'a site-wide nil focus ring must exist');
   assert.ok(contrast(token('nil'), token('paper-2')) >= 3, 'the focus ring must be ≥3:1 on the darkest light ground');
   assert.ok(contrast(token('haldi'), token('nil-deep')) >= 3, 'the turmeric focus ring must be ≥3:1 on --nil-deep');
+  assert.ok(contrast(token('bar-on-nil'), token('nil-deep')) >= 3, 'the hero reel\'s inactive progress bars must be ≥3:1 on --nil-deep');
 });
 
-test('focus rings on every Deep Nil ground, the hero journey panel included, are turmeric', () => {
+test('focus rings on every Deep Nil ground, the hero reel included, are turmeric', () => {
   // The site-wide ring is --nil, 1.2:1 on --nil-deep: invisible on an indigo ground.
   const m = siteCss.match(/([^{}]*:focus-visible[^{}]*)\{\s*outline-color:\s*var\(--haldi\)\s*;?\s*\}/);
   assert.ok(m, 'the turmeric focus-ring override list is missing');
-  for (const sel of ['.u-bar', '.foot', '.h-dont', '.h-final', '.m-sticky', '.pr-est-out', '.h-tier.sig', '.nameplate']) {
+  for (const sel of ['.u-bar', '.foot', '.h-dont', '.h-final', '.m-sticky', '.pr-est-out', '.h-tier.sig', '.reel']) {
     assert.ok(m[1].includes(`${sel} :focus-visible`), `${sel} sits on Deep Nil and needs the turmeric focus ring`);
   }
+});
+
+test('the hero reel keeps the One Mark Rule: its progress bars are never turmeric', () => {
+  // The hero already carries its two turmeric marks (the underline under
+  // "diagnosis" and the BMDC pill); a turmeric active bar made it three.
+  const rules = siteCss.replace(/\/\*[\s\S]*?\*\//g, '').match(/[^{}]+\{[^}]*\}/g) || [];
+  const bars = rules.filter((r) => /\.reel-(bar|fill|name)/.test(r.slice(0, r.indexOf('{'))));
+  assert.ok(bars.length >= 3, 'the reel bar rules were not found in site.css');
+  for (const rule of bars) assert.doesNotMatch(rule, /var\(--haldi\)/, `turmeric in a reel bar rule: ${rule.trim().slice(0, 80)}`);
 });
 
 test('every legacy alias resolves to a defined primitive', () => {

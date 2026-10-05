@@ -15,6 +15,7 @@ colors:
   ink-2: "#4F5568"
   rule: "#DDD5C6"
   rule-dark: "#3A4677"
+  bar-on-nil: "#7480B4"
   field-line: "#8C8576"
   ok: "#2F6B45"
   err-ink: "#A8322A"
@@ -166,12 +167,12 @@ A two-dye palette on paper: deep Bengal indigo carries structure and action, and
 
 ### Primary
 - **Nil Indigo** (`nil`): the doctor's ink. Primary buttons, links (`.tlink`), prices and hours, emphasized words in headlines, the recommended tier's 2px border, operator badges, the site-wide focus ring, checkmarks. White on it is 11.9:1.
-- **Deep Nil** (`nil-deep`): the dark ground. Utility bar, footer, the ethical-limits band, the price estimator's output panel, the signature fee tier, the hero nameplate, the mobile sticky bar. Also the hover state of primary buttons.
+- **Deep Nil** (`nil-deep`): the dark ground. Utility bar, footer, the ethical-limits band, the price estimator's output panel, the signature fee tier, the hero reel, the mobile sticky bar. Also the hover state of primary buttons.
 - **Nil Wash** (`nil-tint`): selection and information washes. Ghost-button hover, result panels (the mole tool's output, the booking confirmation), the package sheet's close-button hover.
 - **Indigo Mist** (`on-nil`): secondary text on Deep Nil (9.4:1). Never used on paper.
 
 ### Secondary
-- **Haldi Turmeric** (`haldi`): the signal. It appears as a fill, a rule or a mark: "Consulting today" flags, savings badges, the BMDC credential pill, text selection, the hero underline under "diagnosis", the journey panel's active step bar, the "no" marks in the limits band, and focus rings on indigo grounds. On paper it is 2:1, so it is **never text on a light ground**. On Deep Nil it may be text (6.5:1): the estimator's checkout total.
+- **Haldi Turmeric** (`haldi`): the signal. It appears as a fill, a rule or a mark: "Consulting today" flags, savings badges, the BMDC credential pill, text selection, the hero underline under "diagnosis", the "no" marks in the limits band, and focus rings on indigo grounds. On paper it is 2:1, so it is **never text on a light ground**. On Deep Nil it may be text (6.5:1): the estimator's checkout total.
 - **Turmeric Ink** (`haldi-ink`): turmeric for when it must be text on paper (4.86:1 on the darkest paper). It also fills the nurse-operator badge (white on it 5.9:1).
 
 ### Neutral
@@ -182,6 +183,7 @@ A two-dye palette on paper: deep Bengal indigo carries structure and action, and
 - **Faded Ink** (`ink-2`): secondary text, hints, meta lines, table labels (6.1:1 on Folded Paper).
 - **Pencil Rule** (`rule`): hairlines, dashed list dividers and card borders. Decorative only.
 - **Night Rule** (`rule-dark`): hairlines on Deep Nil.
+- **Night Bar** (`bar-on-nil`): the hero reel's inactive progress bars on Deep Nil (3.7:1, past the 3:1 floor for a control's state; Night Rule is 1.6:1 there).
 - **Field Line** (`field-line`): input borders and the scrollbar thumb (3.3:1 on paper, for WCAG 1.4.11).
 - **States:** `ok` for confirmations, `err-ink` on `err-bg` for errors, and `warn-ink` on `warn-bg` for booking notices. All are AA.
 
@@ -208,7 +210,7 @@ A two-dye palette on paper: deep Bengal indigo carries structure and action, and
 - **Figure** (600, tabular numerals): prices and hours. 44px on fee tiers, 46px in the package sheet, 34px on price cards, `clamp(26px, 2.6vw, 32px)` for chamber hours. These are the numbers a patient scans for, so they carry display weight in Nil Indigo.
 - **Body** (400, 16px, 1.55): prose at 76ch maximum (`.s-prose`), ledes at 17–19px and 62ch.
 - **Body small** (400, 14–15px): card copy, meta lines and table cells, mostly in Faded Ink.
-- **Label** (700, 11–13px, 0.08–0.16em, uppercase): table heads, menu group heads, sheet section heads, the nameplate role line.
+- **Label** (700, 11–13px, 0.08–0.16em, uppercase): table heads, menu group heads, sheet section heads, the hero reel's label and role line.
 
 ### Named Rules
 **The Plain Figure Rule.** Every price, fee and hour uses tabular numerals at Figure weight, with the Taka sign before the number and lakh grouping (৳1,75,000). No adjectives replace a number.
@@ -221,7 +223,7 @@ A single centered container (max 1240px) with a fluid gutter (`clamp(18px, 3.4vw
 
 - **Ruled columns:** the main structure for scannable information. Chambers, the three "What brings you here?" pillars and the Centre's rooms sit as open columns. Each has a 2px ink top rule and no box, laid out in 3-column grids that become 2 and then 1.
 - **Fee tiers:** a three-up row with the recommended tier lifted 10px. On phones they stack, with the recommended tier moved first.
-- **Breakpoints:** 1100px (top nav gives way to the drawer), 1080px (four- and three-column grids halve, hero stacks), 820px (phone layout: sticky bottom bar of Call / WhatsApp / Book, price tables become stacked cards, the package view becomes a bottom sheet, the journey panel shortens, shows a numeral per step, and does not auto-advance), 480px (single column, full-width CTAs).
+- **Breakpoints:** 1100px (top nav gives way to the drawer), 1080px (four- and three-column grids halve, hero stacks), 820px (phone layout: sticky bottom bar of Call / WhatsApp / Book, price tables become stacked cards, the package view becomes a bottom sheet, the hero reel becomes a swipeable row under the CTAs and does not auto-advance), 480px (single column, full-width CTAs).
 - **Tap targets:** at least 44px everywhere (48px drawer rows). This is a product requirement, not a preference.
 
 ## Elevation & Depth
@@ -232,7 +234,7 @@ Flat by default. Depth comes from tone first: Folded Paper bands sink, Clean She
 - **Hover lift** (`box-shadow: 0 4px 14px rgba(28, 34, 51, .07)`): cards and fee cards under the pointer, together with a 2px rise.
 - **Recommended** (`box-shadow: 0 16px 34px -10px rgba(28, 34, 51, .18)`): the recommended fee tier and care plan at rest.
 - **Overlay** (`box-shadow: 0 18px 36px -14px rgba(28, 34, 51, .22)`; the sheet uses `-24px 0 48px -20px rgba(28, 34, 51, .35)`): mega menu, drawer and package sheet, over an indigo scrim (`rgba(26, 39, 86, .42)`).
-- **Nameplate** (`box-shadow: 0 28px 52px -24px rgba(26, 39, 86, .55)`): the hero's one object.
+- **Hero reel** (`box-shadow: 0 28px 52px -24px rgba(26, 39, 86, .55)`): the hero's one object.
 
 ### Named Rules
 **The Earned Shadow Rule.** A surface at rest is flat. If a shadow is not answering a touch, an overlay or the single recommendation, delete it.
@@ -241,7 +243,7 @@ Flat by default. Depth comes from tone first: Folded Paper bands sink, Clean She
 
 Actions are pills (999px): buttons, chips, flags and savings badges. Containers are softly rounded: 20px cards, 22px fee tiers, 18px price cards and tables, 14px insets and notes, 12px fields and status boxes, 7px operator badges. Borders are 1px Pencil Rule hairlines, and dashed hairlines divide list rows inside tiers. Emphasis comes from a 2px border (recommended tier) or a 2px top rule (columns), never a thick side stripe.
 
-The arch silhouette was retired on 2026-10-04 (the owner disliked the dome). The hero panel is a plain `--r-card` rectangle.
+The arch silhouette was retired on 2026-10-04 (the owner disliked the dome). The hero reel is a plain `--r-card` rectangle.
 
 ## Components
 
@@ -286,12 +288,18 @@ The practice's logo: a custom S beside a rounded P, grounded by one curved skin 
 - **Lockups:** horizontal (the mark, then two lines of type centred on the P's stem) and stacked (type centred under the mark). The name is outlined Outfit 500, one step lighter than the site header so it weighs the same as the monoline stroke. The descriptor is outlined Outfit 500 in caps tracked 0.14em, like the site's label type. Each comes in three colourways: indigo, reverse (white, for Deep Nil and dark grounds) and black.
 - **Clear space:** the height of the P's bowl on every side. Nothing else enters that zone, not even the edge of a card.
 - **Minimum sizes:** horizontal lockup 160px / 40mm, stacked lockup 96px / 24mm, the mark alone 40px / 10mm at the drawn weight. Below 40px the mark takes the heavier weights above, down to 24px; the favicon tile goes to 16px. Below the horizontal minimum, set the mark beside live text instead.
-- **Placements:** header and drawer beside the name, footer above it, the nameplate's turmeric ring (in place of typed initials), the favicon (paper on a Deep Nil tile), the phone icon, and the share card (flat Deep Nil, with no glow behind the name, by the gradient rule).
+- **Placements:** header and drawer beside the name, footer above it, the hero reel's credential plate (white on Deep Nil), the favicon (paper on a Deep Nil tile), the phone icon, and the share card (flat Deep Nil, with no glow behind the name, by the gradient rule).
 - **Raster assets** come from `npm run build:brand` (`scripts/render-brand-assets.mjs`). Rerun it when the mark or the name changes.
 - **Print and social applications** (logo files, profile and cover images, the written-plan pad, letterhead, cards and chamber nameboards) come from `npm run build:brand-kit` (`scripts/render-brand-kit.mjs`) into `design/brand-kit/`, which also holds the guidelines page. They are generated, never hand-edited.
 
-### The Journey Panel (signature)
-The hero's credential panel, standing in for the portrait the doctor chose not to publish. A Deep Nil `--r-card` rectangle titled "Your first visit" that shows the five published consultation steps one at a time (outlined numeral, title, one line; copy shared with the timeline section via `JOURNEY` in `content/pages/home.mjs`), with step bars, a Pause control, then the role, name and credential pills (BMDC pill in solid turmeric). Without JS or under reduced motion all five steps show as a plain list. It is the page's only indigo object above the fold.
+### The Hero Reel (signature)
+"Plain Truths", chosen by Dr. Sumya on 2026-10-05 over the five-step journey panel. The hero's one indigo object stands in for the portrait she chose not to publish. It is a Deep Nil `--r-card` rectangle labelled "Conditions she treats" that steps through six conditions (`REEL` in `content/pages/home.mjs`):
+- Each slide is the condition as one lowercase display word (Outfit 700, `clamp(3rem, 5.4vw, 5rem)`, -0.035em, two lines at most), a large outlined numeral in Night Rule behind it, and one sentence copied verbatim from that condition page's published blurb. Below it, "Read about …" links to the page.
+- Above the slides: the label, a tabular "01 / 06" counter and the Pause control, first in tab order. Below them: prev/next arrows and six named buttons, each with a progress bar (Night Bar, filling white; never turmeric, by the One Mark Rule).
+- A fixed credential plate closes the panel: the Signature SP mark in white, the role in label type, the name, the specialty line, credential pills outlined in Night Rule, the BMDC pill in solid turmeric, and the Shyamoli/Centre note.
+- **Desktop:** one autoplay pass at 3.2s a slide, then it wipes back to 01 and rests, and Pause reads "Play again". Hover, focus, an off-screen panel and a hidden tab hold it. Any manual step stops it. The slides stack in one grid cell, so the panel never changes height.
+- **Phones (≤820px):** a native scroll-snap row under the CTAs, swiped or stepped by the bars; never autoplays; no arrows or Pause; the plate drops the name and note.
+- **No JS:** a static index of all six with their links (two columns on desktop, the swipe row on phones). Under reduced motion it never autoplays and slides swap without movement.
 
 ### Package Sheet
 The detail view for a visit or plan: a native dialog, as a 540px side sheet on desktop and a bottom sheet (90dvh, 22px top corners) on phones. Clean Sheet, a large Figure price between rules, label-type section heads, and actions pinned to the bottom. Where View Transitions exist, it grows out of the tapped fee card and shrinks back into it (440ms ease-out). Otherwise it slides 36px in over 320ms.
@@ -302,7 +310,7 @@ A turmeric pill with a Deep Nil dot and ink text, shown on the chamber columns w
 ### Motion
 - **Curves:** `--ease-out` `cubic-bezier(.16, 1, .3, 1)` for arrivals and `--ease-move` `cubic-bezier(.65, 0, .35, 1)` for movement between states.
 - **Durations:** `--t-press` 160ms, `--t-state` 320ms, `--t-focal` 760ms.
-- **The hero entrance** is the only authored sequence. The headline settles out of a 10px blur. The journey panel fills with indigo from its base (clip-path, 800ms) and starts stepping through the five consultation steps (clip-path wipe, one pass, then rests; paused by hover, focus or the Pause button; static list under reduced motion). Then the turmeric underline is drawn under "diagnosis".
+- **The hero entrance** is the only authored sequence. The headline settles out of a 10px blur. The reel fills with indigo from its left edge (clip-path, 800ms) and its first word wipes in behind the same edge. Then the turmeric underline is drawn under "diagnosis", and the reel plays its one pass. Each change clears the outgoing slide (opacity, 160ms) while the incoming one wipes in behind one vertical edge (clip-path, 640ms `--ease-move`), so old and new words never splice.
 - Everything else explains state. Under `prefers-reduced-motion`, movement is removed and short plain fades remain.
 
 ## Do's and Don'ts

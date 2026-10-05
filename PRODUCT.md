@@ -73,7 +73,7 @@ The practice is the third option between two flawed ones. The hospital OPD has s
 ## Brand Commitments
 
 - **Name and credentials:** Dr. Sumya Pervin, Consultant Dermatologist. MBBS (SSMC), DDV (BSMMU), FCPS (Skin & VD), BMDC A-59492. No MD: she holds no MD degree, so it never follows her name. Formerly Assistant Professor, Department of Skin & VD, Sir Salimullah Medical College & Mitford Hospital, and BCS (Health); neither is current (owner, 2026-10-05), so neither is presented as a present title.
-- **The doctor's photograph is not published** (her request). A credential panel that walks through the five consultation steps stands in for it.
+- **The doctor's photograph is not published** (her request). The hero reel stands in for it: six conditions she treats, each with one sentence from its own page, above a fixed credential plate (Dr. Sumya's pick, 2026-10-05).
 - **Voice** (docx 1.4):
   - Plain English and short sentences; medical terms explained once, in brackets.
   - Numbers over adjectives.
@@ -92,7 +92,7 @@ The practice is the third option between two flawed ones. The hospital OPD has s
 - **Visual identity, APPROVED 2026-10-04.**
   - The owner's 2026-10-02 decision kept "the current gold/Outfit design system". Outfit remains the typeface.
   - On 2026-10-03 the repo moved to the **Nil & Haldi** palette (indigo + turmeric). On 2026-10-04 Dr. Sumya approved it — she confirmed the rebrand was requested — so it **supersedes the 2026-10-02 gold decision** and is the owner-approved identity. The palette may deploy with the rest of the branch.
-- **Logo, APPROVED 2026-10-04.** Since 2026-10-04 the site uses the **Signature SP** mark, concept 01 of the logo study in `design/clinic-logo/` (one definition in `content/brand.mjs`). It appears in the header, drawer, footer, hero nameplate, favicon, phone icon and share card (`public/assets/og-card.png`, which replaced the AI-looking `clinic.jpg` as the share image). Dr. Sumya approved the mark on 2026-10-04 and accepted the missing trademark clearance as her call. The skin-check clinical wording was approved the same day, with three amendments recorded in STATUS.md.
+- **Logo, APPROVED 2026-10-04.** Since 2026-10-04 the site uses the **Signature SP** mark, concept 01 of the logo study in `design/clinic-logo/` (one definition in `content/brand.mjs`). It appears in the header, drawer, footer, hero reel, favicon, phone icon and share card (`public/assets/og-card.png`, which replaced the AI-looking `clinic.jpg` as the share image). Dr. Sumya approved the mark on 2026-10-04 and accepted the missing trademark clearance as her call. The skin-check clinical wording was approved the same day, with three amendments recorded in STATUS.md.
 - **Language:** English is primary. Bangla summaries (`content/bn.mjs`) publish only after Dr. Sumya reads and approves each one. Machine-drafted Bangla never reaches a page unapproved.
 
 ## Evidence on Hand

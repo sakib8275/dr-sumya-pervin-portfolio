@@ -16,7 +16,8 @@ import { fileURLToPath } from 'node:url';
 import { repoRoot } from './helpers/harness.mjs';
 import { PAGES } from '../content/sitemap.mjs';
 import { BASE, SITE } from '../content/site.mjs';
-import { JOURNEY } from '../content/pages/home.mjs';
+import { JOURNEY, REEL } from '../content/pages/home.mjs';
+import { CONDITIONS } from '../content/sitemap.mjs';
 
 const OUT = join(repoRoot, 'public');
 
@@ -268,14 +269,39 @@ test('no unapproved Bangla draft reaches a built page', async () => {
   }
 });
 
-test('the hero journey panel and the timeline publish the same five step titles', async () => {
+test('the hero reel publishes six conditions, each line from its own page and linked to it', async () => {
   const html = await readFile(join(OUT, 'index.html'), 'utf8');
-  const panel = html.slice(html.indexOf('data-journey'), html.indexOf('np-note'));
+  const reel = html.slice(html.indexOf('data-reel'), html.indexOf('</section>', html.indexOf('data-reel')));
+  assert.equal(REEL.length, 6);
+  const paths = new Set(PAGES.map((p) => p.path));
+  for (const r of REEL) {
+    const [, , blurb] = CONDITIONS.find(([slug]) => slug === r.slug);
+    // Verbatim from the published blurb: only the first letter and a closing
+    // full stop may differ (home.mjs throws at build time if not; this pins it).
+    assert.ok(blurb.includes(r.line.slice(1).replace(/\.$/, '')), `"${r.line}" is not in the ${r.slug} page's blurb`);
+    assert.ok(reel.includes(`>${r.word}<`) && reel.includes(r.line), `hero reel is missing ${r.slug}`);
+    const href = `/conditions/${r.slug}/`;
+    assert.ok(paths.has(href), `${href} is not a published page`);
+    assert.ok(reel.includes(`href="${href}"`), `the ${r.slug} slide must link to its page`);
+  }
+  assert.ok(!REEL.some((r) => r.slug === 'sexual-health'), 'confidential sexual health stays off the hero');
+});
+
+test('the hero credential plate carries the approved credentials and no past titles', async () => {
+  const html = await readFile(join(OUT, 'index.html'), 'utf8');
+  const plate = html.slice(html.indexOf('reel-plate'), html.indexOf('</section>', html.indexOf('reel-plate')));
+  for (const want of ['Consultant Dermatologist', 'Skin, Hair, Nail, Allergy &amp; Venereal Diseases', '>MBBS<', '>DDV (BSMMU)<', '>FCPS (Skin &amp; VD)<', '>BMDC A-59492<']) {
+    assert.ok(plate.includes(want), `the hero plate is missing ${want}`);
+  }
+  // agent.md §6 (owner, 2026-10-05): no MD; Assistant Professor and BCS (Health) are past roles.
+  assert.doesNotMatch(plate, />MD<|Assistant Professor|BCS \(Health\)/);
+});
+
+test('the timeline publishes the five consultation steps', async () => {
+  const html = await readFile(join(OUT, 'index.html'), 'utf8');
   const timeline = html.slice(html.indexOf('h-steps'));
   assert.equal(JOURNEY.length, 5);
   for (const [title, line] of JOURNEY) {
-    assert.ok(panel.includes(`<b>${title}</b>`) && panel.includes(line), `hero panel is missing step "${title}"`);
     assert.ok(timeline.includes(`<b>${title}</b>`) && timeline.includes(line), `timeline is missing step "${title}"`);
   }
-  assert.match(panel, /Skin, Hair, Nail, Allergy &amp; Venereal Diseases/, 'the approved specialty line stays in the hero panel');
 });

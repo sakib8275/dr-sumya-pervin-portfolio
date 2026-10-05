@@ -1,8 +1,10 @@
 // Home body — docx §5.1 copy, laid out in the Nil & Haldi design (site.css).
 // Owner 2026-10-02: the doctor does not want her photograph published, so the
 // hero carries a credential panel (no face) instead of the wireframe's
-// portrait. 2026-10-04: the arch is gone; the panel steps through the five
-// published consultation steps (JOURNEY), the same copy as the timeline below.
+// portrait. 2026-10-04: the arch is gone. 2026-10-05: Dr. Sumya chose the
+// "Plain Truths" reel over the five-step journey panel (PR #10): the panel
+// steps through six conditions she treats (REEL), each with one sentence from
+// that condition's published page and a link to it.
 //
 // 2026-10-03 (critique round): the page leads with what a patient can book
 // today — the two Shyamoli chambers — and the ethical-limits band, the one
@@ -16,6 +18,7 @@ import { CHAMBERS } from '../../functions/lib/schedule.js';
 import { mark } from '../brand.mjs';
 import { bnSummary } from '../bn.mjs';
 import { pkgButton, pkgViews } from './pkgview.mjs';
+import { CONDITIONS } from '../sitemap.mjs';
 
 const vatPct = Math.round(SITE.vatRate * 100);
 const withVat = (taka) => {
@@ -70,7 +73,7 @@ const NO_LIST = [
   ['Guaranteed results', 'Honest ranges, not promises'],
 ];
 
-// The five consultation steps: one source for the hero panel and the timeline.
+// The five consultation steps, published in the timeline section below.
 export const JOURNEY = [
   ['History', 'Bring your creams and old prescriptions. We ask what you have tried.'],
   ['Examination', 'A proper look, with dermoscopy — a magnified skin check — where it helps.'],
@@ -78,6 +81,25 @@ export const JOURNEY = [
   ['Written plan', 'Diagnosis, options, timeline and total cost.'],
   ['Follow-up', 'We message you to check progress.'],
 ];
+
+// The hero reel: six conditions as slides. Each line is a verbatim excerpt of
+// that page's published CONDITIONS blurb (sitemap.mjs), so the build throws if
+// one drifts; only the first letter may be capitalised and a full stop added.
+// The panel label, the lowercase display words and "Read about …" are new
+// wording, logged in STATUS.md for Dr. Sumya's approval.
+export const REEL = [
+  ['acne', 'acne', 'Acne is a treatable medical condition, not a hygiene problem.'],
+  ['melasma', 'melasma', 'Melasma is manageable, not curable'],
+  ['fungal-infection', 'fungal infection', 'Why ringworm keeps coming back — and the cream that makes it worse.'],
+  ['psoriasis', 'psoriasis', 'Psoriasis is controlled, not cured'],
+  ['vitiligo', 'vitiligo', 'Vitiligo treatment works better the earlier it starts.'],
+  ['hair-loss', 'hair fall', 'hair loss has distinct causes with distinct treatments.'],
+].map(([slug, word, line]) => {
+  const c = CONDITIONS.find(([s]) => s === slug);
+  if (!c || !c[2].includes(line)) throw new Error(`REEL line for ${slug} is not in its published blurb`);
+  const text = line[0].toUpperCase() + line.slice(1) + (/[.?]$/.test(line) ? '' : '.');
+  return { slug, word, line: text, name: c[1] };
+});
 
 const NO_MARK = '<svg class="no-mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9.2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M5.6 5.6l12.8 12.8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
 
@@ -96,24 +118,44 @@ export default function home() {
       <p class="h-alt">Not sure what you need? <a class="tlink" href="${href('/consultation-prep/')}">See what your first visit will involve</a> (2-minute check)</p>
     </div>
     <div class="h-hero-figure">
-      <div class="nameplate" data-journey role="group" aria-label="Your first visit, in five steps">
-        <p class="jn-eyebrow">Your first visit</p>
-        <ol class="jn-steps">${JOURNEY.map(([t, d], i) => `
-          <li class="jn-step"><span class="jn-num" aria-hidden="true">0${i + 1}</span><b>${t}</b><p>${d}</p></li>`).join('')}
-        </ol>
-        <div class="np-body">
-          <p class="np-role">Consultant Dermatologist</p>
-          <p class="np-name">${SITE.name}</p>
-          <p class="np-line">Skin, Hair, Nail, Allergy &amp; Venereal Diseases</p>
-          <ul class="np-creds">
-            <li class="pill">MBBS</li>
-            <li class="pill">DDV (BSMMU)</li>
-            <li class="pill">FCPS (Skin &amp; VD)</li>
-            <li class="pill gold">${SITE.bmdc.replace('BMDC Reg. ', 'BMDC ')}</li>
-          </ul>
+      <section class="reel" data-reel aria-label="Conditions she treats">
+        <div class="reel-head">
+          <p class="reel-label">Conditions she treats</p>
+          <p class="reel-count" aria-hidden="true" hidden><span class="reel-cur">01</span> / 0${REEL.length}</p>
+          <button class="reel-pause" type="button" hidden>Pause</button>
         </div>
-        <p class="np-note"><b>Consulting in Shyamoli</b> · Dermatology Centre opening 2027</p>
-      </div>
+        <ol class="reel-slides">${REEL.map((r, i) => `
+          <li class="reel-slide" id="reel-${r.slug}">
+            <span class="reel-ghost" aria-hidden="true">0${i + 1}</span>
+            <p class="reel-word">${r.word}</p>
+            <p class="reel-line">${r.line}</p>
+            <a class="tlink reel-link" href="${href('/conditions/' + r.slug + '/')}">Read about ${r.word} <span aria-hidden="true">→</span></a>
+          </li>`).join('')}
+        </ol>
+        <div class="reel-nav" hidden>
+          <button class="reel-arrow" type="button" data-step="-1" aria-label="Previous condition"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          <div class="reel-names">${REEL.map((r) => `
+            <button class="reel-name" type="button" aria-controls="reel-${r.slug}"><span class="reel-name-t">${r.word}</span><i class="reel-bar" aria-hidden="true"><span class="reel-fill"></span></i></button>`).join('')}
+          </div>
+          <button class="reel-arrow" type="button" data-step="1" aria-label="Next condition"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        </div>
+        <p class="vh reel-live"></p>
+        <div class="reel-plate">
+          <span class="reel-mark" aria-hidden="true">${mark('', 5)}</span>
+          <div>
+            <p class="np-role">Consultant Dermatologist</p>
+            <p class="np-name">${SITE.name}</p>
+            <p class="np-line">Skin, Hair, Nail, Allergy &amp; Venereal Diseases</p>
+            <ul class="np-creds">
+              <li class="pill">MBBS</li>
+              <li class="pill">DDV (BSMMU)</li>
+              <li class="pill">FCPS (Skin &amp; VD)</li>
+              <li class="pill gold">${SITE.bmdc.replace('BMDC Reg. ', 'BMDC ')}</li>
+            </ul>
+            <p class="np-note"><b>Consulting in Shyamoli</b> · Dermatology Centre opening 2027</p>
+          </div>
+        </div>
+      </section>
     </div>
   </div>
 </section>

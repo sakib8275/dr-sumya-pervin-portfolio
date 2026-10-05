@@ -474,4 +474,4 @@ pass the full uuid from `pages deployment list`. Verified 2026-08-04: a live boo
 > **Preserve Medical Accuracy**: Never modify Dr. Sumya Pervin's professional titles (`MBBS (SSMC)`, `DDV (BSMMU)`, `FCPS (Skin & VD)`), designation (`Consultant Dermatologist`), or chamber details without explicit instruction from the user. Never present her as `MD` (she holds no MD degree), and never present `Assistant Professor` or `BCS (Health)` as current: both are past roles (owner, 2026-10-05).
 
 > [!CAUTION]
-> **Asset Links**: Do not break image source paths (`assets/clinic.jpg`, `assets/treatment.jpg`). The doctor's portrait (`assets/hero_portrait.*`) was **deleted 2026-10-03 at her request** and must not be reintroduced — the hero uses a CSS credential plate instead. If adding new images, place them in the `assets/` directory.
+> **Asset Links**: Do not break image source paths (`assets/clinic.jpg`, `assets/treatment.jpg`). The doctor's portrait (`assets/hero_portrait.*`) was **deleted 2026-10-03 at her request** and must not be reintroduced — the hero uses a typographic reel with a credential plate instead. If adding new images, place them in the `assets/` directory.
