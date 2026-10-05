@@ -4,8 +4,22 @@
 verification, or owner-action state changes. Everything under `docs/` is a dated
 snapshot; if this file and a snapshot disagree, this file wins.
 
-**Updated:** 2026-10-05 (DEPLOYED) — **PRs #12, #11, #10 (then #13, review
-records) are merged and the merge result is LIVE on drsumyapervin.com.** Gates
+**Updated:** 2026-10-05 (DEPLOYED) — **PR #14, the "Plain Truths" hero reel, is
+merged (`5d3f934`) and LIVE** as deployment `1d4a93bf` (`npx wrangler pages
+deploy` from a clean checkout of the merge commit, after master CI passed;
+static assets only — Functions, Workers, migrations and `wrangler.toml` are
+unchanged since `fae94bfb`, which is the rollback target). Dr. Sumya approved
+the reel's wording on 2026-10-05 (below). Verified on the live apex: the hero
+is the reel (six slides; no journey panel), the new `site.css`/`site.js` are
+served, `/migrations/001_schema.sql` and `/wrangler.toml` 404 with the 404
+page, HSTS, the per-request CSP nonce and `nosniff` are present,
+`/api/config/public` answers 200, and a browser run at 1440 and 375 ends with
+**zero console errors** (desktop autoplays from 01 with Pause first in tab
+order; the phone does not autoplay, keeps both CTAs on the first screen, and
+steps on a bar tap).
+
+**Before that (same day):** PRs #12, #11, #10 (then #13, review
+records) were merged and the merge result went LIVE on drsumyapervin.com. Gates
 on merged master first: 325 node + 58 e2e. `npx wrangler pages deploy`
 (deployments `559b7fa6` → `fae94bfb` — the two redeploys ship a console fix
 found by the live check, below; the 2026-10-04 deploy this supersedes was
@@ -24,11 +38,10 @@ with the fee-card specs asserting no pageerror across their runs.
 owner's real-phone pass (package sheet, skin check, drawer) and the WhatsApp
 share-card preview; the brand kit's printer proof on the chosen stock; the
 five `design/brand-kit/README.md` questions for Dr. Sumya (the canonical
-credentials line, "MD" in the site title, Bangla wording, the Centre). **New:**
-Dr. Sumya's sign-off on the hero reel's new wording (below) before it deploys.
+credentials line, "MD" in the site title, Bangla wording, the Centre).
 
-**2026-10-05 (hero reel "Plain Truths", branch `feat/hero-plain-truths`) — NOT
-MERGED, NOT DEPLOYED.** Dr. Sumya compared the shipped journey panel (A) with
+**2026-10-05 (hero reel "Plain Truths", PR #14) — MERGED (`5d3f934`) AND
+DEPLOYED (`1d4a93bf`) 2026-10-05.** Dr. Sumya compared the shipped journey panel (A) with
 the "Plain Truths" reel (B) in a local A/B demo and **picked B**. The hero's
 indigo object becomes a reel of six conditions she treats — acne, melasma,
 fungal infection, psoriasis, vitiligo, hair fall — each a lowercase display
@@ -50,15 +63,14 @@ Rule) and its inactive colour is a token, `--bar-on-nil` (3.7:1, pinned in
 against mutations (turmeric bar, no clear before the wipe, resting on 06), and a
 real specificity bug (the pause rule lost to the bar's `animation` shorthand, so
 hover and off-screen held nothing) was caught by the new desktop spec and fixed.
-**DRAFT copy, needs Dr. Sumya's approval before deploy:** the panel label
+**Copy APPROVED by Dr. Sumya on 2026-10-05**, before the deploy: the panel label
 "Conditions she treats"; the six display words (notably "hair fall" for the
 "Hair Loss (Alopecia)" page, the site's existing chip label); "Read about …"
 links; and two edits to quoted blurbs — slide 06 capitalises "Hair loss has
 distinct causes…", and slides 02 and 04 end on a full stop the blurb continues
 past ("Melasma is manageable, not curable." / "Psoriasis is controlled, not
-cured."). For her eye too (not copy): the Signature SP mark returns to the hero
-in a new treatment — white on the credential plate, without the old turmeric
-ring. Independent review on the PR: safe to merge, four non-blocking notes, all
+cured."). She also approved the Signature SP mark's return to the hero in a new
+treatment — white on the credential plate, without the old turmeric ring. Independent review on the PR: safe to merge, four non-blocking notes, all
 closed in a follow-up commit (hidden-tab hold now tested; the `aria-current`
 choice over `aria-disabled` documented in `site.js`; the PR body lists the
 arrows, counter, arrow keys and mark placement; the sitemap rebuilt).
