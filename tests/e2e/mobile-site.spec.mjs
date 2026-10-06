@@ -102,7 +102,7 @@ test.describe('mobile 375×667', () => {
     for (const [w, hh] of boxes) { expect(w).toBeGreaterThanOrEqual(44); expect(hh).toBeGreaterThanOrEqual(44); }
     const links = await page.$$eval('.reel-link', (els) => els.map((e) => e.getBoundingClientRect().height));
     for (const lh of links) expect(lh, '"Read about …" is a 44px target').toBeGreaterThanOrEqual(44);
-    await expect(page.locator('.reel-pause'), 'nothing auto-advances, so no Pause').toBeHidden();
+    await expect(page.locator('.reel-pause'), 'no Pause control exists anywhere').toHaveCount(0);
     await expect(page.locator('.reel-arrow').first(), 'the row swipes; the arrows go').toBeHidden();
   });
 
@@ -159,7 +159,7 @@ test.describe('mobile 375×667, no JavaScript', () => {
     expect(await page.locator('.reel.is-live').count(), 'no enhancement without JS').toBe(0);
     expect(await page.locator('.reel').getAttribute('aria-roledescription'), 'without JS the index is not announced as a carousel').toBeNull();
     await expect(page.locator('.reel-nav'), 'no bars without JS').toBeHidden();
-    await expect(page.locator('.reel-pause')).toBeHidden();
+    await expect(page.locator('.reel-pause')).toHaveCount(0);
     await expect(page.locator('.reel-slide')).toHaveCount(6);
     await expect(page.locator('.reel-link')).toHaveCount(6);
     await expect(page.locator('.h-ctas .btn-ink')).toBeInViewport();

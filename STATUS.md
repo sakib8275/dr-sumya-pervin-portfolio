@@ -4,6 +4,20 @@
 verification, or owner-action state changes. Everything under `docs/` is a dated
 snapshot; if this file and a snapshot disagree, this file wins.
 
+**Updated:** 2026-10-06 (WORKING TREE — not yet committed, merged or deployed) —
+the owner asked that the hero reel rotate perpetually, a touch faster, and
+without the Pause control: `--reel-dwell` is 2400ms (was 3200ms), the
+end-of-pass rest is gone — 06 wipes back to 01 and autoplay carries on — and
+the `.reel-pause` button is removed from markup, JS and CSS. The stop path is
+now a manual step (arrow, name bar, keyboard arrow), which stops autoplay for
+the rest of the visit (WCAG 2.2.2); the holds (hover, focus, a panel under 40%
+on screen, a hidden tab), reduced motion and the phone swipe row are
+unchanged. Touches `content/pages/home.mjs` (rebuilt into `public/`,
+sitemap lastmod refreshed), `public/js/site.js`, `public/css/site.css`,
+`tests/e2e/hero-reel.spec.mjs` (wrap + no-button pinned),
+`tests/e2e/mobile-site.spec.mjs` and DESIGN.md. The block below describes the
+live site until this ships.
+
 **Updated:** 2026-10-05 (DEPLOYED) — **PR #14, the "Plain Truths" hero reel, is
 merged (`5d3f934`) and LIVE** as deployment `1d4a93bf` (`npx wrangler pages
 deploy` from a clean checkout of the merge commit, after master CI passed;

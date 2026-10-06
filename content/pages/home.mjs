@@ -122,7 +122,6 @@ export default function home() {
         <div class="reel-head">
           <p class="reel-label">Conditions she treats</p>
           <p class="reel-count" aria-hidden="true" hidden><span class="reel-cur">01</span> / 0${REEL.length}</p>
-          <button class="reel-pause" type="button" hidden>Pause</button>
         </div>
         <ol class="reel-slides">${REEL.map((r, i) => `
           <li class="reel-slide" id="reel-${r.slug}">

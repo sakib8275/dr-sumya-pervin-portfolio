@@ -295,9 +295,9 @@ The practice's logo: a custom S beside a rounded P, grounded by one curved skin 
 ### The Hero Reel (signature)
 "Plain Truths", chosen by Dr. Sumya on 2026-10-05 over the five-step journey panel. The hero's one indigo object stands in for the portrait she chose not to publish. It is a Deep Nil `--r-card` rectangle labelled "Conditions she treats" that steps through six conditions (`REEL` in `content/pages/home.mjs`):
 - Each slide is the condition as one lowercase display word (Outfit 700, `clamp(3rem, 5.4vw, 5rem)`, -0.035em, two lines at most), a large outlined numeral in Night Rule behind it, and one sentence copied verbatim from that condition page's published blurb. Below it, "Read about …" links to the page.
-- Above the slides: the label, a tabular "01 / 06" counter and the Pause control, first in tab order. Below them: prev/next arrows and six named buttons, each with a progress bar (Night Bar, filling white; never turmeric, by the One Mark Rule).
+- Above the slides: the label and a tabular "01 / 06" counter. Below them: prev/next arrows and six named buttons, each with a progress bar (Night Bar, filling white; never turmeric, by the One Mark Rule).
 - A fixed credential plate closes the panel: the Signature SP mark in white, the role in label type, the name, the specialty line, credential pills outlined in Night Rule, the BMDC pill in solid turmeric, and the Shyamoli/Centre note.
-- **Desktop:** one autoplay pass at 3.2s a slide, then it wipes back to 01 and rests, and Pause reads "Play again". Hover, focus, an off-screen panel and a hidden tab hold it. Any manual step stops it. The slides stack in one grid cell, so the panel never changes height.
+- **Desktop:** perpetual autoplay at 2.4s a slide — 01 → 06, wipe back to 01, and it carries on. There is no Pause control: a manual step (arrow, name bar, keyboard arrow) stops autoplay for the rest of the visit — the stop WCAG 2.2.2 asks for — and hover, focus, an off-screen panel and a hidden tab hold it. The slides stack in one grid cell, so the panel never changes height.
 - **Phones (≤820px):** a native scroll-snap row under the CTAs, swiped or stepped by the bars; never autoplays; no arrows or Pause; the plate drops the name and note.
 - **No JS:** a static index of all six with their links (two columns on desktop, the swipe row on phones). Under reduced motion it never autoplays and slides swap without movement.
 
@@ -310,7 +310,7 @@ A turmeric pill with a Deep Nil dot and ink text, shown on the chamber columns w
 ### Motion
 - **Curves:** `--ease-out` `cubic-bezier(.16, 1, .3, 1)` for arrivals and `--ease-move` `cubic-bezier(.65, 0, .35, 1)` for movement between states.
 - **Durations:** `--t-press` 160ms, `--t-state` 320ms, `--t-focal` 760ms.
-- **The hero entrance** is the only authored sequence. The headline settles out of a 10px blur. The reel fills with indigo from its left edge (clip-path, 800ms) and its first word wipes in behind the same edge. Then the turmeric underline is drawn under "diagnosis", and the reel plays its one pass. Each change clears the outgoing slide (opacity, 160ms) while the incoming one wipes in behind one vertical edge (clip-path, 640ms `--ease-move`), so old and new words never splice.
+- **The hero entrance** is the only authored sequence. The headline settles out of a 10px blur. The reel fills with indigo from its left edge (clip-path, 800ms) and its first word wipes in behind the same edge. Then the turmeric underline is drawn under "diagnosis", and the reel starts its perpetual rotation. Each change clears the outgoing slide (opacity, 160ms) while the incoming one wipes in behind one vertical edge (clip-path, 640ms `--ease-move`), so old and new words never splice.
 - Everything else explains state. Under `prefers-reduced-motion`, movement is removed and short plain fades remain.
 
 ## Do's and Don'ts

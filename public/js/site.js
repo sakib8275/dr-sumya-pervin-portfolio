@@ -37,10 +37,12 @@ import { writePrefill, takePrefill } from './prefill.mjs';
   });
 
   // — Hero reel: six conditions as slides. Without JS it is a static index
-  // (a swipeable row on phones). Desktop plays one pass, 3.2s a slide, then
-  // wipes back to the first and rests; CSS owns the timing (the active bar's
-  // animationend advances), so hover, focus, an off-screen panel and a hidden
-  // tab pause it through animation-play-state. Any manual step stops it.
+  // (a swipeable row on phones). Desktop rotates perpetually, 2.4s a slide,
+  // wiping 06 back to 01 and carrying on; CSS owns the timing (the active
+  // bar's animationend advances), so hover, focus, an off-screen panel and a
+  // hidden tab pause it through animation-play-state. There is no Pause
+  // control: a manual step (arrow, name bar, keyboard arrow) stops autoplay
+  // for the rest of the visit — that is the stop path WCAG 2.2.2 asks for.
   // Phones and reduced motion never autoplay; phones swipe a scroll-snap row.
   const reel = document.querySelector('[data-reel]');
   if (reel) {
@@ -49,15 +51,12 @@ import { writePrefill, takePrefill } from './prefill.mjs';
     const list = reel.querySelector('.reel-slides');
     const cur = reel.querySelector('.reel-cur');
     const live = reel.querySelector('.reel-live');
-    const pauseBtn = reel.querySelector('.reel-pause');
     const nav = reel.querySelector('.reel-nav');
     const calm = window.matchMedia('(prefers-reduced-motion: reduce)');
     const phone = window.matchMedia('(max-width: 820px)');
     const pad = (n) => String(n).padStart(2, '0');
-    const last = slides.length - 1;
     let i = -1;
     let auto = false;
-    let played = false;
     let touched = false; // a visitor has stepped it: autoplay never starts after that
 
     // A carousel only once it behaves as one: the no-JS index is a plain list.
@@ -71,7 +70,6 @@ import { writePrefill, takePrefill } from './prefill.mjs';
     live.setAttribute('aria-live', 'polite');
     nav.hidden = false;
     reel.querySelector('.reel-count').hidden = false;
-    pauseBtn.hidden = false;
 
     function go(n, { user = false, fromScroll = false } = {}) {
       n = (n + slides.length) % slides.length;
@@ -102,24 +100,12 @@ import { writePrefill, takePrefill } from './prefill.mjs';
     function setAuto(on) {
       auto = on;
       reel.classList.toggle('is-auto', on);
-      pauseBtn.textContent = on ? 'Pause' : (played ? 'Play again' : 'Play');
     }
     function stop() { touched = true; setAuto(false); }
 
     reel.addEventListener('animationend', (e) => {
       if (!auto || !e.target.classList.contains('reel-fill')) return;
-      if (i < last) { go(i + 1); return; }
-      // End of the pass: rest on the first slide, not the last one seen.
-      played = true;
-      setAuto(false);
-      go(0);
-    });
-    pauseBtn.addEventListener('click', () => {
-      touched = true;
-      if (auto) { setAuto(false); return; }
-      if (played && i !== 0) go(0);
-      played = false;
-      setAuto(true);
+      go(i + 1); // go() wraps past the last slide: the reel never rests
     });
     names.forEach((b, k) => b.addEventListener('click', () => { stop(); go(k, { user: true }); }));
     reel.querySelectorAll('.reel-arrow').forEach((b) => b.addEventListener('click', () => { stop(); go(i + Number(b.dataset.step), { user: true }); }));

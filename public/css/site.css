@@ -460,7 +460,7 @@ a.chip:hover { background: var(--surface); border-color: var(--nil); color: var(
    otherwise widen the whole page by six slides. */
 .h-hero-figure, .reel, .reel-slides { min-width: 0; }
 .reel {
-  --reel-dwell: 3200ms;
+  --reel-dwell: 2400ms;
   position: relative; width: min(100%, 540px); overflow: hidden;
   padding: 26px 32px 24px;
   background: var(--nil-deep); color: var(--on-nil);
@@ -471,11 +471,6 @@ a.chip:hover { background: var(--surface); border-color: var(--nil); color: var(
 .reel-label { font-size: 0.75rem; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--on-nil); }
 .reel-count { margin-left: auto; font-size: 0.8125rem; font-weight: 600; letter-spacing: .06em; font-variant-numeric: tabular-nums; color: var(--on-nil); overflow: hidden; }
 .reel-cur { display: inline-block; color: #fff; }
-.reel-pause {
-  min-height: 44px; min-width: 44px; padding: 0 2px; background: none; border: 0; cursor: pointer;
-  font: inherit; font-size: 0.8125rem; color: var(--on-nil); text-decoration: underline; text-underline-offset: 3px;
-}
-.reel-pause:hover { color: #fff; }
 .reel-slides { list-style: none; margin: 12px 0 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 0 24px; }
 .reel-slide { position: relative; padding: 14px 0; border-top: 1px solid var(--rule-dark); }
 .reel-ghost { display: none; }
@@ -551,7 +546,8 @@ a.chip:hover { background: var(--surface); border-color: var(--nil); color: var(
    The headline settles out of a blur the way ink takes to paper; the reel
    fills with indigo from its left edge and its first word wipes in behind the
    same edge; then the turmeric underline is drawn under "diagnosis", the word
-   the whole practice is built on. The reel then plays its one pass. Content is visible in
+   the whole practice is built on. The reel then starts its perpetual
+   rotation. Content is visible in
    every frame's end state with or without JS (pure CSS, `both` fill), and the
    headline never starts fully transparent so it still paints for LCP. */
 @keyframes ink-settle { from { opacity: .2; filter: blur(10px); translate: 0 6px; } }
@@ -952,7 +948,7 @@ a.chip:hover { background: var(--surface); border-color: var(--nil); color: var(
   .h-hero .wrap { padding-block: 48px 56px; }
   .h-sub { font-size: 1.0625rem; }
   .reel { width: 100%; padding: 20px 20px 16px; }
-  .reel-pause, .reel-arrow { display: none; }
+  .reel-arrow { display: none; }
   .reel-slides {
     grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: 100%; gap: 20px;
     position: relative; overflow-x: auto; scroll-snap-type: x mandatory; overscroll-behavior-x: contain;
