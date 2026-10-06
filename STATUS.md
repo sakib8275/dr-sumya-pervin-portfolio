@@ -4,19 +4,26 @@
 verification, or owner-action state changes. Everything under `docs/` is a dated
 snapshot; if this file and a snapshot disagree, this file wins.
 
-**Updated:** 2026-10-06 (WORKING TREE — not yet committed, merged or deployed) —
-the owner asked that the hero reel rotate perpetually, a touch faster, and
-without the Pause control: `--reel-dwell` is 2400ms (was 3200ms), the
-end-of-pass rest is gone — 06 wipes back to 01 and autoplay carries on — and
-the `.reel-pause` button is removed from markup, JS and CSS. The stop path is
-now a manual step (arrow, name bar, keyboard arrow), which stops autoplay for
-the rest of the visit (WCAG 2.2.2); the holds (hover, focus, a panel under 40%
-on screen, a hidden tab), reduced motion and the phone swipe row are
-unchanged. Touches `content/pages/home.mjs` (rebuilt into `public/`,
-sitemap lastmod refreshed), `public/js/site.js`, `public/css/site.css`,
-`tests/e2e/hero-reel.spec.mjs` (wrap + no-button pinned),
-`tests/e2e/mobile-site.spec.mjs` and DESIGN.md. The block below describes the
-live site until this ships.
+**Updated:** 2026-10-06 (DEPLOYED) — **the hero reel now rotates perpetually,
+faster, with no Pause control, and is LIVE.** Owner directives (same day),
+committed directly to master as `e11d551` — no PR, at the owner's call —
+after gates on the committed tree: 328 node + 64 e2e. Deployed as
+`3ae189e5` (`npx wrangler pages deploy`; static assets only — Functions,
+Workers, migrations and `wrangler.toml` unchanged since `1d4a93bf`, the
+previous reel and the rollback target). The dwell is 2400ms (was 3200ms), 06
+wipes back to 01 and autoplay carries on (the end-of-pass rest and `played`
+flag are gone), and `.reel-pause` is removed from markup, JS and CSS — a
+manual step (arrow, name bar, keyboard arrow) is the WCAG 2.2.2 stop, noted
+in site.js and DESIGN.md. The hover/focus/off-screen/hidden-tab holds,
+reduced motion and the phone swipe row are unchanged; the hidden-tab and
+off-screen hold tests were de-flaked (the hold is installed before the first
+bar's animation exists, so it is paused from its first frame). Verified on
+the live apex: homepage 200 with HSTS, `nosniff` and the per-request CSP
+nonce; the served `site.js`/`site.css` are the new versions (2400ms dwell,
+wrap logic, no `pauseBtn`); a browser run at 1440 and 375 ends with **zero
+console errors** — desktop observed the reel wrapping 06 → 01 → 02 with
+autoplay still on, the phone does not autoplay, and no `.reel-pause` exists
+in the DOM.
 
 **Updated:** 2026-10-05 (DEPLOYED) — **PR #14, the "Plain Truths" hero reel, is
 merged (`5d3f934`) and LIVE** as deployment `1d4a93bf` (`npx wrangler pages
