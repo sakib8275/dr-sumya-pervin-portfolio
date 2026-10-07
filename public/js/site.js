@@ -79,6 +79,8 @@ import { writePrefill, takePrefill } from './prefill.mjs';
         prev.classList.add('is-leaving');
         setTimeout(() => prev.classList.remove('is-leaving'), 700);
       }
+      // A slide stepped back to must wipe in, not finish clearing (blank-panel bug)
+      slides[n].classList.remove('is-leaving');
       slides.forEach((s, k) => {
         s.classList.toggle('is-active', k === n);
         s.inert = !phone.matches && k !== n;
