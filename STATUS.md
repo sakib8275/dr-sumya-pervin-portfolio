@@ -4,6 +4,34 @@
 verification, or owner-action state changes. Everything under `docs/` is a dated
 snapshot; if this file and a snapshot disagree, this file wins.
 
+**Updated:** 2026-10-08 — **the animation audit is implemented: PR #15
+(`feat/animation-audit-2026-10-08`, `ad97d75`) is open for review; NOT
+deployed.** Two reports drove it — a craft review of the existing motion and
+an opportunities pass — and the owner approved implementing both. Fixes: the
+skip link snaps in (keyboard-initiated, and `top` was the site's one
+layout-animated property); card lift transforms are `(hover: hover)
+and (pointer: fine)`-gated so touch taps no longer stick a raised card; the
+drawer travels on a new `--ease-drawer` token added to **both** `:root`
+blocks (parity test green); the reel counter swaps as a retargeting 240ms
+transition (`.is-swap` is the from-state; a rapid step eases back instead of
+restarting a keyframe); without View Transitions the package sheet fades out
+over 200ms before `close()`, closing-flag guarded, reduced motion closing at
+once; and the admin stylesheet's dead one-pager motion CSS (~230 lines) is
+deleted, its one live bare shorthand (`.btn`) naming its properties.
+Additions: the /book/ confirmation and tool results rise in; FAQ rows and
+drawer link groups ease open via `::details-content` behind
+`interpolate-size: allow-keywords` (unsupported browsers keep the snap); the
+press idiom (`scale .98`, 160ms) extends to the reel bars/arrows, nav
+dropdown buttons, FAQ rows and chips; the estimator total re-inks on change
+— behind the laser gate, so it first shows when that gate opens (the
+retarget pattern is verified live on the reel counter). Reduced motion
+covers every addition. Gates on the branch: **328 node + 64 e2e**. Manual
+pass on `npm run dev` (8788): reel retarget across rapid steps, VT and
+VT-stubbed sheet close (mid-fade sampled, double-Esc guarded, focus
+returned), FAQ accordion 79.9→92.4px open and back to 0, tool and
+confirmation entrances sampled mid-flight, hero verified at 1280 with no
+horizontal overflow. Remaining: independent PR review, owner merge + deploy.
+
 **Updated:** 2026-10-06 (DEPLOYED) — **the hero reel now rotates perpetually,
 faster, with no Pause control, and is LIVE.** Owner directives (same day),
 committed directly to master as `e11d551` — no PR, at the owner's call —
