@@ -260,16 +260,24 @@ import { writePrefill, takePrefill } from './prefill.mjs';
     // View Transitions close by morphing back into the card (morph() checks
     // the capability itself). Where they are missing, fade the sheet out over
     // 200ms before close() instead of dropping it in a single frame; reduced
-    // motion closes at once. The closing flag swallows the second Esc/click
-    // that lands mid-fade.
+    // motion closes at once. A second dismissal mid-fade finishes it now —
+    // and clears the pending timer, so the sheet can be reopened at once.
     let closing = false;
+    let closeTimer = 0;
+    const finishFallbackClose = () => {
+      if (closeTimer) { clearTimeout(closeTimer); closeTimer = 0; }
+      view.classList.remove('is-out');
+      closing = false;
+      view.close();
+    };
     const shut = () => {
       if (!view.open) return;
       if (document.startViewTransition) { morph(view, cardOf(opener), () => view.close()); return; }
-      if (closing || calm.matches) { view.close(); return; }
+      if (closing) { finishFallbackClose(); return; }
+      if (calm.matches) { view.close(); return; }
       closing = true;
       view.classList.add('is-out');
-      setTimeout(() => { view.classList.remove('is-out'); closing = false; view.close(); }, 200);
+      closeTimer = setTimeout(finishFallbackClose, 200);
     };
     document.addEventListener('click', (e) => {
       const trigger = e.target.closest('[data-pkg-open]');

@@ -321,7 +321,7 @@ a.chip:active { scale: .98; }
 /* Accordions ease open rather than snapping: FAQ rows here, the drawer's
    link groups on every page. content-visibility steps at the end of the
    transition so a closing panel's height is seen before it is hidden. */
-details::details-content { height: 0; opacity: 0; overflow: hidden;
+details::details-content { height: 0; opacity: 0; overflow: clip;
   transition: height 280ms var(--ease-out), opacity 280ms var(--ease-out), content-visibility 280ms var(--ease-out) allow-discrete; }
 details[open]::details-content { height: auto; opacity: 1; }
 
@@ -568,10 +568,11 @@ details[open]::details-content { height: auto; opacity: 1; }
   .reel.is-live .reel-word { font-size: clamp(3rem, 5.4vw, 5rem); line-height: .95; letter-spacing: -.035em; text-wrap: balance; max-width: 9ch; }
   .reel.is-live .reel-line { margin-top: 16px; font-size: 1.0625rem; max-width: 32ch; }
   .reel.is-live .reel-link { align-self: flex-start; margin-top: -3px; font-size: 0.9375rem; }
-  /* The counter swaps as a retargeting transition, not a keyframe restart:
+  /* The counter swaps through the from-state, not a keyframe restart:
      `.is-swap` is the from-state with the transition off (site.js applies it,
-     forces a reflow, removes it), so a rapid step eases back from wherever
-     the digit is instead of popping to the top again. */
+     forces a reflow, removes it), so each step resets instantly to the
+     from-state and settles in 240ms — no restart machinery, and the 8px dip
+     is small enough to read as a swap, not a pop. */
   .reel.is-live .reel-cur { transition: translate 240ms var(--ease-out), opacity 240ms var(--ease-out); }
   .reel.is-live .reel-cur.is-swap { translate: 0 8px; opacity: 0; transition: none; }
 }
@@ -755,7 +756,11 @@ details[open]::details-content { height: auto; opacity: 1; }
    single frame. site.js fades it back the way it came (200ms) before close().
    Reduced motion never takes this path (site.js closes at once). */
 .pkg-view.is-out { animation: pkg-out 200ms var(--ease) both; }
+/* ::backdrop paints its own box and inherits nothing from the dialog above,
+   so it needs its own fade or it blinks out only when close() lands. */
+.pkg-view.is-out::backdrop { animation: pkg-backdrop-out 200ms var(--ease) both; }
 @keyframes pkg-out { to { transform: translateX(24px); opacity: 0; } }
+@keyframes pkg-backdrop-out { to { opacity: 0; } }
 ::view-transition-group(pkg) { animation-duration: 440ms; animation-timing-function: var(--ease-out); }
 ::view-transition-old(pkg), ::view-transition-new(pkg) { height: 100%; object-fit: cover; object-position: top; }
 ::view-transition-old(pkg) { animation-duration: 160ms; }
@@ -1069,11 +1074,11 @@ details[open]::details-content { height: auto; opacity: 1; }
 @keyframes fade-in { from { opacity: 0; } }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  .drawer, .scrim, .card, .h-learn-card, .ico-chev, .faq summary::after, a.chip,
+  .drawer, .scrim, .card, .h-learn-card, .h-learn .h-learn-card, .ico-chev, .faq summary::after, a.chip,
     .reel-name, .reel-arrow, .nav-drop-btn, .faq summary, .pr-est-big { transition: none; }
   details::details-content { transition: none; }
   .pkg-view[open], .pkg-view.is-out { animation: none; }
-  .card:hover, .h-learn-card:hover { transform: none; }
+  .card:hover, .h-learn-card:hover, .h-learn .h-learn-card:hover { transform: none; }
   .btn:active { transform: none; }
   .reel-name:active, .reel-arrow:active, .nav-drop-btn:active, .faq summary:active, a.chip:active { scale: none; }
   :is(.h-tier, .pr-card, .pr-plan):has(.card-link:active) { scale: none; }

@@ -12,9 +12,9 @@ skip link snaps in (keyboard-initiated, and `top` was the site's one
 layout-animated property); card lift transforms are `(hover: hover)
 and (pointer: fine)`-gated so touch taps no longer stick a raised card; the
 drawer travels on a new `--ease-drawer` token added to **both** `:root`
-blocks (parity test green); the reel counter swaps as a retargeting 240ms
-transition (`.is-swap` is the from-state; a rapid step eases back instead of
-restarting a keyframe); without View Transitions the package sheet fades out
+blocks (parity test green); the reel counter swaps through a 240ms
+from-state transition (`.is-swap` resets instantly and settles — no
+keyframe-restart machinery); without View Transitions the package sheet fades out
 over 200ms before `close()`, closing-flag guarded, reduced motion closing at
 once; and the admin stylesheet's dead one-pager motion CSS (~230 lines) is
 deleted, its one live bare shorthand (`.btn`) naming its properties.
@@ -30,7 +30,18 @@ pass on `npm run dev` (8788): reel retarget across rapid steps, VT and
 VT-stubbed sheet close (mid-fade sampled, double-Esc guarded, focus
 returned), FAQ accordion 79.9→92.4px open and back to 0, tool and
 confirmation entrances sampled mid-flight, hero verified at 1280 with no
-horizontal overflow. Remaining: independent PR review, owner merge + deploy.
+horizontal overflow. **Independent review round (same day): Google's
+Antigravity CLI (`agy`, print mode) reviewed the PR diff — verdict "request
+changes", 5 findings (record: `docs/reviews/pr15-review-2026-10-08.md`).
+All accepted and fixed on the branch: the fallback close's second-Esc now
+finishes immediately and clears its timer (an armed timer could close a
+sheet reopened inside the 200ms window); the Learn-card lift is now truly
+off under reduced motion (pre-existing specificity gap: `.h-learn
+.h-learn-card` outranked the reduce block's `.h-learn-card`); accordion
+content uses `overflow: clip` (no scroll container); the fallback exit
+fades `::backdrop` too; and the retarget wording in the comments/STATUS was
+corrected to "resets to the from-state and settles". Gates re-run after the
+fixes: 328 node + 64 e2e. Remaining: owner merge + deploy.
 
 **Updated:** 2026-10-06 (DEPLOYED) — **the hero reel now rotates perpetually,
 faster, with no Pause control, and is LIVE.** Owner directives (same day),
