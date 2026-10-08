@@ -4,36 +4,319 @@
 verification, or owner-action state changes. Everything under `docs/` is a dated
 snapshot; if this file and a snapshot disagree, this file wins.
 
-**Updated:** 2026-10-09 — **the animation programme is fully shipped except
-plan 005: PR #20 (arrivals batch, `8a58dc1`) merged and DEPLOYED as
-`c1187fb8`, apex verified.** On top of PRs #15–#19, this ships plans 006/007/011
-— the booking success fades the form out beside the rising confirmation
-(`display 200ms allow-discrete`, RM instant); tool re-runs re-ink the result
-(dip to 35%, settle 160ms) via a `re-ink` keyframe restarted by
-remove→reflow→re-add, because the transition form the plan copied is a
-visual no-op in Chromium (a class toggle inside one task never reaches a
-rendering update) — the estimator's identical `.is-ink` is laser-gated and
-has never rendered; its fix (CSS keyframe + JS flip in `render()`) is
-recorded for when the laser gate opens; and the drawer animates its exit
-(visibility steps delayed by the 300ms transform, `.drawer.active` in the RM
-list after round 3 caught reduce users getting a 300ms slide-open). Two
-owner-directed calls rode along: the final CTA band got breathing room
-(18px above the stacked card's row, 16px between buttons) after a "too
-close" feel-check note, and the reel's autoplay gate is **pointer
-capability, not width** (`pointer: coarse` never autoplays; a mouse device
-rotates at any width — a 788px desktop pane had twice read as "stuck"),
-with a real swipe stopping autoplay via `pointerdown`/`wheel` and the
-phone no-autoplay test now running under genuine touch emulation. Two
-independent qwen3.8-flash rounds (3 and 4) reviewed the PR — both FIX
-FIRST, nine findings, all verified real and fixed; records in
-`docs/reviews/pr20-review-2026-10-09.md` (round 3) and
-`pr20-review-round4-2026-10-09.md` (round 4). Gates: **328 node + 66 e2e**
-(the suite grew by the RM-drawer and narrow-pane reel tests). Remaining in
-the programme: **plan 005 only** (duration tokens in both `:root` blocks
-with a parity test, plus the card-idiom sweep). Known deferred items: the
-armed-delete timer not cleared on modal close (JS lane, from PR #19's
-review) and the estimator `.is-ink` fix (behind the laser gate).
----
+**Updated:** 2026-10-08 — **the animation audit is implemented: PR #15
+(`feat/animation-audit-2026-10-08`, `ad97d75`) is open for review; NOT
+deployed.** Two reports drove it — a craft review of the existing motion and
+an opportunities pass — and the owner approved implementing both. Fixes: the
+skip link snaps in (keyboard-initiated, and `top` was the site's one
+layout-animated property); card lift transforms are `(hover: hover)
+and (pointer: fine)`-gated so touch taps no longer stick a raised card; the
+drawer travels on a new `--ease-drawer` token added to **both** `:root`
+blocks (parity test green); the reel counter swaps through a 240ms
+from-state transition (`.is-swap` resets instantly and settles — no
+keyframe-restart machinery); without View Transitions the package sheet fades out
+over 200ms before `close()`, closing-flag guarded, reduced motion closing at
+once; and the admin stylesheet's dead one-pager motion CSS (~230 lines) is
+deleted, its one live bare shorthand (`.btn`) naming its properties.
+Additions: the /book/ confirmation and tool results rise in; FAQ rows and
+drawer link groups ease open via `::details-content` behind
+`interpolate-size: allow-keywords` (unsupported browsers keep the snap); the
+press idiom (`scale .98`, 160ms) extends to the reel bars/arrows, nav
+dropdown buttons, FAQ rows and chips; the estimator total re-inks on change
+— behind the laser gate, so it first shows when that gate opens (the
+retarget pattern is verified live on the reel counter). Reduced motion
+covers every addition. Gates on the branch: **328 node + 64 e2e**. Manual
+pass on `npm run dev` (8788): reel retarget across rapid steps, VT and
+VT-stubbed sheet close (mid-fade sampled, double-Esc guarded, focus
+returned), FAQ accordion 79.9→92.4px open and back to 0, tool and
+confirmation entrances sampled mid-flight, hero verified at 1280 with no
+horizontal overflow. **Independent review round (same day): Google's
+Antigravity CLI (`agy`, print mode) reviewed the PR diff — verdict "request
+changes", 5 findings (record: `docs/reviews/pr15-review-2026-10-08.md`).
+All accepted and fixed on the branch: the fallback close's second-Esc now
+finishes immediately and clears its timer (an armed timer could close a
+sheet reopened inside the 200ms window); the Learn-card lift is now truly
+off under reduced motion (pre-existing specificity gap: `.h-learn
+.h-learn-card` outranked the reduce block's `.h-learn-card`); accordion
+content uses `overflow: clip` (no scroll container); the fallback exit
+fades `::backdrop` too; and the retarget wording in the comments/STATUS was
+corrected to "resets to the from-state and settles". Gates re-run after the
+fixes: 328 node + 64 e2e. Remaining: owner merge + deploy.
+
+**Updated:** 2026-10-06 (DEPLOYED) — **the hero reel now rotates perpetually,
+faster, with no Pause control, and is LIVE.** Owner directives (same day),
+committed directly to master as `e11d551` — no PR, at the owner's call —
+after gates on the committed tree: 328 node + 64 e2e. Deployed as
+`3ae189e5` (`npx wrangler pages deploy`; static assets only — Functions,
+Workers, migrations and `wrangler.toml` unchanged since `1d4a93bf`, the
+previous reel and the rollback target). The dwell is 2400ms (was 3200ms), 06
+wipes back to 01 and autoplay carries on (the end-of-pass rest and `played`
+flag are gone), and `.reel-pause` is removed from markup, JS and CSS — a
+manual step (arrow, name bar, keyboard arrow) is the WCAG 2.2.2 stop, noted
+in site.js and DESIGN.md. The hover/focus/off-screen/hidden-tab holds,
+reduced motion and the phone swipe row are unchanged; the hidden-tab and
+off-screen hold tests were de-flaked (the hold is installed before the first
+bar's animation exists, so it is paused from its first frame). Verified on
+the live apex: homepage 200 with HSTS, `nosniff` and the per-request CSP
+nonce; the served `site.js`/`site.css` are the new versions (2400ms dwell,
+wrap logic, no `pauseBtn`); a browser run at 1440 and 375 ends with **zero
+console errors** — desktop observed the reel wrapping 06 → 01 → 02 with
+autoplay still on, the phone does not autoplay, and no `.reel-pause` exists
+in the DOM.
+
+**Updated:** 2026-10-05 (DEPLOYED) — **PR #14, the "Plain Truths" hero reel, is
+merged (`5d3f934`) and LIVE** as deployment `1d4a93bf` (`npx wrangler pages
+deploy` from a clean checkout of the merge commit, after master CI passed;
+static assets only — Functions, Workers, migrations and `wrangler.toml` are
+unchanged since `fae94bfb`, which is the rollback target). Dr. Sumya approved
+the reel's wording on 2026-10-05 (below). Verified on the live apex: the hero
+is the reel (six slides; no journey panel), the new `site.css`/`site.js` are
+served, `/migrations/001_schema.sql` and `/wrangler.toml` 404 with the 404
+page, HSTS, the per-request CSP nonce and `nosniff` are present,
+`/api/config/public` answers 200, and a browser run at 1440 and 375 ends with
+**zero console errors** (desktop autoplays from 01 with Pause first in tab
+order; the phone does not autoplay, keeps both CTAs on the first screen, and
+steps on a bar tap).
+
+**Before that (same day):** PRs #12, #11, #10 (then #13, review
+records) were merged and the merge result went LIVE on drsumyapervin.com. Gates
+on merged master first: 325 node + 58 e2e. `npx wrangler pages deploy`
+(deployments `559b7fa6` → `fae94bfb` — the two redeploys ship a console fix
+found by the live check, below; the 2026-10-04 deploy this supersedes was
+`34cadcbe`). Verified on the live apex: the hero is the journey panel (5 dots,
+enhanced, one pass at 3.5s a step) and the arched nameplate is gone; package
+views open on `/` and `/prices/` including the #12 straddle press; leak checks
+404 with the 404 page (no catch-all); HSTS, the per-request CSP nonce and
+`nosniff` all present; the browser run ends with **zero console errors**. That
+live check found one real defect, fixed on master and redeployed (`1b8b807`,
+`8897b91`): a sheet transition skipped or cancelled mid-flight (the replay's
+skipTransition, a superseding transition, or navigating away) rejected
+`finished`/`ready` with an unhandled AbortError pageerror — now swallowed,
+with the fee-card specs asserting no pageerror across their runs.
+
+**Still open (owner):** rotate the admin PIN (audit round 5, owner action); the
+owner's real-phone pass (package sheet, skin check, drawer) and the WhatsApp
+share-card preview; the brand kit's printer proof on the chosen stock; the
+five `design/brand-kit/README.md` questions for Dr. Sumya (the canonical
+credentials line, "MD" in the site title, Bangla wording, the Centre).
+
+**2026-10-05 (hero reel "Plain Truths", PR #14) — MERGED (`5d3f934`) AND
+DEPLOYED (`1d4a93bf`) 2026-10-05.** Dr. Sumya compared the shipped journey panel (A) with
+the "Plain Truths" reel (B) in a local A/B demo and **picked B**. The hero's
+indigo object becomes a reel of six conditions she treats — acne, melasma,
+fungal infection, psoriasis, vitiligo, hair fall — each a lowercase display
+word, one sentence copied verbatim from that condition page's published
+`CONDITIONS` blurb (the build throws if one drifts), and a link to the page,
+above the same credential plate. `REEL` in `content/pages/home.mjs`; `JOURNEY`
+stays as the timeline's source. Desktop: one pass at 3.2s a slide, then it
+wipes back to 01 and rests with "Play again"; hover, focus, a panel under 40%
+on screen and a hidden tab hold it (fixing the journey panel's off-screen pass
+at 1024×768); Pause is first in tab order; slides are labelled groups and the
+inactive ones inert; the outgoing slide clears before the wipe ends, so words
+never splice. Phones: a native scroll-snap row under both CTAs, no autoplay,
+44px bars. No JS: a linked index of all six. The progress bar fills white (the
+journey panel's turmeric bar was a third turmeric mark, against the One Mark
+Rule) and its inactive colour is a token, `--bar-on-nil` (3.7:1, pinned in
+`contrast.test.mjs`). DESIGN.md, PRODUCT.md, agent.md and
+`.impeccable/design.json` (still describing the arch until now) are updated.
+**328 node + 63 e2e green** locally; three new assertions were proven red
+against mutations (turmeric bar, no clear before the wipe, resting on 06), and a
+real specificity bug (the pause rule lost to the bar's `animation` shorthand, so
+hover and off-screen held nothing) was caught by the new desktop spec and fixed.
+**Copy APPROVED by Dr. Sumya on 2026-10-05**, before the deploy: the panel label
+"Conditions she treats"; the six display words (notably "hair fall" for the
+"Hair Loss (Alopecia)" page, the site's existing chip label); "Read about …"
+links; and two edits to quoted blurbs — slide 06 capitalises "Hair loss has
+distinct causes…", and slides 02 and 04 end on a full stop the blurb continues
+past ("Melasma is manageable, not curable." / "Psoriasis is controlled, not
+cured."). She also approved the Signature SP mark's return to the hero in a new
+treatment — white on the credential plate, without the old turmeric ring. Independent review on the PR: safe to merge, four non-blocking notes, all
+closed in a follow-up commit (hidden-tab hold now tested; the `aria-current`
+choice over `aria-disabled` documented in `site.js`; the PR body lists the
+arrows, counter, arrow keys and mark placement; the sitemap rebuilt).
+
+**2026-10-04 (deploy the supersedes, kept for the record):** D1 backed up first
+(`backups/d1-20261003T223337Z.sql`); migrations 003 (self-service CMS tables),
+004 (consultation tiers) and 005 (admin contact) applied to remote D1 — prod
+had none of them; Turnstile minted a live token under the apex CSP;
+`/api/config/public` serves the WhatsApp number; og:image is the flat og-card.
+
+**2026-10-04 (hero journey panel, PR #10) — MERGED AND DEPLOYED 2026-10-05.** The owner disliked the dome, so the arch silhouette is retired
+(`DESIGN.md` now says *don't bring it back*) and the hero's indigo object is the
+**journey panel**: the five published consultation steps, from one `JOURNEY`
+source in `content/pages/home.mjs` shared with the timeline section below.
+Desktop plays one pass (3.5s a step), pausing on hover, focus, the Pause button
+or a dot; phones show a step at a time with 44px dots and no auto-advance;
+without JS or under reduced motion it is a plain five-item list. The review
+round on the PR is answered in full — blocking: dots are 44×44 (the visible bar
+stays 3px), the phone height bound is tightened to <430px, a 360×640
+reduced-motion test pins the primary CTA and a 375×667 no-JS test pins both
+CTAs in view over the full five-step list, and the
+approved specialty line is back in the panel (hidden ≤820px, as it was on
+master). Recommendations: `tests/pages.test.mjs` rebuilds the site and then fails
+if the hero panel and the timeline disagree on any step (it checks the build
+agrees with `JOURNEY`; it does not detect a stale `public/` — the file heals
+itself), Play/Pause is hidden where nothing
+auto-advances, the panel is a labelled group that `site.js` announces as a
+carousel only while it behaves as one (the no-JS and reduced-motion list is
+not one), with `"Step n of 5: …"` dot
+names and an `aria-live` that goes polite only once the visitor drives it — and
+is dropped again when reduced motion returns the list, so the five steps that
+appear at once are not all read out — the slides stack in a `min-height` grid so
+zoom grows the box instead of clipping, and turning reduced motion on mid-visit
+falls back to the list, pinned by a spec that toggles the preference after load.
+The step copy is the timeline copy already on master (not new, and not verbatim
+§5.1: it adds "We ask what you have tried." and "a magnified skin check").
+Second review round: the journey panel's keyboard focus ring is turmeric
+(it was indigo on indigo, 1.2:1; pinned in `tests/contrast.test.mjs`), inactive
+step bars are 3.7:1, `aria-current` is set only on the current dot, and when
+reduced motion turns on while a dot has focus, focus moves to the panel instead
+of `<body>`. The mid-visit fallback is one-way for the visit (turning reduced
+motion back off does not re-animate). Not changed, on purpose: the dots keep
+`aria-current` (not APG's `aria-disabled`) and Pause stays after them in tab
+order, because moving it first would change the panel layout; slides have no
+own group role.
+**325 node + 56 e2e green locally and in CI at review close**; each new
+assertion was proven red against a mutation. `site-fee-cards` "slow press" was
+flaky on this branch and its base alike (9 of 45 runs failed at `02ccc95`, on
+`/prices/`, which has no journey panel): #12 diagnosed the root cause and fixed
+it, and merged first, per the recommended order #12 → #11 → #10. The apex
+served the arched nameplate until the 2026-10-05 deploy above.
+
+**Earlier 2026-10-04 (skin-check wording + SP mark approved)** — built and
+green (295 node + 51 e2e, later 320 node after the architecture refactors).
+Review fix-now list done: tap
+targets measured in a browser (≥44px at phone width, ≥24px desktop); tool
+answers reach /book/ via sessionStorage, never a URL; the WhatsApp number
+comes only from content/site.mjs (stamped on `<body data-wa>`); site.css font
+sizes are rem; agent.md §2/§4 brought current; "Consulting today" has e2e
+coverage. Dr. Sumya then reviewed the three skin-check clinical concerns and
+approved amendments, now live: palms/soles scaly spots lead with eczema,
+fungal and psoriasis before precancerous; a new or changing mole pairs the
+skin-cancer card with its benign look-alike (seborrhoeic keratosis / DPN);
+and a bleeding or fast-changing mole is "Be seen in the next day or two"
+with the priority-slot note. **She also approved the Signature SP mark**
+(trademark clearance waived as her call). **No owner sign-off now blocks
+deploy.**
+
+**Earlier 2026-10-04 — Skin check tool + whole-card fix: BUILT AND GREEN
+(295 node + 44 e2e), NOT DEPLOYED.** New `/tools/skin-check/` (64 pages): a
+five-question symptom guide that shows the conditions a description often
+turns out to be (linking the condition pages), how soon to be seen, and which
+visit fits; never a diagnosis or a procedure, nothing stored, no answers in
+URLs. **Owner action: Dr. Sumya should review its clinical wording** — the
+sign → condition mapping and warning signs in `content/pages/tools.mjs`
+(`skinCheck`) and the urgency copy in `public/js/site.js`. It was published
+before her review at the owner's request. Also fixed: fee and care-plan cards
+are whole-card targets again (a press animation had broken body clicks), and
+clicks during the card ↔ sheet view transition are no longer lost. **2026-10-04:
+Dr. Sumya approved the Nil & Haldi rebrand** — she confirmed the rebrand was
+itself requested, superseding the 2026-10-02 gold-identity decision. Still
+pending her sign-off: the Signature SP mark (not trademark-cleared) and the
+skin-check clinical wording above.
+
+**Earlier 2026-10-03 (later)** — **Design critique round: BUILT AND GREEN, NOT
+COMMITTED, NOT DEPLOYED.** An Impeccable audit (13/20) + critique (21/40) found
+the home hero's small text at 1.8–4.0:1 on the gradient, the doctor's name in
+every footer at 1:1 (ink on ink), a /book/ form that defaulted to a "Morning"
+session no chamber runs, accepted past dates and closed days client-side, and
+silently dropped its pre-ticked reminders box, and Centre fee tiers presented
+without saying hospital-chamber fees differ. Fixed: hero recoloured (now
+4.8–7.4:1 measured), footer brand, site-wide ink `:focus-visible`; /book/
+derives each chamber's session and consulting days from `functions/lib/
+schedule.js`, sets `min`, shows per-field errors, and sends `reminders` — the
+API records an opt-out as `[No reminders]` at the front of the notes (no schema
+change); home leads with the two Shyamoli chambers, ethics band second, Centre
+tiers/rooms labelled "from opening in 2027" with VAT-inclusive totals; nav gains
+Learn + an About menu (chambers, contact, FAQ, Centre), drawer mirrors the mega
+menus, footer carries phone/WhatsApp/email/hours; burger below 1100px; ABCDE
+illustrations on the mole tool (docx §5.40). New shared tokens `--hair-dark`,
+`--field-line`, `--err-*`, `--warn-*` in BOTH :root blocks. **294/294 node +
+31/31 e2e green.** Owner sign-off needed: the nav departs from the docx menu
+(The Centre moved under About; Learn added); `content/bn.mjs` holds unapproved
+Bangla drafts that render only when marked approved; `assets/clinic.jpg` (the
+og:image) and `treatment.jpg` appear AI-generated with non-local subjects and
+the og alt text calls clinic.jpg "the consultation suite at Dr. Sumya Pervin's
+practice" — a claim the owner should replace or retract.
+
+**Earlier 2026-10-03 — The multi-page site is CUT OVER in the repo.** `BASE` is
+now `''` and `npm run build:site` writes the 63-page site to `public/` root, replacing
+the one-pager's `index.html`. The one-pager CMS moved to a standalone **`/admin/`**
+console (`public/admin/index.html` + `public/js/admin.js`); the one-pager-only scripts
+(`main.js`, `richtext.js`, `formguard.js`) and their suites were retired. The hero
+portrait was removed at the doctor's request on both surfaces — an arched credential
+plate now stands in for the photo — and `og:image` is `assets/clinic.jpg`. The live
+`drsumyapervin.com` is untouched until the owner deploys.
+**Audit round 5 is BUILT AND GREEN BUT NOT DEPLOYED.**
+The serving deployment is still **`a5077cb3`**; everything below in this paragraph
+is in the working tree only. A full read of the frontend, all 18 Functions and the
+three Workers found six shipped defects, a contrast failure running through the
+whole design system, and 2.19 MB of avoidable image weight; three further defects
+(A8, A9, A10) were found *while fixing those* and are the most serious of the set.
+Fixed in this round: the hero was blank until three serial API calls resolved; all
+eight service modals showed identical invented clinical copy; the appointments CSV
+truncated at any `#` and was formula-injectable; four palette tokens failed WCAG
+AA; `/api/auth/check` accepted a pending-2FA challenge token; the duplicate-booking
+409 disclosed another patient's reference id; **A8** — the entire self-service PIN
+reset path was unreachable from the UI (an inline `style="display:none"` that
+`.active` never cleared); **A9** — 14 controls inside closed modals were reachable
+by Tab; **A10** — `richtext.js` was loaded as a classic script despite using ES
+exports, so it threw on *every* page load and the site-copy rich text had never
+worked; **A11** (2026-10-02, owner-reported on the live site) — the sticky nav
+lived inside the one-viewport hero, and since `position:sticky` works only
+within the parent's box the "stuck" bar scrolled off for good past ~628px:
+every deep anchor landed with no navigation at all. The wrapper is now a
+sibling of the hero and `scroll-margin-top: 104px` stops jumps tucking headings
+under the bar. **A12** (2026-10-02, owner-requested) — the About "Quick Stats"
+pill and both stat cards are gone, replaced by a hairline-separated type-only
+stat row: **15+ years in medical practice / 10+ years in government service /
+7+ years as a dermatology specialist** (owner-supplied; `context.md` updated —
+it previously said "14+ years of specialized clinical practice"). Every other
+section is a card grid, so About now stays editorial; the FCPS&DDV/affiliation
+content dropped with the cards already lives in the hero namecard, the
+Certifications section and Chambers. Plus: `cms.js` split out of `main.js` and loaded on demand (patients no
+longer download 18.2 KB gz of admin JS), images re-encoded to WebP, scrollspy
+moved to an IntersectionObserver, `alert()`/`confirm()` replaced with inline
+status, and closed chamber weekdays now refused before submit rather than by a
+400. **276/276 node + 35/35 e2e green** (A11 adds two sticky-nav geometry e2e specs
+and a markup containment guard), zero console errors and zero CSP
+violations at 1280 px and 375 px. See the "Audit round 5" row. Earlier —
+**F13 + F14 shipped** (see
+the F13/F14 row below): the Settings form's required-but-dead `admin_email` field
+is wired end-to-end (GET/PUT on `/api/config`, populated on load, saved on
+submit, validated server-side; `/api/config/public` still returns exactly
+`{whatsapp, telegram}`), and the CMS PIN fields now carry
+`autocomplete="new-password"` so browsers stop offering to save the PIN (the
+Task-0 transcript-leak vector). Deployed `a5077cb3`, committed + pushed
+`3a00d4f`; **247/247 node tests + 14/14 e2e green.** F15 recorded only (no login
+throttle is a deliberate decision). Earlier: **F11 is now FIXED: the
+uptime monitor works and the crying-wolf is gone.** Production D1 is **clean**
+(0 appointments, 0 gallery), **F8's digest** runs green from its own logs, and
+the one open engineering item — the uptime monitor, which had failed **9/9**
+scheduled runs with a Bot Fight Mode 403 on GitHub Actions' Azure IPs — is
+replaced. The **authoritative monitor is now `workers/probe`**: a Cloudflare-
+native Worker on its own 30-min cron (deployed 2026-08-05 15:30 UTC, version
+`c7d0aced`) that probes `/api/config/public` **from Cloudflare's own network**
+(verified: a Worker subrequest returns 200 with the JSON contract, where GitHub
+runners got 403 on every attempt) and emails the doctor once on the DOWN
+transition and once on RECOVERY. The **GitHub Actions workflow is demoted to a
+third-party canary** that treats a cf-mitigated edge block as the expected
+state of its own vantage point, so scheduled runs stay green instead of
+spamming the owner's inbox. ⚠️ **Timestamps written earlier on 2026-08-04 were
+taken from a machine clock that was ~9 h 24 m slow**; it has since synced and
+now agrees with network time. Anything in this file dated "2026-08-04 21:xx
+UTC" was really 2026-08-05 ~06:xx UTC. On 2026-08-04, **the Phase 2 build work
+was closed.** Two deploys shipped: `fb1b3aa8` (the pending UX batch, including
+the critical quiz-booking fix) and `42aa5567` (F11 + one new bug fix). **F10**
+landed as 14 Playwright tests, **F11** as a CI gate, an uptime monitor, a
+proven D1 backup/restore runbook and structured write logs, **F12** as this
+update. F10 immediately earned its keep by catching a **latent bug**:
+`.fab-btn { display: grid }` outranked the `[hidden]` attribute, so
+`main.js`'s `fab.hidden = !digits` never hid anything and an unconfigured
+WhatsApp number would have shown a dead `href="#"` button. Fixed and deployed.
+Earlier on 2026-08-04: the doc-validity audit, the UX audit, L6, and Workers
+Logs on the digest.
+
 ---
 
 ## Multi-page rebuild programme (started 2026-10-02) — CUT OVER to the site root
