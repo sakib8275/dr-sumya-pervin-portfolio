@@ -249,9 +249,12 @@ section[id], header[id] {
   font-size: 14.5px;
   font-weight: 500;
   border: 1px solid transparent;
-  transition: background-color .3s var(--ease), border-color .3s var(--ease), color .3s var(--ease);
+  transition: background-color .3s var(--ease), border-color .3s var(--ease), color .3s var(--ease),
+    transform var(--t-press) var(--ease-out);
   white-space: nowrap;
 }
+
+.btn:not(:disabled):active { transform: scale(.98); }
 
 .btn-out {
   border-color: var(--hair);
@@ -1110,15 +1113,16 @@ section[id], header[id] {
      focus() into the dialog was a silent no-op (focus() cannot target a hidden
      element) and focus stayed on the trigger behind the overlay -- and it left
      a CLOSING dialog focusable for 300ms after the user dismissed it. So:
-     0s on the way in, 0s delayed by the fade on the way out. */
-  transition: opacity 0.3s var(--ease), visibility 0s linear 0.3s;
+     0s on the way in, 0s delayed by the fade on the way out. The fade pair is
+     asymmetric: 300ms ease-out entering, 200ms leaving. */
+  transition: opacity 200ms var(--ease-out), visibility 0s linear 200ms;
 }
 
 .modal-overlay.active {
   opacity: 1;
   visibility: visible;
   pointer-events: auto;
-  transition: opacity 0.3s var(--ease), visibility 0s linear 0s;
+  transition: opacity 300ms var(--ease-out), visibility 0s linear 0s;
 }
 
 /* CMS feedback. Sticks to the bottom of the panel's scroll box so a
@@ -1147,10 +1151,13 @@ section[id], header[id] {
 }
 
 /* An armed delete button. It reads "Confirm delete?" while in this state, so the
-   colour is reinforcement rather than the only signal. */
+   colour is reinforcement rather than the only signal. Arming is the deliberate
+   phase, so it animates slower (240ms) than the disarm returns to base. */
 .btn-danger.is-confirming {
   background: #721C24;
   color: #fff;
+  transition: background-color 240ms var(--ease-out), color 240ms var(--ease-out),
+    transform var(--t-press) var(--ease-out);
 }
 
 /* Scroll lock. Without it the page behind an open modal scrolls under the
@@ -1171,11 +1178,12 @@ body.modal-open {
   box-shadow: 0 25px 50px rgba(0,0,0,0.2);
   position: relative;
   transform: translateY(20px);
-  transition: transform 0.3s var(--ease);
+  transition: transform 200ms var(--ease-out);
 }
 
 .modal-overlay.active .modal-box {
   transform: translateY(0);
+  transition: transform 300ms var(--ease-out);
 }
 
 .modal-close {
@@ -1191,7 +1199,11 @@ body.modal-open {
   place-items: center;
   font-size: 18px;
   color: var(--ink);
+  transition: background-color .3s var(--ease), border-color .3s var(--ease),
+    transform var(--t-press) var(--ease-out);
 }
+
+.modal-close:not(:disabled):active { transform: scale(.98); }
 
 .modal-close:hover {
   background: var(--butter);
@@ -1300,7 +1312,16 @@ body.modal-open {
   object-fit: cover;
   border-radius: 12px;
   margin-top: 12px;
+  animation: preview-in 200ms var(--ease-out);
 }
+
+/* The preview starts hidden (inline display:none) and the JS flips display to
+   render it -- a CSS animation replays from the top on that first render, so
+   the reveal needs no class and no @starting-style. Two honest caveats: the
+   tab strip display-flips #tabUpload too (cms.js), so returning to the
+   Uploads tab replays the reveal while a preview is showing; and re-picking
+   a photo swaps the src without re-animating. */
+@keyframes preview-in { from { opacity: 0; translate: 0 8px; } }
 
 .cms-item-list {
   display: flex;
@@ -1365,7 +1386,11 @@ body.modal-open {
   border-radius: 8px;
   border: none;
   font-size: 12.5px;
+  transition: background-color var(--t-press) var(--ease), color var(--t-press) var(--ease),
+    transform var(--t-press) var(--ease-out);
 }
+
+.btn-danger:active { transform: scale(.98); }
 
 .btn-sm {
   padding: 5px 10px;
@@ -1399,6 +1424,8 @@ body.modal-open {
 }
 
 @media(prefers-reduced-motion: reduce) {
-  * { animation: none!important; transition-duration: .01ms!important; }
+  /* delay resets too: the overlay's visibility stepping would otherwise hold
+     a closing dialog in the tab order after the (now instant) fade */
+  * { animation: none!important; transition-duration: .01ms!important; transition-delay: 0s!important; }
   html { scroll-behavior: auto; }
 }
