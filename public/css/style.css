@@ -1203,7 +1203,7 @@ body.modal-open {
     transform var(--t-press) var(--ease-out);
 }
 
-.modal-close:active { transform: scale(.98); }
+.modal-close:not(:disabled):active { transform: scale(.98); }
 
 .modal-close:hover {
   background: var(--butter);
@@ -1317,9 +1317,11 @@ body.modal-open {
 
 /* The preview starts hidden (inline display:none) and the JS flips display to
    render it -- a CSS animation replays from the top on that first render, so
-   the reveal needs no class and no @starting-style. Re-picking a photo while
-   it is already visible swaps the src without re-animating. */
-@keyframes preview-in { from { opacity: 0; translate: 0 6px; } }
+   the reveal needs no class and no @starting-style. Two honest caveats: the
+   tab strip display-flips #tabUpload too (cms.js), so returning to the
+   Uploads tab replays the reveal while a preview is showing; and re-picking
+   a photo swaps the src without re-animating. */
+@keyframes preview-in { from { opacity: 0; translate: 0 8px; } }
 
 .cms-item-list {
   display: flex;
@@ -1384,7 +1386,7 @@ body.modal-open {
   border-radius: 8px;
   border: none;
   font-size: 12.5px;
-  transition: background-color 160ms var(--ease), color 160ms var(--ease),
+  transition: background-color var(--t-press) var(--ease), color var(--t-press) var(--ease),
     transform var(--t-press) var(--ease-out);
 }
 
@@ -1422,6 +1424,8 @@ body.modal-open {
 }
 
 @media(prefers-reduced-motion: reduce) {
-  * { animation: none!important; transition-duration: .01ms!important; }
+  /* delay resets too: the overlay's visibility stepping would otherwise hold
+     a closing dialog in the tab order after the (now instant) fade */
+  * { animation: none!important; transition-duration: .01ms!important; transition-delay: 0s!important; }
   html { scroll-behavior: auto; }
 }
