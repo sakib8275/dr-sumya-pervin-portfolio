@@ -134,11 +134,14 @@ p, li { text-wrap: pretty; }
 .btn:not(.card-link):active { transform: scale(.98); }
 .btn:disabled { opacity: .6; cursor: progress; }
 /* The same press on the remaining discrete tap targets — the reel's name bars,
-   the nav dropdown buttons, the FAQ rows. (.reel-arrow and a.chip carry their
-   own, alongside their colours.) Text-row links (.drawer-links, .mega a) stay
-   unscaled: scaling running text reads cheap. */
-.reel-name, .nav-drop-btn, .faq summary { transition: scale var(--t-press) var(--ease-out); }
-.reel-name:active, .nav-drop-btn:active, .faq summary:active { scale: .98; }
+   the nav dropdown buttons, the FAQ rows, the burger, the drawer close.
+   (.reel-arrow, a.chip and the sheet close carry their own, alongside their
+   colours.) Text-row links (.drawer-links, .mega a) stay unscaled: scaling
+   running text reads cheap. */
+.reel-name, .nav-drop-btn, .faq summary, .burger, .drawer-head button
+  { transition: scale var(--t-press) var(--ease-out); }
+.reel-name:active, .nav-drop-btn:active, .faq summary:active,
+  .burger:active, .drawer-head button:active, .pkg-close:active { scale: .98; }
 .btn-ink { background: var(--nil); color: #fff; }
 .btn-ink:hover { background: var(--nil-deep); }
 .btn-ghost { border-color: var(--nil); color: var(--nil); background: transparent; }
@@ -407,7 +410,10 @@ details[open]::details-content { height: auto; opacity: 1; }
 .sc-cond h4 { font-size: 1.125rem; line-height: 1.2; margin-bottom: 6px; }
 .sc-cond .tlink { font-size: 0.90625rem; }
 .tool-out { max-width: 76ch; margin-top: 26px; padding: 24px 26px; border-radius: var(--r-card);
-  background: var(--nil-tint); }
+  background: var(--nil-tint);
+  /* show() glides the panel into view; keep it clear of the sticky nav (78px,
+     64px under 962px) and the mobile bar (~49px + safe area). */
+  scroll-margin-block: 88px calc(60px + env(safe-area-inset-bottom)); }
 /* A tool's answer rises in rather than blinking in. Re-running the tool swaps
    content in place without replaying the entrance (hidden stays false). */
 .tool-out:not([hidden]) { animation: rise-in 320ms var(--ease-out) both; }
@@ -771,6 +777,7 @@ details[open]::details-content { height: auto; opacity: 1; }
 .pkg-close {
   position: absolute; top: 18px; right: 18px; z-index: 2; display: grid; place-items: center;
   width: 44px; height: 44px; border: 0; border-radius: 50%; background: var(--paper-2); color: var(--ink); cursor: pointer;
+  transition: background-color var(--t-press) var(--ease-out), scale var(--t-press) var(--ease-out);
 }
 .pkg-close:hover { background: var(--nil-tint); }
 .pkg-title { font-size: clamp(1.625rem, 3vw, 2rem); line-height: 1.1; margin: 4px 56px 10px 0; }
@@ -1075,12 +1082,16 @@ details[open]::details-content { height: auto; opacity: 1; }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   .drawer, .scrim, .card, .h-learn-card, .h-learn .h-learn-card, .ico-chev, .faq summary::after, a.chip,
-    .reel-name, .reel-arrow, .nav-drop-btn, .faq summary, .pr-est-big { transition: none; }
+    .reel-name, .reel-arrow, .nav-drop-btn, .faq summary, .pr-est-big,
+    .burger, .drawer-head button { transition: none; }
+  /* The sheet close keeps its colour fade here, like .btn — only the movement drops. */
+  .pkg-close { transition: background-color var(--t-press) var(--ease-out); }
   details::details-content { transition: none; }
   .pkg-view[open], .pkg-view.is-out { animation: none; }
   .card:hover, .h-learn-card:hover, .h-learn .h-learn-card:hover { transform: none; }
   .btn:active { transform: none; }
-  .reel-name:active, .reel-arrow:active, .nav-drop-btn:active, .faq summary:active, a.chip:active { scale: none; }
+  .reel-name:active, .reel-arrow:active, .nav-drop-btn:active, .faq summary:active, a.chip:active,
+    .burger:active, .drawer-head button:active, .pkg-close:active { scale: none; }
   :is(.h-tier, .pr-card, .pr-plan):has(.card-link:active) { scale: none; }
   .mega { transition: none; }
   .h-hero h1, .h-sub, .h-hero .bn-sum, .h-ctas, .h-alt, .reel, .h-ch-today,
