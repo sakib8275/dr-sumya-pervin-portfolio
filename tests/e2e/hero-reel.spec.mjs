@@ -11,7 +11,9 @@
 //   4. the outgoing slide has cleared before the wipe finishes, so old and new
 //      words are never spliced together mid-transition,
 //   5. reduced motion never autoplays, and switching it on mid-visit stops it,
-//   6. without JS, all six conditions are a readable, linked index.
+//   6. without JS, all six conditions are a readable, linked index,
+//   7. a narrow desktop pane (mouse at phone width) autoplays too — the
+//      autoplay gate is touch capability, not width (owner call 2026-10-09).
 //
 // The reel advances on its progress bar's animationend, so the tests shorten
 // --reel-dwell instead of waiting 2.4s a slide.
@@ -37,6 +39,27 @@ test('perpetual: through all six it wraps to 01 and keeps rotating', async ({ pa
   expect(await page.evaluate(() => window.__seen.slice(0, 8))).toEqual(['01', '02', '03', '04', '05', '06', '01', '02']);
   await expect(page.locator('.reel')).toHaveClass(/is-auto/);
   await expect(page.locator('.reel-pause'), 'no Pause control exists').toHaveCount(0);
+});
+
+test('a narrow desktop pane (mouse at phone width) still autoplays', async ({ page, site }) => {
+  // ≤820px used to be the autoplay cutoff on the theory that narrow means
+  // phone. The pane this was found in was a 788px desktop — mouse users got a
+  // frozen-looking row. The gate is now pointer capability; the touch path
+  // (swipe row, no autoplay) stays pinned by the reduced-motion phone test.
+  await page.setViewportSize({ width: 788, height: 845 });
+  await page.goto(site.baseURL + '/');
+  expect(await page.evaluate(() => matchMedia('(pointer: coarse)').matches),
+    'this test is the fine-pointer half of the gate; it must really be fine').toBe(false);
+  expect(await page.evaluate(() => matchMedia('(max-width: 820px)').matches),
+    'and it must really be phone-shaped, or it pins nothing').toBe(true);
+  await page.addStyleTag({ content: FAST });
+  await page.locator('.reel').scrollIntoViewIfNeeded(); // not playing to an empty room
+  await expect(page.locator('.reel')).not.toHaveClass(/is-off/);
+  await expect(page.locator('.reel')).toHaveClass(/is-auto/, { timeout: 5_000 });
+  await page.waitForFunction(
+    () => document.querySelector('.reel-cur')?.textContent !== '01',
+    null, { timeout: 8_000 },
+  );
 });
 
 test('hover holds the reel, leaving resumes it, and a manual step stops it for good', async ({ page, site }) => {

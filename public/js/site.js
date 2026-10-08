@@ -43,7 +43,10 @@ import { writePrefill, takePrefill } from './prefill.mjs';
   // hidden tab pause it through animation-play-state. There is no Pause
   // control: a manual step (arrow, name bar, keyboard arrow) stops autoplay
   // for the rest of the visit — that is the stop path WCAG 2.2.2 asks for.
-  // Phones and reduced motion never autoplay; phones swipe a scroll-snap row.
+  // Touch devices and reduced motion never autoplay; the swipe row is a
+  // width thing (≤820px), so a wide touch tablet gets a still stage and the
+  // arrows. Below that, the autoplay gate is pointer capability, not width —
+  // a narrow desktop pane is still a desktop, and rotates.
   const reel = document.querySelector('[data-reel]');
   if (reel) {
     const slides = [...reel.querySelectorAll('.reel-slide')];
@@ -53,7 +56,8 @@ import { writePrefill, takePrefill } from './prefill.mjs';
     const live = reel.querySelector('.reel-live');
     const nav = reel.querySelector('.reel-nav');
     const calm = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const phone = window.matchMedia('(max-width: 820px)');
+    const phone = window.matchMedia('(max-width: 820px)'); // swipe-row layout
+    const touch = window.matchMedia('(pointer: coarse)');  // autoplay gate
     const pad = (n) => String(n).padStart(2, '0');
     let i = -1;
     let auto = false;
@@ -134,19 +138,31 @@ import { writePrefill, takePrefill } from './prefill.mjs';
     document.addEventListener('visibilitychange', holdOff);
     // Phones: the row is swiped natively; keep the counter and bars in step.
     let scrollT;
+    // Touching the row or wheeling it is intent, wherever it settles: stop.
+    // The scroll test below stays as the glide filter — the autoplay's own
+    // landing must neither stop nor announce.
+    list.addEventListener('pointerdown', stop, { passive: true });
+    list.addEventListener('wheel', stop, { passive: true });
     list.addEventListener('scroll', () => {
       if (!phone.matches) return;
       clearTimeout(scrollT);
-      scrollT = setTimeout(() => go(Math.round(list.scrollLeft / list.clientWidth), { user: true, fromScroll: true }), 120);
+      scrollT = setTimeout(() => {
+        const n = Math.round(list.scrollLeft / list.clientWidth);
+        if (n === i) return; // a glide or an elastic bounce lands back here
+        stop(); go(n, { user: true, fromScroll: true });
+      }, 120);
     }, { passive: true });
     // Reduced motion turned on mid-visit: stop. The slides already swap without
     // movement under the media query, so the layout and focus stay put.
     calm.addEventListener('change', () => { if (calm.matches) stop(); });
+    // The device gains a finger mid-visit (docked tablet, touch monitor): hand
+    // control back to the human.
+    touch.addEventListener('change', () => { if (touch.matches) stop(); });
 
     go(0);
     setTimeout(() => reel.classList.remove('is-intro'), 1500);
     setAuto(false);
-    if (!calm.matches && !phone.matches) setTimeout(() => { if (!touched && !calm.matches) setAuto(true); }, 900);
+    if (!calm.matches && !touch.matches) setTimeout(() => { if (!touched && !calm.matches && !touch.matches) setAuto(true); }, 900);
   }
 
   // — Mobile drawer — light panel over a scrim; Tab is trapped inside while
@@ -159,6 +175,7 @@ import { writePrefill, takePrefill } from './prefill.mjs';
   if (drawer && burger) {
     const focusables = () => drawer.querySelectorAll('a[href], button:not([disabled])');
     const open = () => {
+      drawer.inert = false;
       drawer.classList.add('active');
       if (scrim) scrim.classList.add('active');
       document.body.classList.add('no-scroll');
@@ -171,6 +188,9 @@ import { writePrefill, takePrefill } from './prefill.mjs';
       document.body.classList.remove('no-scroll');
       burger.setAttribute('aria-expanded', 'false');
       burger.focus();
+      // The exit slides for 300ms with the panel still visible; inert keeps its
+      // links out of tab order (and untappable) while it leaves.
+      drawer.inert = true;
     };
     burger.addEventListener('click', open);
     if (close) close.addEventListener('click', shut);
@@ -406,8 +426,13 @@ import { writePrefill, takePrefill } from './prefill.mjs';
   const show = (id, html) => {
     const out = document.getElementById(id);
     if (!out) return;
+    const rerun = !out.hidden; // first reveal plays rise-in; a re-run re-inks
     out.innerHTML = html;
     out.hidden = false;
+    if (rerun) { out.classList.remove('is-ink'); void out.offsetWidth; out.classList.add('is-ink'); }
+    // A re-run inside the 320ms entrance trades the remaining rise for the
+    // dip (one animation-name slot): content still swaps, arrival snaps.
+    else out.classList.remove('is-ink');
     out.focus && out.focus({ preventScroll: true });
     out.scrollIntoView && out.scrollIntoView({ block: 'nearest' });
   };
