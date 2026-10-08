@@ -48,7 +48,7 @@ export function moleCheck() {
     </div>
     <button type="submit" class="btn btn-ink">Check my mole</button>
   </form>
-  <div class="tool-out" id="moleOut" role="status" aria-live="polite" hidden></div>
+  <div class="tool-out" id="moleOut" role="status" aria-live="polite" tabindex="-1" hidden></div>
   <p class="tool-fine">This tool is a guide, not a diagnosis. If a mole is new, changing, or bleeding, <a class="tlink" href="${href('/book/')}?reason=mole">book a mole check with a priority slot</a>.</p>
   ${cta('Worth a dermatologist’s look? Book a mole check.', 'Book a mole check', `${href('/book/')}?reason=mole`)}
 </div></section>`;
@@ -71,7 +71,7 @@ export function skinType() {
     </fieldset>`).join('')}
     <button type="submit" class="btn btn-ink">See my skin type</button>
   </form>
-  <div class="tool-out" id="skinOut" role="status" aria-live="polite" hidden></div>
+  <div class="tool-out" id="skinOut" role="status" aria-live="polite" tabindex="-1" hidden></div>
   <p class="tool-fine">A guide to routine and suitability, not a diagnosis. For a diagnosis, book a consultation.</p>
   ${cta('Want a routine built for your skin? Book a consultation.', 'Book a consultation')}
 </div></section>`;
@@ -160,7 +160,7 @@ export function prep() {
     </fieldset>`).join('')}
     <button type="submit" class="btn btn-ink">Show what to expect</button>
   </form>
-  <div class="tool-out" id="prepOut" role="status" aria-live="polite" hidden></div>
+  <div class="tool-out" id="prepOut" role="status" aria-live="polite" tabindex="-1" hidden></div>
   <p class="tool-fine">This does not diagnose and does not name procedures. It only suggests the depth of visit that usually fits.</p>
   ${cta('Ready? Pick a day and we’ll send your serial.', 'Book a consultation')}
 </div></section>`;
