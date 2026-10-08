@@ -419,7 +419,8 @@ details[open]::details-content { height: auto; opacity: 1; }
    re-run re-inks instead (show() dips the panel with .is-ink, like the
    estimator total). */
 .tool-out:not([hidden]) { animation: rise-in 320ms var(--ease-out) both; }
-/* A re-run re-inks: show() restarts this keyframe via .is-ink (remove,
+/* A re-run re-inks (the skin-check output carries both classes; sc-out
+   rides along for symmetry with its own rules): show() restarts this keyframe via .is-ink (remove,
    reflow, re-add — a class toggle inside one task can't start a transition,
    but it does restart an animation), dipping the panel to 35% and settling
    it back over 160ms. Declared after rise-in so the re-run wins the cascade. */

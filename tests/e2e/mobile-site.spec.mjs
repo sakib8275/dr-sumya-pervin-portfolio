@@ -16,6 +16,15 @@
 //      in step, has 44px bars — in the JS-enhanced reel, under reduced motion at
 //      360×640, and with site.js never loaded at all.
 import { test, expect } from './helpers/site.mjs';
+import { devices } from 'playwright';
+
+// The touch half of an iPhone SE (its viewport is this suite's phone class):
+// the reel's autoplay gate is pointer capability, so a mouse-only Chromium at
+// 375px would autoplay — and the never-auto-advances assertion below could no
+// longer fail at all. Only the reel test runs under it: isMobile emulation
+// font-boosts text and would upset the layout tests' pixel expectations. The
+// descriptor's defaultBrowserType is stripped (one chromium project here).
+const { defaultBrowserType, ...PHONE } = devices['iPhone SE'];
 
 test.describe('mobile 375×667', () => {
   test.use({ viewport: { width: 375, height: 667 } });
@@ -105,24 +114,6 @@ test.describe('mobile 375×667', () => {
     await expect(page.locator('.reel-pause'), 'no Pause control exists anywhere').toHaveCount(0);
     await expect(page.locator('.reel-arrow').first(), 'the row swipes; the arrows go').toBeHidden();
   });
-
-  test('hero reel never auto-advances on a phone; a swipe and a bar tap both move it', async ({ page, site }) => {
-    await page.goto(site.baseURL + '/', { waitUntil: 'networkidle' });
-    // A 150ms dwell: if anything autoplayed, the whole pass would run inside the wait.
-    await page.addStyleTag({ content: '.reel { --reel-dwell: 150ms !important; }' });
-    await page.locator('.reel').scrollIntoViewIfNeeded();
-    await page.waitForTimeout(1500);
-    await expect(page.locator('.reel-cur')).toHaveText('01');
-    // Swipe: the row is native scroll-snap; scrolling it syncs the counter and bars.
-    await page.locator('.reel-slides').evaluate((el) => el.scrollTo({ left: el.clientWidth * 2 + 40 }));
-    await expect(page.locator('.reel-cur')).toHaveText('03');
-    await expect(page.locator('.reel-name').nth(2)).toHaveAttribute('aria-current', 'true');
-    // A bar tap scrolls the row to its slide.
-    await page.locator('.reel-name').nth(4).click();
-    await expect(page.locator('.reel-cur')).toHaveText('05');
-    await expect.poll(() => page.locator('.reel-slides').evaluate((el) => Math.round(el.scrollLeft / el.clientWidth))).toBe(4);
-    await expect(page.locator('.reel-live')).toContainText('5 of 6: vitiligo');
-  });
 });
 
 // Reduced motion on the smallest common phone: the reel keeps its phone shape
@@ -153,11 +144,15 @@ test.describe('mobile 360×640, reduced motion', () => {
     // stayed instant — visible only in computed styles, not in toBeVisible.
     await page.click('.burger');
     await expect(page.locator('.drawer')).toHaveClass(/active/);
+    expect(await page.evaluate(() => document.querySelector('.drawer').inert),
+      'open: the drawer must be interactive, starting with the ✕ focus').toBe(false);
     expect(await page.evaluate(() => getComputedStyle(document.querySelector('.drawer')).transitionDuration),
       'open direction: the active state is covered by the reduce list').toBe('0s');
     await page.click('.drawer-head button');
     expect(await page.evaluate(() => getComputedStyle(document.querySelector('.drawer')).transitionDuration),
       'close direction: the base rule is covered too').toBe('0s');
+    expect(await page.evaluate(() => document.querySelector('.drawer').inert),
+      'the closed drawer leaves the tab order (shut() inerts it)').toBe(true);
   });
 });
 
@@ -190,5 +185,32 @@ test.describe('mobile 375×667, no JavaScript', () => {
     expect(overflow).toBeLessThanOrEqual(0);
     expect(rowScrolls, 'the six slides sit in a horizontal row the visitor can swipe').toBe(true);
     expect(panelRight).toBeLessThanOrEqual(375);
+  });
+});
+
+// The same phone class, but with the touch half of the descriptor: this is the
+// test that pins the reel's "never autoplays on touch" invariant, and it needs
+// a genuinely coarse pointer to mean anything.
+test.describe('mobile 375×667, touch', () => {
+  test.use({ ...PHONE, viewport: { width: 375, height: 667 } });
+
+  test('hero reel never auto-advances on a phone; a swipe and a bar tap both move it', async ({ page, site }) => {
+    expect(await page.evaluate(() => matchMedia('(pointer: coarse)').matches),
+      'the device spread must really emulate touch, or this test pins nothing').toBe(true);
+    await page.goto(site.baseURL + '/', { waitUntil: 'networkidle' });
+    // A 150ms dwell: if anything autoplayed, the whole pass would run inside the wait.
+    await page.addStyleTag({ content: '.reel { --reel-dwell: 150ms !important; }' });
+    await page.locator('.reel').scrollIntoViewIfNeeded();
+    await page.waitForTimeout(1500);
+    await expect(page.locator('.reel-cur')).toHaveText('01');
+    // Swipe: the row is native scroll-snap; scrolling it syncs the counter and bars.
+    await page.locator('.reel-slides').evaluate((el) => el.scrollTo({ left: el.clientWidth * 2 + 40 }));
+    await expect(page.locator('.reel-cur')).toHaveText('03');
+    await expect(page.locator('.reel-name').nth(2)).toHaveAttribute('aria-current', 'true');
+    // A bar tap scrolls the row to its slide.
+    await page.locator('.reel-name').nth(4).click();
+    await expect(page.locator('.reel-cur')).toHaveText('05');
+    await expect.poll(() => page.locator('.reel-slides').evaluate((el) => Math.round(el.scrollLeft / el.clientWidth))).toBe(4);
+    await expect(page.locator('.reel-live')).toContainText('5 of 6: vitiligo');
   });
 });

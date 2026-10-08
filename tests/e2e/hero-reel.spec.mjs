@@ -48,7 +48,13 @@ test('a narrow desktop pane (mouse at phone width) still autoplays', async ({ pa
   // (swipe row, no autoplay) stays pinned by the reduced-motion phone test.
   await page.setViewportSize({ width: 788, height: 845 });
   await page.goto(site.baseURL + '/');
+  expect(await page.evaluate(() => matchMedia('(pointer: coarse)').matches),
+    'this test is the fine-pointer half of the gate; it must really be fine').toBe(false);
+  expect(await page.evaluate(() => matchMedia('(max-width: 820px)').matches),
+    'and it must really be phone-shaped, or it pins nothing').toBe(true);
   await page.addStyleTag({ content: FAST });
+  await page.locator('.reel').scrollIntoViewIfNeeded(); // not playing to an empty room
+  await expect(page.locator('.reel')).not.toHaveClass(/is-off/);
   await expect(page.locator('.reel')).toHaveClass(/is-auto/, { timeout: 5_000 });
   await page.waitForFunction(
     () => document.querySelector('.reel-cur')?.textContent !== '01',
