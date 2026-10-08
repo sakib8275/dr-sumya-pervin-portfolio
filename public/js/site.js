@@ -43,7 +43,9 @@ import { writePrefill, takePrefill } from './prefill.mjs';
   // hidden tab pause it through animation-play-state. There is no Pause
   // control: a manual step (arrow, name bar, keyboard arrow) stops autoplay
   // for the rest of the visit — that is the stop path WCAG 2.2.2 asks for.
-  // Phones and reduced motion never autoplay; phones swipe a scroll-snap row.
+  // Touch devices and reduced motion never autoplay: touch swipes the
+  // scroll-snap row natively. The autoplay gate is pointer capability, not
+  // width — a narrow desktop pane is still a desktop, and rotates.
   const reel = document.querySelector('[data-reel]');
   if (reel) {
     const slides = [...reel.querySelectorAll('.reel-slide')];
@@ -53,7 +55,8 @@ import { writePrefill, takePrefill } from './prefill.mjs';
     const live = reel.querySelector('.reel-live');
     const nav = reel.querySelector('.reel-nav');
     const calm = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const phone = window.matchMedia('(max-width: 820px)');
+    const phone = window.matchMedia('(max-width: 820px)'); // swipe-row layout
+    const touch = window.matchMedia('(pointer: coarse)');  // autoplay gate
     const pad = (n) => String(n).padStart(2, '0');
     let i = -1;
     let auto = false;
@@ -137,16 +140,23 @@ import { writePrefill, takePrefill } from './prefill.mjs';
     list.addEventListener('scroll', () => {
       if (!phone.matches) return;
       clearTimeout(scrollT);
-      scrollT = setTimeout(() => go(Math.round(list.scrollLeft / list.clientWidth), { user: true, fromScroll: true }), 120);
+      scrollT = setTimeout(() => {
+        const n = Math.round(list.scrollLeft / list.clientWidth);
+        if (n === i) return; // the autoplay glide lands here; only a swipe differs
+        stop(); go(n, { user: true, fromScroll: true });
+      }, 120);
     }, { passive: true });
     // Reduced motion turned on mid-visit: stop. The slides already swap without
     // movement under the media query, so the layout and focus stay put.
     calm.addEventListener('change', () => { if (calm.matches) stop(); });
+    // The device gains a finger mid-visit (docked tablet, touch monitor): hand
+    // control back to the human.
+    touch.addEventListener('change', () => { if (touch.matches) stop(); });
 
     go(0);
     setTimeout(() => reel.classList.remove('is-intro'), 1500);
     setAuto(false);
-    if (!calm.matches && !phone.matches) setTimeout(() => { if (!touched && !calm.matches) setAuto(true); }, 900);
+    if (!calm.matches && !touch.matches) setTimeout(() => { if (!touched && !calm.matches) setAuto(true); }, 900);
   }
 
   // — Mobile drawer — light panel over a scrim; Tab is trapped inside while
