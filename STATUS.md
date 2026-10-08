@@ -4,44 +4,35 @@
 verification, or owner-action state changes. Everything under `docs/` is a dated
 snapshot; if this file and a snapshot disagree, this file wins.
 
-**Updated:** 2026-10-08 — **the animation audit is implemented: PR #15
-(`feat/animation-audit-2026-10-08`, `ad97d75`) is open for review; NOT
-deployed.** Two reports drove it — a craft review of the existing motion and
-an opportunities pass — and the owner approved implementing both. Fixes: the
-skip link snaps in (keyboard-initiated, and `top` was the site's one
-layout-animated property); card lift transforms are `(hover: hover)
-and (pointer: fine)`-gated so touch taps no longer stick a raised card; the
-drawer travels on a new `--ease-drawer` token added to **both** `:root`
-blocks (parity test green); the reel counter swaps through a 240ms
-from-state transition (`.is-swap` resets instantly and settles — no
-keyframe-restart machinery); without View Transitions the package sheet fades out
-over 200ms before `close()`, closing-flag guarded, reduced motion closing at
-once; and the admin stylesheet's dead one-pager motion CSS (~230 lines) is
-deleted, its one live bare shorthand (`.btn`) naming its properties.
-Additions: the /book/ confirmation and tool results rise in; FAQ rows and
-drawer link groups ease open via `::details-content` behind
-`interpolate-size: allow-keywords` (unsupported browsers keep the snap); the
-press idiom (`scale .98`, 160ms) extends to the reel bars/arrows, nav
-dropdown buttons, FAQ rows and chips; the estimator total re-inks on change
-— behind the laser gate, so it first shows when that gate opens (the
-retarget pattern is verified live on the reel counter). Reduced motion
-covers every addition. Gates on the branch: **328 node + 64 e2e**. Manual
-pass on `npm run dev` (8788): reel retarget across rapid steps, VT and
-VT-stubbed sheet close (mid-fade sampled, double-Esc guarded, focus
-returned), FAQ accordion 79.9→92.4px open and back to 0, tool and
-confirmation entrances sampled mid-flight, hero verified at 1280 with no
-horizontal overflow. **Independent review round (same day): Google's
-Antigravity CLI (`agy`, print mode) reviewed the PR diff — verdict "request
-changes", 5 findings (record: `docs/reviews/pr15-review-2026-10-08.md`).
-All accepted and fixed on the branch: the fallback close's second-Esc now
-finishes immediately and clears its timer (an armed timer could close a
-sheet reopened inside the 200ms window); the Learn-card lift is now truly
-off under reduced motion (pre-existing specificity gap: `.h-learn
-.h-learn-card` outranked the reduce block's `.h-learn-card`); accordion
-content uses `overflow: clip` (no scroll container); the fallback exit
-fades `::backdrop` too; and the retarget wording in the comments/STATUS was
-corrected to "resets to the from-state and settles". Gates re-run after the
-fixes: 328 node + 64 e2e. Remaining: owner merge + deploy.
+**Updated:** 2026-10-09 — **the animation programme is fully shipped except
+plan 005: PR #20 (arrivals batch, `8a58dc1`) merged and DEPLOYED as
+`c1187fb8`, apex verified.** On top of PRs #15–#19, this ships plans 006/007/011
+— the booking success fades the form out beside the rising confirmation
+(`display 200ms allow-discrete`, RM instant); tool re-runs re-ink the result
+(dip to 35%, settle 160ms) via a `re-ink` keyframe restarted by
+remove→reflow→re-add, because the transition form the plan copied is a
+visual no-op in Chromium (a class toggle inside one task never reaches a
+rendering update) — the estimator's identical `.is-ink` is laser-gated and
+has never rendered; its fix (CSS keyframe + JS flip in `render()`) is
+recorded for when the laser gate opens; and the drawer animates its exit
+(visibility steps delayed by the 300ms transform, `.drawer.active` in the RM
+list after round 3 caught reduce users getting a 300ms slide-open). Two
+owner-directed calls rode along: the final CTA band got breathing room
+(18px above the stacked card's row, 16px between buttons) after a "too
+close" feel-check note, and the reel's autoplay gate is **pointer
+capability, not width** (`pointer: coarse` never autoplays; a mouse device
+rotates at any width — a 788px desktop pane had twice read as "stuck"),
+with a real swipe stopping autoplay via `pointerdown`/`wheel` and the
+phone no-autoplay test now running under genuine touch emulation. Two
+independent qwen3.8-flash rounds (3 and 4) reviewed the PR — both FIX
+FIRST, nine findings, all verified real and fixed; records in
+`docs/reviews/pr20-review-2026-10-09.md` (round 3) and
+`pr20-review-round4-2026-10-09.md` (round 4). Gates: **328 node + 66 e2e**
+(the suite grew by the RM-drawer and narrow-pane reel tests). Remaining in
+the programme: **plan 005 only** (duration tokens in both `:root` blocks
+with a parity test, plus the card-idiom sweep). Known deferred items: the
+armed-delete timer not cleared on modal close (JS lane, from PR #19's
+review) and the estimator `.is-ink` fix (behind the laser gate).
 
 **Updated:** 2026-10-06 (DEPLOYED) — **the hero reel now rotates perpetually,
 faster, with no Pause control, and is LIVE.** Owner directives (same day),
