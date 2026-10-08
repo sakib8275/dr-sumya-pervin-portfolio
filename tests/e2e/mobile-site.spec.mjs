@@ -144,6 +144,21 @@ test.describe('mobile 360×640, reduced motion', () => {
     expect(panelTop, 'the reel starts below the CTAs').toBeGreaterThanOrEqual(ctaBottom);
     await expect(page.locator('.reel')).not.toHaveClass(/is-auto/);
   });
+
+  test('the drawer is transition-free in both directions under reduced motion', async ({ page, site }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.goto(site.baseURL + '/', { waitUntil: 'networkidle' });
+    // The .active state rule carries its own transition (0,2,0); if it escaped
+    // the RM list the drawer would slide open for reduce users while closing
+    // stayed instant — visible only in computed styles, not in toBeVisible.
+    await page.click('.burger');
+    await expect(page.locator('.drawer')).toHaveClass(/active/);
+    expect(await page.evaluate(() => getComputedStyle(document.querySelector('.drawer')).transitionDuration),
+      'open direction: the active state is covered by the reduce list').toBe('0s');
+    await page.click('.drawer-head button');
+    expect(await page.evaluate(() => getComputedStyle(document.querySelector('.drawer')).transitionDuration),
+      'close direction: the base rule is covered too').toBe('0s');
+  });
 });
 
 // A visitor whose browser runs no scripts gets the six slides as a swipeable

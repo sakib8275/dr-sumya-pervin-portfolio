@@ -159,6 +159,7 @@ import { writePrefill, takePrefill } from './prefill.mjs';
   if (drawer && burger) {
     const focusables = () => drawer.querySelectorAll('a[href], button:not([disabled])');
     const open = () => {
+      drawer.inert = false;
       drawer.classList.add('active');
       if (scrim) scrim.classList.add('active');
       document.body.classList.add('no-scroll');
@@ -171,6 +172,9 @@ import { writePrefill, takePrefill } from './prefill.mjs';
       document.body.classList.remove('no-scroll');
       burger.setAttribute('aria-expanded', 'false');
       burger.focus();
+      // The exit slides for 300ms with the panel still visible; inert keeps its
+      // links out of tab order (and untappable) while it leaves.
+      drawer.inert = true;
     };
     burger.addEventListener('click', open);
     if (close) close.addEventListener('click', shut);
@@ -410,6 +414,7 @@ import { writePrefill, takePrefill } from './prefill.mjs';
     out.innerHTML = html;
     out.hidden = false;
     if (rerun) { out.classList.remove('is-ink'); void out.offsetWidth; out.classList.add('is-ink'); }
+    else out.classList.remove('is-ink');
     out.focus && out.focus({ preventScroll: true });
     out.scrollIntoView && out.scrollIntoView({ block: 'nearest' });
   };

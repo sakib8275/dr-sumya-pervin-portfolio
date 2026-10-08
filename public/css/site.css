@@ -434,7 +434,8 @@ details[open]::details-content { height: auto; opacity: 1; }
 .bk-grid { display: grid; grid-template-columns: 1.15fr .85fr; gap: 40px; align-items: start; }
 .bk-form { max-width: none; }
 /* The form bows out beside the confirmation's arrival: opacity eases over
-   200ms and `display` steps to none when it ends (allow-discrete). */
+   200ms and `display` steps to none when it ends (allow-discrete). Engines
+   without allow-discrete discard that leg and keep the instant swap. */
 .bk-form-fields { transition: opacity 200ms var(--ease-out), display 200ms allow-discrete; }
 .bk-form-fields[hidden] { opacity: 0; }
 .bk-field { margin-bottom: 18px; }
@@ -1093,7 +1094,7 @@ details[open]::details-content { height: auto; opacity: 1; }
 @keyframes fade-in { from { opacity: 0; } }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  .drawer, .scrim, .card, .h-learn-card, .h-learn .h-learn-card, .ico-chev, .faq summary::after, a.chip,
+  .drawer, .drawer.active, .scrim, .card, .h-learn-card, .h-learn .h-learn-card, .ico-chev, .faq summary::after, a.chip,
     .reel-name, .reel-arrow, .nav-drop-btn, .faq summary, .pr-est-big,
     .burger, .drawer-head button, .bk-form-fields { transition: none; }
   /* The sheet close keeps its colour fade here, like .btn — only the movement drops. */
