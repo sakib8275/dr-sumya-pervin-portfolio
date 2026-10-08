@@ -406,7 +406,8 @@ import { writePrefill, takePrefill } from './prefill.mjs';
     if (!out) return;
     out.innerHTML = html;
     out.hidden = false;
-    out.focus && out.focus();
+    out.focus && out.focus({ preventScroll: true });
+    out.scrollIntoView && out.scrollIntoView({ block: 'nearest' });
   };
 
   // A tool's answers must never reach a URL (history, server logs, referrers).

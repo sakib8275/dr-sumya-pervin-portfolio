@@ -134,11 +134,14 @@ p, li { text-wrap: pretty; }
 .btn:not(.card-link):active { transform: scale(.98); }
 .btn:disabled { opacity: .6; cursor: progress; }
 /* The same press on the remaining discrete tap targets — the reel's name bars,
-   the nav dropdown buttons, the FAQ rows. (.reel-arrow and a.chip carry their
-   own, alongside their colours.) Text-row links (.drawer-links, .mega a) stay
-   unscaled: scaling running text reads cheap. */
-.reel-name, .nav-drop-btn, .faq summary { transition: scale var(--t-press) var(--ease-out); }
-.reel-name:active, .nav-drop-btn:active, .faq summary:active { scale: .98; }
+   the nav dropdown buttons, the FAQ rows, the burger, the drawer close, the
+   sheet close. (.reel-arrow and a.chip carry their own, alongside their
+   colours.) Text-row links (.drawer-links, .mega a) stay unscaled: scaling
+   running text reads cheap. */
+.reel-name, .nav-drop-btn, .faq summary, .burger, .drawer-head button, .pkg-close
+  { transition: scale var(--t-press) var(--ease-out); }
+.reel-name:active, .nav-drop-btn:active, .faq summary:active,
+  .burger:active, .drawer-head button:active, .pkg-close:active { scale: .98; }
 .btn-ink { background: var(--nil); color: #fff; }
 .btn-ink:hover { background: var(--nil-deep); }
 .btn-ghost { border-color: var(--nil); color: var(--nil); background: transparent; }
@@ -771,6 +774,7 @@ details[open]::details-content { height: auto; opacity: 1; }
 .pkg-close {
   position: absolute; top: 18px; right: 18px; z-index: 2; display: grid; place-items: center;
   width: 44px; height: 44px; border: 0; border-radius: 50%; background: var(--paper-2); color: var(--ink); cursor: pointer;
+  transition: background-color var(--t-press) var(--ease-out), scale var(--t-press) var(--ease-out);
 }
 .pkg-close:hover { background: var(--nil-tint); }
 .pkg-title { font-size: clamp(1.625rem, 3vw, 2rem); line-height: 1.1; margin: 4px 56px 10px 0; }
@@ -1075,12 +1079,14 @@ details[open]::details-content { height: auto; opacity: 1; }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   .drawer, .scrim, .card, .h-learn-card, .h-learn .h-learn-card, .ico-chev, .faq summary::after, a.chip,
-    .reel-name, .reel-arrow, .nav-drop-btn, .faq summary, .pr-est-big { transition: none; }
+    .reel-name, .reel-arrow, .nav-drop-btn, .faq summary, .pr-est-big,
+    .burger, .drawer-head button, .pkg-close { transition: none; }
   details::details-content { transition: none; }
   .pkg-view[open], .pkg-view.is-out { animation: none; }
   .card:hover, .h-learn-card:hover, .h-learn .h-learn-card:hover { transform: none; }
   .btn:active { transform: none; }
-  .reel-name:active, .reel-arrow:active, .nav-drop-btn:active, .faq summary:active, a.chip:active { scale: none; }
+  .reel-name:active, .reel-arrow:active, .nav-drop-btn:active, .faq summary:active, a.chip:active,
+    .burger:active, .drawer-head button:active, .pkg-close:active { scale: none; }
   :is(.h-tier, .pr-card, .pr-plan):has(.card-link:active) { scale: none; }
   .mega { transition: none; }
   .h-hero h1, .h-sub, .h-hero .bn-sum, .h-ctas, .h-alt, .reel, .h-ch-today,
