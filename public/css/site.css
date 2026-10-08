@@ -134,11 +134,11 @@ p, li { text-wrap: pretty; }
 .btn:not(.card-link):active { transform: scale(.98); }
 .btn:disabled { opacity: .6; cursor: progress; }
 /* The same press on the remaining discrete tap targets — the reel's name bars,
-   the nav dropdown buttons, the FAQ rows, the burger, the drawer close, the
-   sheet close. (.reel-arrow and a.chip carry their own, alongside their
+   the nav dropdown buttons, the FAQ rows, the burger, the drawer close.
+   (.reel-arrow, a.chip and the sheet close carry their own, alongside their
    colours.) Text-row links (.drawer-links, .mega a) stay unscaled: scaling
    running text reads cheap. */
-.reel-name, .nav-drop-btn, .faq summary, .burger, .drawer-head button, .pkg-close
+.reel-name, .nav-drop-btn, .faq summary, .burger, .drawer-head button
   { transition: scale var(--t-press) var(--ease-out); }
 .reel-name:active, .nav-drop-btn:active, .faq summary:active,
   .burger:active, .drawer-head button:active, .pkg-close:active { scale: .98; }
@@ -410,7 +410,10 @@ details[open]::details-content { height: auto; opacity: 1; }
 .sc-cond h4 { font-size: 1.125rem; line-height: 1.2; margin-bottom: 6px; }
 .sc-cond .tlink { font-size: 0.90625rem; }
 .tool-out { max-width: 76ch; margin-top: 26px; padding: 24px 26px; border-radius: var(--r-card);
-  background: var(--nil-tint); }
+  background: var(--nil-tint);
+  /* show() glides the panel into view; keep it clear of the sticky nav (78px,
+     64px under 962px) and the mobile bar (~49px + safe area). */
+  scroll-margin-block: 88px calc(60px + env(safe-area-inset-bottom)); }
 /* A tool's answer rises in rather than blinking in. Re-running the tool swaps
    content in place without replaying the entrance (hidden stays false). */
 .tool-out:not([hidden]) { animation: rise-in 320ms var(--ease-out) both; }
@@ -1080,7 +1083,9 @@ details[open]::details-content { height: auto; opacity: 1; }
   html { scroll-behavior: auto; }
   .drawer, .scrim, .card, .h-learn-card, .h-learn .h-learn-card, .ico-chev, .faq summary::after, a.chip,
     .reel-name, .reel-arrow, .nav-drop-btn, .faq summary, .pr-est-big,
-    .burger, .drawer-head button, .pkg-close { transition: none; }
+    .burger, .drawer-head button { transition: none; }
+  /* The sheet close keeps its colour fade here, like .btn — only the movement drops. */
+  .pkg-close { transition: background-color var(--t-press) var(--ease-out); }
   details::details-content { transition: none; }
   .pkg-view[open], .pkg-view.is-out { animation: none; }
   .card:hover, .h-learn-card:hover, .h-learn .h-learn-card:hover { transform: none; }
