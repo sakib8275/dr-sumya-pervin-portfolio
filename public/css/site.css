@@ -750,9 +750,12 @@ details[open]::details-content { height: auto; opacity: 1; }
 .h-final { background: var(--nil); color: var(--on-nil); padding-block: 62px; }
 .h-final .wrap { display: flex; justify-content: space-between; align-items: center; gap: 30px; flex-wrap: wrap; }
 .h-final h2 { color: #fff; font-size: clamp(1.5rem, 3vw, 2.25rem); max-width: 24ch; }
-.h-final-ctas { display: flex; gap: 12px; flex-wrap: wrap; }
+.h-final-ctas { display: flex; gap: 16px; flex-wrap: wrap; }
 .h-final .btn-ink { background: #fff; color: var(--nil); }
 .h-final-inner { margin-top: 44px; border-radius: 22px; padding: 40px; }
+/* the inner card stacks its heading over the row; without this the buttons
+   sit flush on the h2's descenders */
+.h-final-inner .h-final-ctas { margin-top: 18px; }
 
 /* — Package detail view: a side sheet on desktop, a bottom sheet on phones.
    Native <dialog> (focus containment, Esc, ::backdrop); the actions stay
