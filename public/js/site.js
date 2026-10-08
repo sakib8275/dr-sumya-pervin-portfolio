@@ -91,7 +91,9 @@ import { writePrefill, takePrefill } from './prefill.mjs';
         b.classList.toggle('is-done', k < n);
       });
       cur.textContent = pad(n + 1);
-      cur.classList.remove('is-swap'); void cur.offsetWidth; cur.classList.add('is-swap');
+      // From-state first (its own rule switches the transition off), then the
+      // reflow captures it, then the removal eases back to settled.
+      cur.classList.add('is-swap'); void cur.offsetWidth; cur.classList.remove('is-swap');
       // The automatic pass stays silent; only a visitor's own step is read out.
       if (user) live.textContent = `${n + 1} of ${slides.length}: ${slides[n].querySelector('.reel-word').textContent}. ${slides[n].querySelector('.reel-line').textContent}`;
       if (phone.matches && !fromScroll) list.scrollTo({ left: slides[n].offsetLeft, behavior: calm.matches ? 'auto' : 'smooth' });
@@ -255,7 +257,28 @@ import { writePrefill, takePrefill } from './prefill.mjs';
         if (el && el !== document.documentElement) el.click();
       }).catch((e) => { if (e && e.name !== 'AbortError') throw e; }); // same skip-abort swallow
     }, true);
-    const shut = () => { if (view.open) morph(view, cardOf(opener), () => view.close()); };
+    // View Transitions close by morphing back into the card (morph() checks
+    // the capability itself). Where they are missing, fade the sheet out over
+    // 200ms before close() instead of dropping it in a single frame; reduced
+    // motion closes at once. A second dismissal mid-fade finishes it now —
+    // and clears the pending timer, so the sheet can be reopened at once.
+    let closing = false;
+    let closeTimer = 0;
+    const finishFallbackClose = () => {
+      if (closeTimer) { clearTimeout(closeTimer); closeTimer = 0; }
+      view.classList.remove('is-out');
+      closing = false;
+      view.close();
+    };
+    const shut = () => {
+      if (!view.open) return;
+      if (document.startViewTransition) { morph(view, cardOf(opener), () => view.close()); return; }
+      if (closing) { finishFallbackClose(); return; }
+      if (calm.matches) { view.close(); return; }
+      closing = true;
+      view.classList.add('is-out');
+      closeTimer = setTimeout(finishFallbackClose, 200);
+    };
     document.addEventListener('click', (e) => {
       const trigger = e.target.closest('[data-pkg-open]');
       if (trigger) {
@@ -319,6 +342,7 @@ import { writePrefill, takePrefill } from './prefill.mjs';
   const lines = document.getElementById('estLines');
 
   const state = { pay: 'course', who: 'n' };
+  let rendered = false; // the estimator's first paint does not re-ink
   const taka = (n) => '৳' + n.toLocaleString('en-IN');
   const active = (seg) => seg.querySelector('button.on');
 
@@ -357,6 +381,10 @@ import { writePrefill, takePrefill } from './prefill.mjs';
       vat: Number(document.getElementById('estimator').dataset.vat) || 0
     });
     total.textContent = taka(r.amount);
+    // A changed total dips without a transition (.is-ink) and eases back, so
+    // the number visibly re-inks instead of teleporting.
+    if (rendered) { total.classList.add('is-ink'); void total.offsetWidth; total.classList.remove('is-ink'); }
+    rendered = true;
     sub.textContent = r.note;
     lines.innerHTML = r.rows.map((row) => `<div class="ln${row.total ? ' ln-total' : ''}"><span>${row.label}</span><b>${row.amount !== undefined ? taka(row.amount) : row.text}</b></div>`).join('');
   }

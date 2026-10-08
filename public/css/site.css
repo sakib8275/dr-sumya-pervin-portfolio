@@ -46,6 +46,7 @@
   --ease: cubic-bezier(.22, .61, .36, 1);
   --ease-out: cubic-bezier(.16, 1, .3, 1);
   --ease-move: cubic-bezier(.65, 0, .35, 1);
+  --ease-drawer: cubic-bezier(.32, .72, 0, 1);
   --t-press: 160ms;
   --t-state: 320ms;
   --t-focal: 760ms;
@@ -70,7 +71,10 @@
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; scrollbar-color: var(--field-line) var(--paper); accent-color: var(--nil); }
+html { scroll-behavior: smooth; scrollbar-color: var(--field-line) var(--paper); accent-color: var(--nil);
+  /* Lets the accordion height transition below reach `auto`; browsers without
+     it keep the old snap. */
+  interpolate-size: allow-keywords; }
 body {
   font-family: "Outfit", "Hind Siliguri", ui-sans-serif, system-ui, sans-serif;
   background: var(--paper); color: var(--ink); caret-color: var(--nil);
@@ -91,7 +95,7 @@ p, li { text-wrap: pretty; }
 .skip-link {
   position: absolute; left: 16px; top: -48px; z-index: 300;
   background: var(--nil-deep); color: #fff; padding: 10px 18px;
-  border-radius: 0 0 12px 12px; transition: top .2s var(--ease);
+  border-radius: 0 0 12px 12px;
 }
 .skip-link:focus { top: 0; }
 /* Visually hidden, still read by screen readers and the heading outline. */
@@ -129,6 +133,12 @@ p, li { text-wrap: pretty; }
    instead (see the whole-card target rules). */
 .btn:not(.card-link):active { transform: scale(.98); }
 .btn:disabled { opacity: .6; cursor: progress; }
+/* The same press on the remaining discrete tap targets — the reel's name bars,
+   the nav dropdown buttons, the FAQ rows. (.reel-arrow and a.chip carry their
+   own, alongside their colours.) Text-row links (.drawer-links, .mega a) stay
+   unscaled: scaling running text reads cheap. */
+.reel-name, .nav-drop-btn, .faq summary { transition: scale var(--t-press) var(--ease-out); }
+.reel-name:active, .nav-drop-btn:active, .faq summary:active { scale: .98; }
 .btn-ink { background: var(--nil); color: #fff; }
 .btn-ink:hover { background: var(--nil-deep); }
 .btn-ghost { border-color: var(--nil); color: var(--nil); background: transparent; }
@@ -150,8 +160,10 @@ p, li { text-wrap: pretty; }
 }
 .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 22px; list-style: none; }
 a.chip { display: inline-flex; align-items: center; min-height: 44px; padding: 8px 14px;
-  transition: background-color .15s var(--ease), border-color .15s var(--ease), color .15s var(--ease); }
+  transition: background-color .15s var(--ease), border-color .15s var(--ease), color .15s var(--ease),
+    scale var(--t-press) var(--ease-out); }
 a.chip:hover { background: var(--surface); border-color: var(--nil); color: var(--nil); }
+a.chip:active { scale: .98; }
 
 /* — Utility bar / header — */
 .u-bar { background: var(--nil-deep); color: var(--on-nil); font-size: 0.8125rem; }
@@ -241,7 +253,7 @@ a.chip:hover { background: var(--surface); border-color: var(--nil); color: var(
   background: var(--surface); color: var(--ink); padding: 22px;
   border-left: 1px solid var(--rule);
   box-shadow: -18px 0 44px rgba(28, 34, 51, .14);
-  transform: translateX(100%); transition: transform .3s var(--ease);
+  transform: translateX(100%); transition: transform .3s var(--ease-drawer);
   visibility: hidden; display: flex; flex-direction: column; gap: 6px; overflow-y: auto;
 }
 .drawer.active { transform: none; visibility: visible; }
@@ -306,6 +318,13 @@ a.chip:hover { background: var(--surface); border-color: var(--nil); color: var(
 .cost-note .cost-now { margin-top: 10px; font-size: 0.90625rem; color: var(--ink-2); }
 .cost-note.gated { background: var(--surface); border: 1px dashed var(--rule); }
 .cost-note.gated b { color: var(--ink-2); }
+/* Accordions ease open rather than snapping: FAQ rows here, the drawer's
+   link groups on every page. content-visibility steps at the end of the
+   transition so a closing panel's height is seen before it is hidden. */
+details::details-content { height: 0; opacity: 0; overflow: clip;
+  transition: height 280ms var(--ease-out), opacity 280ms var(--ease-out), content-visibility 280ms var(--ease-out) allow-discrete; }
+details[open]::details-content { height: auto; opacity: 1; }
+
 .faq { border-top: 1px solid var(--rule); }
 .faq details { border-bottom: 1px solid var(--rule); }
 /* The whole row is the tap target (≥44px), not just the text line. */
@@ -329,7 +348,13 @@ a.chip:hover { background: var(--surface); border-color: var(--nil); color: var(
 .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 18px; margin: 8px 0 24px; }
 .card { position: relative; display: block; border: 1px solid var(--rule); background: var(--surface);
   border-radius: var(--r-card); padding: 22px; transition: transform .15s ease, box-shadow .15s ease; }
-.card:hover { transform: translateY(-2px); box-shadow: var(--shadow-sm); border-color: var(--nil); }
+.card:hover { box-shadow: var(--shadow-sm); border-color: var(--nil); }
+/* The lift is pointer-only: touch fires a false hover on tap and the raised
+   card sticks after the browser-back return. Colour and shadow don't need
+   the gate — only the transform visibly lodges. */
+@media (hover: hover) and (pointer: fine) {
+  .card:hover { transform: translateY(-2px); }
+}
 .card h3 { font-size: 1.1875rem; margin-bottom: 8px; }
 .card p { color: var(--ink-2); font-size: 0.9375rem; margin-bottom: 12px; }
 .card-tag { position: absolute; top: 16px; right: 16px; font-size: 0.75rem; font-weight: 800;
@@ -383,6 +408,9 @@ a.chip:hover { background: var(--surface); border-color: var(--nil); color: var(
 .sc-cond .tlink { font-size: 0.90625rem; }
 .tool-out { max-width: 76ch; margin-top: 26px; padding: 24px 26px; border-radius: var(--r-card);
   background: var(--nil-tint); }
+/* A tool's answer rises in rather than blinking in. Re-running the tool swaps
+   content in place without replaying the entrance (hidden stays false). */
+.tool-out:not([hidden]) { animation: rise-in 320ms var(--ease-out) both; }
 .tool-out:focus { outline: none; }
 .tool-out h3 { margin-bottom: 10px; }
 .tool-out ul { margin: 8px 0 14px 1.2em; }
@@ -415,6 +443,9 @@ a.chip:hover { background: var(--surface); border-color: var(--nil); color: var(
 .bk-confirm:focus { outline: none; }
 .bk-confirm { padding: 24px 26px; border-radius: var(--r-card); background: var(--nil-tint);
   margin-bottom: 18px; }
+/* The moment the whole form was building to: the confirmation rises in (the
+   .h-ch-today arrival) instead of hard-swapping the fields away. */
+.bk-confirm:not([hidden]) { animation: rise-in 420ms var(--ease-out) both; }
 .bk-confirm h2 { margin-bottom: 10px; }
 .bk-confirm p { margin-bottom: 10px; }
 .bk-aside h2 { font-size: 1.375rem; margin: 4px 0 14px; }
@@ -483,9 +514,11 @@ a.chip:hover { background: var(--surface); border-color: var(--nil); color: var(
 .reel-arrow {
   flex: none; width: 44px; height: 44px; display: grid; place-items: center; padding: 0;
   background: none; border: 1px solid var(--rule-dark); border-radius: 999px; color: #fff; cursor: pointer;
-  transition: background-color var(--t-press) var(--ease-out), border-color var(--t-press) var(--ease-out);
+  transition: background-color var(--t-press) var(--ease-out), border-color var(--t-press) var(--ease-out),
+    scale var(--t-press) var(--ease-out);
 }
 .reel-arrow:hover { background: rgb(255 255 255 / .08); border-color: var(--on-nil); }
+.reel-arrow:active { scale: .98; }
 .reel-arrow svg { width: 18px; height: 18px; }
 .reel-names { flex: 1; display: grid; grid-template-columns: repeat(6, 1fr); }
 .reel-name {
@@ -535,12 +568,17 @@ a.chip:hover { background: var(--surface); border-color: var(--nil); color: var(
   .reel.is-live .reel-word { font-size: clamp(3rem, 5.4vw, 5rem); line-height: .95; letter-spacing: -.035em; text-wrap: balance; max-width: 9ch; }
   .reel.is-live .reel-line { margin-top: 16px; font-size: 1.0625rem; max-width: 32ch; }
   .reel.is-live .reel-link { align-self: flex-start; margin-top: -3px; font-size: 0.9375rem; }
-  .reel.is-live .reel-cur.is-swap { animation: reel-count 420ms var(--ease-out) both; }
+  /* The counter swaps through the from-state, not a keyframe restart:
+     `.is-swap` is the from-state with the transition off (site.js applies it,
+     forces a reflow, removes it), so each step resets instantly to the
+     from-state and settles in 240ms — no restart machinery, and the 8px dip
+     is small enough to read as a swap, not a pop. */
+  .reel.is-live .reel-cur { transition: translate 240ms var(--ease-out), opacity 240ms var(--ease-out); }
+  .reel.is-live .reel-cur.is-swap { translate: 0 8px; opacity: 0; transition: none; }
 }
 @keyframes reel-wipe { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
 @keyframes reel-clear { to { opacity: 0; } }
 @keyframes reel-bar { from { transform: scaleX(0); } to { transform: scaleX(1); } }
-@keyframes reel-count { from { transform: translateY(12px); opacity: 0; } }
 
 /* The hero entrance — the site's one authored moment, played once on load.
    The headline settles out of a blur the way ink takes to paper; the reel
@@ -681,7 +719,10 @@ a.chip:hover { background: var(--surface); border-color: var(--nil); color: var(
 .h-learn { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
 .h-learn article, .h-learn .h-learn-card { border: 1px solid var(--rule); border-radius: var(--r-card); padding: 24px; background: var(--surface); }
 .h-learn .h-learn-card { display: block; color: inherit; text-decoration: none; transition: border-color .2s ease, transform .2s ease; }
-.h-learn .h-learn-card:hover { border-color: var(--nil); transform: translateY(-2px); }
+.h-learn .h-learn-card:hover { border-color: var(--nil); }
+@media (hover: hover) and (pointer: fine) {
+  .h-learn .h-learn-card:hover { transform: translateY(-2px); }
+}
 .h-learn .cat { font-size: 0.75rem; font-weight: 700; color: var(--nil); letter-spacing: .08em; text-transform: uppercase; }
 .h-learn h3 { font-size: 1.3125rem; margin: 0 0 12px; }
 .h-learn .by { font-size: 0.8125rem; color: var(--ink-2); }
@@ -711,6 +752,15 @@ a.chip:hover { background: var(--surface); border-color: var(--nil); color: var(
    change), so the patient sees the detail come from what they touched. The
    keyframe entrance above is the fallback and is switched off during a morph. */
 .pkg-view.vt[open] { animation: none; }
+/* The fallback close: without View Transitions the sheet used to vanish in a
+   single frame. site.js fades it back the way it came (200ms) before close().
+   Reduced motion never takes this path (site.js closes at once). */
+.pkg-view.is-out { animation: pkg-out 200ms var(--ease) both; }
+/* ::backdrop paints its own box and inherits nothing from the dialog above,
+   so it needs its own fade or it blinks out only when close() lands. */
+.pkg-view.is-out::backdrop { animation: pkg-backdrop-out 200ms var(--ease) both; }
+@keyframes pkg-out { to { transform: translateX(24px); opacity: 0; } }
+@keyframes pkg-backdrop-out { to { opacity: 0; } }
 ::view-transition-group(pkg) { animation-duration: 440ms; animation-timing-function: var(--ease-out); }
 ::view-transition-old(pkg), ::view-transition-new(pkg) { height: 100%; object-fit: cover; object-position: top; }
 ::view-transition-old(pkg) { animation-duration: 160ms; }
@@ -846,7 +896,11 @@ a.chip:hover { background: var(--surface); border-color: var(--nil); color: var(
 .seg button.on { border-color: var(--nil); background: var(--paper-2); color: var(--nil); }
 .pr-est-out { padding: 30px; background: var(--nil-deep); color: var(--on-nil); }
 .pr-est-out .eyebrow { color: var(--on-nil); }
-.pr-est-big { font-size: 3.125rem; font-weight: 600; color: #fff; margin: 6px 0; }
+.pr-est-big { font-size: 3.125rem; font-weight: 600; color: #fff; margin: 6px 0;
+  transition: opacity 160ms var(--ease-out); }
+/* The total re-inks when a choice changes it: site.js toggles .is-ink (the
+   no-transition from-state) and lets the removal ease back. */
+.pr-est-big.is-ink { opacity: .35; transition: none; }
 .pr-est-out .ln { display: flex; justify-content: space-between; padding: 10px 0; border-top: 1px solid var(--rule-dark); font-size: 0.90625rem; }
 .pr-est-out .ln b { color: #fff; }
 .pr-est-out .ln-total { border-top: 1px solid var(--haldi); font-weight: 700; }
@@ -998,11 +1052,13 @@ a.chip:hover { background: var(--surface); border-color: var(--nil); color: var(
   .pkg-view { inset: auto 0 0 0; width: 100%; height: auto; max-height: 90dvh; border-radius: 22px 22px 0 0;
     box-shadow: 0 -18px 44px -18px rgba(28, 34, 51, .35); }
   .pkg-view[open] { animation-name: pkg-up; }
+  .pkg-view.is-out { animation-name: pkg-out-m; }
   .pkg-in { padding-top: 26px; }
   .pkg-price b { font-size: 2.5rem; }
   .pkg-actions .btn { flex: 1; justify-content: center; }
 }
 @keyframes pkg-up { from { transform: translateY(48px); opacity: 0; } }
+@keyframes pkg-out-m { to { transform: translateY(32px); opacity: 0; } }
 @media (max-width: 480px) {
   .h-promises .wrap { grid-template-columns: 1fr; }
   .h-pr { border-right: 0; }
@@ -1018,16 +1074,21 @@ a.chip:hover { background: var(--surface); border-color: var(--nil); color: var(
 @keyframes fade-in { from { opacity: 0; } }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  .drawer, .scrim, .skip-link, .card, .h-learn-card, .ico-chev, .faq summary::after, a.chip { transition: none; }
-  .pkg-view[open] { animation: none; }
-  .card:hover, .h-learn-card:hover { transform: none; }
+  .drawer, .scrim, .card, .h-learn-card, .h-learn .h-learn-card, .ico-chev, .faq summary::after, a.chip,
+    .reel-name, .reel-arrow, .nav-drop-btn, .faq summary, .pr-est-big { transition: none; }
+  details::details-content { transition: none; }
+  .pkg-view[open], .pkg-view.is-out { animation: none; }
+  .card:hover, .h-learn-card:hover, .h-learn .h-learn-card:hover { transform: none; }
   .btn:active { transform: none; }
+  .reel-name:active, .reel-arrow:active, .nav-drop-btn:active, .faq summary:active, a.chip:active { scale: none; }
   :is(.h-tier, .pr-card, .pr-plan):has(.card-link:active) { scale: none; }
   .mega { transition: none; }
-  .h-hero h1, .h-sub, .h-hero .bn-sum, .h-ctas, .h-alt, .reel, .h-ch-today { animation: fade-in 240ms ease-out both; }
+  .h-hero h1, .h-sub, .h-hero .bn-sum, .h-ctas, .h-alt, .reel, .h-ch-today,
+    .bk-confirm:not([hidden]), .tool-out:not([hidden]) { animation: fade-in 240ms ease-out both; }
   .h-hero h1 em { animation: none; }
   /* The reel never autoplays here (site.js); a visitor's step swaps at once. */
-  .reel.is-live .reel-slide.is-active, .reel.is-live .reel-slide.is-leaving, .reel.is-live .reel-cur.is-swap { animation: none; }
+  .reel.is-live .reel-slide.is-active, .reel.is-live .reel-slide.is-leaving { animation: none; }
+  .reel.is-live .reel-cur { transition: none; }
   .reel.is-live .reel-slide.is-leaving { visibility: hidden; }
   .reel-slides { scroll-behavior: auto; }
 }

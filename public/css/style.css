@@ -30,6 +30,7 @@
   --ease: cubic-bezier(.22, .61, .36, 1);
   --ease-out: cubic-bezier(.16, 1, .3, 1);
   --ease-move: cubic-bezier(.65, 0, .35, 1);
+  --ease-drawer: cubic-bezier(.32, .72, 0, 1);
   --t-press: 160ms;
   --t-state: 320ms;
   --t-focal: 760ms;
@@ -187,25 +188,6 @@ picture {
 }
 
 /* ---- NAV ---- */
-.nav-sticky-wrapper {
-  position: relative;
-  z-index: 8;
-  height: 0;
-  transition: .3s var(--ease);
-}
-.nav-sticky-wrapper.scrolled {
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  height: auto;
-}
-.nav-sticky-wrapper.scrolled .nav {
-  position: relative;
-  background: rgba(15, 10, 8, .88);
-  backdrop-filter: blur(16px);
-  box-shadow: 0 2px 20px rgba(0,0,0,.12);
-}
-
 /* A11: anchor jumps must land below the stuck bar, not under it. The bar is
    92px at desktop scale; 104px gives the section heading its clearance. */
 section[id], header[id] {
@@ -240,26 +222,6 @@ section[id], header[id] {
   padding: 5px;
 }
 
-.nav-links a {
-  padding: 8px 15px;
-  border-radius: 100px;
-  font-size: 14px;
-  color: #fff;
-  transition: .25s var(--ease);
-}
-
-.nav-links a:hover {
-  background: rgba(255, 255, 255, .14);
-}
-
-/* Kept deliberately subtle: a brighter fill lightens the backdrop under the
-   white label and pushes the ACTIVE link back below AA (rgba(255,255,255,.26)
-   measured 3.55:1). The weight change carries the emphasis instead. */
-.nav-links a.on {
-  background: rgba(255, 255, 255, .14);
-  font-weight: 600;
-}
-
 .wordmark {
   font-size: 20px;
   font-weight: 600;
@@ -287,29 +249,8 @@ section[id], header[id] {
   font-size: 14.5px;
   font-weight: 500;
   border: 1px solid transparent;
-  transition: .3s var(--ease);
+  transition: background-color .3s var(--ease), border-color .3s var(--ease), color .3s var(--ease);
   white-space: nowrap;
-}
-
-.btn-glass {
-  background: rgba(255, 255, 255, .9);
-  color: var(--orange-ink);
-}
-
-.btn-glass:hover {
-  background: #fff;
-  transform: translateY(-1px);
-}
-
-.btn-ghost {
-  background: rgba(255, 255, 255, .14);
-  border-color: rgba(255, 255, 255, .4);
-  color: #fff;
-  backdrop-filter: blur(8px);
-}
-
-.btn-ghost:hover {
-  background: rgba(255, 255, 255, .26);
 }
 
 .btn-out {
@@ -338,15 +279,6 @@ section[id], header[id] {
 
 .btn-whatsapp:hover {
   background: #1EBE5D;
-}
-
-.btn-telegram {
-  background: #0088CC;
-  color: #fff;
-}
-
-.btn-telegram:hover {
-  background: #0077B5;
 }
 
 .burger {
@@ -644,26 +576,6 @@ section[id], header[id] {
   margin-top: 16px;
 }
 
-.quiz-option-btn {
-  padding: 14px 18px;
-  border-radius: 14px;
-  border: 1px solid var(--hair);
-  background: var(--surface);
-  color: var(--ink);
-  font-weight: 500;
-  text-align: left;
-  transition: 0.25s var(--ease);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.quiz-option-btn.selected, .quiz-option-btn:hover {
-  background: var(--butter);
-  border-color: var(--tan);
-  color: var(--sienna);
-}
-
 /* BEFORE & AFTER SLIDER */
 .ba-container {
   position: relative;
@@ -792,57 +704,6 @@ section[id], header[id] {
   color: rgba(255, 255, 255, .85);
 }
 
-/* CERTIFICATIONS */
-.certs {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 14px;
-}
-
-.cert {
-  background: #F7F6F9;
-  border-radius: 16px;
-  padding: 18px 16px;
-  text-align: center;
-  transition: .35s var(--ease);
-  border: 1px solid var(--hair);
-}
-
-.cert:hover {
-  transform: translateY(-4px);
-  background: var(--butter);
-}
-
-.cert b {
-  display: block;
-  font-size: 13.5px;
-  font-weight: 500;
-  line-height: 1.3;
-  color: var(--ink);
-  min-height: 2.6em;
-}
-
-.cert-tag {
-  font-size: 11px;
-  color: var(--rust);
-  font-weight: 500;
-  margin-top: 4px;
-}
-
-.cert-img {
-  margin-top: 14px;
-  aspect-ratio: 1/1;
-  border-radius: 12px;
-  overflow: hidden;
-  background: linear-gradient(150deg, #E8D6C2, #BE9977);
-}
-
-.cert-img img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
 /* DYNAMIC GALLERY */
 .gallery-controls {
   display: flex;
@@ -857,23 +718,6 @@ section[id], header[id] {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
-}
-
-.filter-btn {
-  padding: 8px 18px;
-  border-radius: 100px;
-  border: 1px solid var(--hair);
-  background: var(--surface);
-  color: var(--ink);
-  font-size: 13.5px;
-  font-weight: 500;
-  transition: 0.25s var(--ease);
-}
-
-.filter-btn.active, .filter-btn:hover {
-  background: var(--sienna);
-  color: #fff;
-  border-color: var(--sienna);
 }
 
 /* The empty gallery is the state production is actually in, so it gets a real
@@ -900,38 +744,6 @@ section[id], header[id] {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 20px;
-}
-
-.gallery-card {
-  position: relative;
-  border-radius: 20px;
-  overflow: hidden;
-  background: var(--surface);
-  border: 1px solid var(--hair);
-  transition: 0.35s var(--ease);
-}
-
-.gallery-card:hover {
-  transform: translateY(-4px);
-}
-
-.gallery-img-wrap {
-  width: 100%;
-  height: 240px;
-  overflow: hidden;
-  background: var(--hair);
-  position: relative;
-}
-
-.gallery-img-wrap img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.5s var(--ease);
-}
-
-.gallery-card:hover .gallery-img-wrap img {
-  transform: scale(1.05);
 }
 
 .gallery-badge {
@@ -978,19 +790,6 @@ section[id], header[id] {
   gap: 14px;
 }
 
-.svc {
-  background: var(--ivory);
-  border-radius: var(--r-card);
-  padding: 24px;
-  min-height: 230px;
-  display: flex;
-  flex-direction: column;
-  transition: .35s var(--ease);
-  /* Containing block for .svc-btn::after, which stretches the button's hit area
-     over the whole card. */
-  position: relative;
-}
-
 /* The card used to be <article role="button" tabindex="0">. role=button makes
    every descendant presentational, so the eight <h4> service names vanished
    from the heading outline for screen-reader users -- the page lost its entire
@@ -1021,11 +820,6 @@ section[id], header[id] {
 .svc-btn:focus-visible::after {
   outline: 2px solid var(--orange-ink);
   outline-offset: -3px;
-}
-
-.svc:hover {
-  background: var(--butter);
-  transform: translateY(-4px);
 }
 
 .svc-top {
@@ -1153,41 +947,6 @@ section[id], header[id] {
   text-align: center;
 }
 
-.tst-faces {
-  display: flex;
-  justify-content: center;
-  align-items: flex-end;
-  gap: 12px;
-  margin-bottom: 26px;
-}
-
-.tst-faces button {
-  padding: 0;
-  border: 0;
-  background: none;
-  line-height: 0;
-  border-radius: 14px;
-}
-
-.tst-faces img {
-  width: 78px;
-  height: 104px;
-  border-radius: 14px;
-  object-fit: cover;
-  opacity: .5;
-  transition: .4s var(--ease);
-  display: block;
-}
-
-/* .on moved from the <img> to its wrapping <button>: these were click-handled
-   images inside an aria-hidden container, i.e. controls that a mouse could
-   operate and a keyboard could not reach at all. */
-.tst-faces button.on img {
-  width: 104px;
-  height: 132px;
-  opacity: 1;
-}
-
 .tst blockquote {
   font-size: clamp(16px, 1.9vw, 20px);
   font-style: italic;
@@ -1202,27 +961,6 @@ section[id], header[id] {
   color: var(--sienna);
   font-size: 15px;
   margin-bottom: 24px;
-}
-
-.tst-nav {
-  display: flex;
-  gap: 10px;
-  justify-content: center;
-}
-
-.tst-nav button {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  border: 0;
-  background: #F1EDE6;
-  color: var(--sienna);
-  display: grid;
-  place-items: center;
-}
-
-.tst-nav button:hover {
-  background: var(--butter);
 }
 
 /* FAQ */
@@ -1252,41 +990,6 @@ section[id], header[id] {
   color: #fff;
   font-weight: 500;
   font-size: 13px;
-}
-
-.faq-btn {
-  flex: 1;
-  text-align: left;
-  background: var(--surface);
-  border: 1px solid var(--hair);
-  border-radius: 100px;
-  padding: 14px 22px;
-  font-size: 15px;
-  color: #3D3833;
-  transition: .3s var(--ease);
-}
-
-.faq-btn:hover {
-  border-color: var(--tan);
-}
-
-.faq-send {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  border: 0;
-  flex: none;
-  background: var(--butter);
-  color: var(--sienna);
-  display: grid;
-  place-items: center;
-  font-size: 15px;
-  transition: .3s var(--ease);
-}
-
-.faq-row.open .faq-send {
-  background: #FBEBCF;
-  transform: rotate(45deg);
 }
 
 .faq-a {
@@ -1321,23 +1024,6 @@ section[id], header[id] {
   flex-direction: column;
   gap: 10px;
   align-items: flex-end;
-}
-
-.fab-btn {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  border: none;
-  display: grid;
-  place-items: center;
-  color: #fff;
-  font-size: 20px;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.18);
-  transition: transform 0.3s var(--ease);
-}
-
-.fab-btn:hover {
-  transform: scale(1.1);
 }
 
 /* The [hidden] attribute is only a UA rule (display:none), so ANY class that
@@ -1397,24 +1083,6 @@ section[id], header[id] {
   display: flex;
   gap: 20px;
   align-items: center;
-}
-
-.cms-btn-trigger {
-  background: rgba(255, 255, 255, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  color: #fff;
-  padding: 6px 14px;
-  border-radius: 100px;
-  font-size: 12.5px;
-  font-weight: 500;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  transition: 0.25s var(--ease);
-}
-
-.cms-btn-trigger:hover {
-  background: rgba(255, 255, 255, 0.35);
 }
 
 /* MODAL SYSTEM */
@@ -1705,29 +1373,6 @@ body.modal-open {
   border-radius: 6px;
 }
 
-/* ANIMATIONS */
-/* The hidden start state is gated on html.reveal, which main.js adds only when
-   it is actually running and about to attach the IntersectionObserver. Before
-   this gate, any JS failure (a 404 on main.js, an early throw, a blocked
-   script) left every [data-r] element -- nearly all page content -- invisible
-   forever: a blank page for exactly the patients on the flakiest connections.
-   The :not(.in) is load-bearing: without it this rule outranks [data-r].in on
-   specificity and revealed elements stay invisible. The transition lives on
-   the ungated base rule so it applies in both states. */
-[data-r] {
-  transition: opacity .8s var(--ease), transform .8s var(--ease);
-}
-
-html.reveal [data-r]:not(.in) {
-  opacity: 0;
-  transform: translateY(22px);
-}
-
-[data-r].in {
-  opacity: 1;
-  transform: none;
-}
-
 @media(max-width: 1080px) {
   .certs { grid-template-columns: repeat(3, 1fr); }
   .services { grid-template-columns: repeat(2, 1fr); }
@@ -1755,8 +1400,5 @@ html.reveal [data-r]:not(.in) {
 
 @media(prefers-reduced-motion: reduce) {
   * { animation: none!important; transition-duration: .01ms!important; }
-  /* Second selector outranks the html.reveal gate so reduced-motion users see
-     all content immediately, without depending on the IntersectionObserver. */
-  [data-r], html.reveal [data-r]:not(.in) { opacity: 1; transform: none; }
   html { scroll-behavior: auto; }
 }
