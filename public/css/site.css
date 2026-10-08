@@ -256,10 +256,10 @@ a.chip:active { scale: .98; }
   background: var(--surface); color: var(--ink); padding: 22px;
   border-left: 1px solid var(--rule);
   box-shadow: -18px 0 44px rgba(28, 34, 51, .14);
-  transform: translateX(100%); transition: transform .3s var(--ease-drawer);
+  transform: translateX(100%); transition: transform .3s var(--ease-drawer), visibility 0s linear .3s;
   visibility: hidden; display: flex; flex-direction: column; gap: 6px; overflow-y: auto;
 }
-.drawer.active { transform: none; visibility: visible; }
+.drawer.active { transform: none; visibility: visible; transition: transform .3s var(--ease-drawer), visibility 0s linear 0s; }
 .drawer-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
 .drawer-head button {
   background: none; border: 0; color: var(--ink); cursor: pointer;
@@ -415,8 +415,16 @@ details[open]::details-content { height: auto; opacity: 1; }
      64px under 962px) and the mobile bar (~49px + safe area). */
   scroll-margin-block: 88px calc(60px + env(safe-area-inset-bottom)); }
 /* A tool's answer rises in rather than blinking in. Re-running the tool swaps
-   content in place without replaying the entrance (hidden stays false). */
+   content in place without replaying the entrance (hidden stays false); the
+   re-run re-inks instead (show() dips the panel with .is-ink, like the
+   estimator total). */
 .tool-out:not([hidden]) { animation: rise-in 320ms var(--ease-out) both; }
+/* A re-run re-inks: show() restarts this keyframe via .is-ink (remove,
+   reflow, re-add — a class toggle inside one task can't start a transition,
+   but it does restart an animation), dipping the panel to 35% and settling
+   it back over 160ms. Declared after rise-in so the re-run wins the cascade. */
+@keyframes re-ink { from { opacity: .35; } }
+.tool-out.is-ink, .sc-out.is-ink { animation: re-ink 160ms var(--ease-out); }
 .tool-out:focus { outline: none; }
 .tool-out h3 { margin-bottom: 10px; }
 .tool-out ul { margin: 8px 0 14px 1.2em; }
@@ -425,6 +433,10 @@ details[open]::details-content { height: auto; opacity: 1; }
 /* — Booking (/book/) — */
 .bk-grid { display: grid; grid-template-columns: 1.15fr .85fr; gap: 40px; align-items: start; }
 .bk-form { max-width: none; }
+/* The form bows out beside the confirmation's arrival: opacity eases over
+   200ms and `display` steps to none when it ends (allow-discrete). */
+.bk-form-fields { transition: opacity 200ms var(--ease-out), display 200ms allow-discrete; }
+.bk-form-fields[hidden] { opacity: 0; }
 .bk-field { margin-bottom: 18px; }
 .bk-field > label { display: block; font-weight: 600; font-size: 0.9375rem; }
 .bk-opt { font-weight: 400; color: var(--ink-2); }
@@ -1083,7 +1095,7 @@ details[open]::details-content { height: auto; opacity: 1; }
   html { scroll-behavior: auto; }
   .drawer, .scrim, .card, .h-learn-card, .h-learn .h-learn-card, .ico-chev, .faq summary::after, a.chip,
     .reel-name, .reel-arrow, .nav-drop-btn, .faq summary, .pr-est-big,
-    .burger, .drawer-head button { transition: none; }
+    .burger, .drawer-head button, .bk-form-fields { transition: none; }
   /* The sheet close keeps its colour fade here, like .btn — only the movement drops. */
   .pkg-close { transition: background-color var(--t-press) var(--ease-out); }
   details::details-content { transition: none; }
@@ -1096,6 +1108,8 @@ details[open]::details-content { height: auto; opacity: 1; }
   .mega { transition: none; }
   .h-hero h1, .h-sub, .h-hero .bn-sum, .h-ctas, .h-alt, .reel, .h-ch-today,
     .bk-confirm:not([hidden]), .tool-out:not([hidden]) { animation: fade-in 240ms ease-out both; }
+  /* the re-ink dip drops too — a re-run swaps at once (movement, not state) */
+  .tool-out.is-ink, .sc-out.is-ink { animation: none; }
   .h-hero h1 em { animation: none; }
   /* The reel never autoplays here (site.js); a visitor's step swaps at once. */
   .reel.is-live .reel-slide.is-active, .reel.is-live .reel-slide.is-leaving { animation: none; }

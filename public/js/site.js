@@ -406,8 +406,10 @@ import { writePrefill, takePrefill } from './prefill.mjs';
   const show = (id, html) => {
     const out = document.getElementById(id);
     if (!out) return;
+    const rerun = !out.hidden; // first reveal plays rise-in; a re-run re-inks
     out.innerHTML = html;
     out.hidden = false;
+    if (rerun) { out.classList.remove('is-ink'); void out.offsetWidth; out.classList.add('is-ink'); }
     out.focus && out.focus({ preventScroll: true });
     out.scrollIntoView && out.scrollIntoView({ block: 'nearest' });
   };
