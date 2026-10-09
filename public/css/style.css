@@ -32,6 +32,8 @@
   --ease-move: cubic-bezier(.65, 0, .35, 1);
   --ease-drawer: cubic-bezier(.32, .72, 0, 1);
   --t-press: 160ms;
+  --t-menu: 200ms;
+  --t-sheet: 300ms;
   --t-state: 320ms;
   --t-focal: 760ms;
   --shadow-sm: 0 4px 14px rgba(28, 34, 51, .07);
