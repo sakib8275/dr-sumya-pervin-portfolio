@@ -354,12 +354,15 @@ details[open]::details-content { height: auto; opacity: 1; }
 .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 18px; margin: 8px 0 24px; }
 .card { position: relative; display: block; border: 1px solid var(--rule); background: var(--surface);
   border-radius: var(--r-card); padding: 22px;
-  transition: border-color .15s var(--ease), box-shadow .15s var(--ease), scale var(--t-press) var(--ease-out); }
+  transition: border-color .15s var(--ease), box-shadow .15s var(--ease), scale var(--t-press) var(--ease-out),
+    translate var(--t-press) var(--ease-out); }
 .card:hover { box-shadow: var(--shadow-sm); border-color: var(--nil); }
 /* The lift is pointer-only: touch fires a false hover on tap and the raised
    card sticks after the browser-back return. Colour and shadow don't need
-   the gate — only the lift visibly lodges. `translate`, not transform, so it
-   composes with the press's scale: one idiom with the tier cards below. */
+   the gate — only the lift visibly lodges. It rides `translate`, not
+   transform, so the press's scale can't shrink the offset (transform and
+   scale compose multiplicatively — a 2px transform lift would read 1.98px
+   while pressed). One idiom with the tier cards below. */
 @media (hover: hover) and (pointer: fine) {
   .card:hover { translate: 0 -2px; }
 }
@@ -705,8 +708,9 @@ details[open]::details-content { height: auto; opacity: 1; }
 :is(.h-tier, .pr-card, .pr-plan).rec:has(.card-link:hover) { box-shadow: var(--shadow-md); }
 .h-tier.sig:has(.card-link:hover) { box-shadow: var(--shadow-md); }
 :is(.h-tier, .pr-card, .pr-plan):has(.card-link:hover) .card-link.btn-ghost { background: var(--nil-tint); }
-/* The press belongs to the card, which is what the patient touched. `scale`
-   composes with .h-tier.rec's translateY lift instead of replacing it. */
+/* The press belongs to the card, which is what the patient touched. Scale
+   and transform compose rather than one replacing the other — multiplicatively,
+   so the rec lift reads 1% shorter while pressed, then settles back. */
 :is(.h-tier, .pr-card, .pr-plan):has(.card-link:active) { scale: .99; }
 /* The generic cards press the same way — scale composes with the hover translate. */
 .card:active { scale: .99; }
