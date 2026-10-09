@@ -4,35 +4,32 @@
 verification, or owner-action state changes. Everything under `docs/` is a dated
 snapshot; if this file and a snapshot disagree, this file wins.
 
-**Updated:** 2026-10-09 — **the animation programme is fully shipped except
-plan 005: PR #20 (arrivals batch, `8a58dc1`) merged and DEPLOYED as
-`c1187fb8`, apex verified.** On top of PRs #15–#19, this ships plans 006/007/011
-— the booking success fades the form out beside the rising confirmation
-(`display 200ms allow-discrete`, RM instant); tool re-runs re-ink the result
-(dip to 35%, settle 160ms) via a `re-ink` keyframe restarted by
-remove→reflow→re-add, because the transition form the plan copied is a
-visual no-op in Chromium (a class toggle inside one task never reaches a
-rendering update) — the estimator's identical `.is-ink` is laser-gated and
-has never rendered; its fix (CSS keyframe + JS flip in `render()`) is
-recorded for when the laser gate opens; and the drawer animates its exit
-(visibility steps delayed by the 300ms transform, `.drawer.active` in the RM
-list after round 3 caught reduce users getting a 300ms slide-open). Two
-owner-directed calls rode along: the final CTA band got breathing room
-(18px above the stacked card's row, 16px between buttons) after a "too
-close" feel-check note, and the reel's autoplay gate is **pointer
-capability, not width** (`pointer: coarse` never autoplays; a mouse device
-rotates at any width — a 788px desktop pane had twice read as "stuck"),
-with a real swipe stopping autoplay via `pointerdown`/`wheel` and the
-phone no-autoplay test now running under genuine touch emulation. Two
-independent qwen3.8-flash rounds (3 and 4) reviewed the PR — both FIX
-FIRST, nine findings, all verified real and fixed; records in
-`docs/reviews/pr20-review-2026-10-09.md` (round 3) and
-`pr20-review-round4-2026-10-09.md` (round 4). Gates: **328 node + 66 e2e**
-(the suite grew by the RM-drawer and narrow-pane reel tests). Remaining in
-the programme: **plan 005 only** (duration tokens in both `:root` blocks
-with a parity test, plus the card-idiom sweep). Known deferred items: the
-armed-delete timer not cleared on modal close (JS lane, from PR #19's
-review) and the estimator `.is-ink` fix (behind the laser gate).
+**Updated:** 2026-10-09 — **the animation programme is COMPLETE: PR #21
+(plan 005, `30da129`) merged and DEPLOYED as `59b9206e`, apex verified.
+Every plan 001–011 is now shipped or deliberately rejected.** Plan 005 adds
+the duration tokens `--t-menu: 200ms` / `--t-sheet: 300ms` to `:root` in
+BOTH stylesheets (parity test) and swaps the hand-typed literals to them —
+mega menu (all three legs incl. the `display` stepping), nav + FAQ
+chevrons, scrim, drawer (both rules, incl. the exit's visibility delay so
+the stepping stays coupled to the slide), booking-field handoff — leaving
+the accordion's deliberate 280ms (now annotated), the hero choreography,
+and the pkg-view VT-fallback pair literal. The generic and learn cards
+adopt the tier-card idiom: token transitions, the 1% `scale` press (new
+`.card:active`), and a `translate: 0 -2px` lift that composes with the
+press; reduced motion drops `translate`/`scale`. qwen round 1 caught a
+**plan bug as its P1**: the plan's `.card` target omitted the `translate`
+transition leg, so the executed lift snapped (frame-probe: none → −2px in
+one frame; the fix commit `9cb7768` re-probed it interpolating over
+~160ms). Both card comments were reworded to the true composition
+invariant. A P2 decision is recorded: the learn card keeps its 200ms
+(`var(--t-menu)`) border fade rather than dropping to `.card`'s 150ms —
+only curve and lift join the tier idiom. Review record:
+`docs/reviews/pr21-review-2026-10-09.md`. Gates: **328 node + 66 e2e**;
+the documented fee-cards `:104` flake passed in isolation. Known deferred
+items: armed-delete timer not cleared on modal close (JS lane, from PR
+#19's review); estimator `.is-ink` fix (behind the laser gate); `site.js`
+comments quote literal durations now owned by tokens; the parity test
+reads only the first `:root` block.
 
 **Updated:** 2026-10-06 (DEPLOYED) — **the hero reel now rotates perpetually,
 faster, with no Pause control, and is LIVE.** Owner directives (same day),
