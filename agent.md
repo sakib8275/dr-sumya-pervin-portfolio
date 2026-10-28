@@ -80,12 +80,14 @@ Portfolio Sumya Pervin/
 │   │   └── wrangler.toml         # Own config: D1 (read-only in practice) + send_email
 │   └── probe/                    # F11: uptime probe every 30 min (cron-only) — emails on transitions
 ├── migrations/
-│   └── 001_schema.sql            # D1: 4 tables + seeded admin credential
-├── tests/                        # `npm test` (node + Miniflare, 295) · tests/e2e/ `npm run test:e2e` (Playwright, 44+)
+│   ├── 001_schema.sql            # D1: base tables + seeded admin credential
+│   └── 002–005_*.sql             # uptime state, self-service CMS, consultation tiers, admin contact — apply in order
+├── tests/                        # `npm test` (node + Miniflare) · tests/e2e/ `npm run test:e2e` (Playwright)
 ├── scripts/
 │   ├── build-pages.mjs           # content/ → public/ (`npm run build:site`)
 │   ├── render-brand-assets.mjs   # Brand PNGs from content/brand.mjs (`npm run build:brand`)
 │   ├── extract_change_docx.py    # docx → content/source/website-content.md
+│   ├── verify-live.mjs           # Read-only post-deploy apex check (`npm run verify:live`)
 │   ├── build-test-worker.mjs, generate-pin-seed.mjs, backup-d1.mjs
 ├── design/clinic-logo/           # Logo concept study (concept 01 is the site mark) — never published
 ├── Change Request/               # Owner's docx + wireframes: the source of truth for copy and prices
@@ -93,8 +95,9 @@ Portfolio Sumya Pervin/
 ├── DESIGN.md                     # Visual system (Nil & Haldi): tokens, rules, components
 ├── .impeccable/                  # design.json (DESIGN.md sidecar) + critique reports
 ├── docs/                         # DATED ARCHIVE — see docs/README.md; snapshots, never current
-│   ├── handoffs/                 # Session logs 2026-07-28 → 2026-08-02
-│   ├── audits/                   # Audit rounds 1–3 (1 & 2 superseded pre-migration)
+│   ├── handoffs/                 # Session logs 2026-07-28 → 2026-08-05
+│   ├── audits/                   # Audit rounds 1–5 (1 & 2 superseded pre-migration)
+│   ├── reviews/                  # PR review records (one per round)
 │   ├── prompts/                  # The audit specifications
 │   └── SUBAGENT-PLAYBOOK.md      # T7–T12 dispatch rules & harness gotchas
 ├── wrangler.toml                 # Cloudflare config (D1, R2) — NO SECRETS
@@ -104,9 +107,12 @@ Portfolio Sumya Pervin/
 ├── node_modules/                 # (gitignored)
 ├── STATUS.md                     # LIVING state doc — update on every state change
 ├── HUMAN-TASKS.md                # Step-by-step guide for dashboard/owner tasks
-├── FIXPLAN-2026-08-02.md         # Active execution plan (Phase 1 shipped)
-├── agent.md                      # AI Agent rules & operational guidance
-├── AGENTS.md                     # Points to agent.md
+├── FIXPLAN-2026-08-02.md         # Execution plan — Phases 1 and 2 closed (STATUS § Active documents)
+├── CLAUDE.md                     # Short agent entry point: hard rules, commands, map
+├── .claude/                      # Agent skills (edit-content, review-round, deploy-verify),
+│                                 #  the reviewer sub-agent, and permission guards
+├── agent.md                      # AI Agent rules & operational guidance (this file)
+├── AGENTS.md                     # Points to CLAUDE.md and agent.md
 └── context.md                    # Domain context, background & site specs
 ```
 
@@ -116,7 +122,7 @@ Portfolio Sumya Pervin/
 
 ### Core Stack
 1. **HTML5**: Semantic markup (`<header>`, `<nav>`, `<main>`, `<section>`, `<article>`, `<footer>`).
-2. **CSS3**: Native CSS variables (`:root`), flexbox, grid, glassmorphism UI, smooth transitions, responsive media queries.
+2. **CSS3**: Native CSS variables (`:root`), flexbox, grid, transitions with reduced-motion paths, responsive media queries.
 3. **JavaScript (ES6+)**: Event delegation, DOM manipulation, modal state management, smooth scrolling, interactive sliders/accordions.
 4. **Cloudflare Pages**: Static frontend served at edge.
 5. **Cloudflare Pages Functions**: API layer (Hono-style routing via file system).
@@ -133,18 +139,18 @@ Portfolio Sumya Pervin/
   and overwrite the dashboard on deploy. Use `wrangler pages secret put` for real deployments and
   `.dev.vars` (gitignored) locally. No code may carry a fallback default for a secret — fail closed.
 - **Escape every interpolation into `innerHTML`.** Use the existing `escapeHTML` helper in
-  `public/js/main.js`, including inside attributes (`src`, `alt`, `href`). Booking fields reach the
+  `public/js/admin.js` (bridged into `cms.js`), including inside attributes (`src`, `alt`, `href`). Booking fields reach the
   admin panel from an unauthenticated endpoint, so admin-only views are not a trusted context.
 - **No inline event handlers. Ever.** Since F9 the CSP has no `'unsafe-inline'` in `script-src`, so
   an `onclick=` (or any `on*=`) attribute — in markup *or* in an HTML string built by JS — is
   dropped **silently**: no console error a patient sees, no failed request, no failing test. The
   control simply stops working. Use a listener, or a `data-` attribute plus a delegated listener
-  (`[data-cms-action]` in `main.js` is the pattern). `javascript:` URLs are blocked the same way.
+  (`[data-cms-action]` in `cms.js` is the pattern). `javascript:` URLs are blocked the same way.
   `tests/headers.test.mjs` scans `public/` and fails if one reappears — do not weaken that test.
 - **Validate at the API boundary**, not just in the form. Anything reachable without a token must
   assume hostile input.
-- **Vanilla CSS Priority**: Avoid TailwindCSS or utility frameworks to preserve the custom glassmorphism aesthetic tailored in `public/css/style.css`.
-- **Aesthetic Excellence**: Maintain premium UI visuals—modern typography (Google Fonts Outfit), curated color palettes, subtle glassmorphism cards, micro-animations.
+- **Vanilla CSS Priority**: Avoid TailwindCSS or utility frameworks. The design system is hand-written in `public/css/site.css` (admin: `style.css`) and explained in `DESIGN.md`.
+- **Aesthetic Excellence**: Outfit (+ Hind Siliguri for Bangla), the Nil & Haldi palette, flat paper-and-indigo surfaces (no glassmorphism), and motion only where it explains state (`DESIGN.md`).
 - **No Session State**: Auth is stateless JWT. Token stored in `localStorage` as `cms_token`. Sent as `Authorization: Bearer <token>` header.
 
 ### API Overview
@@ -152,7 +158,11 @@ All routes prefixed with `/api`. Admin routes verify JWT from `Authorization: Be
 
 | Endpoint | Method | Auth | Description |
 |----------|--------|------|-------------|
-| `/api/auth/login` | POST | No | Login with PIN, returns JWT |
+| `/api/auth/login` | POST | No | Login with PIN (Turnstile), returns JWT — or a 2FA challenge when TOTP is enabled |
+| `/api/auth/2fa/verify` | POST | Challenge | Second step: TOTP code against the login challenge (5 attempts), returns JWT |
+| `/api/auth/2fa/status`, `setup`, `verify-setup`, `disable` | GET / POST | JWT | TOTP enrolment management |
+| `/api/auth/forgot-password` | POST | No | Turnstile; mints a 30-min reset token, mails the link to `admin_email` via the mailer |
+| `/api/auth/reset-password` | POST | Reset token | Turnstile; sets a new PIN from a valid, unused reset token |
 | `/api/auth/check` | GET | No | Verify JWT, returns auth status |
 | `/api/appointments` | POST | No | Create booking (Turnstile + schedule rules: listed chambers only, consultation days only, same-day closes 30 min before start; duplicate phone+chamber+date → 409) |
 | `/api/appointments` | GET | JWT | List bookings |
@@ -164,6 +174,9 @@ All routes prefixed with `/api`. Admin routes verify JWT from `Authorization: Be
 | `/api/uploads/:filename` | GET | No | Serve gallery image from R2 |
 | `/api/config` | GET | JWT | Get settings |
 | `/api/config` | PUT | JWT | Update settings/PIN |
+| `/api/config/public` | GET | No | `{whatsapp, telegram}` only. The uptime probes' liveness target; no public page reads it since the multi-page build |
+| `/api/content` | GET | No | CMS site-content keys (read back by the admin console only) |
+| `/api/content` | PUT | JWT | Update allow-listed site-content keys |
 | `/api/contact` | POST | No | Contact form |
 | `/api/contact?from=secret` | GET | Secret | List messages |
 
@@ -210,8 +223,8 @@ All routes prefixed with `/api`. Admin routes verify JWT from `Authorization: Be
 # Install dependencies
 npm install
 
-# Run D1 migration locally (first time only)
-npx wrangler d1 execute dr-sumya-pervin-db --local --file=migrations/001_schema.sql
+# Run the D1 migrations locally, in order (first time only)
+for f in migrations/*.sql; do npx wrangler d1 execute dr-sumya-pervin-db --local --file="$f"; done
 
 # Create .dev.vars (gitignored) with JWT_SECRET, SITE_SECRET, ALLOWED_ORIGIN.
 # Without JWT_SECRET, login returns 500 by design — there is no fallback.
@@ -243,6 +256,8 @@ Set with `npx wrangler pages secret put <NAME>` (Pages), or `.dev.vars` locally.
 | `JWT_SECRET` | secret | Strong random string for signing JWT tokens. No fallback — unset means login 500s. |
 | `SITE_SECRET` | secret | Access code for viewing contact messages via API. No fallback. |
 | `ALLOWED_ORIGIN` | var | Site origin allowed through CORS. Safe to keep in `wrangler.toml`. |
+| `TURNSTILE_SECRET` | secret | Turnstile siteverify secret. Fail-closed (`functions/lib/turnstile.js`). |
+| `TURNSTILE_HOSTNAMES` | var | Hostnames siteverify may report. Excludes localhost on purpose; `.dev.vars` overrides it locally. |
 | `MAIL_SECRET` | secret | Shared `X-Mail-Secret` for the dr-sumya-mailer Worker (password resets, booking notifications). The SAME value must also live on the Worker itself: `cd workers/mailer && npx wrangler secret put MAIL_SECRET`. |
 
 ### Deploy to Production
@@ -258,8 +273,9 @@ npx wrangler r2 bucket create dr-sumya-gallery
 
 # Update wrangler.toml with the D1 database_id from output above
 
-# Run migration
-npx wrangler d1 execute dr-sumya-pervin-db --remote --file=migrations/001_schema.sql
+# Run migrations, in order — OPERATOR ONLY (agents are SELECT-only on remote D1).
+# On an existing database, run only the files it has not had yet.
+npx wrangler d1 execute dr-sumya-pervin-db --remote --file=migrations/001_schema.sql   # … through 005
 
 # Set secrets — "pages secret", not "secret"
 npx wrangler pages secret put JWT_SECRET
@@ -388,16 +404,15 @@ When making code changes or updates, verify the following:
    own iframe emits harmless WebGL and font warnings from `challenges.cloudflare.com`; filter those
    out rather than chasing them.
 4. **Data Integrity**: Verify Dr. Sumya Pervin's qualifications, degrees, chamber locations, and appointment phone numbers remain accurate.
-5. **API Tests**: `npm test` — the 204-test suite (Miniflare integration against the real
+5. **API Tests**: `npm test` — the node suite (Miniflare integration against the real
    compiled worker, real D1/R2, stubbed siteverify; plus the pure schedule, digest,
    security-header and structured-log units) must be green before any deploy; then spot-check
    against `wrangler pages dev public --local`.
 
    `wrangler pages dev` starts with an **unmigrated** local D1, so `/api/gallery` and
-   `/api/config/public` 500 until you run
-   `npx wrangler d1 execute dr-sumya-pervin-db --local --file=migrations/001_schema.sql`.
+   `/api/config/public` 500 until you run the local migrations (§5, Local Development).
    That looks like a broken API and is not one.
-6. **DOM Tests**: `npm run test:e2e` — F10's 14 Playwright tests. See below.
+6. **DOM Tests**: `npm run test:e2e` — the F10 Playwright DOM layer. See below.
 
 ---
 
@@ -418,7 +433,7 @@ Turnstile is stubbed page-side (`tests/e2e/helpers/site.mjs`) because headless C
 never issued a real token. The stub derives its token **from the widget's action** — a single
 fixed token would let booking pass and silently 403 login.
 
-Five areas, 14 tests: real pointer-click booking · XSS inert in the CMS · the booking-failure
+F10 shipped with five areas, 14 tests: real pointer-click booking · XSS inert in the CMS · the booking-failure
 state · WhatsApp CTA gating · the pre-hydration submit guard. Plus the 2026-08-04 UX batch's
 assertions (booking-success shows only `#bookingStatus`; all four quiz outcomes reach a valid
 `selectedIndex`; the no-JS reveal gate; 24px tap targets at 375px).

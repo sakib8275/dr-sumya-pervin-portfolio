@@ -35,9 +35,10 @@ Dr. Sumya Pervin consults at top diagnostic and hospital centers in Shyamoli, Dh
    - **Visiting Days**: Saturday – Thursday, 5:00 PM – 8:00 PM
    - **Online booking cutoff**: same-day bookings close at **4:30 PM** (30 minutes before
      consultation starts; enforced server-side by `functions/lib/schedule.js` since 2026-08-02).
-   - **Contact / Appointment Hotline**: *not yet supplied by the practice.* The site no longer
-     ships a placeholder number — the nav entry and floating WhatsApp button populate from
-     `/api/config/public` and stay hidden until a real number is entered in CMS Settings.
+   - **Contact / Appointment Hotline**: owner-supplied, held once in `content/site.mjs`
+     (`SITE.phone`, `SITE.phoneTel`, `SITE.whatsapp`) and stamped into every page at build time.
+     (Until the multi-page build it populated from `/api/config/public` / CMS Settings; no
+     public page reads that any more.)
 
 2. **Dhaka Central International Medical College (DCIMCH)**
    - **Location**: 2/1, Ring Road, Shyamoli, Dhaka
@@ -68,7 +69,11 @@ The portfolio highlights a comprehensive range of clinical and cosmetic dermatol
 
 ## 4. Key Website Sections & Interactive Components
 
-The single-page web app (`public/index.html`) is structured into distinct interactive sections:
+> **Historical.** Since the multi-page cutover (2026-10-03) the site is generated pages; the
+> page list is `content/sitemap.mjs` and the hero is the typographic reel (`DESIGN.md`). The
+> table below describes the retired one-pager and is kept only for the record.
+
+The single-page web app (`public/index.html`) was structured into distinct interactive sections:
 
 | Section ID | Section Title | Key Content & Interactivity |
 | :--- | :--- | :--- |
@@ -95,11 +100,9 @@ The single-page web app (`public/index.html`) is structured into distinct intera
   - Brand & action: `--nil` #23336B (buttons, links, prices, focus ring)
   - Accent: `--haldi` #E0A526 as a fill or mark only (2:1 on paper); `--haldi-ink` #8A5A00 when it must be text
   - No gradients under text. Every pairing is pinned in `tests/contrast.test.mjs`.
-- **Motion**: one authored moment — the home hero entrance (headline settles out of a blur, the
-  nameplate arch fills with indigo, the turmeric underline draws under "diagnosis"). Supporting
-  motion only explains state: the package sheet grows out of the tapped fee card (View Transitions,
-  keyframe fallback), menus settle 6px, buttons sink 2% on press. Everything has a
-  `prefers-reduced-motion` path.
+- **Motion**: see `DESIGN.md` § Motion (the current source; the nameplate-arch entrance described
+  here earlier was replaced by the hero reel). Supporting motion only explains state, and
+  everything has a `prefers-reduced-motion` path.
 
 ---
 
@@ -112,6 +115,8 @@ The single-page web app (`public/index.html`) is structured into distinct intera
   Pages `MAILER` service binding — see `functions/lib/mailer-client.js`), and the per-chamber daily
   digest still emails after each chamber's 30-minute booking cutoff. Password-reset mail travels
   the same mailer path.
-- **Dynamic Content**: Chamber schedules live in `public/index.html`. Contact numbers are **not**
-  hardcoded any more; they come from `/api/config/public` and are edited in CMS Settings.
+- **Dynamic Content**: Chamber days and hours live in `functions/lib/schedule.js` (the booking API
+  enforces them and the build prints them); chamber names, contacts and the WhatsApp link live in
+  `content/site.mjs`. Both reach public pages only through `npm run build:site`. CMS Settings,
+  Site Content and Gallery edits are stored in D1 but no public page renders them.
 - **Localization**: Prepared for future bilingual support (English & Bengali).

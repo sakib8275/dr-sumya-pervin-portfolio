@@ -13,7 +13,8 @@
     "test": "node --test --test-concurrency=1 tests/*.test.mjs",
     "pretest:e2e": "node scripts/build-test-worker.mjs",
     "test:e2e": "playwright test",
-    "backup:d1": "node scripts/backup-d1.mjs"
+    "backup:d1": "node scripts/backup-d1.mjs",
+    "verify:live": "node scripts/verify-live.mjs"
   },
   "dependencies": {
     "jose": "^5.9.0",

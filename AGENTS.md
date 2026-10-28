@@ -1,3 +1,4 @@
 # AGENTS.MD
 
-See [agent.md](file:///home/kitahara-poposagain/Desktop/Portfolio%20Sumya%20Pervin/agent.md) for full details.
+Start with [CLAUDE.md](CLAUDE.md), the short entry point (hard rules, commands, where things live).
+See [agent.md](agent.md) for full details.
