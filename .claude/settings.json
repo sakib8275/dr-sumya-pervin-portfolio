@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "ask": [
+      "Bash(npx wrangler pages deploy *)",
+      "Bash(wrangler pages deploy *)",
+      "Bash(npx wrangler deploy *)",
+      "Bash(wrangler deploy *)",
+      "Bash(npx wrangler pages secret *)",
+      "Bash(npx wrangler secret *)",
+      "Bash(wrangler secret *)",
+      "Bash(npx wrangler d1 execute *)",
+      "Bash(wrangler d1 execute *)",
+      "Bash(npx wrangler r2 *)",
+      "Bash(npm run backup:d1*)",
+      "Bash(git push *master*)"
+    ],
+    "deny": [
+      "Read(./.dev.vars)",
+      "Read(./.env)",
+      "Read(./.env.*)",
+      "Read(./backups/**)"
+    ]
+  }
+}
