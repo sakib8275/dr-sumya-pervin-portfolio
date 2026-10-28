@@ -277,13 +277,15 @@ section[id], header[id] {
   background: var(--sienna);
 }
 
+/* WhatsApp's own #25D366 is 1.98:1 under white text; these darker greens keep
+   the cue and clear AA (5.4:1 and 6.6:1). tests/contrast.test.mjs pins both. */
 .btn-whatsapp {
-  background: #25D366;
+  background: #0E7A40;
   color: #fff;
 }
 
 .btn-whatsapp:hover {
-  background: #1EBE5D;
+  background: #0B6B38;
 }
 
 .burger {
@@ -1306,6 +1308,15 @@ body.modal-open {
 .upload-dropzone:hover {
   background: #FDF4CD;
   border-color: var(--orange-ink);
+}
+
+/* The admin file inputs stay focusable but invisible (display:none took them
+   out of the tab order, so neither picker opened without a mouse). The visible
+   box around each one draws its focus ring. */
+.vh { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+.upload-dropzone:has(input:focus-visible), .btn:has(input:focus-visible) {
+  outline: 2px solid var(--orange-ink);
+  outline-offset: 3px;
 }
 
 .preview-thumbnail {

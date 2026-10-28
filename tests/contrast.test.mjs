@@ -150,3 +150,37 @@ test('every legacy alias resolves to a defined primitive', () => {
     assert.ok(token(target), `--${name} aliases --${target}, which is not a hex primitive`);
   }
 });
+
+test('the admin "WhatsApp Patient" button meets AA in both states', async () => {
+  // White on WhatsApp's own #25D366 is 1.98:1 (A11Y-AUDIT-2026-10-28 #4): the
+  // brand green is a fill for icons, never a ground for text.
+  const styleCss = (await readFile(join(repoRoot, 'public', 'css', 'style.css'), 'utf8')).replace(/\/\*[\s\S]*?\*\//g, '');
+  const rule = (sel) => {
+    const m = styleCss.match(new RegExp(`(?:^|\\})\\s*${sel.replace(/[.:]/g, '\\$&')}\\s*\\{([^}]*)\\}`));
+    assert.ok(m, `${sel} not found in style.css`);
+    return m[1];
+  };
+  // A hex literal or a :root token. Anything else fails rather than being
+  // guessed at: a guessed white once passed dark text at 2.92:1 here.
+  const colour = (body, prop) => {
+    const m = body.match(new RegExp(`(?:^|[;\\s])${prop}:\\s*([^;]+)`));
+    if (!m) return null;
+    const v = m[1].trim();
+    const hex = v.match(/^#([0-9A-Fa-f]{6}|[0-9A-Fa-f]{3})$/);
+    if (hex) return '#' + (hex[1].length === 3 ? [...hex[1]].map((c) => c + c).join('') : hex[1]);
+    const tok = v.match(/^var\(--([a-z0-9-]+)\)$/);
+    assert.ok(tok, `${prop}: ${v} is neither a hex literal nor a token`);
+    return token(tok[1]);
+  };
+  const base = rule('.btn-whatsapp');
+  const text = colour(base, 'color');
+  assert.ok(text, '.btn-whatsapp must set its own text colour');
+  for (const [sel, body] of [['.btn-whatsapp', base], ['.btn-whatsapp:hover', rule('.btn-whatsapp:hover')]]) {
+    const bg = colour(body, 'background');
+    assert.ok(bg, `${sel} must set a background`);
+    // The hover rule keeps the base rule's text colour unless it sets its own.
+    const fg = colour(body, 'color') || text;
+    const ratio = contrast(fg, bg);
+    assert.ok(ratio >= 4.5, `${sel}: ${fg} on ${bg} is ${ratio.toFixed(2)}:1, below 4.5:1`);
+  }
+});

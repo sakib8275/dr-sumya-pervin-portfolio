@@ -75,12 +75,12 @@
       <div id="tabUpload" class="cms-tab-content" style="display: none;">
         <form id="uploadForm" class="form-grid">
           <div class="form-group full">
-            <label>Select Photo from Computer/Phone *</label>
+            <label for="photoFileInput">Select Photo from Computer/Phone *</label>
             <div class="upload-dropzone" id="uploadZone">
               <span style="font-size: 28px;">📷</span>
               <p style="margin: 6px 0 0; font-weight: 500;">Click to choose photo file</p>
               <span style="font-size: 12px; color: var(--grey);">Supports PNG, JPG, WEBP formats</span>
-              <input type="file" id="photoFileInput" accept="image/*" style="display: none;">
+              <input type="file" id="photoFileInput" accept="image/*" class="vh">
               <img id="uploadPreview" class="preview-thumbnail" style="display: none;" alt="Upload preview">
             </div>
           </div>
@@ -216,7 +216,7 @@
             <button class="btn btn-out" id="exportCMSBackup">📥 Export JSON Backup</button>
             <label class="btn btn-out" style="cursor: pointer;">
               📤 Import Backup JSON
-              <input type="file" id="importCMSFileInput" accept=".json" style="display: none;">
+              <input type="file" id="importCMSFileInput" accept=".json" class="vh">
             </label>
           </div>
         </div>
