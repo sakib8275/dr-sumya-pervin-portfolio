@@ -12,19 +12,30 @@ import { writePrefill, takePrefill } from './prefill.mjs';
 (() => {
   'use strict';
 
-  // — Nav dropdowns: click/touch toggles, focus-within via CSS, Esc closes —
+  // — Nav dropdowns: the button alone opens a menu (.is-live retires the CSS
+  // focus-within fallback for no-JS visitors). Esc closes and returns focus;
+  // tabbing out closes. A focusout with no relatedTarget (a click on the
+  // menu's own padding, or focus leaving the page) is left to the outside-click
+  // handler below, or it would close the menu under the pointer. —
   for (const drop of document.querySelectorAll('.nav-drop')) {
     const btn = drop.querySelector('.nav-drop-btn');
+    const close = () => {
+      drop.classList.remove('open');
+      btn.setAttribute('aria-expanded', 'false');
+    };
+    drop.classList.add('is-live');
     btn.addEventListener('click', () => {
       const open = drop.classList.toggle('open');
       btn.setAttribute('aria-expanded', String(open));
     });
     drop.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && drop.classList.contains('open')) {
-        drop.classList.remove('open');
-        btn.setAttribute('aria-expanded', 'false');
+        close();
         btn.focus();
       }
+    });
+    drop.addEventListener('focusout', (e) => {
+      if (e.relatedTarget && !drop.contains(e.relatedTarget)) close();
     });
   }
   document.addEventListener('click', (e) => {
