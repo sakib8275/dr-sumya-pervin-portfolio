@@ -150,3 +150,23 @@ test('every legacy alias resolves to a defined primitive', () => {
     assert.ok(token(target), `--${name} aliases --${target}, which is not a hex primitive`);
   }
 });
+
+test('the admin "WhatsApp Patient" button meets AA in both states', async () => {
+  // White on WhatsApp's own #25D366 is 1.98:1 (A11Y-AUDIT-2026-10-28 #4): the
+  // brand green is a fill for icons, never a ground for text.
+  const styleCss = (await readFile(join(repoRoot, 'public', 'css', 'style.css'), 'utf8')).replace(/\/\*[\s\S]*?\*\//g, '');
+  for (const sel of ['.btn-whatsapp', '.btn-whatsapp:hover']) {
+    const m = styleCss.match(new RegExp(`(?:^|\\})\\s*${sel.replace(/[.:]/g, '\\$&')}\\s*\\{([^}]*)\\}`));
+    assert.ok(m, `${sel} not found in style.css`);
+    const hex = (prop) => {
+      const v = (m[1].match(new RegExp(`(?:^|[;\\s])${prop}:\\s*#([0-9A-Fa-f]{6}|[0-9A-Fa-f]{3})\\b`)) || [])[1];
+      return v && '#' + (v.length === 3 ? [...v].map((c) => c + c).join('') : v);
+    };
+    // The hover rule inherits the text colour from the base rule.
+    const bg = hex('background');
+    const fg = hex('color') || '#FFFFFF';
+    assert.ok(bg, `${sel} must set a hex background`);
+    const ratio = contrast(fg, bg);
+    assert.ok(ratio >= 4.5, `${sel}: ${fg} on ${bg} is ${ratio.toFixed(2)}:1, below 4.5:1`);
+  }
+});
