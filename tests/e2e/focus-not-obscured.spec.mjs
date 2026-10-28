@@ -52,6 +52,21 @@ for (const [label, viewport] of [['phone', { width: 375, height: 667 }], ['deskt
       });
     }
 
+    // The bottom bar and the price tabs are as tall as their text, so they grow
+    // when a visitor raises the browser's default font size; the header is a
+    // fixed height. html carries no font-size, so 24px here is that setting.
+    test('/prices/: the padding still clears every bar at a 24px default font size', async ({ page, site }) => {
+      await page.goto(site.baseURL + '/prices/', { waitUntil: 'networkidle' });
+      await page.addStyleTag({ content: 'html { font-size: 24px; }' });
+      const m = await page.evaluate(() => {
+        const cs = getComputedStyle(document.documentElement);
+        const h = (sel) => document.querySelector(sel).getBoundingClientRect().height;
+        return { top: parseFloat(cs.scrollPaddingTop), bottom: parseFloat(cs.scrollPaddingBottom), head: h('.s-nav'), tabs: h('.pr-tabs'), bar: h('.m-sticky') };
+      });
+      expect(m.top, `top padding vs header + tabs (${JSON.stringify(m)})`).toBeGreaterThanOrEqual(m.head + m.tabs);
+      expect(m.bottom, `bottom padding vs the bottom bar (${JSON.stringify(m)})`).toBeGreaterThanOrEqual(m.bar);
+    });
+
     // The same padding places in-page jumps: a price tab, and the hero's #now.
     for (const [path, link, bar] of [['/prices/', '.pr-tabs a[href="#tests"]', '.pr-tabs'], ['/', 'a[href="#now"]', '.s-nav']]) {
       test(`${path}: jumping to ${link.match(/#\w+/)[0]} lands below ${bar}`, async ({ page, site }) => {

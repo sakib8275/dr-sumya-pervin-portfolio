@@ -78,11 +78,14 @@ html { scroll-behavior: smooth; scrollbar-color: var(--field-line) var(--paper);
      it keep the old snap. */
   interpolate-size: allow-keywords;
   /* Keeps focused and jumped-to content clear of the sticky header (79px with
-     its rule), and below 821px of the 65px header and the 56px bottom bar.
-     Without it the browser counts a link under a bar as in view and does not
-     scroll (WCAG 2.4.11). /prices/ also clears its sticky section tabs. */
+     its rule), and below 821px of the 65px header and the bottom bar. Without
+     it the browser counts a link under a bar as in view and does not scroll
+     (WCAG 2.4.11). /prices/ also clears its sticky section tabs. The tabs and
+     the bottom bar are as tall as their text (31px of padding and rule plus
+     one line: 1.41rem and 1.55rem), so their share is in rem and keeps up with
+     a larger default font size. Each value leaves about 9px of air. */
   scroll-padding-block: 88px 0; }
-html:has(body[data-page="/prices/"]) { scroll-padding-top: 142px; }
+html:has(body[data-page="/prices/"]) { scroll-padding-top: calc(119px + 1.41rem); }
 body {
   font-family: "Outfit", "Hind Siliguri", ui-sans-serif, system-ui, sans-serif;
   background: var(--paper); color: var(--ink); caret-color: var(--nil);
@@ -1003,8 +1006,8 @@ details[open]::details-content { height: auto; opacity: 1; }
   .foot-brand { grid-column: 1 / -1; }
 }
 @media (max-width: 820px) {
-  html { scroll-padding-block: 74px calc(64px + env(safe-area-inset-bottom)); }
-  html:has(body[data-page="/prices/"]) { scroll-padding-top: 128px; }
+  html { scroll-padding-block: 74px calc(39px + 1.55rem + env(safe-area-inset-bottom)); }
+  html:has(body[data-page="/prices/"]) { scroll-padding-top: calc(105px + 1.41rem); }
   .btn-nav { display: none; }
   .s-nav-in { height: 64px; }
   .pr-tabs { top: 64px; }
