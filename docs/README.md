@@ -89,7 +89,7 @@ deployment names age quickly; `HANDOFF-2026-08-02.md` claims it is untracked
 | `AUDIT-ROUND-3.md` | 3 | Post-migration security audit; **all 10 findings fixed and browser-verified** |
 | `UX-AUDIT-2026-08-04.md` | 4 | Post-launch UI/UX + navigation audit; **8 findings fixed and verified locally (undeployed)**, 11 recommendations open (2 need owner decisions) |
 | `A11Y-AUDIT-2026-10-28.md` | 5 | WCAG 2.2 AA audit of the multi-page site + admin console (static read, not browser-verified); **17 findings open** (4 High, 6 Medium, 7 Low); the reel's 2.2.2 row needs an owner decision |
-| `AI-FIRSTIFY-2026-10-28.md` | — | AI-first workflow audit + re-engineer: added CLAUDE.md, three skills, the reviewer sub-agent, permission guards and `verify-live`; fixed stale agent-doc facts. **5 owner decisions open** (stale rollback ids, unapproved references, dead CMS features, uptime assertion, STATUS split) |
+| `AI-FIRSTIFY-2026-10-28.md` | — | AI-first workflow audit + re-engineer: added CLAUDE.md, three skills, the reviewer sub-agent, permission guards and `verify-live`; fixed stale agent-doc facts. **7 owner decisions open** (PIN rotation, unapproved references, stale rollback ids, dead CMS features, uptime assertion, STATUS split, agent-config follow-ups) |
 
 ## prompts/ — the audit specifications that produced the above
 

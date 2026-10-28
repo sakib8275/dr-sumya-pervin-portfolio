@@ -107,7 +107,7 @@ Portfolio Sumya Pervin/
 ├── node_modules/                 # (gitignored)
 ├── STATUS.md                     # LIVING state doc — update on every state change
 ├── HUMAN-TASKS.md                # Step-by-step guide for dashboard/owner tasks
-├── FIXPLAN-2026-08-02.md         # Active execution plan (Phase 1 shipped)
+├── FIXPLAN-2026-08-02.md         # Execution plan — Phases 1 and 2 closed (STATUS § Active documents)
 ├── CLAUDE.md                     # Short agent entry point: hard rules, commands, map
 ├── .claude/                      # Agent skills (edit-content, review-round, deploy-verify),
 │                                 #  the reviewer sub-agent, and permission guards
