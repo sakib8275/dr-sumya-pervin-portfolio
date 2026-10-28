@@ -7,8 +7,10 @@
 // base-url defaults to https://drsumyapervin.com. Read-only: GET requests only,
 // no booking, no login, no write. Safe to run at any time against production.
 //
-// Exit codes: 0 every check passed · 1 a check failed · 2 inconclusive (the
-// Cloudflare edge blocked this vantage point, so nothing was actually tested).
+// Exit codes: 0 every check passed · 1 a check failed on a real response ·
+// 2 inconclusive (unreachable, or the Cloudflare edge challenged some requests
+// and every check it let through passed). A real FAIL always wins over a
+// challenge: a leak seen on one path is never downgraded to "inconclusive".
 //
 // What it cannot see: a real Turnstile token, and with --browser off the
 // zone-injected scripts. --browser loads pages in Chromium and fails on any
@@ -48,64 +50,66 @@ const MUST_NOT_BE_PUBLISHED = [
 // Strings that only appear in real repo internals. A 404 page never carries them.
 const SECRET_MARKERS = /pin_hash|pin_salt|SITE_SECRET|JWT_SECRET|MAIL_SECRET|d1_databases|database_id/;
 
-// Served assets compared byte-for-byte with the working tree: proves the
-// deploy you just made is the one being served, not a cached predecessor.
+// Served assets compared byte-for-byte with the working tree. A match proves
+// the served copy is the local one; it proves *this* deploy is live only when
+// the deploy changed one of these files.
 const MUST_MATCH_LOCAL = ['/css/site.css', '/js/site.js'];
 
+// mitigated: the edge challenged the request, so the check never saw the site.
 const results = [];
-let blocked = false;
-const record = (ok, name, detail = '') => results.push({ ok, name, detail });
+const record = (ok, name, detail = '', mitigated = false) => results.push({ ok, name, detail, mitigated });
 
 async function get(path) {
   const res = await fetch(BASE + path, { redirect: 'manual', headers: { 'Cache-Control': 'no-cache' } });
-  if (res.headers.has('cf-mitigated')) blocked = true;
-  return { res, body: await res.text() };
+  return { res, body: await res.text(), mitigated: res.headers.has('cf-mitigated') };
 }
 
 const nonceOf = (csp) => (csp.match(/'nonce-([^']+)'/) || [])[1];
 
 async function checkHome() {
-  const { res, body } = await get('/');
-  record(res.status === 200, 'homepage answers 200', `status ${res.status}`);
+  const { res, body, mitigated: m } = await get('/');
+  record(res.status === 200, 'homepage answers 200', `status ${res.status}`, m);
   record(body.includes('<link rel="canonical" href="https://drsumyapervin.com/">') && !body.includes('<title>Page not found'),
-    'homepage is the real home page, not the 404 page');
+    'homepage is the real home page, not the 404 page', '', m);
 
   const h = res.headers;
-  record(/max-age=31536000/.test(h.get('strict-transport-security') || ''), 'HSTS max-age=31536000');
-  record((h.get('x-content-type-options') || '').toLowerCase() === 'nosniff', 'X-Content-Type-Options: nosniff');
-  record((h.get('x-frame-options') || '').toUpperCase() === 'DENY', 'X-Frame-Options: DENY');
+  record(/max-age=31536000/.test(h.get('strict-transport-security') || ''), 'HSTS max-age=31536000', '', m);
+  record((h.get('x-content-type-options') || '').toLowerCase() === 'nosniff', 'X-Content-Type-Options: nosniff', '', m);
+  record((h.get('x-frame-options') || '').toUpperCase() === 'DENY', 'X-Frame-Options: DENY', '', m);
 
   const csp = h.get('content-security-policy') || '';
   const scriptSrc = (csp.match(/script-src[^;]*/) || [''])[0];
-  record(Boolean(nonceOf(csp)), 'CSP carries a script nonce');
-  record(scriptSrc && !scriptSrc.includes("'unsafe-inline'"), "CSP script-src has no 'unsafe-inline'");
+  record(Boolean(nonceOf(csp)), 'CSP carries a script nonce', '', m);
+  record(Boolean(scriptSrc) && !scriptSrc.includes("'unsafe-inline'"), "CSP script-src has no 'unsafe-inline'", '', m);
   record(scriptSrc.includes('challenges.cloudflare.com') && /frame-src[^;]*challenges\.cloudflare\.com/.test(csp),
-    'CSP allows Turnstile in script-src and frame-src', 'without both, every booking 403s silently');
+    'CSP allows Turnstile in script-src and frame-src', 'without both, every booking 403s silently', m);
 
   // A fixed nonce is 'unsafe-inline' wearing a hat (agent.md §5).
   const again = await get('/');
   const n1 = nonceOf(csp);
   const n2 = nonceOf(again.res.headers.get('content-security-policy') || '');
-  record(Boolean(n1 && n2 && n1 !== n2), 'CSP nonce is fresh per request');
+  record(Boolean(n1 && n2 && n1 !== n2), 'CSP nonce is fresh per request', '', m || again.mitigated);
 }
 
 async function checkApi() {
-  const { res, body } = await get('/api/config/public');
+  const { res, body, mitigated } = await get('/api/config/public');
   let shape = false;
   try {
     const data = JSON.parse(body);
     shape = typeof data.whatsapp === 'string' && typeof data.telegram === 'string';
   } catch { /* not JSON */ }
   record(res.status === 200 && shape, '/api/config/public answers 200 with {whatsapp, telegram}',
-    `status ${res.status}; a 200 without the shape is a catch-all, not the Function`);
+    `status ${res.status}; a 200 without the shape is a catch-all, not the Function`, mitigated);
 }
 
 async function checkLeaks() {
   for (const path of MUST_NOT_BE_PUBLISHED) {
-    const { res, body } = await get(path);
+    const { res, body, mitigated } = await get(path);
     const leaked = SECRET_MARKERS.test(body);
+    // A body carrying secret markers is a leak whatever the edge did.
     record(res.status === 404 && !leaked, `not published: ${path}`,
-      `status ${res.status}${leaked ? ', BODY CARRIES SECRET MARKERS — escalate to the owner now' : ''}`);
+      `status ${res.status}${leaked ? ', BODY CARRIES SECRET MARKERS — escalate to the owner now' : ''}`,
+      mitigated && !leaked);
   }
 }
 
@@ -114,10 +118,10 @@ async function checkServedAssets() {
   for (const path of MUST_MATCH_LOCAL) {
     const local = sha(await readFile(join(ROOT, 'public', path)));
     const res = await fetch(`${BASE}${path}?verify=${Date.now()}`, { headers: { 'Cache-Control': 'no-cache' } });
-    if (res.headers.has('cf-mitigated')) blocked = true;
     const served = sha(Buffer.from(await res.arrayBuffer()));
     record(res.status === 200 && served === local, `served ${path} matches the working tree`,
-      served === local ? '' : 'stale CDN cache, wrong deploy, or an uncommitted local edit');
+      served === local ? '' : 'stale CDN cache, wrong deploy, or an uncommitted local edit',
+      res.headers.has('cf-mitigated'));
   }
 }
 
@@ -134,12 +138,18 @@ async function checkBrowser() {
         page.on('pageerror', (e) => problems.push(`pageerror: ${e.message}`));
         page.on('console', (msg) => {
           const text = msg.text();
-          const fromTurnstile = (msg.location().url || '').includes('challenges.cloudflare.com');
-          if (fromTurnstile) return; // its iframe's WebGL/font noise is documented as harmless
-          if (msg.type() === 'error' || /Content Security Policy|Refused to/.test(text)) problems.push(text);
+          const csp = /Content Security Policy|Refused to/.test(text);
+          // Turnstile's iframe emits WebGL/font noise documented as harmless;
+          // a CSP refusal is the one thing from it that is never noise.
+          if ((msg.location().url || '').includes('challenges.cloudflare.com') && !csp) return;
+          if (msg.type() === 'error' || csp) problems.push(text);
         });
-        await page.goto(BASE + path, { waitUntil: 'networkidle' });
-        record(problems.length === 0, `browser ${width}px ${path}: zero console errors`, problems.slice(0, 3).join(' | '));
+        const resp = await page.goto(BASE + path, { waitUntil: 'networkidle' });
+        const status = resp ? resp.status() : 0;
+        if (status !== 200) problems.unshift(`status ${status}`);
+        const mitigated = Boolean(resp && resp.headers()['cf-mitigated']);
+        record(problems.length === 0, `browser ${width}px ${path}: 200 and zero console errors`,
+          problems.slice(0, 3).join(' | '), mitigated);
         await page.close();
       }
     }
@@ -153,7 +163,7 @@ try {
   await checkApi();
   await checkLeaks();
   await checkServedAssets();
-  if (BROWSER && !blocked) await checkBrowser();
+  if (BROWSER) await checkBrowser();
 } catch (err) {
   // Failing before the first response means nothing was tested: either the
   // site is down or this machine cannot reach it (a sandbox or proxy policy).
@@ -167,13 +177,20 @@ try {
 }
 
 console.log(`verify-live against ${BASE}\n`);
-for (const r of results) console.log(`${r.ok ? 'PASS' : 'FAIL'}  ${r.name}${!r.ok && r.detail ? `  (${r.detail})` : ''}`);
-const failed = results.filter((r) => !r.ok).length;
+for (const r of results) {
+  const tag = r.mitigated ? 'SKIP' : r.ok ? 'PASS' : 'FAIL';
+  const why = r.mitigated ? '  (challenged at the edge: not tested)' : !r.ok && r.detail ? `  (${r.detail})` : '';
+  console.log(`${tag}  ${r.name}${why}`);
+}
+const tested = results.filter((r) => !r.mitigated);
+const failed = tested.filter((r) => !r.ok).length;
+const skipped = results.length - tested.length;
 
-if (blocked) {
+console.log(`\n${tested.length - failed}/${tested.length} passed${skipped ? `, ${skipped} not tested` : ''}`);
+if (failed) process.exit(1);
+if (skipped) {
   console.log('\nINCONCLUSIVE: the Cloudflare edge challenged this vantage point (cf-mitigated).');
   console.log('Bot Fight Mode blocks datacenter IPs. Re-run from a residential network or check in a real browser.');
   process.exit(2);
 }
-console.log(`\n${results.length - failed}/${results.length} passed`);
-process.exit(failed ? 1 : 0);
+process.exit(0);
