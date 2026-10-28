@@ -88,6 +88,7 @@ deployment names age quickly; `HANDOFF-2026-08-02.md` claims it is untracked
 | `UX-AUDIT.md` + `UX-FIXPLAN.md` | 2 | Partly superseded — pre-migration; one finding regressed and was re-fixed as G06 |
 | `AUDIT-ROUND-3.md` | 3 | Post-migration security audit; **all 10 findings fixed and browser-verified** |
 | `UX-AUDIT-2026-08-04.md` | 4 | Post-launch UI/UX + navigation audit; **8 findings fixed and verified locally (undeployed)**, 11 recommendations open (2 need owner decisions) |
+| `A11Y-AUDIT-2026-10-28.md` | 5 | WCAG 2.2 AA audit of the multi-page site + admin console (static read, not browser-verified); **17 findings open** (4 High, 6 Medium, 7 Low); the reel's 2.2.2 row needs an owner decision |
 
 ## prompts/ — the audit specifications that produced the above
 
