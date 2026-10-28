@@ -1310,6 +1310,15 @@ body.modal-open {
   border-color: var(--orange-ink);
 }
 
+/* The admin file inputs stay focusable but invisible (display:none took them
+   out of the tab order, so neither picker opened without a mouse). The visible
+   box around each one draws its focus ring. */
+.vh { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+.upload-dropzone:has(input:focus-visible), .btn:has(input:focus-visible) {
+  outline: 2px solid var(--orange-ink);
+  outline-offset: 3px;
+}
+
 .preview-thumbnail {
   max-width: 100%;
   height: 180px;
