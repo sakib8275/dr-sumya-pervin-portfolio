@@ -26,6 +26,12 @@ const mustNotBePublished = [
   '/functions/_middleware.js',
   '/agent.md',
   '/AGENTS.md',
+  // Agent tooling (2026-10-28): the entry point, the permission guards and the
+  // skills, which spell out the deploy and verification procedure.
+  '/CLAUDE.md',
+  '/.claude/settings.json',
+  '/.claude/skills/deploy-verify/SKILL.md',
+  '/.claude/agents/reviewer.md',
   '/context.md',
   '/STATUS.md',
   '/HUMAN-TASKS.md',
